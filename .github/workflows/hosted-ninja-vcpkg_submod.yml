@@ -46,6 +46,23 @@ jobs:
         with:
           submodules: true
 
+      - name: Install X11 development libraries (Linux only)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libgl1-mesa-dev
+
+      - name: Install dependencies (macOS only)
+        if: runner.os == 'macOS'
+        run: |
+          brew update
+          brew install mono ninja
+          xcode-select --install || true
+
+      - name: Bootstrap vcpkg
+        if: runner.os == 'macOS'
+        run: ./vcpkg/bootstrap-vcpkg.sh
+
       - uses: lukka/get-cmake@latest
 
       - name: Restore from cache and setup vcpkg executable and data files.
@@ -59,8 +76,8 @@ jobs:
       #   buildPresetAdditionalArgs: "[`--config`, `Release`]"
       #   testPreset: 'ninja-vcpkg'
       #   testPresetAdditionalArgs: "[`--config`, `Release`]"
-      - name: Run CMake+vcpkg+Ninja+CTest to build packages and generate/build/test the code.
+      - name: Run CMake+vcpkg+Ninja+CTest to build packages and generate/build the code.
         uses: lukka/run-cmake@v10
         with:
-          configurePreset: 'ninja-multi-vcpkg'
+          configurePreset: 'ninja-vcpkg'
           buildPreset: 'ninja-vcpkg-release'
