@@ -4,19 +4,21 @@
 #include <sstream>
 
 struct User {
-  int id;
+  int id{};
   std::string name;
-  int age;
+  int age{};
 };
 
 int main() {
-  using namespace sqlite_orm;
 
-  auto storage = make_storage(
+  auto storage = sqlite_orm::make_storage(
       "users.sqlite",
-      make_table(
-          "users", make_column("id", &User::id, primary_key().autoincrement()),
-          make_column("name", &User::name), make_column("age", &User::age)));
+      sqlite_orm::make_table(
+          "users",
+          sqlite_orm::make_column("id", &User::id,
+                                  sqlite_orm::primary_key().autoincrement()),
+          sqlite_orm::make_column("name", &User::name),
+          sqlite_orm::make_column("age", &User::age)));
 
   storage.sync_schema();
 

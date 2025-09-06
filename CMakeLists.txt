@@ -1,5 +1,5 @@
 # CMakeLists.txt
-cmake_minimum_required(VERSION 3.30)
+cmake_minimum_required(VERSION 3.26)
 project(grow)
 
 set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
@@ -7,9 +7,8 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-if(NOT APPLE)
-  set(CMAKE_CXX_CLANG_TIDY
-      clang-tidy)
+if(NOT APPLE AND NOT WIN32)
+    set(CMAKE_CXX_CLANG_TIDY clang-tidy)
 endif()
 
 # Find dependencies provided by vcpkg (via vcpkg.cmake)
