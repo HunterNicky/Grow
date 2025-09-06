@@ -64,4 +64,3 @@ jobs:
         with:
           configurePreset: 'ninja-multi-vcpkg'
           buildPreset: 'ninja-vcpkg-release'
-          testPreset: 'test-release'

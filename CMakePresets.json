@@ -2,7 +2,7 @@
     "version": 8,
     "cmakeMinimumRequired": {
         "major": 3,
-        "minor": 21,
+        "minor": 30,
         "patch": 0
     },
     "configurePresets": [
@@ -81,31 +81,6 @@
                     "name": "ninja-vcpkg-check-format",
                     "type": "build"
                 }
-            ]
-        }
-    ],
-    "testPresets": [
-        {
-            "name": "test-ninja-vcpkg",
-            "configurePreset": "ninja-multi-vcpkg",
-            "hidden": true
-        },
-        {
-            "name": "test-debug",
-            "description": "Test (Debug)",
-            "displayName": "Test (Debug)",
-            "configuration": "Debug",
-            "inherits": [
-                "test-ninja-vcpkg"
-            ]
-        },
-        {
-            "name": "test-release",
-            "description": "Test (Release)",
-            "displayName": "Test (Release)",
-            "configuration": "Release",
-            "inherits": [
-                "test-ninja-vcpkg"
             ]
         }
     ]

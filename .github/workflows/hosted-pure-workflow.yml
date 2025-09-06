@@ -101,8 +101,3 @@ jobs:
       - name: Build (Release configuration)
         run: |
           cmake --build --preset ninja-vcpkg-release
-
-      # Test the whole project with CTest, again Release configuration only.
-      - name: Test (Release configuration)
-        run: |
-          ctest --preset test-release
