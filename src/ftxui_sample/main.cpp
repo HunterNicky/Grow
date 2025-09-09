@@ -2,8 +2,8 @@
 #define RAYGUI_IMPLEMENTATION
 #include <raygui.h>
 #include <sqlite_orm/sqlite_orm.h>
-#include <string>
 #include <sstream>
+#include <string>
 
 struct User
 {
