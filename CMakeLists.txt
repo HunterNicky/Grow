@@ -19,7 +19,7 @@ project(
   chroma
   VERSION 0.0.1
   DESCRIPTION ""
-  HOMEPAGE_URL "https://github.com/HunterNicky/chroma"
+  HOMEPAGE_URL "https://github.com/HunterNicky/Grow"
   LANGUAGES CXX C)
 
 include(cmake/PreventInSourceBuilds.cmake)

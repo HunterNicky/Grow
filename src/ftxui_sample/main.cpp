@@ -40,7 +40,7 @@ int main()
     DrawText("User List:", 20, 20, 20, DARKGRAY);
 
     int y = 60;
-    for (auto &user : users) {
+    for (const auto &user : users) {
       std::stringstream ss;
       ss << user.id << ": " << user.name << " (" << user.age << " years old)";
       DrawText(ss.str().c_str(), 40, y, 18, BLACK);

@@ -52,6 +52,8 @@ jobs:
           # mingw is determined by this author to be too buggy to support
           - os: windows-latest
             compiler: gcc-14
+          - os: macos-latest
+            compiler: gcc-14
 
         include:
           # Add appropriate variables for gcov version required. This will intentionally break
@@ -127,6 +129,8 @@ jobs:
             core.setFailed('There is a mismatch between configured llvm compiler and clang-tidy version chosen')
 
       - uses: actions/checkout@v5
+        with:
+          submodules: recursive 
 
       - name: Setup Cache
         uses: ./.github/actions/setup_cache
@@ -159,23 +163,23 @@ jobs:
 
           gcovr: true
           opencppcoverage: true
-
-      - name: Configure CMake
-        run: |
-          cmake -S . -B ./build -G "${{matrix.generator}}" -D${{ env.PROJECT_NAME }}_ENABLE_IPO=${{matrix.enable_ipo }} -DCMAKE_BUILD_TYPE:STRING=${{matrix.build_type}} -D${{ env.PROJECT_NAME }}_PACKAGING_MAINTAINER_MODE:BOOL=${{matrix.packaging_maintainer_mode}} -D${{ env.PROJECT_NAME }}_ENABLE_COVERAGE:BOOL=${{ matrix.build_type == 'Debug' }} -DGIT_SHA:STRING=${{ github.sha }}
-      
+          
       - name: Install dependencies
-        if: runner.os == 'ubuntu-latest'
+        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libgl1-mesa-dev ninja-build
         
       - name: Install dependencies
-        if: runner.os == 'macos-latest'
+        if: runner.os == 'macOS'
         run: |
           brew update
           brew install ninja
           xcode-select --install || true
+
+      - name: Configure CMake
+        run: |
+          cmake -S . -B ./build -G "${{matrix.generator}}" -D${{ env.PROJECT_NAME }}_ENABLE_IPO=${{matrix.enable_ipo }} -DCMAKE_BUILD_TYPE:STRING=${{matrix.build_type}} -D${{ env.PROJECT_NAME }}_PACKAGING_MAINTAINER_MODE:BOOL=${{matrix.packaging_maintainer_mode}} -D${{ env.PROJECT_NAME }}_ENABLE_COVERAGE:BOOL=${{ matrix.build_type == 'Debug' }} -DGIT_SHA:STRING=${{ github.sha }}      
 
       - name: Build
         # Execute the build.  You can specify a specific target with "--target <NAME>"
