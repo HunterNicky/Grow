@@ -40,7 +40,7 @@ int main()
     DrawText("User List:", 20, 20, 20, DARKGRAY);
 
     int y = 60;
-    for (auto &user : users) {
+    for (const auto &user : users) {
       std::stringstream ss;
       ss << user.id << ": " << user.name << " (" << user.age << " years old)";
       DrawText(ss.str().c_str(), 40, y, 18, BLACK);
@@ -48,7 +48,7 @@ int main()
     }
 
     if (GuiButton({ 20, 500, 200, 40 }, "Add User")) {
-      int newId = static_cast<int>(storage.count<User>()) + 1;
+      int newId = storage.count<User>() + 1;
       storage.insert(User{ .id = newId, .name = "New User", .age = 20 });
       users = storage.get_all<User>();
     }

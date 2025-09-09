@@ -14,3 +14,7 @@ target_include_directories(intro
     PRIVATE
         "${CMAKE_BINARY_DIR}/configured_files/include"
 )
+
+if(MSVC)
+    add_compile_options(/wd4242)
+endif()
