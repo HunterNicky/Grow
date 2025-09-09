@@ -1,3 +1,19 @@
-[submodule "vcpkg"]
-	path = vcpkg
-	url = https://github.com/microsoft/vcpkg.git
+[submodule "third_party/raylib"]
+	path = third_party/raylib
+	url = https://github.com/raysan5/raylib.git
+
+[submodule "third_party/glfw"]
+	path = third_party/glfw
+	url = https://github.com/glfw/glfw.git
+
+[submodule "third_party/sqlite_orm"]
+	path = third_party/sqlite_orm
+	url = https://github.com/fnc12/sqlite_orm.git
+
+[submodule "third_party/sqlite"]
+	path = third_party/sqlite
+	url = https://github.com/azadkuh/sqlite-amalgamation.git
+
+[submodule "third_party/raygui"]
+	path = third_party/raygui
+	url = https://github.com/raysan5/raygui.git
