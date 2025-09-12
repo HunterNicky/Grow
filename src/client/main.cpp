@@ -8,7 +8,7 @@
 struct User
 {
   int id{};
-  std::string name;
+  std::string name{};
   int age{};
 };
 
@@ -23,9 +23,9 @@ int main()
   storage.sync_schema();
 
   if (storage.count<User>() == 0) {
-    storage.insert(User{ .id = 1, .name = "Alice", .age = 30 });
-    storage.insert(User{ .id = 1, .name = "Bob", .age = 25 });
-    storage.insert(User{ .id = 1, .name = "Charlie", .age = 35 });
+    storage.insert(User{ .name = "Alice", .age = 30 });
+    storage.insert(User{ .name = "Bob", .age = 25 });
+    storage.insert(User{ .name = "Charlie", .age = 35 });
   }
 
   auto users = storage.get_all<User>();
@@ -48,8 +48,7 @@ int main()
     }
 
     if (GuiButton({ 20, 500, 200, 40 }, "Add User")) {
-      int newId = storage.count<User>() + 1;
-      storage.insert(User{ .id = newId, .name = "New User", .age = 20 });
+      storage.insert(User{ .name = "New User", .age = 20 });
       users = storage.get_all<User>();
     }
 
