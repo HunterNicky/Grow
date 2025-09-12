@@ -16,5 +16,5 @@ target_include_directories(intro
 )
 
 if(MSVC)
-    target_compile_options(intro PRIVATE /wd4242)
+  target_compile_options(intro PRIVATE /wd4242)
 endif()
