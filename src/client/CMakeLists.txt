@@ -8,6 +8,8 @@ target_link_libraries(intro
         raygui
         sqlite3
         sqlite_orm
+        stb
+        Boost::filesystem
 )
 
 target_include_directories(intro

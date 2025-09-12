@@ -1,9 +1,13 @@
+#include "boost/filesystem/path.hpp"
 #include <raylib.h>
 #define RAYGUI_IMPLEMENTATION
+#include <boost/filesystem.hpp>
 #include <raygui.h>
 #include <sqlite_orm/sqlite_orm.h>
 #include <sstream>
 #include <string>
+
+namespace fs = boost::filesystem;
 
 struct User
 {
@@ -14,6 +18,9 @@ struct User
 
 int main()
 {
+  fs::path dir = "data";
+  if (!fs::exists(dir)) { fs::create_directory(dir); }
+
   auto storage = sqlite_orm::make_storage("users.sqlite",
     sqlite_orm::make_table("users",
       sqlite_orm::make_column("id", &User::id, sqlite_orm::primary_key().autoincrement()),
