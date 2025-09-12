@@ -1,9 +1,7 @@
 # Build directories and binary files
 build/
 out/
-out/coverage/*
 cmake-build-*/
-conan-cache/
 
 # User spesific settings
 CMakeUserPresets.json
@@ -16,7 +14,6 @@ CMakeUserPresets.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-*.bak
 *.swp
 *~
 _ReSharper*
@@ -34,10 +31,4 @@ $RECYCLE.BIN/
 .TemporaryItems
 ehthumbs.db
 Thumbs.db
-
-# Dependency directories
-third_party/raylib/*
-third_party/raygui/*
-third_party/sqlite/*
-third_party/sqlite_orm/*
-third_party/glfw/*
+Dockerfile
