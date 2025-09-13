@@ -8,7 +8,9 @@ add_compile_definitions(
 )
 
 if(WIN32)
-  add_compile_options(/EHsc /wd4996 /wd4530 /wd4267 /wd4244)
+  if(MSVC)
+    add_compile_options(/EHsc /wd4996 /wd4530 /wd4267 /wd4244)
+  endif()
   add_compile_definitions(
     WINVER=0x0A00
     _WIN32_WINNT=0x0A00
