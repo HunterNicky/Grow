@@ -1,24 +1,20 @@
-#include "boost/filesystem/path.hpp"
 #include <raylib.h>
 #define RAYGUI_IMPLEMENTATION
-#include <boost/filesystem.hpp>
 #include <raygui.h>
+
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/operations.hpp>
+
 #include <sqlite_orm/sqlite_orm.h>
 #include <sstream>
-#include <string>
+#include "chroma/client/client.h"
 
 namespace fs = boost::filesystem;
 
-struct User
-{
-  int id{};
-  std::string name{};
-  int age{};
-};
-
+// NOLINTNEXTLINE(bugprone-exception-escape)
 int main()
 {
-  fs::path dir = "data";
+  fs::path const dir = "data";
   if (!fs::exists(dir)) { fs::create_directory(dir); }
 
   auto storage = sqlite_orm::make_storage("users.sqlite",
@@ -48,13 +44,13 @@ int main()
 
     int y = 60;
     for (const auto &user : users) {
-      std::stringstream ss;
-      ss << user.id << ": " << user.name << " (" << user.age << " years old)";
-      DrawText(ss.str().c_str(), 40, y, 18, BLACK);
+      std::stringstream string_stream;
+      string_stream << user.id << ": " << user.name << " (" << user.age << " years old)";
+      DrawText(string_stream.str().c_str(), 40, y, 18, BLACK);
       y += 30;
     }
 
-    if (GuiButton({ 20, 500, 200, 40 }, "Add User")) {
+    if (GuiButton({ 20, 500, 200, 40 }, "Add User") != 0) {
       storage.insert(User{ .name = "New User", .age = 20 });
       users = storage.get_all<User>();
     }
