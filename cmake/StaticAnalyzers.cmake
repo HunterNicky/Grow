@@ -17,10 +17,13 @@ macro(chroma_enable_cppcheck WARNINGS_AS_ERRORS CPPCHECK_OPTIONS)
           ${CPPCHECK}
           --template=${CPPCHECK_TEMPLATE}
           --enable=style,performance,warning,portability
+          --check-level=exhaustive
           --inline-suppr
           # We cannot act on a bug/missing feature of cppcheck
           --suppress=cppcheckError
           --suppress=internalAstError
+          --suppress=*:*/third_party/*
+          --suppress=normalCheckLevelMaxBranches
           # if a file does not have an internalAstError, we get an unmatchedSuppression error
           --suppress=unmatchedSuppression
           # noisy and incorrect sometimes

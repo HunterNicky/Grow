@@ -32,7 +32,7 @@ macro(chroma_supports_sanitizers)
   if((CMAKE_CXX_COMPILER_ID MATCHES ".*Clang.*" OR CMAKE_CXX_COMPILER_ID MATCHES ".*GNU.*") AND WIN32)
     set(SUPPORTS_ASAN OFF)
   else()
-    if (NOT WIN32)
+    if (NOT WIN32 AND NOT MSVC)
       message(STATUS "Sanity checking AddressSanitizer, it should be supported on this platform")
       set(TEST_PROGRAM "int main() { return 0; }")
 
@@ -122,6 +122,10 @@ macro(chroma_setup_options)
   endif()
 
   option(chroma_BUILD_FUZZ_TESTS "Enable fuzz testing executable" ${DEFAULT_FUZZER})
+
+  if(MSVC AND CMAKE_BUILD_TYPE MATCHES "Debug")
+    set(chroma_ENABLE_SANITIZER_ADDRESS OFF CACHE BOOL "Disable ASan on MSVC Debug (incompatible with /MDd)" FORCE)
+  endif()
 
 endmacro()
 

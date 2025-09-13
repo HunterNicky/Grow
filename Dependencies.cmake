@@ -7,7 +7,7 @@ function(chroma_setup_dependencies)
 
   # For each dependency, see if it's
   # already been provided to us by a parent project
-  
+
   set(THIRD_PARTY_DIR ${CMAKE_SOURCE_DIR}/third_party)
 
   if(NOT TARGET raylib)
@@ -18,8 +18,20 @@ function(chroma_setup_dependencies)
     include(cmake/dependencies/raygui.cmake)
   endif()
 
-  include(cmake/dependencies/sqlite.cmake)
+  if(NOT TARGET sqlite3)
+    include(cmake/dependencies/sqlite.cmake)
+  endif()
 
-  include(cmake/dependencies/sqlite_orm.cmake)
+  if(NOT TARGET sqlite_orm)
+    include(cmake/dependencies/sqlite_orm.cmake)
+  endif()
+
+  if(NOT TARGET stb)
+    include(cmake/dependencies/stb.cmake)
+  endif()
+
+  if(NOT TARGET Boost)
+    include(cmake/dependencies/boost.cmake)
+  endif()
 
 endfunction()
