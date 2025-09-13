@@ -1,2 +1,10 @@
-add_subdirectory(${THIRD_PARTY_DIR}/raylib)
+find_package(raylib QUIET)
+if(raylib_FOUND)
+  if(TARGET raylib::raylib AND NOT TARGET raylib)
+    add_library(raylib INTERFACE IMPORTED)
+    target_link_libraries(raylib INTERFACE raylib::raylib)
+  endif()
+else()
+  add_subdirectory(${THIRD_PARTY_DIR}/raylib)
+endif()
 
