@@ -17,6 +17,6 @@ target_link_libraries(chroma_shared
 )
 
 if(MSVC)
-	target_compile_options(chroma_shared PRIVATE /wd4242 /wd4701 /wd4703)
+    target_compile_options(chroma_shared PRIVATE /wd4242 /wd4701 /wd4703 /wd4996)
 endif()
 
