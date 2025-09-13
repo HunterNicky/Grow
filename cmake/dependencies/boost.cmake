@@ -7,4 +7,12 @@ add_compile_definitions(
   _SILENCE_CXX23_DENORM_DEPRECATION_WARNING
 )
 
+if(WIN32)
+  add_compile_definitions(
+	WINVER=0x0A00
+	_WIN32_WINNT=0x0A00
+	NTDDI_VERSION=0x0A000000
+  )
+endif()
+
 add_subdirectory(${THIRD_PARTY_DIR}/boost)
