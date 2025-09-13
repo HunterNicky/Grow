@@ -2,12 +2,12 @@
 #define RAYGUI_IMPLEMENTATION
 #include <raygui.h>
 
-#include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/path.hpp>
 
+#include "chroma/client/client.h"
 #include <sqlite_orm/sqlite_orm.h>
 #include <sstream>
-#include "chroma/client/client.h"
 
 namespace fs = boost::filesystem;
 

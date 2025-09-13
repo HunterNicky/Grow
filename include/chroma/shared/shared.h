@@ -2,4 +2,4 @@
 
 namespace chroma::shared {
 int placeholder();
-} // namespace chroma::shared
+}// namespace chroma::shared
