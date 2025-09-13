@@ -7,6 +7,7 @@ conan-cache/
 
 # User spesific settings
 CMakeUserPresets.json
+compile_commands.json
 
 # IDE files
 .vs/
@@ -34,6 +35,7 @@ $RECYCLE.BIN/
 .TemporaryItems
 ehthumbs.db
 Thumbs.db
+.cache/*
 
 # Dependency directories
 third_party/raylib/*
