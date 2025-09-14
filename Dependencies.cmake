@@ -20,6 +20,15 @@ function(chroma_setup_dependencies)
 
   include(cmake/dependencies/stb.cmake)
 
-  include(cmake/dependencies/boost.cmake)
+  find_package(Boost QUIET COMPONENTS filesystem)
+  if(NOT Boost_FOUND OR NOT TARGET Boost::filesystem)
+	include(cmake/CPM.cmake)
 
+	set(BOOST_INCLUDE_LIBRARIES "filesystem")
+
+	CPMAddPackage(
+		NAME Boost
+		URL "https://github.com/boostorg/boost/releases/download/boost-1.85.0/boost-1.85.0-cmake.tar.xz"
+	)
+  endif()
 endfunction()
