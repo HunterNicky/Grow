@@ -10,28 +10,25 @@ function(chroma_setup_dependencies)
 
   set(THIRD_PARTY_DIR ${CMAKE_SOURCE_DIR}/third_party)
 
-  if(NOT TARGET raylib)
-    include(cmake/dependencies/raylib.cmake)
-  endif()
+  include(cmake/dependencies/raylib.cmake)
 
-  if(NOT TARGET raygui)
-    include(cmake/dependencies/raygui.cmake)
-  endif()
+  include(cmake/dependencies/raygui.cmake)
 
-  if(NOT TARGET sqlite3)
-    include(cmake/dependencies/sqlite.cmake)
-  endif()
+  include(cmake/dependencies/sqlite.cmake)
 
-  if(NOT TARGET sqlite_orm)
-    include(cmake/dependencies/sqlite_orm.cmake)
-  endif()
+  include(cmake/dependencies/sqlite_orm.cmake)
 
-  if(NOT TARGET stb)
-    include(cmake/dependencies/stb.cmake)
-  endif()
+  include(cmake/dependencies/stb.cmake)
 
-  if(NOT TARGET Boost)
-    include(cmake/dependencies/boost.cmake)
-  endif()
+  find_package(Boost QUIET COMPONENTS filesystem)
+  if(NOT Boost_FOUND OR NOT TARGET Boost::filesystem)
+	include(cmake/CPM.cmake)
 
+	set(BOOST_INCLUDE_LIBRARIES "filesystem")
+
+	CPMAddPackage(
+		NAME Boost
+		URL "https://github.com/boostorg/boost/releases/download/boost-1.87.0/boost-1.87.0-cmake.tar.xz"
+	)
+  endif()
 endfunction()
