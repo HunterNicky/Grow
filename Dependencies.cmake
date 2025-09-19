@@ -28,7 +28,7 @@ function(chroma_setup_dependencies)
 
 	CPMAddPackage(
 		NAME Boost
-		URL "https://github.com/boostorg/boost/releases/download/boost-1.85.0/boost-1.85.0-cmake.tar.xz"
+		URL "https://github.com/boostorg/boost/releases/download/boost-1.87.0/boost-1.87.0-cmake.tar.xz"
 	)
   endif()
 endfunction()

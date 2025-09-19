@@ -1,5 +1,3 @@
-include(../../cmake/CPM.cmake)
-
 add_executable(intro client.cpp)
 
 target_link_libraries(intro
