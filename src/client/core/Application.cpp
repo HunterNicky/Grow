@@ -9,10 +9,13 @@
 #include <sqlite_orm/sqlite_orm.h>
 #include <sstream>
 
+#include "chroma/client/core/Application.h"
 namespace fs = boost::filesystem;
 
-// NOLINTNEXTLINE(bugprone-exception-escape)
-int main()
+namespace chroma::client::core {
+Application::Application() : window_(800, 600, "Chroma") {};
+
+void Application::run()
 {
   fs::path const dir = "data";
   if (!fs::exists(dir)) { fs::create_directory(dir); }
@@ -32,11 +35,10 @@ int main()
   }
 
   auto users = storage.get_all<User>();
-
-  InitWindow(800, 600, "raylib");
+  window_.Init();
   SetTargetFPS(60);
 
-  while (!WindowShouldClose()) {
+  while (!Window::ShouldClose()) {
     BeginDrawing();
     ClearBackground(RAYWHITE);
 
@@ -55,10 +57,19 @@ int main()
       users = storage.get_all<User>();
     }
 
+    if (GuiButton({ 240, 500, 200, 40 }, "Remove Last User") != 0) {
+      if (!users.empty()) {
+        storage.remove<User>(users.back().id);
+        users = storage.get_all<User>();
+      }
+    }
+
+    // toggle fullscreen mode
+    if (GuiButton({ 460, 500, 200, 40 }, "Toggle Fullscreen") != 0) { Window::FullScreen(); }
+
     EndDrawing();
   }
 
-  CloseWindow();
-
-  return 0;
+  Window::Close();
 }
+}// namespace chroma::client::core

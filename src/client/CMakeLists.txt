@@ -1,6 +1,11 @@
-add_executable(intro client.cpp)
+file(GLOB_RECURSE CLIENT_SOURCES *.cpp)
 
-target_link_libraries(intro
+add_library(chroma_client STATIC
+  ${CLIENT_SOURCES}
+)
+add_library(chroma::client ALIAS chroma_client)
+
+target_link_libraries(chroma_client
     PRIVATE
         chroma::chroma_options
         chroma::chroma_warnings
@@ -9,7 +14,7 @@ target_link_libraries(intro
 )
 
 target_link_system_libraries(
-    intro
+    chroma_client
     PRIVATE
         raylib
         raygui
@@ -19,12 +24,12 @@ target_link_system_libraries(
         Boost::filesystem
 )
 
-target_include_directories(intro
+target_include_directories(chroma_client
     PRIVATE
-		"${PROJECT_SOURCE_DIR}/include"
+  "${PROJECT_SOURCE_DIR}/include"
         "${CMAKE_BINARY_DIR}/configured_files/include"
 )
 
 if(MSVC)
-    target_compile_options(intro PRIVATE /wd4242 /wd4701 /wd4703 /wd4996)
+  target_compile_options(chroma_client PRIVATE /wd4242 /wd4701 /wd4703 /wd4996)
 endif()
