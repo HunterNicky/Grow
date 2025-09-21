@@ -1,7 +1,7 @@
+#include <algorithm>
 #include <memory>
 #include <string>
 #include <utility>
-#include <algorithm>
 
 #include "chroma/app/events/Event.h"
 #include "chroma/app/layers/Layer.h"
@@ -56,12 +56,12 @@ void LayerStack::HandleEvent(event::Event &event) const
 
 Layer *LayerStack::GetLayer(const std::string &name) const
 {
-  auto iterator = std::ranges::find_if(layers_,
-                         [&](const std::unique_ptr<Layer> &layer) { return layer->GetName() == name; });
+  auto iterator =
+    std::ranges::find_if(layers_, [&](const std::unique_ptr<Layer> &layer) { return layer->GetName() == name; });
   if (iterator != layers_.end()) { return iterator->get(); }
 
-  iterator = std::ranges::find_if(overlays_,
-                    [&](const std::unique_ptr<Layer> &overlay) { return overlay->GetName() == name; });
+  iterator =
+    std::ranges::find_if(overlays_, [&](const std::unique_ptr<Layer> &overlay) { return overlay->GetName() == name; });
   if (iterator != overlays_.end()) { return iterator->get(); }
 
   return nullptr;
