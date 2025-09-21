@@ -5,9 +5,9 @@
 #include <raygui.h>
 #include <sqlite_orm/sqlite_orm.h>
 
-#include <string>
-#include <sstream>
 #include <memory>
+#include <sstream>
+#include <string>
 #include <utility>
 
 #include "chroma/app/Application.h"
@@ -109,7 +109,9 @@ void Application::PushLayer(std::unique_ptr<layer::Layer> layer) const { layer_s
 void Application::PopLayer() const { layer_stack_->PopLayer(); }
 
 void Application::PushOverlay(std::unique_ptr<layer::Layer> overlay) const
-{ layer_stack_->PushOverlay(std::move(overlay)); }
+{
+  layer_stack_->PushOverlay(std::move(overlay));
+}
 
 void Application::PopOverlay() const { layer_stack_->PopOverlay(); }
 
