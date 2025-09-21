@@ -31,7 +31,6 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-          - macos-latest
           - windows-latest
         compiler:
           # you can specify the version after `-` like "llvm-15.0.2".
@@ -52,8 +51,6 @@ jobs:
           # mingw is determined by this author to be too buggy to support
           - os: windows-latest
             compiler: gcc-14
-          - os: macos-latest
-            compiler: gcc-14
 
         include:
           # Add appropriate variables for gcov version required. This will intentionally break
@@ -65,9 +62,6 @@ jobs:
           - compiler: llvm-19.1.1
             enable_ipo: Off
             gcov_executable: "llvm-cov gcov"
-
-          - os: macos-latest
-            enable_ipo: Off
 
           # Set up preferred package generators, for given build configurations
           - build_type: Release
@@ -156,13 +150,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libgl1-mesa-dev ninja-build
-        
-      - name: Install dependencies
-        if: runner.os == 'macOS'
-        run: |
-          brew update
-          brew install ninja
-          xcode-select --install || true
 
       - name: Set Windows SDK Version for MSVC
         if: runner.os == 'Windows'

@@ -25,7 +25,6 @@ project(
 include(cmake/PreventInSourceBuilds.cmake)
 include(ProjectOptions.cmake)
 
-
 chroma_setup_options()
 
 chroma_global_options()

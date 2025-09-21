@@ -12,11 +12,11 @@ target_link_libraries(intro
 target_link_system_libraries(
     intro
     PRIVATE
+        Tracy::TracyClient
         raylib
         raygui
         sqlite3
         sqlite_orm
-        stb
         Boost::filesystem
 )
 
