@@ -1,6 +1,15 @@
+#pragma once
+
+#include <raylib.h>
 #include <string>
 
 namespace chroma::client::core {
+using WindowSize = struct WindowSize
+{
+  int width = 0;
+  int height = 0;
+};
+
 class Window
 {
 public:
@@ -11,16 +20,19 @@ public:
   Window &operator=(Window &&) = delete;
   ~Window() = default;
 
-  void static FullScreen();
+  void FullScreen();
   void Resize(int width, int height);
 
   [[nodiscard]] bool static ShouldClose();
   void static Close();
-  void Init();
+  void Init() const;
 
 private:
-  int width_{ 800 };
-  int height_{ 600 };
+  void FixMouseScale() const;
+
+  WindowSize actual_window_size_;
+  WindowSize monitor_size_;
+  WindowSize virtual_size_;
   std::string title_{ "Chroma" };
 };
 }// namespace chroma::client::core

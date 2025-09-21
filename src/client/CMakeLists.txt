@@ -13,15 +13,13 @@ target_link_libraries(chroma_client
         chroma::shared
 )
 
+include_directories(chroma_client PRIVATE SYSTEM ${Boost_INCLUDE_DIRS})
+
 target_link_system_libraries(
     chroma_client
     PRIVATE
         raylib
         raygui
-        sqlite3
-        sqlite_orm
-        stb
-        Boost::filesystem
 )
 
 target_include_directories(chroma_client
