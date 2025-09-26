@@ -20,15 +20,26 @@ function(chroma_setup_dependencies)
 
   include(cmake/dependencies/stb.cmake)
 
-  find_package(Boost QUIET COMPONENTS filesystem)
+  find_package(Boost CONFIG QUIET COMPONENTS filesystem)
   if(NOT Boost_FOUND OR NOT TARGET Boost::filesystem)
-	include(cmake/CPM.cmake)
+    include(cmake/CPM.cmake)
 
-	set(BOOST_INCLUDE_LIBRARIES "filesystem")
+    set(BOOST_INCLUDE_LIBRARIES "filesystem")
 
-	CPMAddPackage(
-		NAME Boost
-		URL "https://github.com/boostorg/boost/releases/download/boost-1.87.0/boost-1.87.0-cmake.tar.xz"
-	)
+    CPMAddPackage(
+      NAME Boost
+      URL "https://github.com/boostorg/boost/releases/download/boost-1.87.0/boost-1.87.0-cmake.tar.xz"
+      OPTIONS
+        "BOOST_INCLUDE_LIBRARIES ${BOOST_INCLUDE_LIBRARIES}"
+        "BUILD_TESTING OFF"
+    )
   endif()
+
+  CPMAddPackage(
+    NAME Tracy
+    GITHUB_REPOSITORY wolfpld/tracy
+    GIT_TAG v0.12.2
+    OPTIONS
+        "TRACY_ENABLE ON"
+  )
 endfunction()
