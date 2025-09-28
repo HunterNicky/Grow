@@ -3,19 +3,42 @@ file(GLOB_RECURSE SHARED_SOURCES *.cpp)
 add_library(chroma_shared STATIC
   ${SHARED_SOURCES}
 )
+set(INTERFACE_FBS schemas/monster.fbs)
+
+flatbuffers_generate_headers(
+  TARGET incl
+  SCHEMAS ${INTERFACE_FBS}
+  FLAGS --scoped-enums --cpp-std c++17
+)
+
+target_link_libraries(incl INTERFACE flatbuffers)
 
 add_library(chroma::shared ALIAS chroma_shared)
 
+if(MSVC)
+  target_compile_options(chroma_shared PRIVATE /arch:AVX)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(chroma_shared PRIVATE -msse4.1)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "MinGW")
+  target_compile_options(chroma_shared PRIVATE -msse4.1)
+endif()
+
 target_include_directories(chroma_shared
   PUBLIC
-  "${PROJECT_SOURCE_DIR}/include"
-  "${CMAKE_BINARY_DIR}/configured_files/include"
+    "${PROJECT_SOURCE_DIR}/include"
+    "${CMAKE_BINARY_DIR}/configured_files/include"
 )
 
+target_link_system_libraries(chroma_shared
+  PRIVATE
+    raylib
+    incl
+    uuid_v4
+)
 target_link_libraries(chroma_shared
   PUBLIC
-  chroma::chroma_options
-  chroma::chroma_warnings
+    chroma::chroma_options
+    chroma::chroma_warnings
 )
 
 if(MSVC)

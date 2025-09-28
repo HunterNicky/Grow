@@ -18,9 +18,10 @@ public:
   void PopOverlay();
 
   void UpdateLayers(float deltaTime) const;
+  void UpdateFixedLayers(float fixedDeltaTime) const;
   void RenderLayers() const;
   void HandleEvent(event::Event &event) const;
-  Layer *GetLayer(const std::string &name) const;
+  [[nodiscard]] Layer *GetLayer(const std::string &name) const;
 
 private:
   std::vector<std::unique_ptr<Layer>> layers_;

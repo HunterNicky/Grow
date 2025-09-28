@@ -1,11 +1,9 @@
+#include <filesystem>
 #include <raylib.h>
 #define RAYGUI_IMPLEMENTATION
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/path.hpp>
+#include <memory>
 #include <raygui.h>
 #include <sqlite_orm/sqlite_orm.h>
-
-#include <memory>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -14,15 +12,14 @@
 #include "chroma/app/events/Event.h"
 #include "chroma/app/layers/Layer.h"
 #include "chroma/client/client.h"
-namespace fs = boost::filesystem;
 
 namespace chroma::app {
 Application::Application() : delta_time_(0.F), window_(1280, 720, "Chroma") {};
 
 void Application::Run()
 {
-  fs::path const dir = "data";
-  if (!fs::exists(dir)) { fs::create_directory(dir); }
+  std::filesystem::path const dir = "data";
+  if (!std::filesystem::exists(dir)) { std::filesystem::create_directory(dir); }
 
   auto storage = sqlite_orm::make_storage("users.sqlite",
     sqlite_orm::make_table("users",
