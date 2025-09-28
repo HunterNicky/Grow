@@ -17,13 +17,12 @@ target_link_system_libraries(
         raygui
         sqlite3
         sqlite_orm
-        Boost::filesystem
 )
 
 target_include_directories(intro
     PRIVATE
-  "${PROJECT_SOURCE_DIR}/include"
-        "${CMAKE_BINARY_DIR}/configured_files/include"
+      "${PROJECT_SOURCE_DIR}/include"
+      "${CMAKE_BINARY_DIR}/configured_files/include"
 )
 
 if(MSVC)

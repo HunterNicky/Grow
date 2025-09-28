@@ -15,6 +15,8 @@ void Layer::OnDetach() {}
 
 void Layer::OnUpdate([[maybe_unused]] const float deltaTime) {}
 
+void Layer::OnFixedUpdate([[maybe_unused]] const float fixedDeltaTime) {}
+
 void Layer::OnRender() {}
 
 void Layer::OnEvent([[maybe_unused]] event::Event &event) {}

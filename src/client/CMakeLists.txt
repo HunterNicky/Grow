@@ -13,8 +13,6 @@ target_link_libraries(chroma_client
         chroma::shared
 )
 
-include_directories(chroma_client PRIVATE SYSTEM ${Boost_INCLUDE_DIRS})
-
 target_link_system_libraries(
     chroma_client
     PRIVATE
@@ -24,8 +22,8 @@ target_link_system_libraries(
 
 target_include_directories(chroma_client
     PRIVATE
-  "${PROJECT_SOURCE_DIR}/include"
-        "${CMAKE_BINARY_DIR}/configured_files/include"
+      "${PROJECT_SOURCE_DIR}/include"
+      "${CMAKE_BINARY_DIR}/configured_files/include"
 )
 
 if(MSVC)

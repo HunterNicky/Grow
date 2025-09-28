@@ -1,7 +1,6 @@
 # chroma
 
 [![ci](https://github.com/HunterNicky/Grow/actions/workflows/ci.yml/badge.svg)](https://github.com/HunterNicky/Grow/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/HunterNicky/chroma/branch/main/graph/badge.svg)](https://codecov.io/gh/HunterNicky/chroma)
 [![CodeQL](https://github.com/HunterNicky/Grow/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/HunterNicky/Grow/actions/workflows/codeql-analysis.yml)
 
 ## About chroma

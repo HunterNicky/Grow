@@ -32,6 +32,16 @@ void LayerStack::UpdateLayers(const float deltaTime) const
   }
 }
 
+void LayerStack::UpdateFixedLayers(const float fixedDeltaTime) const
+{
+  for (const auto &layer : layers_) {
+    if (layer->IsActive()) { layer->OnFixedUpdate(fixedDeltaTime); }
+  }
+  for (const auto &overlay : overlays_) {
+    if (overlay->IsActive()) { overlay->OnFixedUpdate(fixedDeltaTime); }
+  }
+}
+
 void LayerStack::RenderLayers() const
 {
   for (const auto &layer : layers_) {

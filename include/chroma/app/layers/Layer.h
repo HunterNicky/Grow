@@ -28,8 +28,11 @@ public:
 
   virtual void OnAttach();
   virtual void OnDetach();
+
   virtual void OnUpdate([[maybe_unused]] const float deltaTime);
+  virtual void OnFixedUpdate([[maybe_unused]] const float fixedDeltaTime);
   virtual void OnRender();
+
   virtual void OnEvent([[maybe_unused]] event::Event &event);
 
   [[nodiscard]] const std::string &GetName() const;
