@@ -1,0 +1,27 @@
+#include <string>
+#include <utility>
+
+#include "chroma/app/events/Event.h"
+#include "chroma/app/layers/states/State.h"
+
+namespace chroma::app::layer::state {
+State::State(std::string name) : name_(std::move(name)), active_(false) {}
+
+const std::string &State::GetName() const { return name_; }
+
+void State::SetActive(const bool active) { active_ = active; }
+
+bool State::IsActive() const { return active_; }
+
+void State::OnAttach() {}
+
+void State::OnDetach() {}
+
+void State::OnUpdate([[maybe_unused]] const float delta_time) {}
+
+void State::OnFixedUpdate([[maybe_unused]] const float fixed_delta_time) {}
+
+void State::OnRender() {}
+
+void State::OnEvent([[maybe_unused]] event::Event &event) {}
+}// namespace chroma::app::layer::state

@@ -14,6 +14,7 @@ public:
 
   void PushLayer(std::unique_ptr<Layer> layer);
   void PopLayer();
+
   void PushOverlay(std::unique_ptr<Layer> overlay);
   void PopOverlay();
 
@@ -21,6 +22,7 @@ public:
   void UpdateFixedLayers(float fixedDeltaTime) const;
   void RenderLayers() const;
   void HandleEvent(event::Event &event) const;
+
   [[nodiscard]] Layer *GetLayer(const std::string &name) const;
 
 private:
