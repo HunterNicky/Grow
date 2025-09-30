@@ -4,22 +4,25 @@
 
 #include "chroma/app/events/Event.h"
 #include "chroma/app/layers/Layer.h"
+#include "chroma/app/layers/states/State.h"
+#include "chroma/app/layers/states/StateMachine.h"
 
 namespace chroma::app::layer {
-Layer::Layer(std::string name) : name_(std::move(name)), active_(true), state_machine_(std::make_unique<StateMachine>())
+Layer::Layer(std::string name)
+  : name_(std::move(name)), active_(true), state_machine_(std::make_unique<state::StateMachine>())
 {}
 
 void Layer::OnAttach() {}
 
 void Layer::OnDetach() {}
 
-void Layer::OnUpdate([[maybe_unused]] const float deltaTime) {}
+void Layer::OnUpdate(const float delta_time) { state_machine_->OnUpdate(delta_time); }
 
-void Layer::OnFixedUpdate([[maybe_unused]] const float fixedDeltaTime) {}
+void Layer::OnFixedUpdate(const float fixed_delta_time) { state_machine_->OnFixedUpdate(fixed_delta_time); }
 
-void Layer::OnRender() {}
+void Layer::OnRender() { state_machine_->OnRender(); }
 
-void Layer::OnEvent([[maybe_unused]] event::Event &event) {}
+void Layer::OnEvent(event::Event &event) { state_machine_->OnEvent(event); }
 
 const std::string &Layer::GetName() const { return name_; }
 
@@ -27,21 +30,9 @@ bool Layer::IsActive() const { return active_; }
 
 void Layer::SetActive(bool active) { active_ = active; }
 
-// TODO: remover maybe_unused quando implementar
-void Layer::PushState([[maybe_unused]] const std::unique_ptr<State> &state)
-{
-  // state_machine_->PushState(std::move(state));
-}
+void Layer::PushState(const std::shared_ptr<state::State> &state) { state_machine_->PushState(state); }
 
-void Layer::PopState()
-{
-  // state_machine_->PopState();
-}
+void Layer::PopState() { state_machine_->PopState(); }
 
-State *Layer::GetCurrentState()
-{
-  // return state_machine_->GetCurrentState();
-  return nullptr;
-}
-
+std::shared_ptr<state::State> Layer::GetCurrentState() { return state_machine_->GetCurrentState(); }
 }// namespace chroma::app::layer

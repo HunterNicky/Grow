@@ -5,17 +5,10 @@
 #include <string>
 
 #include "chroma/app/events/Event.h"
+#include "chroma/app/layers/states/State.h"
+#include "chroma/app/layers/states/StateMachine.h"
 
 namespace chroma::app::layer {
-class StateMachine
-{
-  [[maybe_unused]] bool TODO = true;
-};
-class State
-{
-  [[maybe_unused]] bool TODO = true;
-};
-
 class Layer
 {
 public:
@@ -29,24 +22,25 @@ public:
   virtual void OnAttach();
   virtual void OnDetach();
 
-  virtual void OnUpdate([[maybe_unused]] const float deltaTime);
-  virtual void OnFixedUpdate([[maybe_unused]] const float fixedDeltaTime);
+  virtual void OnUpdate(const float delta_time);
+  virtual void OnFixedUpdate(const float fixed_delta_time);
   virtual void OnRender();
 
-  virtual void OnEvent([[maybe_unused]] event::Event &event);
+  virtual void OnEvent(event::Event &event);
 
   [[nodiscard]] const std::string &GetName() const;
   [[nodiscard]] bool IsActive() const;
   void SetActive(bool active);
 
-  void static PushState(const std::unique_ptr<State> &state);
-  static void PopState();
+  void PushState(const std::shared_ptr<state::State> &state);
+  void PopState();
 
-  [[nodiscard]] State static *GetCurrentState();
+  [[nodiscard]] std::shared_ptr<state::State> GetCurrentState();
 
 protected:
   std::string name_;
   bool active_;
-  std::unique_ptr<StateMachine> state_machine_;
+
+  std::unique_ptr<state::StateMachine> state_machine_;
 };
 }// namespace chroma::app::layer
