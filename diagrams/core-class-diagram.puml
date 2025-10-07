@@ -1,0 +1,257 @@
+@startuml
+hide empty members
+skinparam classAttributeIconSize 0
+skinparam namespaceSeparator "::"
+skinparam linetype ortho
+
+namespace chroma {
+  namespace app {
+    namespace event {
+      class Event {
+        - type : EventType
+        - handled : bool
+        + Event(type : EventType)
+        + GetType() : EventType
+        + IsHandled() : bool
+        + SetType(type : EventType)
+        + SetHandled(handled : bool)
+      }
+
+      class EventDispatcher {
+        - listeners : unordered_map<EventType, vector<function<Event&>>>
+        + Subscribe(listener)
+        + Unsubscribe(type : EventType)
+        + Dispatch(event : Event)
+        + Clear()
+      }
+    }
+
+    namespace layer {
+      namespace state {
+        class State {
+          - name : string
+          - active : bool
+          + State(name : string)
+          + OnAttach()
+          + OnDetach()
+          + OnUpdate(delta : float)
+          + OnFixedUpdate(fixedDelta : float)
+          + OnRender()
+          + OnEvent(event : event::Event)
+          + SetActive(active : bool)
+          + GetName() : string
+          + IsActive() : bool
+        }
+
+        class StateMachine {
+          - states : stack<shared_ptr<State>>
+          + OnUpdate(delta : float)
+          + OnFixedUpdate(fixedDelta : float)
+          + OnRender()
+          + OnEvent(event : event::Event)
+          + PushState(state : shared_ptr<State>)
+          + PopState()
+          + GetCurrentState() : shared_ptr<State>
+        }
+      }
+
+      namespace game {
+        class MenuLayer {
+        }
+      }
+
+      class Layer {
+        - name : string
+        - active : bool
+        - state_machine : unique_ptr<state::StateMachine>
+        + Layer(name : string)
+        + OnAttach()
+        + OnDetach()
+        + OnUpdate(delta : float)
+        + OnFixedUpdate(fixedDelta : float)
+        + OnRender()
+        + OnEvent(event : event::Event)
+        + GetName() : string
+        + IsActive() : bool
+        + SetActive(active : bool)
+        + PushState(state : shared_ptr<state::State>)
+        + PopState()
+        + GetCurrentState() : shared_ptr<state::State>
+      }
+
+      class LayerStack {
+        - layers : vector<unique_ptr<Layer>>
+        - overlays : vector<unique_ptr<Layer>>
+        + PushLayer(layer : unique_ptr<Layer>)
+        + PopLayer()
+        + PushOverlay(layer : unique_ptr<Layer>)
+        + PopOverlay()
+        + UpdateLayers(delta : float)
+        + UpdateFixedLayers(fixedDelta : float)
+        + RenderLayers()
+        + HandleEvent(event : event::Event)
+        + GetLayer(name : string) : Layer*
+      }
+    }
+
+    class Application {
+      - layer_stack : unique_ptr<layer::LayerStack>
+      - event_dispatcher : unique_ptr<event::EventDispatcher>
+      - delta_time : float
+      - window : client::core::Window
+      + Application()
+      + Initialize()
+      + Run()
+      + Shutdown()
+      + PushLayer(layer : unique_ptr<layer::Layer>)
+      + PopLayer()
+      + PushOverlay(layer : unique_ptr<layer::Layer>)
+      + PopOverlay()
+      + DispatchEvent(event : event::Event)
+    }
+  }
+
+  namespace client {
+    namespace core {
+      class WindowSize {
+        + width : int
+        + height : int
+      }
+
+      class Window {
+        - actual_window_size : WindowSize
+        - monitor_size : WindowSize
+        - virtual_size : WindowSize
+        - title : string
+        + Window(width : int, height : int, title : string)
+        + FullScreen()
+        + Resize(width : int, height : int)
+        + ShouldClose() : bool
+        + Close()
+        + Init()
+        - FixMouseScale()
+      }
+    }
+  }
+
+  namespace shared {
+    namespace core {
+      class GameObject {
+        - active : bool
+        - id : UUIDv4::UUID
+        - layer : uint32_t
+        - type : GameObjectType
+        - components : map<ComponentType, shared_ptr<component::Component>>
+        - transform : shared_ptr<component::Transform>
+        + GameObject()
+        + GameObject(id : UUIDv4::UUID, active : bool, layer : uint32_t, tag : GameObjectType)
+        + SetActive(active : bool)
+        + SetLayer(layer : uint32_t)
+        + SetTag(tag : GameObjectType)
+        + SetId(id : UUIDv4::UUID)
+        + GetId() : UUIDv4::UUID
+        + IsActive() : bool
+        + GetLayer() : uint32_t
+        + GetTag() : GameObjectType
+        + AttachComponent(component : shared_ptr<component::Component>)
+        + GetComponent<T>() : shared_ptr<T>
+        + GetTransform() : shared_ptr<component::Transform>
+        + OnUpdate(delta : float)
+        + OnFixedUpdate(fixedDelta : float)
+        + OnCollision(event : collision::CollisionEvent)
+        + OnRender()
+      }
+
+      namespace component {
+        class Component {
+          - type : ComponentType
+          - id : UUIDv4::UUID
+          - game_object : weak_ptr<core::GameObject>
+          + Component()
+          + GetType() : ComponentType
+          + IsType(type : ComponentType) : bool
+          + GetId() : UUIDv4::UUID
+          + SetGameObject(gameObject : shared_ptr<core::GameObject>)
+          + GetGameObject() : shared_ptr<core::GameObject>
+          + Attach()
+          + Detach()
+          + Update(delta : float)
+          + FixedUpdate(fixedDelta : float)
+          + Render()
+        }
+
+        class Transform {
+          - position : Vector2
+          - scale : Vector2
+          - rotation : float
+          + Transform()
+          + Translate(translation : Vector2)
+          + Translate(x : float, y : float)
+          + Scale(scale : Vector2)
+          + Scale(x : float, y : float)
+          + Rotate(angle : float)
+          + SetPosition(position : Vector2)
+          + SetPosition(x : float, y : float)
+          + SetScale(scale : Vector2)
+          + SetScale(x : float, y : float)
+          + SetRotation(angle : float)
+          + GetPosition() : Vector2
+          + GetScale() : Vector2
+          + GetRotation() : float
+        }
+      }
+    }
+
+    namespace collision {
+      class CollisionEvent {
+        + other : weak_ptr<core::GameObject>
+        + side : CollisionSide
+        + penetration : float
+        + normal : Vector2
+        + contactPoint : Vector2
+        + CollisionEvent(other : weak_ptr<core::GameObject>, penetration : float, normal : Vector2, contactPoint : Vector2, side : CollisionSide)
+      }
+    }
+
+    namespace utils {
+      class UUID {
+        + Generate() : UUIDv4::UUID
+      }
+    }
+  }
+
+  namespace server {
+    class ServerFunctions {
+      + start() : int
+    }
+  }
+}
+
+' Application Layer
+chroma.app.Application *-- chroma.app.layer.LayerStack : Possui
+chroma.app.Application *-- chroma.app.event.EventDispatcher : Gerencia
+
+' Layer System
+chroma.app.layer.Layer *-- chroma.app.layer.state.StateMachine : Possui
+chroma.app.layer.LayerStack o-- "Layers" chroma.app.layer.Layer
+chroma.app.layer.LayerStack o-- "Overlays" chroma.app.layer.Layer
+chroma.app.layer.game.MenuLayer --|> chroma.app.layer.Layer
+
+' State Machine
+chroma.app.layer.state.StateMachine o-- chroma.app.layer.state.State : Gerencia
+
+' Event System
+chroma.app.event.EventDispatcher o-- chroma.app.event.Event : Despacha
+
+' GameObject-Component System
+chroma.shared.core.GameObject o-- chroma.shared.core.component.Component : Gerencia
+chroma.shared.core.GameObject *-- chroma.shared.core.component.Transform : Possui
+chroma.shared.core.component.Transform --|> chroma.shared.core.component.Component
+
+' Collision System
+chroma.shared.collision.CollisionEvent ..> chroma.shared.core.GameObject
+
+' Server
+chroma.server.ServerFunctions ..> chroma.app.Application : Inicia
+
+@enduml
