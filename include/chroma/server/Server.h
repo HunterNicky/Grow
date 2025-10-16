@@ -48,7 +48,7 @@ private:
   ENetAddress address_;
 
   bool is_running_;
-  int tick_counter;
+  int tick_counter_;
 
   std::vector<std::shared_ptr<chroma::shared::core::GameObject>> game_objects_;
 };

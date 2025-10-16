@@ -1,13 +1,18 @@
-#include <chroma/server/Server.h>
+#include "chroma/server/Server.h"
+#include "chroma/shared/core/GameObject.h"
+
 #include <chrono>
 #include <cstddef>
 #include <cstdlib>
 #include <enet/enet.h>
 #include <enet/types.h>
+#include <memory>
+#include <utility>
+#include <vector>
 
 namespace chroma::server {
 
-Server::Server() : server_(nullptr), address_(), is_running_(false), tick_counter(0)
+Server::Server() : server_(nullptr), address_(), is_running_(false), tick_counter_(0)
 {
   if (!InitServer(8080, 2)) {
     is_running_ = false;
@@ -22,7 +27,7 @@ Server::Server(ENetHost *server,
   bool is_running,
   int tick_counter,
   std::vector<std::shared_ptr<chroma::shared::core::GameObject>> game_objects)
-  : server_(server), address_(address), is_running_(is_running), tick_counter(tick_counter),
+  : server_(server), address_(address), is_running_(is_running), tick_counter_(tick_counter),
     game_objects_(std::move(game_objects))
 {}
 
@@ -56,14 +61,14 @@ int Server::Start()
       }
     }
 
-    tick_counter++;
+    tick_counter_++;
 
     auto now = std::chrono::steady_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastTick).count();
 
-    if (tick_counter >= TICKS) {
+    if (tick_counter_ >= TICKS) {
       lastTick = now;
-      tick_counter = 0;
+      tick_counter_ = 0;
       BroadcastGameObjectState();
     }
 
