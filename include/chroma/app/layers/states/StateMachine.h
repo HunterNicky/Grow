@@ -5,7 +5,7 @@
 
 #include "chroma/app/layers/states/State.h"
 
-namespace chroma::app::layer::state {
+namespace chroma::app::layer::states {
 class StateMachine
 {
 public:

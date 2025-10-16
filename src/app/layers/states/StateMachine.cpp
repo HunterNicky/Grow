@@ -4,7 +4,7 @@
 #include "chroma/app/layers/states/State.h"
 #include "chroma/app/layers/states/StateMachine.h"
 
-namespace chroma::app::layer::state {
+namespace chroma::app::layer::states {
 void StateMachine::OnUpdate(const float deltaTime)
 {
   if (!states_.empty() && states_.top()->IsActive()) { states_.top()->OnUpdate(deltaTime); }

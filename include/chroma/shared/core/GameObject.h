@@ -20,6 +20,7 @@ namespace component {
 
 enum class GameObjectType : uint8_t {
   NONE = 0,
+  PLAYER = 1,
 };
 
 class GameObject : public std::enable_shared_from_this<GameObject>
@@ -44,8 +45,15 @@ public:
   [[nodiscard]] GameObjectType GetTag() const;
 
   void AttachComponent(const std::shared_ptr<component::Component> &component);
-  template<typename T> std::shared_ptr<T> GetComponent() const;
 
+  template<typename T> std::shared_ptr<T> GetComponent() const
+  {
+    static_assert(std::is_base_of_v<component::Component, T>, "T must be a Component");
+    auto it = components_.find(T().GetType());
+    if (it != components_.end()) { return std::dynamic_pointer_cast<T>(it->second); }
+    return nullptr;
+  }
+  
   std::shared_ptr<core::component::Transform> GetTransform() const;
 
   virtual void OnUpdate(float delta_time) = 0;

@@ -4,7 +4,7 @@
 #include "chroma/app/events/Event.h"
 #include "chroma/app/layers/states/State.h"
 
-namespace chroma::app::layer::state {
+namespace chroma::app::layer::states {
 State::State(std::string name) : name_(std::move(name)), active_(false) {}
 
 const std::string &State::GetName() const { return name_; }

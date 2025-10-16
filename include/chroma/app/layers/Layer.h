@@ -32,15 +32,15 @@ public:
   [[nodiscard]] bool IsActive() const;
   void SetActive(bool active);
 
-  void PushState(const std::shared_ptr<state::State> &state);
+  void PushState(const std::shared_ptr<states::State> &state);
   void PopState();
 
-  [[nodiscard]] std::shared_ptr<state::State> GetCurrentState();
+  [[nodiscard]] std::shared_ptr<states::State> GetCurrentState();
 
 protected:
   std::string name_;
   bool active_;
 
-  std::unique_ptr<state::StateMachine> state_machine_;
+  std::unique_ptr<states::StateMachine> state_machine_;
 };
 }// namespace chroma::app::layer

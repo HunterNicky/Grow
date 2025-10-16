@@ -64,8 +64,8 @@ function(run_vcvarsall)
     else()
       message(
         WARNING
-          "Could not find `vcvarsall.bat` for automatic MSVC environment preparation. Please manually open the MSVC command prompt and rebuild the project.
-      ")
+          "Could not find `vcvarsall.bat` for automatic MSVC environment preparation. Please manually open the MSVC command prompt and rebuild the project."
+      )
     endif()
   endif()
 endfunction()

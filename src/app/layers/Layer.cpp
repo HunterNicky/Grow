@@ -9,7 +9,7 @@
 
 namespace chroma::app::layer {
 Layer::Layer(std::string name)
-  : name_(std::move(name)), active_(true), state_machine_(std::make_unique<state::StateMachine>())
+  : name_(std::move(name)), active_(true), state_machine_(std::make_unique<states::StateMachine>())
 {}
 
 void Layer::OnAttach() {}
@@ -30,9 +30,9 @@ bool Layer::IsActive() const { return active_; }
 
 void Layer::SetActive(bool active) { active_ = active; }
 
-void Layer::PushState(const std::shared_ptr<state::State> &state) { state_machine_->PushState(state); }
+void Layer::PushState(const std::shared_ptr<states::State> &state) { state_machine_->PushState(state); }
 
 void Layer::PopState() { state_machine_->PopState(); }
 
-std::shared_ptr<state::State> Layer::GetCurrentState() { return state_machine_->GetCurrentState(); }
+std::shared_ptr<states::State> Layer::GetCurrentState() { return state_machine_->GetCurrentState(); }
 }// namespace chroma::app::layer

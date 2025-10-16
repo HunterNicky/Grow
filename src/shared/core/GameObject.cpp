@@ -13,7 +13,6 @@ GameObject::GameObject()
   : active_(true), id_(utils::UUID::Generate()), layer_(0), Type_(GameObjectType::NONE),
     transform_(std::make_shared<component::Transform>())
 {
-  AttachComponent(transform_);
 }
 
 GameObject::GameObject(const UUIDv4::UUID &id, bool active, uint32_t layer, GameObjectType tag)
@@ -21,6 +20,8 @@ GameObject::GameObject(const UUIDv4::UUID &id, bool active, uint32_t layer, Game
 {
   AttachComponent(transform_);
 }
+
+GameObject::~GameObject() = default;
 
 void GameObject::SetActive(const bool active) { active_ = active; }
 
@@ -44,14 +45,6 @@ void GameObject::AttachComponent(const std::shared_ptr<component::Component> &co
   component->SetGameObject(shared_from_this());
   components_[component->GetType()] = component;
   component->Attach();
-}
-
-template<typename T> std::shared_ptr<T> GameObject::GetComponent() const
-{
-  static_assert(std::is_base_of_v<component::Component, T>, "T must be a Component");
-  auto it = components_.find(T().GetType());
-  if (it != components_.end()) { return std::dynamic_pointer_cast<T>(it->second); }
-  return nullptr;
 }
 
 std::shared_ptr<core::component::Transform> GameObject::GetTransform() const { return transform_; }

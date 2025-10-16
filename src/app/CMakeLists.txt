@@ -17,6 +17,7 @@ target_link_system_libraries(
         raygui
         sqlite3
         sqlite_orm
+        uuid_v4
 )
 
 target_include_directories(intro

@@ -3,7 +3,7 @@ file(GLOB_RECURSE SHARED_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/
 add_library(chroma_shared STATIC
   ${SHARED_SOURCES}
 )
-set(INTERFACE_FBS schemas/monster.fbs)
+set(INTERFACE_FBS schemas/GameObject.fbs)
 
 flatbuffers_generate_headers(
   TARGET incl
@@ -44,4 +44,3 @@ target_link_libraries(chroma_shared
 if(MSVC)
   target_compile_options(chroma_shared PRIVATE /wd4242 /wd4701 /wd4703 /wd4996 /wd4244)
 endif()
-

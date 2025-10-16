@@ -1,0 +1,15 @@
+namespace chroma.shared.net;
+
+table Vec2 {
+  x:float;
+  y:float;
+}
+
+table GameObject {
+  uuid:string;         // Id (UUID)
+  type:int;            // Tipo (ex: "Player", "Enemy", "Projectile")
+  position:Vec2;       // Posição
+  velocity:float;      // Velocidade
+}
+
+root_type GameObject;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "uuid_v4.h"
+#include "chroma/shared/utils/UUID.h" 
 #include <cstdint>
 #include <memory>
 
@@ -12,6 +12,7 @@ namespace chroma::shared::core::component {
 enum class ComponentType : uint8_t {
   NONE = 0,
   TRANSFORM = 1,
+  SPEED = 2,
 };
 
 class Component

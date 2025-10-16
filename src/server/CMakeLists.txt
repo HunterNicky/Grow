@@ -10,6 +10,8 @@ target_include_directories(chroma_server
     PUBLIC
       "${PROJECT_SOURCE_DIR}/include"
       "${CMAKE_BINARY_DIR}/configured_files/include"
+      "${CMAKE_BINARY_DIR}/_deps/enet-src/include"
+      "${CMAKE_BINARY_DIR}/configured_files/include"
 )
 
 target_link_libraries(chroma_server
@@ -17,6 +19,11 @@ target_link_libraries(chroma_server
     chroma::shared
     chroma::chroma_options
     chroma::chroma_warnings
+)
+
+target_link_libraries(chroma_server
+  PRIVATE
+    enet
 )
 
 if(MSVC)

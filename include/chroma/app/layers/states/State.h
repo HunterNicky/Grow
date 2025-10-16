@@ -4,7 +4,7 @@
 
 #include "chroma/app/events/Event.h"
 
-namespace chroma::app::layer::state {
+namespace chroma::app::layer::states {
 class State
 {
 public:
