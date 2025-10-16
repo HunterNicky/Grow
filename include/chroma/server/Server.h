@@ -1,8 +1,8 @@
 #pragma once
 
-#include <vector>
-#include "enet.h"
+#include <enet/enet.h>
 #include <memory>
+#include <vector>
 
 #include "chroma/shared/core/GameObject.h"
 
@@ -13,34 +13,43 @@ class Server
 {
 public:
   Server();
+  Server(const Server &) = default;
+  Server(Server &&) = delete;
+  Server &operator=(const Server &) = default;
+  Server &operator=(Server &&) = delete;
+  Server(ENetHost *server,
+    ENetAddress address,
+    bool is_running,
+    int tick_counter,
+    std::vector<std::shared_ptr<chroma::shared::core::GameObject>> game_objects);
   ~Server();
 
-  int start();
-  int stop();
+  int Start();
+  int Stop();
 
-  bool connectClient(ENetEvent& event) const;
-  bool disconnectClient(ENetEvent& event);
+  [[nodiscard]] bool ConnectClient(const ENetEvent &event) const;
+  bool DisconnectClient(const ENetEvent &event);
 
-  bool initServer(int port, int maxClients);
+  bool InitServer(int port, int max_clients);
   bool CreateGameWorld(/*Enum gameType::LevelMeadow*/);
 
-  bool isRunning() const { return isRunning_; }
-  void SetRunning(bool running) { isRunning_ = running; }
+  [[nodiscard]] bool IsRunning() const { return is_running_; }
+  void SetRunning(bool running) { is_running_ = running; }
 
   void OnUpdate(float delta_time);
-  
-  //void HandleLag();
-  void BroadcastGameObjectState();
+
+  // void HandleLag();
+  void BroadcastGameObjectState() const;
 
   void run();
 
 private:
-  ENetHost* server_;
+  ENetHost *server_;// NÃO USE PONTEIRO CRU
   ENetAddress address_;
-  
-  bool isRunning_;
-  int tickCounter;
 
-  std::vector<std::shared_ptr<chroma::shared::core::GameObject>> game_objects_{};
+  bool is_running_;
+  int tick_counter;
+
+  std::vector<std::shared_ptr<chroma::shared::core::GameObject>> game_objects_;
 };
 }// namespace chroma::server

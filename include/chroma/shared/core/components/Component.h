@@ -1,8 +1,8 @@
 #pragma once
 
-#include "chroma/shared/utils/UUID.h" 
 #include <cstdint>
 #include <memory>
+#include <uuid_v4.h>
 
 namespace chroma::shared::core {
 class GameObject;

@@ -1,68 +1,69 @@
 #include <chroma/server/Server.h>
-#include "enet.h"
-#include <cstdlib>
 #include <chrono>
+#include <cstddef>
+#include <cstdlib>
+#include <enet/enet.h>
+#include <enet/types.h>
 
 namespace chroma::server {
 
-Server::Server() : server_(nullptr), isRunning_(false), tickCounter(0), address_()
+Server::Server() : server_(nullptr), address_(), is_running_(false), tick_counter(0)
 {
-  if (!initServer(8080, 2))
-  {
-    isRunning_ = false;
+  if (!InitServer(8080, 2)) {
+    is_running_ = false;
     return;
-  }
-  else
-  {
-    isRunning_ = true;
+  } else {
+    is_running_ = true;
   }
 }
 
-Server::~Server() {
-  stop();
-}
+Server::Server(ENetHost *server,
+  ENetAddress address,
+  bool is_running,
+  int tick_counter,
+  std::vector<std::shared_ptr<chroma::shared::core::GameObject>> game_objects)
+  : server_(server), address_(address), is_running_(is_running), tick_counter(tick_counter),
+    game_objects_(std::move(game_objects))
+{}
 
-int Server::start() {
-  if (!isRunning_ || server_ == nullptr) {
-    return -1;
-  }
+Server::~Server() { Stop(); }
+
+int Server::Start()
+{
+  if (!is_running_ || server_ == nullptr) { return -1; }
 
   ENetEvent event;
 
   auto lastTick = std::chrono::steady_clock::now();
 
-  while (isRunning_)
-  {
-    while (enet_host_service(server_, &event, 0) > 0)
-    {
-      switch (event.type)
-      {
-        case ENET_EVENT_TYPE_CONNECT:
-          connectClient(event);
-          break;
+  while (is_running_) {
+    while (enet_host_service(server_, &event, 0) > 0) {
+      switch (event.type) {
+      case ENET_EVENT_TYPE_CONNECT:
+        if (ConnectClient(event)) {}
+        break;
 
-        case ENET_EVENT_TYPE_RECEIVE:
-          enet_packet_destroy(event.packet);
-          break;
-    
-        case ENET_EVENT_TYPE_DISCONNECT:
-          disconnectClient(event);
-          break;
+      case ENET_EVENT_TYPE_RECEIVE:
+        enet_packet_destroy(event.packet);
+        break;
 
-        default:
-          break;
+      case ENET_EVENT_TYPE_DISCONNECT:
+        if (DisconnectClient(event)) {}
+        break;
+
+      default:
+        break;
       }
     }
 
-    tickCounter++;
-    
+    tick_counter++;
+
     auto now = std::chrono::steady_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastTick).count();
-    
-    if (tickCounter >= TICKS)
-    {
+
+    if (tick_counter >= TICKS) {
       lastTick = now;
-      tickCounter = 0;
+      tick_counter = 0;
       BroadcastGameObjectState();
     }
 
@@ -71,58 +72,50 @@ int Server::start() {
   return 0;
 }
 
-int Server::stop() {
-  if (server_ == nullptr) {
+int Server::Stop()
+{
+  if (server_ != nullptr) {
     enet_host_destroy(server_);
     server_ = nullptr;
   }
   enet_deinitialize();
-  isRunning_ = false;
+  is_running_ = false;
   return 0;
 }
 
-bool Server::connectClient(ENetEvent& event) const{ 
-  if (!isRunning()) {
-    return false;
-  }
+bool Server::ConnectClient(const ENetEvent &event) const
+{
+  if (!IsRunning()) { return false; }
 
-  if (event.peer == nullptr || event.type != ENET_EVENT_TYPE_CONNECT)
-  {
-    return false;
-  }
-  
-  event.peer->data = (void*)"Cliente conectado";
+  if (event.peer == nullptr || event.type != ENET_EVENT_TYPE_CONNECT) { return false; }
+
+
+  // event.peer->data = (void *)"Cliente conectado"; não pode usar conversão de ponteiros no estilo do c
   return true;
 }
 
-bool Server::disconnectClient(ENetEvent& event) {
-  if (event.type != ENET_EVENT_TYPE_DISCONNECT)
-  {
-    return false;
-  }
+bool Server::DisconnectClient(const ENetEvent &event)
+{
+  if (event.type != ENET_EVENT_TYPE_DISCONNECT) { return false; }
 
   event.peer->data = nullptr;
 
-  if ((server_ == nullptr) && (server_->connectedPeers == 0))
-  {
-    SetRunning(false);
-  }
+  if (server_ == nullptr || server_->connectedPeers == 0) { SetRunning(false); }
 
   return true;
 }
 
-bool Server::initServer(int port, int maxClients) {
-  if (enet_initialize() != 0) {
-    return false;
-  }
+bool Server::InitServer(int port, int max_clients)
+{
+  if (enet_initialize() != 0) { return false; }
 
   address_.host = ENET_HOST_ANY;
-  address_.port = port;
-  server_ = enet_host_create(&address_, maxClients, 2, 0, 0);
+  address_.port = static_cast<enet_uint16>(port);
+  server_ = enet_host_create(&address_, static_cast<size_t>(max_clients), 2, 0, 0);
 
   if (server_ == nullptr) {
     enet_deinitialize();
-    return false; 
+    return false;
   }
 
   if (atexit(enet_deinitialize) != 0) {
@@ -135,20 +128,18 @@ bool Server::initServer(int port, int maxClients) {
   return true;
 }
 
-void Server::OnUpdate(float delta_time) {
-  for(auto& gameObject : game_objects_) {
-    if(gameObject->IsActive()) {
-      gameObject->OnUpdate(delta_time);
-    }
+void Server::OnUpdate(float delta_time)
+{
+  for (auto &gameObject : game_objects_) {
+    if (gameObject->IsActive()) { gameObject->OnUpdate(delta_time); }
   }
 }
 
-void Server::BroadcastGameObjectState() {
-  
+void Server::BroadcastGameObjectState() const
+{
+  if (server_ == nullptr) { return; }
 }
 
-void Server::run() {
-  start();
-}
+void Server::run() { Start(); }
 
-} // namespace chroma::server
+}// namespace chroma::server

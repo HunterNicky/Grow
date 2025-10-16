@@ -1,19 +1,19 @@
 #include <cstdint>
 #include <memory>
 
+#include <uuid_v4.h>
+
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/Component.h"
 #include "chroma/shared/core/components/Transform.h"
 #include "chroma/shared/utils/UUID.h"
-#include "uuid_v4.h"
 
 namespace chroma::shared::core {
 
 GameObject::GameObject()
   : active_(true), id_(utils::UUID::Generate()), layer_(0), Type_(GameObjectType::NONE),
     transform_(std::make_shared<component::Transform>())
-{
-}
+{}
 
 GameObject::GameObject(const UUIDv4::UUID &id, bool active, uint32_t layer, GameObjectType tag)
   : active_(active), id_(id), layer_(layer), Type_(tag), transform_(std::make_shared<component::Transform>())
