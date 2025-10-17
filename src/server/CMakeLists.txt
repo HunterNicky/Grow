@@ -19,9 +19,9 @@ target_link_libraries(chroma_server
     chroma::chroma_warnings
 )
 
-target_link_libraries(chroma_server
-  PRIVATE
-    enet
+target_link_system_libraries(chroma_server
+  PUBLIC
+    enet::enet_static
 )
 
 if(MSVC)

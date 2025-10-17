@@ -1,11 +1,10 @@
-#include "chroma/server/Server.h"
 #include "chroma/shared/core/GameObject.h"
+#include "chroma/server/Server.h"
 
 #include <chrono>
 #include <cstddef>
 #include <cstdlib>
-#include <enet/enet.h>
-#include <enet/types.h>
+#include <enet.h>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -23,12 +22,12 @@ Server::Server() : server_(nullptr), address_(), is_running_(false), tick_counte
 }
 
 Server::Server(ENetHost *server,
-  ENetAddress address,
-  bool is_running,
-  int tick_counter,
-  std::vector<std::shared_ptr<chroma::shared::core::GameObject>> game_objects)
-  : server_(server), address_(address), is_running_(is_running), tick_counter_(tick_counter),
-    game_objects_(std::move(game_objects))
+               ENetAddress address,
+               bool is_running,
+               int tick_counter,
+               std::vector<std::shared_ptr<shared::core::GameObject>> game_objects)
+    : server_(server), address_(address), is_running_(is_running), tick_counter_(tick_counter),
+      game_objects_(std::move(game_objects))
 {}
 
 Server::~Server() { Stop(); }

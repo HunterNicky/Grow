@@ -30,11 +30,12 @@ target_include_directories(chroma_shared
 )
 
 target_link_system_libraries(chroma_shared
-  PRIVATE
-    raylib
   PUBLIC
+    raylib
+    incl
     uuid_v4
 )
+
 target_link_libraries(chroma_shared
   PUBLIC
     chroma::chroma_options

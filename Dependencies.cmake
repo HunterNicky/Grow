@@ -68,8 +68,13 @@ function(chroma_setup_dependencies)
   )
 
   CPMAddPackage(
-    NAME Enet
-    GITHUB_REPOSITORY zpl-c/enet
-    GIT_TAG v2.6.5
+          NAME Enet
+          GITHUB_REPOSITORY zpl-c/enet
+          GIT_TAG v2.6.5
+          OPTIONS
+            "ENET_STATIC ON"
+            "ENET_TEST OFF"
+            "ENET_SHARED OFF"
   )
+
 endfunction()
