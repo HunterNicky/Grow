@@ -15,7 +15,7 @@ target_link_libraries(chroma_client
 
 target_link_system_libraries(
     chroma_client
-    PRIVATE
+    PUBLIC
         raylib
         raygui
 )

@@ -33,7 +33,7 @@ target_link_system_libraries(chroma_shared
   PUBLIC
     raylib
     incl
-    uuid_v4
+    uuid_v4_silenced
 )
 
 target_link_libraries(chroma_shared

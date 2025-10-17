@@ -24,6 +24,10 @@ target_link_system_libraries(chroma_server
     enet::enet_static
 )
 
+if (WIN32)
+  target_compile_definitions(chroma_server PUBLIC WIN32_LEAN_AND_MEAN NOMINMAX NOGDI NOUSER)
+endif()
+
 if(MSVC)
   target_compile_options(chroma_server PRIVATE /wd4242 /wd4701 /wd4703 /wd4996)
 endif()

@@ -10,9 +10,26 @@ function(chroma_setup_dependencies)
 
   set(THIRD_PARTY_DIR ${CMAKE_SOURCE_DIR}/third_party)
 
-  include(cmake/dependencies/raylib.cmake)
+  find_package(raylib QUIET)
+  if (NOT raylib_FOUND)
+     CPMAddPackage("gh:raysan5/raylib#5.5")
+  endif()
+  
+  find_package(raygui QUIET CONFIG)
+  if (NOT raygui_FOUND)
+     CPMAddPackage("gh:raysan5/raygui#4.0")
+  if (NOT TARGET raygui)
+     add_library(raygui INTERFACE)
+     if (MSVC)
+         target_compile_options(raygui INTERFACE /w)
+     elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+         target_compile_options(raygui INTERFACE -w)
+     endif()
 
-  include(cmake/dependencies/raygui.cmake)
+     target_include_directories(raygui SYSTEM INTERFACE "${raygui_SOURCE_DIR}/src")
+  endif()
+
+  endif()
 
   include(cmake/dependencies/sqlite.cmake)
 
@@ -37,11 +54,27 @@ function(chroma_setup_dependencies)
   #   )
   # endif()
 
-  CPMAddPackage(
+CPMAddPackage(
     NAME uuid_v4
     GITHUB_REPOSITORY crashoz/uuid_v4
     GIT_TAG master
-  )
+)
+
+  if (NOT TARGET uuid_v4_silenced)
+    add_library(uuid_v4_silenced INTERFACE)
+
+    if (MSVC)
+        target_compile_options(uuid_v4_silenced INTERFACE /w)
+    elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+        target_compile_options(uuid_v4_silenced INTERFACE -w)
+    endif()
+
+    target_link_libraries(uuid_v4_silenced INTERFACE uuid_v4)
+    target_include_directories(uuid_v4_silenced SYSTEM INTERFACE
+        "${uuid_v4_SOURCE_DIR}"
+    )
+  endif()
+
 
   find_package(Flatbuffers CONFIG QUIET)
   if(Flatbuffers_FOUND)

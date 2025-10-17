@@ -11,13 +11,13 @@ target_link_libraries(intro
 
 target_link_system_libraries(
     intro
-    PRIVATE
+    PUBLIC
         Tracy::TracyClient
         raylib
         raygui
         sqlite3
         sqlite_orm
-        uuid_v4
+        uuid_v4_silenced
 )
 
 target_include_directories(intro
