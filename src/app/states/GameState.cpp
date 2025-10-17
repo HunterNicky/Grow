@@ -1,7 +1,7 @@
-#include "chroma/app/layers/states/GameState.h"
+#include "chroma/app/states/GameState.h"
 
  #include "chroma/shared/core/player/Player.h"
- #include "chroma/app/layers/states/State.h"
+ #include "chroma/app/states/State.h"
  #include <memory>
 
 namespace chroma::app::layer::states {

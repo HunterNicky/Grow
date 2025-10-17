@@ -4,13 +4,15 @@
 #include <memory>
 #include <raygui.h>
 #include <utility>
+#include <thread>
 
 #include "chroma/app/Application.h"
 #include "chroma/app/events/Event.h"
 #include "chroma/app/layers/Layer.h"
 #include "chroma/app/layers/LayerStack.h"
 #include "chroma/app/layers/game/GameLayer.h"
-#include "chroma/app/layers/states/GameState.h"
+#include "chroma/app/states/GameState.h"
+#include "chroma/server/Server.h"
 
 namespace chroma::app {
 Application::Application() : layer_stack_(std::make_unique<layer::LayerStack>()), delta_time_(0.F), window_(1280, 720, "Chroma") {};
@@ -22,6 +24,11 @@ void Application::Run()
     auto game_layer = std::make_unique<layer::game::GameLayer>();
     game_layer->PushState(std::make_shared<layer::states::GameState>());
     PushLayer(std::move(game_layer));
+
+    const std::thread thread_server([]() {
+      chroma::server::Server server;
+      server.Run();
+    });
 
     auto last_time = static_cast<float>(GetTime());
 

@@ -2,7 +2,7 @@
 #include <utility>
 
 #include "chroma/app/events/Event.h"
-#include "chroma/app/layers/states/State.h"
+#include "chroma/app/states/State.h"
 
 namespace chroma::app::layer::states {
 State::State(std::string name) : name_(std::move(name)), active_(false) {}

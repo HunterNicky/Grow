@@ -7,6 +7,7 @@ target_link_libraries(intro
         chroma::chroma_options
         chroma::chroma_warnings
         chroma::client
+        chroma::server
 )
 
 target_link_system_libraries(
@@ -18,6 +19,7 @@ target_link_system_libraries(
         sqlite3
         sqlite_orm
         uuid_v4_silenced
+        enet::enet_static
 )
 
 target_include_directories(intro

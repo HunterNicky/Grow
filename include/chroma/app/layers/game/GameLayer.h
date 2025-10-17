@@ -7,7 +7,6 @@ class GameLayer : public Layer
 {
 public:        
     GameLayer();
-    ~GameLayer() override = default;
     void OnUpdate(const float delta_time) override;
     void OnRender() override;
 };

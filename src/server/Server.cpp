@@ -1,4 +1,4 @@
-#include "chroma/shared/core/GameObject.h"
+// #include "chroma/shared/core/GameObject.h"
 #include "chroma/server/Server.h"
 
 #include <chrono>
@@ -6,8 +6,8 @@
 #include <cstdlib>
 #include <enet.h>
 #include <memory>
-#include <utility>
-#include <vector>
+// #include <utility>
+// #include <vector>
 
 namespace chroma::server {
 
@@ -24,10 +24,11 @@ Server::Server() : server_(nullptr), address_(), is_running_(false), tick_counte
 Server::Server(ENetHost *server,
                ENetAddress address,
                bool is_running,
-               int tick_counter,
-               std::vector<std::shared_ptr<shared::core::GameObject>> game_objects)
-    : server_(server), address_(address), is_running_(is_running), tick_counter_(tick_counter),
-      game_objects_(std::move(game_objects))
+               int tick_counter
+               /*,
+               std::vector<std::shared_ptr<shared::core::GameObject>> game_objects*/)
+    : server_(server), address_(address), is_running_(is_running), tick_counter_(tick_counter)
+    // ,game_objects_(std::move(game_objects))
 {}
 
 Server::~Server() { Stop(); }
@@ -41,7 +42,7 @@ int Server::Start()
   auto lastTick = std::chrono::steady_clock::now();
 
   while (is_running_) {
-    while (enet_host_service(server_, &event, 0) > 0) {
+    while (enet_host_service(server_.get(), &event, 0) > 0) {
       switch (event.type) {
       case ENET_EVENT_TYPE_CONNECT:
         if (ConnectClient(event)) {}
@@ -79,7 +80,7 @@ int Server::Start()
 int Server::Stop()
 {
   if (server_ != nullptr) {
-    enet_host_destroy(server_);
+    enet_host_destroy(server_.get());
     server_ = nullptr;
   }
   enet_deinitialize();
@@ -115,7 +116,7 @@ bool Server::InitServer(int port, int max_clients)
 
   address_.host = ENET_HOST_ANY;
   address_.port = static_cast<enet_uint16>(port);
-  server_ = enet_host_create(&address_, static_cast<size_t>(max_clients), 2, 0, 0);
+  server_ = std::shared_ptr<ENetHost>(enet_host_create(&address_, static_cast<size_t>(max_clients), 2, 0, 0), &enet_host_destroy);
 
   if (server_ == nullptr) {
     enet_deinitialize();
@@ -123,7 +124,7 @@ bool Server::InitServer(int port, int max_clients)
   }
 
   if (atexit(enet_deinitialize) != 0) {
-    enet_host_destroy(server_);
+    enet_host_destroy(server_.get());
     enet_deinitialize();
     server_ = nullptr;
     return false;
@@ -134,9 +135,9 @@ bool Server::InitServer(int port, int max_clients)
 
 void Server::OnUpdate(float delta_time)
 {
-  for (auto &gameObject : game_objects_) {
-    if (gameObject->IsActive()) { gameObject->OnUpdate(delta_time); }
-  }
+  // for (auto &gameObject : game_objects_) {
+  //   if (gameObject->IsActive()) { gameObject->OnUpdate(delta_time); }
+  // }
 }
 
 void Server::BroadcastGameObjectState() const
@@ -144,6 +145,6 @@ void Server::BroadcastGameObjectState() const
   if (server_ == nullptr) { return; }
 }
 
-void Server::run() { Start(); }
+void Server::Run() { Start(); }
 
 }// namespace chroma::server

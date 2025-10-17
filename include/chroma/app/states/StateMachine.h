@@ -3,7 +3,7 @@
 #include <memory>
 #include <stack>
 
-#include "chroma/app/layers/states/State.h"
+#include "chroma/app/states/State.h"
 
 namespace chroma::app::layer::states {
 class StateMachine

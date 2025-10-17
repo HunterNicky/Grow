@@ -1,6 +1,6 @@
 #pragma once 
 
-#include "chroma/app/layers/states/State.h"
+#include "chroma/app/states/State.h"
 #include <vector>
 #include "chroma/shared/core/GameObject.h"
 
@@ -9,7 +9,6 @@ class GameState : public State
 {
 public:
     GameState();
-    ~GameState() override = default;
 
     void OnRender() override;
     void OnUpdate(float delta_time) override;

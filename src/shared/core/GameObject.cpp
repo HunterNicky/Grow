@@ -1,6 +1,5 @@
 #include <cstdint>
 #include <memory>
-
 #include <uuid_v4.h>
 
 #include "chroma/shared/core/GameObject.h"

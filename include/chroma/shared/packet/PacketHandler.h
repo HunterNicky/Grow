@@ -3,7 +3,6 @@
 #pragma once
 
 #include "chroma/shared/core/GameObject.h"
-#include <memory>
 #include <vector>
 
 namespace chroma::server::net {
