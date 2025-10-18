@@ -22,6 +22,9 @@ namespace component {
 enum class GameObjectType : uint8_t {
   NONE = 0,
   PLAYER = 1,
+  ENEMY = 2,
+  PROJECTILE = 3,
+  OBSTACLE = 4,
 };
 
 class GameObject : public std::enable_shared_from_this<GameObject>

@@ -17,7 +17,6 @@ namespace chroma::shared::core::player
     void Player::InitComponents()
     {
         auto speed_component = std::make_shared<component::Speed>(200.0F);
-        AttachComponent(transform_);
         AttachComponent(speed_component);
     }
 
@@ -47,8 +46,8 @@ namespace chroma::shared::core::player
         }
 
         Vector2 pos = transform->GetPosition();
-        pos.x += direction.x * speed->GetSpeed() * delta_time;
-        pos.y += direction.y * speed->GetSpeed() * delta_time;
+        pos.x += direction.x * speed->GetSpeed().x * delta_time;
+        pos.y += direction.y * speed->GetSpeed().y * delta_time;
         transform->SetPosition(pos);
     }
 

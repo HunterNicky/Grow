@@ -1,15 +1,44 @@
-namespace chroma.shared.net;
+namespace Game;
 
-table Vec2 {
-  x:float;
-  y:float;
+table Vec2 { x:float; y:float; }
+
+table Position { pos:Vec2; }
+table Velocity { vel:Vec2; }
+table Health { value:int32; }
+table Facing { angle:float; }
+
+// Adicione novos componentes aqui
+union ComponentUnion { Position, Velocity, Health, Facing }
+
+table Component {
+  type:ComponentUnion;
 }
 
-table GameObject {
-  uuid:string;         // Id (UUID)
-  type:int;            // Tipo (ex: "Player", "Enemy", "Projectile")
-  position:Vec2;       // Posição
-  velocity:float;      // Velocidade
+table EntityState {
+  id:string;
+  components:[Component];
 }
 
-root_type GameObject;
+table Snapshot {
+  serverTime:uint64;
+  lastProcessedInput:uint32;
+  entities:[EntityState];
+}
+
+table InputMessage {
+  seq:uint32;
+  dt:float;
+  move:Vec2;
+  shoot:bool;
+}
+
+enum MsgType:byte { NONE = 0, INPUT = 1, SNAPSHOT = 2 }
+
+union MsgUnion { InputMessage, Snapshot }
+
+table Envelope {
+  type:MsgType;
+  msg:MsgUnion;
+}
+
+root_type Envelope;
