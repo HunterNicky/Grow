@@ -13,7 +13,7 @@ namespace chroma::server {
 
 Server::Server() : server_(nullptr), address_(), is_running_(false), tick_counter_(0)
 {
-  if (!InitServer(8080, 2)) {
+  if (!InitServer(6969, 2)) {
     is_running_ = false;
     return;
   } else {
@@ -24,11 +24,9 @@ Server::Server() : server_(nullptr), address_(), is_running_(false), tick_counte
 Server::Server(ENetHost *server,
                ENetAddress address,
                bool is_running,
-               int tick_counter
-               /*,
-               std::vector<std::shared_ptr<shared::core::GameObject>> game_objects*/)
-    : server_(server), address_(address), is_running_(is_running), tick_counter_(tick_counter)
-    // ,game_objects_(std::move(game_objects))
+               int tick_counter,
+               std::vector<std::shared_ptr<shared::core::GameObject>> game_objects)
+    : server_(server), address_(address), is_running_(is_running), tick_counter_(tick_counter), game_objects_(std::move(game_objects))
 {}
 
 Server::~Server() { Stop(); }
@@ -41,7 +39,7 @@ int Server::Start()
 
   auto lastTick = std::chrono::steady_clock::now();
 
-  while (is_running_) {
+    while (is_running_) {
     while (enet_host_service(server_.get(), &event, 0) > 0) {
       switch (event.type) {
       case ENET_EVENT_TYPE_CONNECT:
@@ -135,9 +133,9 @@ bool Server::InitServer(int port, int max_clients)
 
 void Server::OnUpdate(float delta_time)
 {
-  // for (auto &gameObject : game_objects_) {
-  //   if (gameObject->IsActive()) { gameObject->OnUpdate(delta_time); }
-  // }
+  for (auto &gameObject : game_objects_) {
+    if (gameObject->IsActive()) { gameObject->OnUpdate(delta_time); }
+  }
 }
 
 void Server::BroadcastGameObjectState() const

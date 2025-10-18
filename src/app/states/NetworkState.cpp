@@ -1,15 +1,25 @@
 #include "chroma/app/states/NetworkState.h"
 #include "chroma/app/states/State.h"
+#include "chroma/server/Server.h"
 
+#include <thread>
 #include <memory>
 #include <enet.h>
+#include <future>
 
 namespace chroma::app::layer::states {
 
+void NetworkState::PeerDeleter(ENetPeer* peer) {
+    if (peer != nullptr && peer->host != nullptr) {
+        enet_peer_reset(peer);
+    }
+}
+
+
 NetworkState::NetworkState()
     : State("NetworkState"),
-      client_(nullptr),
-      server_peer_(nullptr),
+      client_(nullptr, &enet_host_destroy),
+      server_peer_(nullptr, &PeerDeleter),
       server_address_({}),
       event_({})
 {
@@ -17,16 +27,37 @@ NetworkState::NetworkState()
         return;
     }
 
-    client_ = std::unique_ptr<ENetHost>(enet_host_create(nullptr, 1, 2, 0, 0));
+    client_ = std::unique_ptr<ENetHost, decltype(&enet_host_destroy)>(enet_host_create(nullptr, 1, 2, 0, 0), &enet_host_destroy);
     if (client_ == nullptr) {
         enet_deinitialize();
     } 
+
+    ConnectToServer("127.0.0.1", 6969);
 }
 
 NetworkState::~NetworkState() {
     DisconnectFromServer();
     client_.reset();
     enet_deinitialize();
+}
+
+void NetworkState::DisconnectFromServer() {
+    if (server_peer_ != nullptr) {
+        enet_peer_disconnect(server_peer_.get(), 0);
+
+        while (enet_host_service(client_.get(), &event_, 3000) > 0) {
+            if (event_.type == ENET_EVENT_TYPE_DISCONNECT) {
+                server_peer_ = nullptr;
+                break;
+            }
+        }
+
+        if (server_peer_ != nullptr) {
+            enet_peer_reset(server_peer_.get());
+            server_peer_ = nullptr;
+        }
+    }
+    connected_ = false;
 }
 
 void NetworkState::OnUpdate(float delta_time) {
@@ -45,40 +76,61 @@ void NetworkState::OnReceiveData() const {
     }
 }
 
-void NetworkState::ConnectToServer(const std::string& host, enet_uint16 port) {
-    if (client_ == nullptr) {
-        return;
-    }
+// NOLINTNEXTLINE
+bool NetworkState::TryConnect(const std::string& host, enet_uint16 port)
+{
+    server_peer_.reset();
+    ENetEvent event;
 
-    enet_address_set_host(&server_address_, host.c_str());
     server_address_.port = port;
+    enet_address_set_host(&server_address_, host.c_str());
 
-    server_peer_ = std::unique_ptr<ENetPeer>(enet_host_connect(client_.get(), &server_address_, 2, 0));
-    if (server_peer_ == nullptr) {
-        return;
-    }
+    client_ = std::unique_ptr<ENetHost, decltype(&enet_host_destroy)>(
+        enet_host_create(nullptr, 1, 2, 0, 0),
+        &enet_host_destroy
+    );
 
-    if (enet_host_service(client_.get(), &event_, 5000) > 0 &&
-        event_.type == ENET_EVENT_TYPE_CONNECT) {
+    if (!client_) { return false; }
+
+    server_peer_ = std::unique_ptr<ENetPeer, decltype(&enet_peer_reset)>(
+        enet_host_connect(client_.get(), &server_address_, 2, 0),
+        &PeerDeleter
+    );
+    enet_host_flush(client_.get());
+
+    return (enet_host_service(client_.get(), &event, 1000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT);
+}
+
+void NetworkState::ConnectToServer(const std::string& host, enet_uint16 port) {
+    if (TryConnect(host, port)) {
+        std::cout << "Conectou: este jogador é cliente.\n";
     } else {
-        enet_peer_reset(server_peer_.get());
-        server_peer_ = nullptr;
+        std::cout << "Nenhum servidor encontrado. Subindo servidor local...\n";
+
+        std::promise<bool> ready;
+        auto fut = ready.get_future();
+
+        std::thread thread_server([&ready]() {
+            auto server = std::make_shared<chroma::server::Server>();
+            ready.set_value(server->IsRunning());
+            server->Run();
+        });
+        thread_server.detach();
+
+        if (fut.wait_for(std::chrono::seconds(2)) == std::future_status::ready &&
+            fut.get()) {
+            std::cout << "Servidor local pronto.\n";
+            if (TryConnect(host, port)) {
+                std::cout << "Conectou ao servidor local como cliente.\n";
+            } else {
+                std::cerr << "Falha ao conectar ao servidor local.\n";
+            }
+        } else {
+            std::cerr << "Falha ao iniciar servidor.\n";
+        }
     }
 }
 
-void NetworkState::DisconnectFromServer() {
-    if (server_peer_ != nullptr) {
-        enet_peer_disconnect(server_peer_.get(), 0);
-        while (enet_host_service(client_.get(), &event_, 3000) > 0) {
-            if (event_.type == ENET_EVENT_TYPE_RECEIVE) {
-                enet_packet_destroy(event_.packet);
-            } else if (event_.type == ENET_EVENT_TYPE_DISCONNECT) {
-                break;
-            }
-        }
-        server_peer_ = nullptr;
-    }
-}
 
 void NetworkState::ProcessEvent(const ENetEvent& event) {
     switch (event.type) {
