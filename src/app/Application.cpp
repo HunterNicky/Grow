@@ -28,8 +28,8 @@ void Application::Run()
     auto network_layer = std::make_unique<layer::network::NetworkLayer>();
     network_layer->PushState(std::make_shared<layer::states::NetworkState>());
 
-    PushLayer(std::move(game_layer));
     PushLayer(std::move(network_layer));
+    PushLayer(std::move(game_layer));
 
     auto last_time = static_cast<float>(GetTime());
 

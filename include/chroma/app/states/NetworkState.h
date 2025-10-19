@@ -24,7 +24,7 @@ public:
 private:
 
     std::unique_ptr<ENetHost, decltype(&enet_host_destroy)> client_;
-    std::unique_ptr<ENetPeer, void(*)(ENetPeer*)> server_peer_;
+    std::unique_ptr<ENetPeer, decltype(&enet_peer_reset)> server_peer_;
     ENetAddress server_address_;
     ENetEvent event_;
 

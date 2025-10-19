@@ -39,52 +39,50 @@ int Server::Start()
 
   auto lastTick = std::chrono::steady_clock::now();
 
-    while (is_running_) {
-    while (enet_host_service(server_.get(), &event, 0) > 0) {
+  while (is_running_) {
+    while (is_running_ && enet_host_service(server_.get(), &event, 0) > 0) {
       switch (event.type) {
-      case ENET_EVENT_TYPE_CONNECT:
-        if (ConnectClient(event)) {}
-        break;
+        case ENET_EVENT_TYPE_CONNECT:
+          if (ConnectClient(event)) {}
+          break;
 
-      case ENET_EVENT_TYPE_RECEIVE:
-        enet_packet_destroy(event.packet);
-        break;
+        case ENET_EVENT_TYPE_RECEIVE:
+          enet_packet_destroy(event.packet);
+          break;
 
-      case ENET_EVENT_TYPE_DISCONNECT:
-        if (DisconnectClient(event)) {}
-        break;
+        case ENET_EVENT_TYPE_DISCONNECT:
+          if (DisconnectClient(event)) {}
+          break;
 
-      default:
-        break;
+        default:
+          break;
       }
+
     }
 
     tick_counter_++;
-
+  
     auto now = std::chrono::steady_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastTick).count();
-
+  
     if (tick_counter_ >= TICKS) {
       lastTick = now;
       tick_counter_ = 0;
       BroadcastGameObjectState();
     }
-
     OnUpdate(static_cast<float>(elapsed) / 1000.0F);
   }
+
   return 0;
 }
 
-int Server::Stop()
-{
-  if (server_ != nullptr) {
-    enet_host_destroy(server_.get());
-    server_ = nullptr;
-  }
-  enet_deinitialize();
-  is_running_ = false;
-  return 0;
+int Server::Stop() {
+    if (server_) {
+        enet_host_destroy(server_.get()); 
+        server_.reset();                 
+    }
 }
+
 
 bool Server::ConnectClient(const ENetEvent &event) const
 {
@@ -97,16 +95,27 @@ bool Server::ConnectClient(const ENetEvent &event) const
   return true;
 }
 
+// NOLINTNEXTLINE
 bool Server::DisconnectClient(const ENetEvent &event)
 {
-  if (event.type != ENET_EVENT_TYPE_DISCONNECT) { return false; }
+    if (event.type != ENET_EVENT_TYPE_DISCONNECT)
+    {
+      return false;
+    }
 
-  event.peer->data = nullptr;
-
-  if (server_ == nullptr || server_->connectedPeers == 0) { SetRunning(false); }
-
-  return true;
+    if (!is_running_ || server_ == nullptr)
+    {
+      return false;
+    }
+    
+    if (server_->connectedPeers == 0)
+    {
+      }
+      
+    SetRunning(false);
+    return true;
 }
+
 
 bool Server::InitServer(int port, int max_clients)
 {

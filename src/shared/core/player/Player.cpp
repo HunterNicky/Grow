@@ -18,6 +18,8 @@ namespace chroma::shared::core::player
     {
         auto speed_component = std::make_shared<component::Speed>(200.0F);
         AttachComponent(speed_component);
+        transform_->SetScale({50.0F, 50.0F});
+        AttachComponent(transform_);
     }
 
     Player::~Player() = default;
@@ -64,6 +66,6 @@ namespace chroma::shared::core::player
         auto transform = GetComponent<component::Transform>();
         if (!transform) { return; }
 
-        DrawCircleV(transform->GetPosition(), 20.0F, BLUE);
+        DrawRectangleV(transform->GetPosition(), transform->GetScale(), BLUE);
     }
 }

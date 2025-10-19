@@ -42,23 +42,26 @@ NetworkState::~NetworkState() {
 }
 
 void NetworkState::DisconnectFromServer() {
-    if (server_peer_ != nullptr) {
-        enet_peer_disconnect(server_peer_.get(), 0);
+    if (!server_peer_) { return; }
 
-        while (enet_host_service(client_.get(), &event_, 3000) > 0) {
-            if (event_.type == ENET_EVENT_TYPE_DISCONNECT) {
-                server_peer_ = nullptr;
-                break;
-            }
-        }
+    enet_peer_disconnect(server_peer_.get(), 0);
 
-        if (server_peer_ != nullptr) {
-            enet_peer_reset(server_peer_.get());
-            server_peer_ = nullptr;
+    bool disconnected = false;
+    while (enet_host_service(client_.get(), &event_, 3000) > 0) {
+        if (event_.type == ENET_EVENT_TYPE_DISCONNECT && event_.peer == server_peer_.get()) {
+            disconnected = true;
+            break;
         }
     }
+
+    if (!disconnected && server_peer_) {
+        enet_peer_reset(server_peer_.get());
+    }
+
+    server_peer_.reset();
     connected_ = false;
 }
+
 
 void NetworkState::OnUpdate(float delta_time) {
 
