@@ -32,8 +32,11 @@ table Snapshot {
 table InputMessage {
   seq:uint32;
   dt:float;
-  move:Vec2;
-  shoot:bool;
+  player_id: string;
+  key_pressed: uint8;
+  mouse_position: Vec2;
+  mouse_left_click: bool;
+  mouse_right_click: bool;
 }
 
 enum MsgType:byte { NONE = 0, INPUT = 1, SNAPSHOT = 2 }

@@ -6,12 +6,17 @@
 
 namespace chroma::app::layer::states {
 
-GameState::GameState() : State("GameState") {
+GameState::GameState() : State("GameState"), network_mediator_(nullptr) {
     
     auto player = std::make_shared<chroma::shared::core::player::Player>();
     player->InitComponents();
     game_objects_.emplace_back(player);
 }
+
+GameState::GameState(std::shared_ptr<GameNetworkMediator> network_mediator)
+    : State("GameState"), network_mediator_(std::move(network_mediator)) {
+}
+
 
 void GameState::OnRender() {
 
@@ -28,10 +33,13 @@ void GameState::OnUpdate(float delta_time) {
 
     if(!IsActive()) { return; }
 
-    for (const auto &obj : game_objects_) {
-        if (obj && obj->IsActive()) {
-            obj->OnUpdate(delta_time);
+    if(!network_mediator_) {
+        for (const auto &obj : game_objects_) {
+            if (obj && obj->IsActive()) {
+                obj->OnUpdate(delta_time);
+            }
         }
     }
 }
+
 } // namespace chroma::app::layer::states

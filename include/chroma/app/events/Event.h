@@ -8,7 +8,10 @@ class Event
 public:
   enum Type : uint8_t {
     None = 0,
+    KeyPressed = 1,
+    KeyReleased = 2,
   };
+
   Event(const Event &) = default;
   Event(Event &&) = delete;
   Event &operator=(const Event &) = default;

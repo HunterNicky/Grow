@@ -1,4 +1,5 @@
 #include "chroma/app/states/NetworkState.h"
+#include "GameObject_generated.h"
 #include "chroma/app/states/State.h"
 #include "chroma/server/Server.h"
 
@@ -105,11 +106,7 @@ bool NetworkState::TryConnect(const std::string& host, enet_uint16 port)
 }
 
 void NetworkState::ConnectToServer(const std::string& host, enet_uint16 port) {
-    if (TryConnect(host, port)) {
-        std::cout << "Conectou: este jogador é cliente.\n";
-    } else {
-        std::cout << "Nenhum servidor encontrado. Subindo servidor local...\n";
-
+    if (!TryConnect(host, port)) {
         std::promise<bool> ready;
         auto fut = ready.get_future();
 
@@ -120,17 +117,9 @@ void NetworkState::ConnectToServer(const std::string& host, enet_uint16 port) {
         });
         thread_server.detach();
 
-        if (fut.wait_for(std::chrono::seconds(2)) == std::future_status::ready &&
-            fut.get()) {
-            std::cout << "Servidor local pronto.\n";
-            if (TryConnect(host, port)) {
-                std::cout << "Conectou ao servidor local como cliente.\n";
-            } else {
-                std::cerr << "Falha ao conectar ao servidor local.\n";
-            }
-        } else {
-            std::cerr << "Falha ao iniciar servidor.\n";
-        }
+        if (fut.wait_for(std::chrono::seconds(2)) == std::future_status::ready && fut.get()) {
+            TryConnect(host, port);
+        } 
     }
 }
 
@@ -155,4 +144,57 @@ void NetworkState::InterpolateGameObjectStates(float delta_time) {
     (void)delta_time;
 }
 
+void NetworkState::OnEvent(event::Event& event) {
+    if (!IsActive()) { return; }
+
+    using Type = event::Event::Type;
+
+    float dt = 0.0F; 
+    
+    Vector2 mousePos = GetMousePosition();
+    
+    bool leftClick = IsMouseButtonDown(MOUSE_BUTTON_LEFT);
+    bool rightClick = IsMouseButtonDown(MOUSE_BUTTON_RIGHT);
+    
+    uint8_t keyPressed = 0;
+    if (IsKeyDown(KEY_W)) { keyPressed = KEY_W; }
+    else if (IsKeyDown(KEY_S)) { keyPressed = KEY_S; }
+    else if (IsKeyDown(KEY_A)) { keyPressed = KEY_A; }
+    else if (IsKeyDown(KEY_D)) { keyPressed = KEY_D; }
+
+
+    // Monta a mensagem
+    flatbuffers::FlatBufferBuilder builder(128);
+    auto fbMouse = Game::CreateVec2(builder, mousePos.x, mousePos.y);
+    auto fbPlayerId = builder.CreateString("player_001");
+
+    auto inputMsg = Game::CreateInputMessage(
+        builder,
+        seq_num_++,
+        dt,
+        fbPlayerId,
+        keyPressed,
+        fbMouse,
+        leftClick,
+        rightClick
+    );
+
+    auto env = Game::CreateEnvelope(
+        builder,
+        Game::MsgType::INPUT,
+        Game::MsgUnion::InputMessage,
+        inputMsg.Union()
+    );
+
+    builder.Finish(env);
+
+    ENetPacket* packet = enet_packet_create(
+        builder.GetBufferPointer(),
+        builder.GetSize(),
+        ENET_PACKET_FLAG_UNSEQUENCED
+    );
+
+    enet_peer_send(server_peer_.get(), 0, packet);
+}
+ 
 } // namespace chroma::app::layer::states

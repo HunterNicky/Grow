@@ -20,6 +20,7 @@ public:
 private:
     std::weak_ptr<GameLayer> gameLayer_;
     std::weak_ptr<NetworkLayer> networkLayer_;
+    
 };
 
 } // namespace chroma

@@ -10,4 +10,13 @@ void NetworkLayer::OnUpdate(float delta_time)
 
     state_machine_->OnUpdate(delta_time);
 }
+
+void NetworkLayer::OnEvent(event::Event& event)
+{
+    if (!IsActive()) { return; }
+
+    auto current_state = GetCurrentState();
+
+    if (current_state) { current_state->OnEvent(event); }
+}
 } // namespace chroma::app::layer::network

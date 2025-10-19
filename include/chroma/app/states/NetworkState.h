@@ -1,17 +1,20 @@
 #pragma once
 
+#include <cstdint>
 #include <enet.h>
 #include <memory>
 #include <vector>
 
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/app/states/State.h"
+#include "chroma/app/layers/mediator/GameNetworkMediator.h"
 
 namespace chroma::app::layer::states {
 class NetworkState : public State
 {
 public:
     NetworkState();
+    explicit NetworkState(std::shared_ptr<GameNetworkMediator> game_mediator);
     ~NetworkState() override;
 
     NetworkState(const NetworkState&) = delete;
@@ -20,6 +23,7 @@ public:
     NetworkState& operator=(NetworkState&&) = delete;
     
     void OnUpdate(float delta_time) override;
+    void OnEvent(event::Event& event) override;
 
 private:
 
@@ -28,8 +32,11 @@ private:
     ENetAddress server_address_;
     ENetEvent event_;
 
+    uint32_t seq_num_ = 0;
+
     std::vector<std::shared_ptr<chroma::shared::core::GameObject>> game_objects_past_;
     std::vector<std::shared_ptr<chroma::shared::core::GameObject>> game_objects_present_;
+    std::shared_ptr<chroma::GameNetworkMediator> game_mediator_;
 
     static void PeerDeleter(ENetPeer* peer);
 

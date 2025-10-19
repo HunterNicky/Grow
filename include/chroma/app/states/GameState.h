@@ -1,19 +1,28 @@
 #pragma once 
 
 #include "chroma/app/states/State.h"
+#include <memory>
 #include <vector>
 #include "chroma/shared/core/GameObject.h"
+#include "chroma/app/layers/mediator/GameNetworkMediator.h"
+
+enum SelectLevel : uint8_t
+{
+    MEADOW_LEVEL,
+};
 
 namespace chroma::app::layer::states {
 class GameState : public State
 {
 public:
     GameState();
+    explicit GameState(std::shared_ptr<GameNetworkMediator> network_mediator);
 
     void OnRender() override;
     void OnUpdate(float delta_time) override;
 
 private:
     std::vector<std::shared_ptr<chroma::shared::core::GameObject>> game_objects_;
+    std::shared_ptr<GameNetworkMediator> network_mediator_;
 };
-} // namespace chroma::app::layer::states nicky gay
+} // namespace chroma::app::layer::states
