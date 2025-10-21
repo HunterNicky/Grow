@@ -9,6 +9,5 @@ public:
   NetworkLayer();
 
   void OnUpdate(float delta_time) override;
-  void OnEvent(event::Event& event) override;
 };
 }

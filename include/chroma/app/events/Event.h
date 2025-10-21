@@ -8,8 +8,8 @@ class Event
 public:
   enum Type : uint8_t {
     None = 0,
-    KeyPressed = 1,
-    KeyReleased = 2,
+    KeyEvent = 1,
+    MouseEvent = 2,
   };
 
   Event(const Event &) = default;

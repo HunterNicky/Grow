@@ -31,17 +31,15 @@ private:
     std::unique_ptr<ENetPeer, decltype(&enet_peer_reset)> server_peer_;
     ENetAddress server_address_;
     ENetEvent event_;
-
     uint32_t seq_num_ = 0;
+    bool connected_ = false;
 
     std::vector<std::shared_ptr<chroma::shared::core::GameObject>> game_objects_past_;
     std::vector<std::shared_ptr<chroma::shared::core::GameObject>> game_objects_present_;
-    std::shared_ptr<chroma::GameNetworkMediator> game_mediator_;
+    std::shared_ptr<chroma::app::layer::GameNetworkMediator> game_mediator_;
+
 
     static void PeerDeleter(ENetPeer* peer);
-
-    bool connected_ = false;
-
     void ConnectToServer(const std::string& host, enet_uint16 port);
     void DisconnectFromServer();
     bool TryConnect(const std::string& host, enet_uint16 port);

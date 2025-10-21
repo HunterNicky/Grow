@@ -24,8 +24,8 @@ table EntityState {
 }
 
 table Snapshot {
-  serverTime:uint64;
-  lastProcessedInput:uint32;
+  server_time:uint64;
+  last_processed_input:uint32;
   entities:[EntityState];
 }
 
@@ -33,7 +33,9 @@ table InputMessage {
   seq:uint32;
   dt:float;
   player_id: string;
-  key_pressed: uint8;
+  key: uint8;
+  is_pressed: bool;
+  is_released: bool;
   mouse_position: Vec2;
   mouse_left_click: bool;
   mouse_right_click: bool;

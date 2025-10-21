@@ -4,8 +4,9 @@
 #include <memory>
 #include <raygui.h>
 #include <utility>
-#include <thread>
 
+#include "chroma/app/events/KeyEvent.h"
+#include "chroma/app/events/MouseEvent.h"
 #include "chroma/app/Application.h"
 #include "chroma/app/events/Event.h"
 #include "chroma/app/layers/Layer.h"
@@ -39,6 +40,12 @@ void Application::Run()
       delta_time_ = current_time - last_time;
       last_time = current_time;
 
+      auto event_ptr = PollInputEvents();
+
+      if (event_ptr) {
+         layer_stack_->HandleEvent(*event_ptr);
+      }
+
       layer_stack_->UpdateLayers(delta_time_);
 
       BeginDrawing();
@@ -66,6 +73,32 @@ void Application::PushOverlay(std::unique_ptr<layer::Layer> overlay) const
 }
 
 void Application::PopOverlay() const { layer_stack_->PopOverlay(); }
+
+// NOLINTNEXTLINE
+std::unique_ptr<event::Event> Application::PollInputEvents() {
+    if (IsKeyPressed(KEY_W)) {
+        return std::make_unique<event::KeyEvent>(KEY_W);
+    }
+    if (IsKeyReleased(KEY_W)) {
+        auto ev = std::make_unique<event::KeyEvent>(KEY_W);
+        ev->SetPressed(false);
+        return ev;
+    }
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+        Vector2 pos = GetMousePosition();
+        return std::make_unique<event::MouseEvent>(pos, true, false);
+    }
+    if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
+        Vector2 pos = GetMousePosition();
+        return std::make_unique<event::MouseEvent>(pos, false, true);
+    }
+    if (GetMouseDelta().x != 0 || GetMouseDelta().y != 0) {
+        Vector2 pos = GetMousePosition();
+        return std::make_unique<event::MouseEvent>(pos);
+    }
+    return nullptr;
+}
+
 
 void Application::DispatchEvent(event::Event &event) const { event_dispatcher_->Dispatch(event); }
 }// namespace chroma::app

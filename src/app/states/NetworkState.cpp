@@ -1,4 +1,6 @@
 #include "chroma/app/states/NetworkState.h"
+#include "chroma/app/events/KeyEvent.h"
+#include "chroma/app/events/MouseEvent.h"
 #include "GameObject_generated.h"
 #include "chroma/app/states/State.h"
 #include "chroma/server/Server.h"
@@ -145,35 +147,53 @@ void NetworkState::InterpolateGameObjectStates(float delta_time) {
 }
 
 void NetworkState::OnEvent(event::Event& event) {
-    if (!IsActive()) { return; }
+    if (!IsActive()) { 
+        return; 
+    }
 
-    using Type = event::Event::Type;
+    flatbuffers::FlatBufferBuilder builder;
 
-    float dt = 0.0F; 
-    
-    Vector2 mousePos = GetMousePosition();
-    
-    bool leftClick = IsMouseButtonDown(MOUSE_BUTTON_LEFT);
-    bool rightClick = IsMouseButtonDown(MOUSE_BUTTON_RIGHT);
-    
-    uint8_t keyPressed = 0;
-    if (IsKeyDown(KEY_W)) { keyPressed = KEY_W; }
-    else if (IsKeyDown(KEY_S)) { keyPressed = KEY_S; }
-    else if (IsKeyDown(KEY_A)) { keyPressed = KEY_A; }
-    else if (IsKeyDown(KEY_D)) { keyPressed = KEY_D; }
+    auto fbPlayerId = builder.CreateString("Player1");
+    float dt = 0.016F;  // tempo de frame aproximado
 
+    uint8_t key = 0;
+    bool isPressed = false;
+    bool isReleased = false;
+    bool leftClick = false;
+    bool rightClick = false;
 
-    // Monta a mensagem
-    flatbuffers::FlatBufferBuilder builder(128);
-    auto fbMouse = Game::CreateVec2(builder, mousePos.x, mousePos.y);
-    auto fbPlayerId = builder.CreateString("player_001");
+    auto fbMouse = Game::CreateVec2(builder, 0.0F, 0.0F);
+
+    switch (event.GetType()) {
+        case chroma::app::event::Event::Type::KeyEvent: {
+            auto& keyEvent = dynamic_cast<chroma::app::event::KeyEvent&>(event);
+            key = keyEvent.GetKey();
+            isPressed = keyEvent.IsPressed();
+            isReleased = !keyEvent.IsPressed();
+            break;
+        }
+
+        case chroma::app::event::Event::Type::MouseEvent: {
+            auto& mouseEvent = dynamic_cast<chroma::app::event::MouseEvent&>(event);
+            auto pos = mouseEvent.GetMousePosition();
+            fbMouse = Game::CreateVec2(builder, pos.x, pos.y);
+            leftClick = mouseEvent.IsLeftButtonPressed();
+            rightClick = mouseEvent.IsRightButtonPressed();
+            break;
+        }
+
+        default:
+            return;
+    }
 
     auto inputMsg = Game::CreateInputMessage(
         builder,
         seq_num_++,
         dt,
         fbPlayerId,
-        keyPressed,
+        key,
+        isPressed,
+        isReleased,
         fbMouse,
         leftClick,
         rightClick
@@ -194,7 +214,11 @@ void NetworkState::OnEvent(event::Event& event) {
         ENET_PACKET_FLAG_UNSEQUENCED
     );
 
-    enet_peer_send(server_peer_.get(), 0, packet);
+    if (server_peer_) {
+        enet_peer_send(server_peer_.get(), 0, packet);
+    } else {
+        enet_packet_destroy(packet);
+    }
 }
- 
+
 } // namespace chroma::app::layer::states

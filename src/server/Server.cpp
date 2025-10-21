@@ -107,12 +107,12 @@ bool Server::DisconnectClient(const ENetEvent &event)
     {
       return false;
     }
-    
+
     if (server_->connectedPeers == 0)
     {
-      }
+      SetRunning(false);
+    }
       
-    SetRunning(false);
     return true;
 }
 

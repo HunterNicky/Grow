@@ -26,6 +26,7 @@ public:
   void PushOverlay(std::unique_ptr<layer::Layer> overlay) const;
   void PopOverlay() const;
 
+  std::unique_ptr<event::Event> PollInputEvents();
   void DispatchEvent(event::Event &event) const;
 
 private:

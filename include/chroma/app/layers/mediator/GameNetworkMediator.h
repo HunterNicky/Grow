@@ -4,7 +4,7 @@
 
 #include "GameObject_generated.h"
 
-namespace chroma {
+namespace chroma::app::layer {
 
 class GameLayer;
 class NetworkLayer;
