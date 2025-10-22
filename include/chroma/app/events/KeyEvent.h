@@ -1,5 +1,7 @@
 #pragma once
+
 #include "chroma/app/events/Event.h"
+
 #include <cstdint>
 
 namespace chroma::app::event {

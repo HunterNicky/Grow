@@ -1,6 +1,8 @@
+#pragma once
+
 #include "chroma/app/events/Event.h"
 
-#include <raymath.h>
+#include <raylib.h>
 
 namespace chroma::app::event {
 class MouseEvent : public Event {
