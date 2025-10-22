@@ -8,5 +8,6 @@ namespace chroma::shared::event {
 class EventCatcher {
     public:
         static std::unique_ptr<event::Event> CatchEvent();
+        static std::unique_ptr<event::Event> VerifyKeyEvent(int key_code);
 };
 }

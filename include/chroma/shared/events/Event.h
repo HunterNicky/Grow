@@ -9,7 +9,8 @@ public:
   enum Type : uint8_t {
     None = 0,
     KeyEvent = 1,
-    MouseEvent = 2,
+    MouseClickEvent = 2,
+    MouseEvent = 3,
   };
 
   Event(const Event &) = default;

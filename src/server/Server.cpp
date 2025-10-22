@@ -1,6 +1,8 @@
 #include "chroma/server/Server.h"
+#include "chroma/shared/packet/ImputMessage.h"
 #include "chroma/shared/packet/PacketHandler.h"
 #include <chrono>
+#include <memory>
 
 namespace chroma::server {
 
@@ -36,6 +38,12 @@ int Server::Start()
         ConnectClient(event);
       }
       if (event.type == ENET_EVENT_TYPE_RECEIVE){
+        std::shared_ptr<chroma::shared::packet::InputMessage> input_message = packet::PacketHandler::FlatBufferToInputMessage(event.packet->data);
+        
+        if (input_message != nullptr) {
+          world_simulation_.OnReceivedImputMessage(input_message);
+        }
+
         enet_packet_destroy(event.packet);
       } 
       if (event.type == ENET_EVENT_TYPE_DISCONNECT) {

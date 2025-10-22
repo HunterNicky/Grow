@@ -3,6 +3,7 @@
 #include "GameObject_generated.h"
 #include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/core/player/Player.h"
+#include "chroma/shared/packet/ImputMessage.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -148,5 +149,52 @@ void PacketHandler::ComponentToTransform(const Game::Component* component, std::
             transform->SetPosition(Vector2{pos_vec->x(), pos_vec->y()});
         }
     }
+}
+
+std::shared_ptr<shared::packet::InputMessage> PacketHandler::FlatBufferToInputMessage(const uint8_t* data)
+{
+    flatbuffers::Verifier verifier(data, 1024);
+    if (!Game::VerifyEnvelopeBuffer(verifier)) {
+        return nullptr;
+    }
+
+    const auto* envelope = Game::GetEnvelope(data);
+    if (envelope->type() != Game::MsgType::INPUT) {
+        return nullptr;
+    }
+
+    const auto* input_msg = envelope->msg_as<Game::InputMessage>();
+    
+    if (input_msg == nullptr) {
+        return nullptr;
+    }
+
+    std::shared_ptr<shared::packet::InputMessage> input_message = std::make_unique<shared::packet::InputMessage>();
+    
+    input_message->SetSeq(input_msg->seq());
+    input_message->SetDeltaTime(input_msg->dt());
+    input_message->SetPlayerId(input_msg->player_id()->str());
+
+    if (input_msg->event_type() == Game::InputEvent::KeyEvent) {
+        shared::event::KeyEvent key_event;
+        const auto* fb_key_event = input_msg->event_as_KeyEvent();
+        if (fb_key_event != nullptr) {
+            key_event = shared::event::KeyEvent(fb_key_event->key());
+            key_event.SetPressed(fb_key_event->is_pressed());
+            input_message->SetEventType(shared::event::Event::Type::KeyEvent);
+            input_message->SetKeyEvent(key_event);
+        }
+    } else if (input_msg->event_type() == Game::InputEvent::MouseEvent) {
+        shared::event::MouseEvent mouse_event;
+        const auto* fb_mouse_event = input_msg->event_as_MouseEvent();
+        if (fb_mouse_event != nullptr) {
+            Vector2 position{fb_mouse_event->mouse_position()->x(), fb_mouse_event->mouse_position()->y()};
+            mouse_event = shared::event::MouseEvent(position, fb_mouse_event->left(), fb_mouse_event->right());
+            input_message->SetEventType(shared::event::Event::Type::MouseEvent);
+            input_message->SetMouseEvent(mouse_event);
+        }
+    }
+
+    return input_message;
 }
 } // namespace chroma::server::packet

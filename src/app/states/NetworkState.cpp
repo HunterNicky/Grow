@@ -1,9 +1,11 @@
 #include "chroma/app/states/NetworkState.h"
+#include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/events/MouseEvent.h"
 #include "GameObject_generated.h"
 #include "chroma/app/states/State.h"
 #include "chroma/server/Server.h"
+#include "flatbuffers/flatbuffer_builder.h"
 
 #include <thread>
 #include <memory>
@@ -141,15 +143,77 @@ void NetworkState::ProcessEvent(const ENetEvent& event) {
     }
 }
 
-// NOLINTNEXTLINE
 void NetworkState::InterpolateGameObjectStates(float delta_time) {
     (void)delta_time;
 }
 
 void NetworkState::OnEvent(shared::event::Event& event) {
-    if (!IsActive()) { 
-        return; 
+    if (!IsActive()) {
+        return;
     }
+
+    flatbuffers::FlatBufferBuilder builder(1024);
+
+    Game::InputEventType type = Game::InputEventType::NONE;
+    Game::InputEvent event_type = Game::InputEvent::NONE;
+    flatbuffers::Offset<void> event_union;
+
+    switch (event.GetType()) {
+        case shared::event::Event::KeyEvent: {
+            const auto& key_event = dynamic_cast<const shared::event::KeyEvent&>(event);
+            auto fb_key_event = Game::CreateKeyEvent(
+                builder,
+                key_event.GetKey(),
+                key_event.IsPressed(),
+                key_event.IsReleased()
+            );
+            type = Game::InputEventType::KEYEVENT;
+            event_type = Game::InputEvent::KeyEvent;
+            event_union = fb_key_event.Union();
+            break;
+        }
+
+        case shared::event::Event::MouseClickEvent: {
+            const auto& mouse_event = dynamic_cast<const shared::event::MouseEvent&>(event);
+            auto fb_mouse_pos = Game::CreateVec2(
+                builder,
+                mouse_event.GetMousePosition().x,
+                mouse_event.GetMousePosition().y
+            );
+            auto fb_mouse_event = Game::CreateMouseEvent(
+                builder,
+                mouse_event.IsLeftButtonPressed(),
+                mouse_event.IsRightButtonPressed(),
+                fb_mouse_pos
+            );
+            type = Game::InputEventType::MOUSEEVENT;
+            event_type = Game::InputEvent::MouseEvent;
+            event_union = fb_mouse_event.Union();
+            break;
+        }
+
+        default:
+            return;
+    }
+
+    auto fb_input_msg = Game::CreateInputMessage(builder,0, 0.0F,builder.CreateString("PlayerTest"),
+                                                type, event_type, event_union );
+
+    auto fb_envelope = Game::CreateEnvelope(builder,Game::MsgType::INPUT,
+                                                     Game::MsgUnion::InputMessage,fb_input_msg.Union());
+
+    builder.Finish(fb_envelope);
+
+    auto buf = builder.Release();
+    ENetPacket* packet = enet_packet_create(
+        buf.data(),
+        buf.size(),
+        ENET_PACKET_FLAG_RELIABLE
+    );
+
+    enet_peer_send(server_peer_.get(), 0, packet);
+    enet_host_flush(client_.get());
 }
+
 
 } // namespace chroma::app::layer::states

@@ -1,6 +1,7 @@
 #pragma once 
 
 #include "chroma/shared/core/GameObject.h"
+#include "chroma/shared/packet/ImputMessage.h"
 
 #include <vector>
 #include <memory>
@@ -17,6 +18,7 @@ public:
     WorldSimulation &operator=(WorldSimulation &&) = delete;
 
     void CreateWorld();
+    static void OnReceivedImputMessage(const std::shared_ptr<chroma::shared::packet::InputMessage>& input_message);
     void HandleInput();
     void Update(const float delta_time);
 

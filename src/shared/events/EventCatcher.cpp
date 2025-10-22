@@ -9,14 +9,12 @@
 namespace chroma::shared::event {
 
 std::unique_ptr<event::Event> EventCatcher::CatchEvent() {
-    
-    if (IsKeyPressed(KEY_W)) {
-        return std::make_unique<event::KeyEvent>(KEY_W);
-    }
-    if (IsKeyReleased(KEY_W)) {
-        auto ev = std::make_unique<event::KeyEvent>(KEY_W);
-        ev->SetPressed(false);
-        return ev;
+    //Key code A a Z
+    for (int key_code = 65; key_code <= 90; ++key_code) {
+        auto key_event = VerifyKeyEvent(key_code);
+        if (key_event != nullptr) {
+            return key_event;
+        }
     }
     
     Vector2 pos = GetMousePosition();
@@ -29,6 +27,18 @@ std::unique_ptr<event::Event> EventCatcher::CatchEvent() {
     }
     if (GetMouseDelta().x != 0 || GetMouseDelta().y != 0) {
         return std::make_unique<event::MouseEvent>(pos);
+    }
+    return nullptr;
+}
+
+std::unique_ptr<event::Event> EventCatcher::VerifyKeyEvent(int key_code) {
+    if (IsKeyPressed(key_code)) {
+        return std::make_unique<event::KeyEvent>(key_code);
+    }
+    if (IsKeyReleased(key_code)) {
+        auto ev = std::make_unique<event::KeyEvent>(key_code);
+        ev->SetPressed(false);
+        return ev;
     }
     return nullptr;
 }

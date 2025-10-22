@@ -19,4 +19,7 @@ void WorldSimulation::Update(const float delta_time) {
     }
 }
 
+void WorldSimulation::OnReceivedImputMessage(const std::shared_ptr<chroma::shared::packet::InputMessage>& input_message) {
+    (void)input_message;
+}
 } // namespace chroma::server

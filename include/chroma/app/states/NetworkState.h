@@ -45,7 +45,7 @@ private:
     bool TryConnect(const std::string& host, enet_uint16 port);
     void OnReceiveData() const;
     void ProcessEvent(const ENetEvent& event);
-    void InterpolateGameObjectStates(float delta_time);
+    static void InterpolateGameObjectStates(float delta_time);
 
 };
 }
