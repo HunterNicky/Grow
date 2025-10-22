@@ -5,24 +5,20 @@
 namespace chroma::app::event {
 class MouseEvent : public Event {
 public:
-    explicit MouseEvent(Vector2 position) : Event(Event::MouseEvent), mousePosition_(position), leftButtonPressed_(false), rightButtonPressed_(false) {}
-    MouseEvent(Vector2 position, bool leftPressed, bool rightPressed)
-        : Event(Event::MouseEvent), mousePosition_(position), leftButtonPressed_(leftPressed), rightButtonPressed_(rightPressed) {}
+    explicit MouseEvent(Vector2 position);
+    MouseEvent(Vector2 position, bool left_pressed, bool right_pressed);
 
-    [[nodiscard]] Vector2 GetMousePosition() const { return mousePosition_; }
-    [[nodiscard]] bool IsLeftButtonPressed() const { return leftButtonPressed_; }
-    [[nodiscard]] bool IsRightButtonPressed() const { return rightButtonPressed_; }
+    [[nodiscard]] Vector2 GetMousePosition() const;
+    [[nodiscard]] bool IsLeftButtonPressed() const;
+    [[nodiscard]] bool IsRightButtonPressed() const;
 
-    void SetMousePosition(const Vector2& position) { mousePosition_ = position; }
-    void SetLeftButtonPressed(bool pressed) { leftButtonPressed_ = pressed; }
-    void SetRightButtonPressed(bool pressed) { rightButtonPressed_ = pressed; }
+    void SetMousePosition(const Vector2& position);
+    void SetLeftButtonPressed(bool pressed);
+    void SetRightButtonPressed(bool pressed);
 
 private:
-    Vector2 mousePosition_;
-    // NOLINTNEXTLINE
-    bool leftButtonPressed_;
-
-    // NOLINTNEXTLINE
-    bool rightButtonPressed_;
+    Vector2 mouse_position_ = {0.0F, 0.0F};
+    bool left_button_pressed_ = false;
+    bool right_button_pressed_ = false;
 };
 } // namespace chroma::app::event

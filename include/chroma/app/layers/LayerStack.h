@@ -18,8 +18,8 @@ public:
   void PushOverlay(std::unique_ptr<Layer> overlay);
   void PopOverlay();
 
-  void UpdateLayers(float deltaTime) const;
-  void UpdateFixedLayers(float fixedDeltaTime) const;
+  void UpdateLayers(float delta_time) const;
+  void UpdateFixedLayers(float fixed_delta_time) const;
   void RenderLayers() const;
   void HandleEvent(event::Event &event) const;
 

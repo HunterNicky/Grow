@@ -22,23 +22,23 @@ void LayerStack::PopOverlay()
   if (!overlays_.empty()) { overlays_.pop_back(); }
 }
 
-void LayerStack::UpdateLayers(const float deltaTime) const
+void LayerStack::UpdateLayers(const float delta_time) const
 {
   for (const auto &layer : layers_) {
-    if (layer->IsActive()) { layer->OnUpdate(deltaTime); }
+    if (layer->IsActive()) { layer->OnUpdate(delta_time); }
   }
   for (const auto &overlay : overlays_) {
-    if (overlay->IsActive()) { overlay->OnUpdate(deltaTime); }
+    if (overlay->IsActive()) { overlay->OnUpdate(delta_time); }
   }
 }
 
-void LayerStack::UpdateFixedLayers(const float fixedDeltaTime) const
+void LayerStack::UpdateFixedLayers(const float fixed_delta_time) const
 {
   for (const auto &layer : layers_) {
-    if (layer->IsActive()) { layer->OnFixedUpdate(fixedDeltaTime); }
+    if (layer->IsActive()) { layer->OnFixedUpdate(fixed_delta_time); }
   }
   for (const auto &overlay : overlays_) {
-    if (overlay->IsActive()) { overlay->OnFixedUpdate(fixedDeltaTime); }
+    if (overlay->IsActive()) { overlay->OnFixedUpdate(fixed_delta_time); }
   }
 }
 

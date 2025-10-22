@@ -6,18 +6,17 @@ namespace chroma::app::event {
 
 class KeyEvent : public Event {
 public:
-    explicit KeyEvent(uint8_t key) : Event(Event::KeyEvent), key_(key), pressed_(false) {}
+    explicit KeyEvent(uint8_t key);
 
-    [[nodiscard]] uint8_t GetKey() const { return key_; }
-    [[nodiscard]] bool IsPressed() const { return pressed_; }
-    [[nodiscard]] bool IsReleased() const { return !pressed_; }
+    [[nodiscard]] uint8_t GetKey() const;
+    [[nodiscard]] bool IsPressed() const;
+    [[nodiscard]] bool IsReleased() const;
 
-    void SetPressed(bool pressed) { pressed_ = pressed; }
+    void SetPressed(bool pressed);
 
 private:
     uint8_t key_;
-    // NOLINTNEXTLINE
-    bool pressed_;
+    bool pressed_ = false;
 };
 
 } // namespace chroma::app::event

@@ -18,8 +18,8 @@ public:
     void SendInput(const Game::InputMessage& input);
 
 private:
-    std::weak_ptr<GameLayer> gameLayer_;
-    std::weak_ptr<NetworkLayer> networkLayer_;
+    std::weak_ptr<GameLayer> game_layer_;
+    std::weak_ptr<NetworkLayer> network_layer_;
     
 };
 

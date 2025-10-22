@@ -6,9 +6,8 @@
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/app/layers/mediator/GameNetworkMediator.h"
 
-enum SelectLevel : uint8_t
-{
-    MEADOW_LEVEL,
+enum SelectLevel : uint8_t {
+    MeadowLevel = 0,
 };
 
 namespace chroma::app::layer::states {

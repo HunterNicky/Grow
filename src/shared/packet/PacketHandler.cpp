@@ -19,7 +19,7 @@ std::vector<uint8_t> PacketHandler::GameObjectsToFlatBuffer(const std::vector<st
 {
     flatbuffers::FlatBufferBuilder builder(1024);
 
-    std::vector<flatbuffers::Offset<Game::EntityState>> fbEntities;
+    std::vector<flatbuffers::Offset<Game::EntityState>> fb_entities;
 
     for (const auto& object : objects) {
         auto pos = object->GetComponent<component::Transform>();
@@ -29,25 +29,25 @@ std::vector<uint8_t> PacketHandler::GameObjectsToFlatBuffer(const std::vector<st
 
         if (pos) {
             auto vec2 = Game::CreateVec2(builder, pos->GetPosition().x, pos->GetPosition().y);
-            auto fbPos = Game::CreatePosition(builder, vec2);
-            components.push_back(Game::CreateComponent(builder, Game::ComponentUnion::Position, fbPos.Union()));
+            auto fb_pos = Game::CreatePosition(builder, vec2);
+            components.push_back(Game::CreateComponent(builder, Game::ComponentUnion::Position, fb_pos.Union()));
         }
 
         if (vel) {
             auto vec2 = Game::CreateVec2(builder, vel->GetSpeed().x, vel->GetSpeed().y);
-            auto fbVel = Game::CreateVelocity(builder, vec2);
-            components.push_back(Game::CreateComponent(builder, Game::ComponentUnion::Velocity, fbVel.Union()));
+            auto fb_vel = Game::CreateVelocity(builder, vec2);
+            components.push_back(Game::CreateComponent(builder, Game::ComponentUnion::Velocity, fb_vel.Union()));
         }
 
-        auto fbId = builder.CreateString(object->GetId().str());
-        auto fbType = static_cast<Game::GameObjectType>(object->GetTag());
-        auto fbComponents = builder.CreateVector(components);
-        auto fbEntity = Game::CreateEntityState(builder, fbId, fbType, fbComponents);
-        fbEntities.push_back(fbEntity);
+        auto fb_id = builder.CreateString(object->GetId().str());
+        auto fb_type = static_cast<Game::GameObjectType>(object->GetTag());
+        auto fb_components = builder.CreateVector(components);
+        auto fb_entity = Game::CreateEntityState(builder, fb_id, fb_type, fb_components);
+        fb_entities.push_back(fb_entity);
     }
 
-    auto fbEntitiesVec = builder.CreateVector(fbEntities);
-    auto snapshot = Game::CreateSnapshot(builder, time_lapse, last_processed_input, fbEntitiesVec);
+    auto fb_entities_vec = builder.CreateVector(fb_entities);
+    auto snapshot = Game::CreateSnapshot(builder, time_lapse, last_processed_input, fb_entities_vec);
     auto envelope = Game::CreateEnvelope(builder, Game::MsgType::SNAPSHOT, Game::MsgUnion::Snapshot, snapshot.Union());
     builder.Finish(envelope);
 
@@ -56,7 +56,7 @@ std::vector<uint8_t> PacketHandler::GameObjectsToFlatBuffer(const std::vector<st
     return std::vector<uint8_t>(buf.begin(), buf.end());
 }
 
-void PacketHandler::FlatBufferToGameObject(const uint8_t* data, std::vector<std::shared_ptr<chroma::shared::core::GameObject>>& gameObjects)
+void PacketHandler::FlatBufferToGameObject(const uint8_t* data, std::vector<std::shared_ptr<chroma::shared::core::GameObject>>& game_objects)
 {
 
   flatbuffers::Verifier verifier(data, 1024);
@@ -74,59 +74,44 @@ void PacketHandler::FlatBufferToGameObject(const uint8_t* data, std::vector<std:
       return;
   }
 
-  for (const auto& entityState : *snapshot->entities()) {
-    auto it = std::ranges::find_if(gameObjects, [&](const std::shared_ptr<GameObject>& obj) {
-        return static_cast<Game::GameObjectType>(obj->GetTag()) == entityState->type();
+  for (const auto& entity_state : *snapshot->entities()) {
+    auto it = std::ranges::find_if(game_objects, [&](const std::shared_ptr<GameObject>& obj) {
+        return static_cast<Game::GameObjectType>(obj->GetTag()) == entity_state->type();
     });
 
-    if (it != std::end(gameObjects)) {
-        UpdateGameObjectWithEntityState(entityState, *it);
+    if (it != std::end(game_objects)) {
+        UpdateGameObjectWithEntityState(entity_state, *it);
     } else {
 
-        std::shared_ptr<chroma::shared::core::GameObject> gameObject = nullptr;
-        switch (entityState->type()) {
+        std::shared_ptr<chroma::shared::core::GameObject> game_object = nullptr;
+        switch (entity_state->type()) {
           case Game::GameObjectType::PLAYER: {
-              gameObject = std::make_shared<chroma::shared::core::player::Player>();
-              gameObjects.push_back(gameObject);
+              game_object = std::make_shared<chroma::shared::core::player::Player>();
+              game_objects.push_back(game_object);
               break;
           }
         }   
-        UpdateGameObjectWithEntityState(entityState, gameObject);
+        UpdateGameObjectWithEntityState(entity_state, game_object);
     }
   }
 }
 
-// NOLINTNEXTLINE
-void PacketHandler::UpdateGameObjectWithEntityState(const Game::EntityState* entityState, std::shared_ptr<chroma::shared::core::GameObject>& gameObject)
+void PacketHandler::UpdateGameObjectWithEntityState(const Game::EntityState* entity_state, std::shared_ptr<chroma::shared::core::GameObject>& game_object)
 {
-  switch (entityState->type()) {
+  switch (entity_state->type()) {
     case Game::GameObjectType::PLAYER: {
-        auto player = std::dynamic_pointer_cast<chroma::shared::core::player::Player>(gameObject);
+        auto player = std::dynamic_pointer_cast<chroma::shared::core::player::Player>(game_object);
         if (player) {
-            player->SetId(UUIDv4::UUID(entityState->id()->str()));
+            player->SetId(UUIDv4::UUID(entity_state->id()->str()));
             
-            for (const auto& component : *entityState->components()) {
+            for (const auto& component : *entity_state->components()) {
                 switch (component->type_type()) {
                     case Game::ComponentUnion::Position: {
-                        const auto* fbPos = component->type_as_Position();
-                        if (fbPos != nullptr) {
-                            const auto* posVec = fbPos->pos();
-                            auto transform = player->GetComponent<component::Transform>();
-                            if (transform) {
-                                transform->SetPosition(Vector2{posVec->x(), posVec->y()});
-                            }
-                        }
+                        ComponentToTransform(component, game_object);
                         break;
                     }
                     case Game::ComponentUnion::Velocity: {
-                        const auto* fbVel = component->type_as_Velocity();
-                        if (fbVel != nullptr) {
-                            const auto* velVec = fbVel->vel();
-                            auto speed = player->GetComponent<component::Speed>();
-                            if (speed) {
-                                speed->SetSpeed(Vector2{velVec->x(), velVec->y()});
-                            }
-                        }
+                        ComponentToSpeed(component, game_object);
                         break;
                     }
                     default:
@@ -141,5 +126,27 @@ void PacketHandler::UpdateGameObjectWithEntityState(const Game::EntityState* ent
   }
 }
 
+void PacketHandler::ComponentToSpeed(const Game::Component* component, std::shared_ptr<chroma::shared::core::GameObject>& game_object)
+{
+    const auto* fb_vel = component->type_as_Velocity();
+    if (fb_vel != nullptr) {
+        const auto* vel_vec = fb_vel->vel();
+        auto speed = game_object->GetComponent<component::Speed>();
+        if (speed) {
+            speed->SetSpeed(Vector2{vel_vec->x(), vel_vec->y()});
+        }
+    }
+}
 
+void PacketHandler::ComponentToTransform(const Game::Component* component, std::shared_ptr<chroma::shared::core::GameObject>& game_object)
+{
+    const auto* fb_pos = component->type_as_Position();
+    if (fb_pos != nullptr) {
+        const auto* pos_vec = fb_pos->pos();
+        auto transform = game_object->GetComponent<component::Transform>();
+        if (transform) {
+            transform->SetPosition(Vector2{pos_vec->x(), pos_vec->y()});
+        }
+    }
+}
 } // namespace chroma::server::packet

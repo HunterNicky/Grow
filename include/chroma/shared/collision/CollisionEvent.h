@@ -18,14 +18,14 @@ struct CollisionEvent
   float penetration;
 
   Vector2 normal;
-  Vector2 contactPoint;
+  Vector2 contact_point;
 
   CollisionEvent(std::weak_ptr<core::GameObject> other,
     float penetration,
     Vector2 normal,
-    Vector2 contactPoint,
+    Vector2 contact_point,
     CollisionSide side = CollisionSide::None)
-    : other(std::move(other)), side(side), penetration(penetration), normal(normal), contactPoint(contactPoint)
+    : other(std::move(other)), side(side), penetration(penetration), normal(normal), contact_point(contact_point)
   {
     if (side == CollisionSide::None) {
       // talvez tenha que ser o valor de 1 ou -1, vai depender do sistema de coordenadas/implementação

@@ -17,8 +17,8 @@ public:
   StateMachine &operator=(const StateMachine &) = delete;
   StateMachine &operator=(StateMachine &&) = delete;
 
-  void OnUpdate(const float deltaTime);
-  void OnFixedUpdate(const float fixedDeltaTime);
+  void OnUpdate(const float delta_time);
+  void OnFixedUpdate(const float fixed_delta_time);
   void OnRender();
 
   void OnEvent(event::Event &event);

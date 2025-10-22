@@ -5,14 +5,14 @@
 #include "chroma/app/states/StateMachine.h"
 
 namespace chroma::app::layer::states {
-void StateMachine::OnUpdate(const float deltaTime)
+void StateMachine::OnUpdate(const float delta_time)
 {
-  if (!states_.empty() && states_.top()->IsActive()) { states_.top()->OnUpdate(deltaTime); }
+  if (!states_.empty() && states_.top()->IsActive()) { states_.top()->OnUpdate(delta_time); }
 }
 
-void StateMachine::OnFixedUpdate(const float fixedDeltaTime)
+void StateMachine::OnFixedUpdate(const float fixed_delta_time)
 {
-  if (!states_.empty() && states_.top()->IsActive()) { states_.top()->OnFixedUpdate(fixedDeltaTime); }
+  if (!states_.empty() && states_.top()->IsActive()) { states_.top()->OnFixedUpdate(fixed_delta_time); }
 }
 
 void StateMachine::OnRender()

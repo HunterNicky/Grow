@@ -153,32 +153,32 @@ void NetworkState::OnEvent(event::Event& event) {
 
     flatbuffers::FlatBufferBuilder builder;
 
-    auto fbPlayerId = builder.CreateString("Player1");
+    auto fb_player_id = builder.CreateString("Player1");
     float dt = 0.016F;  // tempo de frame aproximado
 
     uint8_t key = 0;
-    bool isPressed = false;
-    bool isReleased = false;
-    bool leftClick = false;
-    bool rightClick = false;
+    bool is_pressed = false;
+    bool is_released = false;
+    bool left_click = false;
+    bool right_click = false;
 
-    auto fbMouse = Game::CreateVec2(builder, 0.0F, 0.0F);
+    auto fb_mouse = Game::CreateVec2(builder, 0.0F, 0.0F);
 
     switch (event.GetType()) {
         case chroma::app::event::Event::Type::KeyEvent: {
-            auto& keyEvent = dynamic_cast<chroma::app::event::KeyEvent&>(event);
-            key = keyEvent.GetKey();
-            isPressed = keyEvent.IsPressed();
-            isReleased = !keyEvent.IsPressed();
+            auto& key_event = dynamic_cast<chroma::app::event::KeyEvent&>(event);
+            key = key_event.GetKey();
+            is_pressed = key_event.IsPressed();
+            is_released = !key_event.IsPressed();
             break;
         }
 
         case chroma::app::event::Event::Type::MouseEvent: {
-            auto& mouseEvent = dynamic_cast<chroma::app::event::MouseEvent&>(event);
-            auto pos = mouseEvent.GetMousePosition();
-            fbMouse = Game::CreateVec2(builder, pos.x, pos.y);
-            leftClick = mouseEvent.IsLeftButtonPressed();
-            rightClick = mouseEvent.IsRightButtonPressed();
+            auto& mouse_event = dynamic_cast<chroma::app::event::MouseEvent&>(event);
+            auto pos = mouse_event.GetMousePosition();
+            fb_mouse = Game::CreateVec2(builder, pos.x, pos.y);
+            left_click = mouse_event.IsLeftButtonPressed();
+            right_click = mouse_event.IsRightButtonPressed();
             break;
         }
 
@@ -186,24 +186,24 @@ void NetworkState::OnEvent(event::Event& event) {
             return;
     }
 
-    auto inputMsg = Game::CreateInputMessage(
+    auto input_msg = Game::CreateInputMessage(
         builder,
         seq_num_++,
         dt,
-        fbPlayerId,
+        fb_player_id,
         key,
-        isPressed,
-        isReleased,
-        fbMouse,
-        leftClick,
-        rightClick
+        is_pressed,
+        is_released,
+        fb_mouse,
+        left_click,
+        right_click
     );
 
     auto env = Game::CreateEnvelope(
         builder,
         Game::MsgType::INPUT,
         Game::MsgUnion::InputMessage,
-        inputMsg.Union()
+        input_msg.Union()
     );
 
     builder.Finish(env);

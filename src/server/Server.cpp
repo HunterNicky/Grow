@@ -37,7 +37,7 @@ int Server::Start()
 
   ENetEvent event;
 
-  auto lastTick = std::chrono::steady_clock::now();
+  auto last_tick = std::chrono::steady_clock::now();
 
   while (is_running_) {
     while (is_running_ && enet_host_service(server_.get(), &event, 0) > 0) {
@@ -63,10 +63,10 @@ int Server::Start()
     tick_counter_++;
   
     auto now = std::chrono::steady_clock::now();
-    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastTick).count();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_tick).count();
   
     if (tick_counter_ >= TICKS) {
-      lastTick = now;
+      last_tick = now;
       tick_counter_ = 0;
       BroadcastGameObjectState();
     }
@@ -78,9 +78,10 @@ int Server::Start()
 
 int Server::Stop() {
     if (server_) {
-        enet_host_destroy(server_.get()); 
         server_.reset();                 
+        return 0;
     }
+    return -1;
 }
 
 
@@ -108,11 +109,10 @@ bool Server::DisconnectClient(const ENetEvent &event)
       return false;
     }
 
-    if (server_->connectedPeers == 0)
-    {
-      SetRunning(false);
+    if (server_ != nullptr&& server_->connectedPeers == 0) {
+        SetRunning(false);
     }
-      
+
     return true;
 }
 
@@ -123,17 +123,11 @@ bool Server::InitServer(int port, int max_clients)
 
   address_.host = ENET_HOST_ANY;
   address_.port = static_cast<enet_uint16>(port);
-  server_ = std::shared_ptr<ENetHost>(enet_host_create(&address_, static_cast<size_t>(max_clients), 2, 0, 0), &enet_host_destroy);
+  server_ = std::shared_ptr<ENetHost>(enet_host_create(&address_, static_cast<size_t>(max_clients), 2, 0, 0),
+    [](ENetHost* host){ enet_host_destroy(host); });
 
   if (server_ == nullptr) {
     enet_deinitialize();
-    return false;
-  }
-
-  if (atexit(enet_deinitialize) != 0) {
-    enet_host_destroy(server_.get());
-    enet_deinitialize();
-    server_ = nullptr;
     return false;
   }
 
@@ -142,8 +136,8 @@ bool Server::InitServer(int port, int max_clients)
 
 void Server::OnUpdate(float delta_time)
 {
-  for (auto &gameObject : game_objects_) {
-    if (gameObject->IsActive()) { gameObject->OnUpdate(delta_time); }
+  for (auto &game_object : game_objects_) {
+    if (game_object->IsActive()) { game_object->OnUpdate(delta_time); }
   }
 }
 

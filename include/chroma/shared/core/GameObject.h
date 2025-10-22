@@ -1,7 +1,6 @@
 #pragma once
 
 #include "chroma/shared/core/components/Transform.h"
-#include "chroma/app/events/Event.h"
 
 #include <cstdint>
 #include <map>
