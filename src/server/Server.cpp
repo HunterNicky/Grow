@@ -1,4 +1,5 @@
 #include "chroma/server/Server.h"
+#include "chroma/shared/packet/PacketHandler.h"
 #include <chrono>
 
 namespace chroma::server {

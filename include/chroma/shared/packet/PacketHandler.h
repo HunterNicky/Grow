@@ -11,7 +11,6 @@ namespace chroma::server::packet {
 class PacketHandler {
 public:
     static std::vector<uint8_t> GameObjectsToFlatBuffer(const std::vector<std::shared_ptr<chroma::shared::core::GameObject>>& objects,  uint64_t time_lapse = 0, uint32_t last_processed_input = 0);
-
     static void FlatBufferToGameObject(const uint8_t* data, std::vector<std::shared_ptr<chroma::shared::core::GameObject>>& game_objects);
 
 private:

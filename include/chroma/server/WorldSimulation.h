@@ -17,6 +17,7 @@ public:
     WorldSimulation &operator=(WorldSimulation &&) = delete;
 
     void CreateWorld();
+    void HandleInput();
     void Update(const float delta_time);
 
 private:

@@ -29,16 +29,36 @@ table Snapshot {
   entities:[EntityState];
 }
 
-table InputMessage {
-  seq:uint32;
-  dt:float;
-  player_id: string;
+enum InputEventType : uint8 {
+  NONE = 0,
+  KEYEVENT = 1,
+  MOUSEEVENT = 2
+}
+
+
+table KeyEvent {
   key: uint8;
   is_pressed: bool;
   is_released: bool;
+}
+
+table MouseEvent {
+  left: bool;
+  right: bool;
   mouse_position: Vec2;
-  mouse_left_click: bool;
-  mouse_right_click: bool;
+}
+
+union InputEvent {
+  KeyEvent,
+  MouseEvent
+}
+
+table InputMessage {
+  seq: uint32;
+  dt: float;
+  player_id: string;
+  type: InputEventType;
+  event: InputEvent;
 }
 
 enum MsgType:byte { NONE = 0, INPUT = 1, SNAPSHOT = 2 }

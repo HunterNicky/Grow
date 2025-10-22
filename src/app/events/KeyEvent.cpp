@@ -2,9 +2,9 @@
 
 namespace chroma::shared::event {
 
-KeyEvent::KeyEvent(uint8_t key) : Event(Event::KeyEvent), key_(key) {}
-
 KeyEvent::KeyEvent() : Event(Event::KeyEvent), key_(0) {}
+
+KeyEvent::KeyEvent(uint8_t key) : Event(Event::KeyEvent), key_(key) {}
 
 uint8_t KeyEvent::GetKey() const {
     return key_;

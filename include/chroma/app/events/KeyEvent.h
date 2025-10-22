@@ -10,6 +10,7 @@ class KeyEvent : public Event {
 public:
     explicit KeyEvent(uint8_t key);
     KeyEvent();
+
     [[nodiscard]] uint8_t GetKey() const;
     [[nodiscard]] bool IsPressed() const;
     [[nodiscard]] bool IsReleased() const;

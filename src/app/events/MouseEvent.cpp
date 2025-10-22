@@ -2,14 +2,14 @@
 
 namespace chroma::shared::event {
 
-MouseEvent::MouseEvent(Vector2 position, bool left_pressed, bool right_pressed)
-    : Event(Event::MouseEvent), mouse_position_(position),
-    left_button_pressed_(left_pressed), right_button_pressed_(right_pressed) 
+MouseEvent::MouseEvent() : Event(Event::MouseEvent), mouse_position_{0,0}
 {
 
 }
 
-MouseEvent::MouseEvent() : Event(Event::MouseEvent), mouse_position_({0.0F, 0.0F})
+MouseEvent::MouseEvent(Vector2 position, bool left_pressed, bool right_pressed)
+    : Event(Event::MouseEvent), mouse_position_(position),
+    left_button_pressed_(left_pressed), right_button_pressed_(right_pressed) 
 {
 
 }
