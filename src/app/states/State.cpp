@@ -1,7 +1,7 @@
 #include <string>
 #include <utility>
 
-#include "chroma/app/events/Event.h"
+#include "chroma/shared/events/Event.h"
 #include "chroma/app/states/State.h"
 
 namespace chroma::app::layer::states {
@@ -23,5 +23,5 @@ void State::OnFixedUpdate([[maybe_unused]] const float fixed_delta_time) {}
 
 void State::OnRender() {}
 
-void State::OnEvent([[maybe_unused]] event::Event &event) {}
+void State::OnEvent([[maybe_unused]] shared::event::Event &event) {}
 }// namespace chroma::app::layer::state

@@ -1,6 +1,6 @@
-#include "chroma/app/events/KeyEvent.h"
+#include "chroma/shared/events/KeyEvent.h"
 
-namespace chroma::app::event {
+namespace chroma::shared::event {
 
 KeyEvent::KeyEvent(uint8_t key) : Event(Event::KeyEvent), key_(key) {}
 
@@ -18,4 +18,4 @@ bool KeyEvent::IsReleased() const {
 void KeyEvent::SetPressed(bool pressed) {
     pressed_ = pressed;
 }
-} // namespace chroma::app::event
+} // namespace chroma::shared::event

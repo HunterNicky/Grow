@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "chroma/app/events/EventDispatcher.h"
+#include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/app/layers/LayerStack.h"
 #include "chroma/client/core/Window.h"
 
@@ -26,11 +26,11 @@ public:
   void PushOverlay(std::unique_ptr<layer::Layer> overlay) const;
   void PopOverlay() const;
 
-  void DispatchEvent(event::Event &event) const;
+  void DispatchEvent(shared::event::Event &event) const;
 
 private:
   std::unique_ptr<layer::LayerStack> layer_stack_;
-  std::unique_ptr<event::EventDispatcher> event_dispatcher_;
+  std::unique_ptr<shared::event::EventDispatcher> event_dispatcher_;
   float delta_time_;
 
   client::core::Window window_;

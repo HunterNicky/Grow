@@ -3,7 +3,7 @@
 #include <string>
 #include <utility>
 
-#include "chroma/app/events/Event.h"
+#include "chroma/shared/events/Event.h"
 #include "chroma/app/layers/Layer.h"
 #include "chroma/app/layers/LayerStack.h"
 
@@ -52,7 +52,7 @@ void LayerStack::RenderLayers() const
   }
 }
 
-void LayerStack::HandleEvent(event::Event &event) const
+void LayerStack::HandleEvent(shared::event::Event &event) const
 {
   for (const auto &overlay : overlays_) {
     if (overlay->IsActive()) { overlay->OnEvent(event); }

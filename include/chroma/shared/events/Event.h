@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace chroma::app::event {
+namespace chroma::shared::event {
 class Event
 {
 public:
@@ -29,4 +29,4 @@ private:
   Type type_{ Type::None };
   bool handled_{ false };
 };
-}// namespace chroma::app::event
+}// namespace chroma::shared::event

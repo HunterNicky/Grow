@@ -4,9 +4,9 @@
 #include <unordered_map>
 #include <vector>
 
-#include "chroma/app/events/Event.h"
+#include "chroma/shared/events/Event.h"
 
-namespace chroma::app::event {
+namespace chroma::shared::event {
 class EventDispatcher
 {
 public:
@@ -27,4 +27,4 @@ public:
 private:
   std::unordered_map<Event::Type, std::vector<std::function<void(Event &)>>> listeners_;
 };
-}// namespace chroma::app::event
+}// namespace chroma::shared::event

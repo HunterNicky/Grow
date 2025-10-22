@@ -1,10 +1,10 @@
 #pragma once
 
-#include "chroma/app/events/Event.h"
+#include "chroma/shared/events/Event.h"
 
 #include <cstdint>
 
-namespace chroma::app::event {
+namespace chroma::shared::event {
 
 class KeyEvent : public Event {
 public:
@@ -21,4 +21,4 @@ private:
     bool pressed_ = false;
 };
 
-} // namespace chroma::app::event
+} // namespace chroma::shared::event

@@ -21,7 +21,7 @@ public:
   void UpdateLayers(float delta_time) const;
   void UpdateFixedLayers(float fixed_delta_time) const;
   void RenderLayers() const;
-  void HandleEvent(event::Event &event) const;
+  void HandleEvent(shared::event::Event &event) const;
 
   [[nodiscard]] Layer *GetLayer(const std::string &name) const;
 

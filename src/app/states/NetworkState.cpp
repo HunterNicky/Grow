@@ -1,6 +1,6 @@
 #include "chroma/app/states/NetworkState.h"
-#include "chroma/app/events/KeyEvent.h"
-#include "chroma/app/events/MouseEvent.h"
+#include "chroma/shared/events/KeyEvent.h"
+#include "chroma/shared/events/MouseEvent.h"
 #include "GameObject_generated.h"
 #include "chroma/app/states/State.h"
 #include "chroma/server/Server.h"
@@ -146,7 +146,7 @@ void NetworkState::InterpolateGameObjectStates(float delta_time) {
     (void)delta_time;
 }
 
-void NetworkState::OnEvent(event::Event& event) {
+void NetworkState::OnEvent(shared::event::Event& event) {
     if (!IsActive()) { 
         return; 
     }
@@ -165,16 +165,16 @@ void NetworkState::OnEvent(event::Event& event) {
     auto fb_mouse = Game::CreateVec2(builder, 0.0F, 0.0F);
 
     switch (event.GetType()) {
-        case chroma::app::event::Event::Type::KeyEvent: {
-            auto& key_event = dynamic_cast<chroma::app::event::KeyEvent&>(event);
+        case chroma::shared::event::Event::Type::KeyEvent: {
+            auto& key_event = dynamic_cast<chroma::shared::event::KeyEvent&>(event);
             key = key_event.GetKey();
             is_pressed = key_event.IsPressed();
             is_released = !key_event.IsPressed();
             break;
         }
 
-        case chroma::app::event::Event::Type::MouseEvent: {
-            auto& mouse_event = dynamic_cast<chroma::app::event::MouseEvent&>(event);
+        case chroma::shared::event::Event::Type::MouseEvent: {
+            auto& mouse_event = dynamic_cast<chroma::shared::event::MouseEvent&>(event);
             auto pos = mouse_event.GetMousePosition();
             fb_mouse = Game::CreateVec2(builder, pos.x, pos.y);
             left_click = mouse_event.IsLeftButtonPressed();

@@ -1,12 +1,12 @@
-#include "chroma/app/events/EventCatcher.h"
-#include "chroma/app/events/Event.h"
-#include "chroma/app/events/KeyEvent.h"
-#include "chroma/app/events/MouseEvent.h"
+#include "chroma/shared/events/EventCatcher.h"
+#include "chroma/shared/events/Event.h"
+#include "chroma/shared/events/KeyEvent.h"
+#include "chroma/shared/events/MouseEvent.h"
 
 #include <memory>
 #include <raylib.h>
 
-namespace chroma::app::event {
+namespace chroma::shared::event {
 
 std::unique_ptr<event::Event> EventCatcher::CatchEvent() {
     
@@ -32,4 +32,4 @@ std::unique_ptr<event::Event> EventCatcher::CatchEvent() {
     }
     return nullptr;
 }
-} // namespace chroma::app::event
+} // namespace chroma::shared::event

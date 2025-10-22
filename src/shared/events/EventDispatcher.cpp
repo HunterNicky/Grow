@@ -1,12 +1,12 @@
-#include "chroma/app/events/EventDispatcher.h"
-#include "chroma/app/events/Event.h"
+#include "chroma/shared/events/EventDispatcher.h"
+#include "chroma/shared/events/Event.h"
 
-namespace chroma::app::event {
+namespace chroma::shared::event {
 void EventDispatcher::Unsubscribe(Event::Type type) { listeners_.erase(type); }
 
 void EventDispatcher::Dispatch(Event &event)
 {
-  if(chroma::app::event::Event::Type::None == event.GetType()) { return; }
+  if(chroma::shared::event::Event::Type::None == event.GetType()) { return; }
 
   const auto iterator = listeners_.find(event.GetType());
   if (iterator != listeners_.end()) {
@@ -19,4 +19,4 @@ void EventDispatcher::Dispatch(Event &event)
 
 void EventDispatcher::Clear() { listeners_.clear(); }
 
-}// namespace chroma::app::event
+}// namespace chroma::shared::event

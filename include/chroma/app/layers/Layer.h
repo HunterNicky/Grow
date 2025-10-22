@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 
-#include "chroma/app/events/Event.h"
+#include "chroma/shared/events/Event.h"
 #include "chroma/app/states/StateMachine.h"
 #include "chroma/app/states/State.h"
 
@@ -26,7 +26,7 @@ public:
   virtual void OnFixedUpdate(const float fixed_delta_time);
   virtual void OnRender();
 
-  virtual void OnEvent(event::Event &event);
+  virtual void OnEvent(shared::event::Event &event);
 
   [[nodiscard]] const std::string &GetName() const;
   [[nodiscard]] bool IsActive() const;

@@ -1,6 +1,6 @@
 #include <memory>
 
-#include "chroma/app/events/Event.h"
+#include "chroma/shared/events/Event.h"
 #include "chroma/app/states/State.h"
 #include "chroma/app/states/StateMachine.h"
 
@@ -20,7 +20,7 @@ void StateMachine::OnRender()
   if (!states_.empty() && states_.top()->IsActive()) { states_.top()->OnRender(); }
 }
 
-void StateMachine::OnEvent(event::Event &event)
+void StateMachine::OnEvent(shared::event::Event &event)
 {
   if (!states_.empty() && states_.top()->IsActive()) { states_.top()->OnEvent(event); }
 }

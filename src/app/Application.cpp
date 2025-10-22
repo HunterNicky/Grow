@@ -6,14 +6,14 @@
 #include <utility>
 
 #include "chroma/app/Application.h"
-#include "chroma/app/events/Event.h"
+#include "chroma/shared/events/Event.h"
 #include "chroma/app/layers/Layer.h"
 #include "chroma/app/layers/LayerStack.h"
 #include "chroma/app/layers/game/GameLayer.h"
 #include "chroma/app/states/GameState.h"
 #include "chroma/app/layers/network/NetworkLayer.h"
 #include "chroma/app/states/NetworkState.h"
-#include "chroma/app/events/EventCatcher.h"
+#include "chroma/shared/events/EventCatcher.h"
 
 namespace chroma::app {
 Application::Application() : layer_stack_(std::make_unique<layer::LayerStack>()), delta_time_(0.F), window_(1280, 720, "Chroma") {};
@@ -39,7 +39,7 @@ void Application::Run()
       delta_time_ = current_time - last_time;
       last_time = current_time;
 
-      auto event_ptr = event::EventCatcher::CatchEvent();
+      auto event_ptr = shared::event::EventCatcher::CatchEvent();
 
       if (event_ptr) {
          layer_stack_->HandleEvent(*event_ptr);
@@ -73,5 +73,5 @@ void Application::PushOverlay(std::unique_ptr<layer::Layer> overlay) const
 
 void Application::PopOverlay() const { layer_stack_->PopOverlay(); }
 
-void Application::DispatchEvent(event::Event &event) const { event_dispatcher_->Dispatch(event); }
+void Application::DispatchEvent(shared::event::Event &event) const { event_dispatcher_->Dispatch(event); }
 }// namespace chroma::app

@@ -1,10 +1,11 @@
 #pragma once 
 
 #include "chroma/app/states/State.h"
-#include <memory>
-#include <vector>
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/app/layers/mediator/GameNetworkMediator.h"
+
+#include <memory>
+#include <vector>
 
 enum SelectLevel : uint8_t {
     MeadowLevel = 0,

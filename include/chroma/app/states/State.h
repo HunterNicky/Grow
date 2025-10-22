@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "chroma/app/events/Event.h"
+#include "chroma/shared/events/Event.h"
 
 namespace chroma::app::layer::states {
 class State
@@ -22,7 +22,7 @@ public:
   virtual void OnFixedUpdate(const float fixed_delta_time);
   virtual void OnRender();
 
-  virtual void OnEvent(event::Event &event);
+  virtual void OnEvent(shared::event::Event &event);
 
   void SetActive(const bool active);
 

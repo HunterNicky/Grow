@@ -1,6 +1,6 @@
-#include "chroma/app/events/MouseEvent.h"
+#include "chroma/shared/events/MouseEvent.h"
 
-namespace chroma::app::event {
+namespace chroma::shared::event {
 
 MouseEvent::MouseEvent(Vector2 position, bool left_pressed, bool right_pressed)
     : Event(Event::MouseEvent), mouse_position_(position),
@@ -38,4 +38,4 @@ void MouseEvent::SetRightButtonPressed(bool pressed) {
     right_button_pressed_ = pressed;
 }
 
-} // namespace chroma::app::event
+} // namespace chroma::shared::event

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "chroma/app/events/Event.h"
+#include "chroma/shared/events/Event.h"
 
 #include <raylib.h>
 
-namespace chroma::app::event {
+namespace chroma::shared::event {
 class MouseEvent : public Event {
 public:
     explicit MouseEvent(Vector2 position);
@@ -23,4 +23,4 @@ private:
     bool left_button_pressed_ = false;
     bool right_button_pressed_ = false;
 };
-} // namespace chroma::app::event
+} // namespace chroma::shared::event

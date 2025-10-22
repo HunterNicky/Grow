@@ -21,7 +21,7 @@ public:
   void OnFixedUpdate(const float fixed_delta_time);
   void OnRender();
 
-  void OnEvent(event::Event &event);
+  void OnEvent(shared::event::Event &event);
 
   void PushState(const std::shared_ptr<State> &state);
   void PopState();

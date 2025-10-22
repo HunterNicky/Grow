@@ -2,7 +2,7 @@
 #include <string>
 #include <utility>
 
-#include "chroma/app/events/Event.h"
+#include "chroma/shared/events/Event.h"
 #include "chroma/app/layers/Layer.h"
 #include "chroma/app/states/State.h"
 #include "chroma/app/states/StateMachine.h"
@@ -22,7 +22,7 @@ void Layer::OnFixedUpdate(const float fixed_delta_time) { state_machine_->OnFixe
 
 void Layer::OnRender() { state_machine_->OnRender(); }
 
-void Layer::OnEvent(event::Event &event) { state_machine_->OnEvent(event); }
+void Layer::OnEvent(shared::event::Event &event) { state_machine_->OnEvent(event); }
 
 const std::string &Layer::GetName() const { return name_; }
 
