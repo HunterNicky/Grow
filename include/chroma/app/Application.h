@@ -30,7 +30,7 @@ public:
 
 private:
   std::unique_ptr<layer::LayerStack> layer_stack_;
-  std::unique_ptr<shared::event::EventDispatcher> event_dispatcher_;
+  std::shared_ptr<shared::event::EventDispatcher> event_dispatcher_;
   float delta_time_;
 
   client::core::Window window_;

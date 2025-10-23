@@ -11,94 +11,93 @@
 
 namespace chroma::shared::core::player
 {
-    Player::Player()
+Player::Player()
+{
+    input_state_ = shared::events::InputState();
+    Type_ = GameObjectType::PLAYER;
+}
+
+void Player::InitComponents()
+{
+    auto speed_component = std::make_shared<component::Speed>(200.0F);
+    auto movement_component = std::make_shared<component::Movement>();
+    AttachComponent(speed_component);
+    AttachComponent(movement_component);
+    transform_->SetScale({50.0F, 50.0F});
+    AttachComponent(transform_);
+}
+
+Player::~Player() = default;
+
+void Player::OnUpdate(float delta_time)
+{
+    auto transform = GetComponent<component::Transform>();
+    auto speed = GetComponent<component::Speed>();
+    if (!transform || !speed) 
     {
-        Type_ = GameObjectType::PLAYER;
+        return;
     }
 
-    void Player::InitComponents()
+    auto movement = GetComponent<component::Movement>();
+    if (!movement || (movement->GetDirection().x == 0.0F && movement->GetDirection().y == 0.0F)) { return; }
+
+    const float magnitude = std::sqrt((movement->GetDirection().x * movement->GetDirection().x) + (movement->GetDirection().y * movement->GetDirection().y));
+
+    if (magnitude > 0.0F) {
+        movement->SetDirection({ movement->GetDirection().x / magnitude, movement->GetDirection().y / magnitude });
+    }
+
+    Vector2 pos = transform->GetPosition();
+    pos.x += movement->GetDirection().x * speed->GetSpeed().x * delta_time;
+    pos.y += movement->GetDirection().y * speed->GetSpeed().y * delta_time;
+    transform->SetPosition(pos);
+}
+
+void Player::OnFixedUpdate(float fixed_delta_time) {
+    (void)fixed_delta_time;
+}
+
+void Player::OnCollision(const collision::CollisionEvent &event) {
+    (void)event;
+}
+
+void Player::OnRender() 
+{
+    auto transform = GetComponent<component::Transform>();
+    if (!transform) { return; }
+
+    DrawRectangleV(transform->GetPosition(), transform->GetScale(), BLUE);
+}
+
+void Player::HandleEvent(shared::event::Event& event) {
+    if (event.GetType() != shared::event::Event::KeyEvent)
     {
-        auto speed_component = std::make_shared<component::Speed>(200.0F);
-        auto movement_component = std::make_shared<component::Movement>();
-        AttachComponent(speed_component);
-        AttachComponent(movement_component);
-        transform_->SetScale({50.0F, 50.0F});
-        AttachComponent(transform_);
+        return;
     }
 
-    Player::~Player() = default;
-
-    void Player::OnUpdate(float delta_time)
+    auto& key_event = dynamic_cast<shared::event::KeyEvent&>(event);
+    auto movement = GetComponent<component::Movement>();
+    if (!movement) 
     {
-        auto transform = GetComponent<component::Transform>();
-        auto speed = GetComponent<component::Speed>();
-        if (!transform || !speed) 
-        {
-            return;
-        }
-
-        auto movement = GetComponent<component::Movement>();
-        if (!movement || (movement->GetDirection().x == 0.0F && movement->GetDirection().y == 0.0F)) { return; }
-
-        const float magnitude = std::sqrt((movement->GetDirection().x * movement->GetDirection().x) + (movement->GetDirection().y * movement->GetDirection().y));
-
-        if (magnitude > 0.0F) {
-            movement->SetDirection({ movement->GetDirection().x / magnitude, movement->GetDirection().y / magnitude });
-        }
-
-        Vector2 pos = transform->GetPosition();
-        pos.x += movement->GetDirection().x * speed->GetSpeed().x * delta_time;
-        pos.y += movement->GetDirection().y * speed->GetSpeed().y * delta_time;
-        transform->SetPosition(pos);
+        return;
     }
 
-    void Player::OnFixedUpdate(float fixed_delta_time) {
-        (void)fixed_delta_time;
+    movement->Reset();
+
+    if (key_event.IsPressed()) {
+        input_state_.SetKeyState(key_event.GetKey(), true);
+    } else if (key_event.IsReleased()) {
+        input_state_.SetKeyState(key_event.GetKey(), false);
     }
 
-    void Player::OnCollision(const collision::CollisionEvent &event) {
-        (void)event;
-    }
+    Vector2 direction{0.0F, 0.0F};
 
-    void Player::OnRender() 
-    {
-        auto transform = GetComponent<component::Transform>();
-        if (!transform) { return; }
+    if(input_state_.IsKeyPressed(KEY_W)) { direction.y -= 1.0F; }
+    if(input_state_.IsKeyPressed(KEY_S)) { direction.y += 1.0F; }
+    if(input_state_.IsKeyPressed(KEY_A)) { direction.x -= 1.0F; }
+    if(input_state_.IsKeyPressed(KEY_D)) { direction.x += 1.0F; }
 
-        DrawRectangleV(transform->GetPosition(), transform->GetScale(), BLUE);
-    }
+    movement->SetDirection(direction);
+}
 
-    void Player::HandleEvent(shared::event::Event &event) 
-    {
-        if(event.GetType() == shared::event::Event::KeyEvent) {
-            auto key_event = dynamic_cast<shared::event::KeyEvent&>(event);
-            auto movement = GetComponent<component::Movement>();
-            if (!movement) { return; }
-
-            Vector2 direction = movement->GetDirection();
-
-            if (key_event.IsPressed()) {
-                switch (key_event.GetKey()) {
-                    case KEY_W:
-                        direction.y -= 1.0F;
-                        break;
-                    case KEY_S:
-                        direction.y += 1.0F;
-                        break;
-                    case KEY_A:
-                        direction.x -= 1.0F;
-                        break;
-                    case KEY_D:
-                        direction.x += 1.0F;
-                        break;
-                    default:
-                        break;
-                }
-            } else if (key_event.IsReleased()) {
-                //movement->Reset();
-                return;  
-            }
-            movement->SetDirection(direction);
-        }
-    }
 }

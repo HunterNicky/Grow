@@ -26,7 +26,7 @@ public:
     void Update(const float delta_time);
 
     std::shared_ptr<chroma::shared::core::player::Player> CreatePlayer();
-    std::vector<uint8_t> GetGameStateSnapshot() const;
+    std::vector<uint8_t> GetGameStateSnapshot(const UUIDv4::UUID& player_id) const;
 
     void OnReceivedInputMessage(const std::shared_ptr<chroma::shared::packet::InputMessage>& input_message, const UUIDv4::UUID& player_id);
     void HandleInput(shared::event::Event& event, const UUIDv4::UUID& player_id);

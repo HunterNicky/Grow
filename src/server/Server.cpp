@@ -34,9 +34,13 @@ int Server::Start()
 
   ENetEvent event;
   auto last_tick = std::chrono::steady_clock::now();
-
+  
   while (is_running_) {
-    while (is_running_ && enet_host_service(server_.get(), &event, 10) > 0) {
+    
+    auto now = std::chrono::steady_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_tick).count();
+    
+    while (is_running_ && enet_host_service(server_.get(), &event, 1) > 0) {
       switch (event.type) {
         case ENET_EVENT_TYPE_CONNECT:
           ConnectClient(event);
@@ -49,6 +53,7 @@ int Server::Start()
           
           if (input_message != nullptr) {
             world_simulation_.OnReceivedInputMessage(input_message, connected_players_[event.peer]);
+            world_simulation_.Update(static_cast<float>(elapsed) / 1000.0F);
           }
           enet_packet_destroy(event.packet);
           break;
@@ -56,8 +61,6 @@ int Server::Start()
     }
 
     tick_counter_++;
-    auto now = std::chrono::steady_clock::now();
-    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_tick).count();
 
     if (tick_counter_ >= TICKS) {
       last_tick = now;
@@ -94,7 +97,7 @@ bool Server::ConnectClient(const ENetEvent& event)
   auto player = world_simulation_.CreatePlayer();
   connected_players_.emplace(event.peer, player->GetId());
 
-  std::vector<uint8_t> game_state = world_simulation_.GetGameStateSnapshot();
+  std::vector<uint8_t> game_state = world_simulation_.GetGameStateSnapshot(player->GetId());
 
   ENetPacket* packet = enet_packet_create(
       game_state.data(),
@@ -158,7 +161,7 @@ void Server::BroadcastGameObjectState() const
   if (!server_) {
     return;
   }
-  std::vector<uint8_t> game_state = world_simulation_.GetGameStateSnapshot();
+  std::vector<uint8_t> game_state = world_simulation_.GetGameStateSnapshot(UUIDv4::UUID{});
 
   for (const auto& [peer, player_id] : connected_players_) {
     ENetPacket* packet = enet_packet_create(

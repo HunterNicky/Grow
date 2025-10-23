@@ -9,7 +9,7 @@
 namespace chroma::shared::event {
 
 std::shared_ptr<event::Event> EventCatcher::CatchEvent() {
-    //Key code A a Z
+    //Key code A ~ Z
     for (int key_code = 65; key_code <= 90; ++key_code) {
         auto key_event = VerifyKeyEvent(key_code);
         if (key_event != nullptr) {

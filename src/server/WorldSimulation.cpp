@@ -46,7 +46,7 @@ void WorldSimulation::HandleInput(shared::event::Event& event, const UUIDv4::UUI
     }
 }
 
-std::vector<uint8_t> WorldSimulation::GetGameStateSnapshot() const {
-    return shared::packet::PacketHandler::GameObjectsToFlatBuffer(game_objects_);
+std::vector<uint8_t> WorldSimulation::GetGameStateSnapshot(const UUIDv4::UUID& player_id) const {
+    return shared::packet::PacketHandler::GameObjectsToFlatBuffer(game_objects_, player_id, 0, 0);
 }
 } // namespace chroma::server

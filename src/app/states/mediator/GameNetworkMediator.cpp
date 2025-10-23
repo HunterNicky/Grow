@@ -14,9 +14,13 @@ namespace chroma::app::states {
     }
 
    void GameNetworkMediator::OnSnapshotReceived(const std::vector<uint8_t>& data) {
-            auto state = game_state_.lock();
+        auto state = game_state_.lock();
         if (!state) {
             return;
+        }
+
+        if(state->GetPlayerId() == UUIDv4::UUID{}) {
+            state->SetPlayerId(shared::packet::PacketHandler::FlatBufferSnapshotGetUUID(data.data(), data.size()));
         }
 
         auto game_objects = state->GetGameObjects();
@@ -43,4 +47,10 @@ namespace chroma::app::states {
         return network_state_.lock();
     }
 
+    void GameNetworkMediator::RegisterPlayerId(const UUIDv4::UUID& player_id) {
+        auto game_state = game_state_.lock();
+        if (game_state) {
+            game_state->SetPlayerId(player_id);
+        }
+    }
 }

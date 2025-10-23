@@ -24,4 +24,5 @@ void KeyEvent::SetPressed(bool pressed) {
 std::shared_ptr<Event> KeyEvent::Clone() const {
     return std::make_shared<KeyEvent>(*this);
 }
+
 } // namespace chroma::shared::event

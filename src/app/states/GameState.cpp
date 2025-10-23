@@ -10,6 +10,7 @@ namespace chroma::app::states {
 GameState::GameState() : State("GameState"), network_mediator_(nullptr) {
     
     auto player = std::make_shared<chroma::shared::core::player::Player>();
+    SetPlayerId(player->GetId());
     player->InitComponents();
     game_objects_.emplace(player->GetId(), player);
 }
@@ -48,6 +49,26 @@ void GameState::SetGameObjects(const std::unordered_map<UUIDv4::UUID, std::share
 
 [[nodiscard]] const std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>>& GameState::GetGameObjects() const {
     return game_objects_;
+}
+
+void GameState::OnEvent(shared::event::Event& event) {
+    if(player_id_ == UUIDv4::UUID{}) {
+        return;
+    }
+
+    auto it = game_objects_.find(player_id_);
+    if (it != game_objects_.end()) {
+        auto player = std::dynamic_pointer_cast<chroma::shared::core::player::Player>(it->second);
+        player->HandleEvent(event);
+    }
+}
+
+void GameState::SetPlayerId(const UUIDv4::UUID& player_id) {
+    player_id_ = player_id;
+}
+
+UUIDv4::UUID GameState::GetPlayerId() const {
+    return player_id_;
 }
 
 } // namespace chroma::app::states

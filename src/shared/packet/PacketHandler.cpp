@@ -18,7 +18,7 @@
 
 namespace chroma::shared::packet {
 
-std::vector<uint8_t> PacketHandler::GameObjectsToFlatBuffer(const std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>>& objects,  uint64_t time_lapse, uint32_t last_processed_input)
+std::vector<uint8_t> PacketHandler::GameObjectsToFlatBuffer(const std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>>& objects, const UUIDv4::UUID& player_id, uint64_t time_lapse, uint32_t last_processed_input)
 {
     flatbuffers::FlatBufferBuilder builder(1024);
 
@@ -49,8 +49,9 @@ std::vector<uint8_t> PacketHandler::GameObjectsToFlatBuffer(const std::unordered
         fb_entities.push_back(fb_entity);
     }
 
+    auto fb_player_id = builder.CreateString(player_id.str());
     auto fb_entities_vec = builder.CreateVector(fb_entities);
-    auto snapshot = Game::CreateSnapshot(builder, time_lapse, last_processed_input, fb_entities_vec);
+    auto snapshot = Game::CreateSnapshot(builder, time_lapse, last_processed_input, fb_player_id, fb_entities_vec);
     auto envelope = Game::CreateEnvelope(builder, Game::MsgType::SNAPSHOT, Game::MsgUnion::Snapshot, snapshot.Union());
     builder.Finish(envelope);
 
@@ -274,6 +275,25 @@ std::vector<uint8_t> PacketHandler::InputMessageToFlatBuffer(const std::shared_p
     auto buf = builder.Release();
 
     return std::vector<uint8_t>(buf.begin(), buf.end());
+}
+
+UUIDv4::UUID PacketHandler::FlatBufferSnapshotGetUUID(const uint8_t* data, std::size_t size) {
+    flatbuffers::Verifier verifier(data, size);
+    if (!Game::VerifyEnvelopeBuffer(verifier)) {
+        return UUIDv4::UUID{};
+    }
+
+    const auto* envelope = Game::GetEnvelope(data);
+    if (envelope->type() != Game::MsgType::SNAPSHOT) {
+        return UUIDv4::UUID{};
+    }
+
+    const auto* snapshot = envelope->msg_as<Game::Snapshot>();
+    if (snapshot == nullptr) {
+        return UUIDv4::UUID{};
+    }
+
+    return UUIDv4::UUID(snapshot->player_id()->str());
 }
 
 } // namespace chroma::shared::packet

@@ -1,5 +1,6 @@
 #include "chroma/shared/core/components/Movement.h"
 #include "chroma/shared/core/components/Component.h"
+#include <raylib.h>
 
 namespace chroma::shared::core::component {
 Movement::Movement() :  direction_{0.0F, 0.0F} 
@@ -18,6 +19,6 @@ void Movement::SetDirection(Vector2 new_direction) { direction_ = new_direction;
 
 void Movement::Reset() 
 { 
-    direction_.x = direction_.y = 0.0F;
+    direction_ = Vector2{0.0F, 0.0F};
 }
 } // namespace chroma::shared::core::component

@@ -27,6 +27,7 @@ table EntityState {
 table Snapshot {
   server_time:uint64;
   last_processed_input:uint32;
+  player_id: string;
   entities:[EntityState];
 }
 

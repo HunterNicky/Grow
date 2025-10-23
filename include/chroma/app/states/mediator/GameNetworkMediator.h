@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <uuid_v4.h>
 #include <vector>
 
 #include "GameObject_generated.h"
@@ -22,7 +23,7 @@ public:
 
     void SetGameState(const std::shared_ptr<GameState>& game);
     void SetNetworkState(const std::shared_ptr<NetworkState>& network);
-
+    void RegisterPlayerId(const UUIDv4::UUID& player_id);
     [[nodiscard]] std::shared_ptr<GameState> GetGameState() const;
     [[nodiscard]] std::shared_ptr<NetworkState> GetNetworkState() const;
 
