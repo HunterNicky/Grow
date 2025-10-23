@@ -29,6 +29,15 @@ if (WIN32)
 endif()
 
 if(MSVC)
+  target_compile_options(chroma_server PRIVATE /arch:AVX)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(chroma_server PRIVATE -msse4.1 -mavx -mavx2)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "MinGW")
+  target_compile_options(chroma_server PRIVATE -msse4.1)
+endif()
+
+
+if(MSVC)
   target_compile_options(chroma_server PRIVATE /wd4242 /wd4701 /wd4703 /wd4996)
 endif()
 

@@ -56,7 +56,6 @@ union InputEvent {
 table InputMessage {
   seq: uint32;
   dt: float;
-  player_id: string;
   type: InputEventType;
   event: InputEvent;
 }

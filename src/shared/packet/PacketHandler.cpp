@@ -3,7 +3,9 @@
 #include "GameObject_generated.h"
 #include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/core/player/Player.h"
-#include "chroma/shared/packet/ImputMessage.h"
+#include "chroma/shared/packet/InputMessage.h"
+#include "chroma/shared/events/KeyEvent.h"
+#include "chroma/shared/events/MouseEvent.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -12,19 +14,17 @@
 #include <vector>
 #include <memory>
 
-using namespace chroma::shared::core;
+namespace chroma::shared::packet {
 
-namespace chroma::server::packet {
-
-std::vector<uint8_t> PacketHandler::GameObjectsToFlatBuffer(const std::vector<std::shared_ptr<GameObject>>& objects,  uint64_t time_lapse, uint32_t last_processed_input)
+std::vector<uint8_t> PacketHandler::GameObjectsToFlatBuffer(const std::vector<std::shared_ptr<chroma::shared::core::GameObject>>& objects,  uint64_t time_lapse, uint32_t last_processed_input)
 {
     flatbuffers::FlatBufferBuilder builder(1024);
 
     std::vector<flatbuffers::Offset<Game::EntityState>> fb_entities;
 
     for (const auto& object : objects) {
-        auto pos = object->GetComponent<component::Transform>();
-        auto vel = object->GetComponent<component::Speed>();
+        auto pos = object->GetComponent<chroma::shared::core::component::Transform>();
+        auto vel = object->GetComponent<chroma::shared::core::component::Speed>();
 
         std::vector<flatbuffers::Offset<Game::Component>> components;
 
@@ -76,7 +76,7 @@ void PacketHandler::FlatBufferToGameObject(const uint8_t* data, std::vector<std:
   }
 
   for (const auto& entity_state : *snapshot->entities()) {
-    auto it = std::ranges::find_if(game_objects, [&](const std::shared_ptr<GameObject>& obj) {
+    auto it = std::ranges::find_if(game_objects, [&](const std::shared_ptr<chroma::shared::core::GameObject>& obj) {
         return static_cast<Game::GameObjectType>(obj->GetTag()) == entity_state->type();
     });
 
@@ -132,7 +132,7 @@ void PacketHandler::ComponentToSpeed(const Game::Component* component, std::shar
     const auto* fb_vel = component->type_as_Velocity();
     if (fb_vel != nullptr) {
         const auto* vel_vec = fb_vel->vel();
-        auto speed = game_object->GetComponent<component::Speed>();
+        auto speed = game_object->GetComponent<chroma::shared::core::component::Speed>();
         if (speed) {
             speed->SetSpeed(Vector2{vel_vec->x(), vel_vec->y()});
         }
@@ -144,7 +144,7 @@ void PacketHandler::ComponentToTransform(const Game::Component* component, std::
     const auto* fb_pos = component->type_as_Position();
     if (fb_pos != nullptr) {
         const auto* pos_vec = fb_pos->pos();
-        auto transform = game_object->GetComponent<component::Transform>();
+        auto transform = game_object->GetComponent<chroma::shared::core::component::Transform>();
         if (transform) {
             transform->SetPosition(Vector2{pos_vec->x(), pos_vec->y()});
         }
@@ -173,7 +173,6 @@ std::shared_ptr<shared::packet::InputMessage> PacketHandler::FlatBufferToInputMe
     
     input_message->SetSeq(input_msg->seq());
     input_message->SetDeltaTime(input_msg->dt());
-    input_message->SetPlayerId(input_msg->player_id()->str());
 
     if (input_msg->event_type() == Game::InputEvent::KeyEvent) {
         shared::event::KeyEvent key_event;
@@ -182,7 +181,7 @@ std::shared_ptr<shared::packet::InputMessage> PacketHandler::FlatBufferToInputMe
             key_event = shared::event::KeyEvent(fb_key_event->key());
             key_event.SetPressed(fb_key_event->is_pressed());
             input_message->SetEventType(shared::event::Event::Type::KeyEvent);
-            input_message->SetKeyEvent(key_event);
+            input_message->SetEvent(key_event);
         }
     } else if (input_msg->event_type() == Game::InputEvent::MouseEvent) {
         shared::event::MouseEvent mouse_event;
@@ -191,10 +190,67 @@ std::shared_ptr<shared::packet::InputMessage> PacketHandler::FlatBufferToInputMe
             Vector2 position{fb_mouse_event->mouse_position()->x(), fb_mouse_event->mouse_position()->y()};
             mouse_event = shared::event::MouseEvent(position, fb_mouse_event->left(), fb_mouse_event->right());
             input_message->SetEventType(shared::event::Event::Type::MouseEvent);
-            input_message->SetMouseEvent(mouse_event);
+            input_message->SetEvent(mouse_event);
         }
     }
 
     return input_message;
 }
-} // namespace chroma::server::packet
+
+std::vector<uint8_t> PacketHandler::InputMessageToFlatBuffer(const std::shared_ptr<shared::packet::InputMessage>& input_message)
+{
+    flatbuffers::FlatBufferBuilder builder(1024);
+
+    Game::InputEventType type = Game::InputEventType::NONE;
+    Game::InputEvent event_type = Game::InputEvent::NONE;
+    flatbuffers::Offset<void> event_union;
+
+    switch (input_message->GetEventType()) {
+        case shared::event::Event::KeyEvent: {
+            const auto& key_event = dynamic_cast<const shared::event::KeyEvent&>(input_message->GetEvent());
+            auto fb_key_event = Game::CreateKeyEvent(
+                builder,
+                key_event.GetKey(),
+                key_event.IsPressed(),
+                key_event.IsReleased()
+            );
+            type = Game::InputEventType::KEYEVENT;
+            event_type = Game::InputEvent::KeyEvent;
+            event_union = fb_key_event.Union();
+            break;
+        }
+
+        case shared::event::Event::MouseClickEvent: {
+            const auto& mouse_event = dynamic_cast<const shared::event::MouseEvent&>(input_message->GetEvent());
+            auto fb_mouse_pos = Game::CreateVec2(
+                builder,
+                mouse_event.GetMousePosition().x,
+                mouse_event.GetMousePosition().y
+            );
+            auto fb_mouse_event = Game::CreateMouseEvent(
+                builder,
+                mouse_event.IsLeftButtonPressed(),
+                mouse_event.IsRightButtonPressed(),
+                fb_mouse_pos
+            );
+            type = Game::InputEventType::MOUSEEVENT;
+            event_type = Game::InputEvent::MouseEvent;
+            event_union = fb_mouse_event.Union();
+            break;
+        }
+
+        default:
+            return {};
+    }
+
+    auto fb_input_msg = Game::CreateInputMessage(builder,0, 0.0F, type, event_type, event_union );
+
+    auto fb_envelope = Game::CreateEnvelope(builder,Game::MsgType::INPUT,Game::MsgUnion::InputMessage,fb_input_msg.Union());
+
+    builder.Finish(fb_envelope);
+    auto buf = builder.Release();
+
+    return std::vector<uint8_t>(buf.begin(), buf.end());
+}
+
+} // namespace chroma::shared::packet

@@ -17,7 +17,6 @@ GameState::GameState(std::shared_ptr<GameNetworkMediator> network_mediator)
     : State("GameState"), network_mediator_(std::move(network_mediator)) {
 }
 
-
 void GameState::OnRender() {
 
     if(!IsActive()) { return; }

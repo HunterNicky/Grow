@@ -2,6 +2,7 @@
 
 #include <enet.h>
 #include <memory>
+#include <unordered_map>
 
 #include "chroma/server/WorldSimulation.h"
 
@@ -22,7 +23,7 @@ public:
   int Start();
   int Stop();
 
-  [[nodiscard]] bool ConnectClient(const ENetEvent &event) const;
+  [[nodiscard]] bool ConnectClient(const ENetEvent &event);
   bool DisconnectClient(const ENetEvent &event);
 
   bool InitServer(int port, int max_clients);
@@ -42,5 +43,6 @@ private:
   int tick_counter_;
 
   WorldSimulation world_simulation_;
+  std::unordered_map<ENetPeer*, UUIDv4::UUID> connected_players_;
 };
 }// namespace chroma::server

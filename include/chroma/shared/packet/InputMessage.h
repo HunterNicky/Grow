@@ -1,16 +1,15 @@
 #pragma once
 
 #include "chroma/shared/events/Event.h"
-#include "chroma/shared/events/KeyEvent.h"
-#include "chroma/shared/events/MouseEvent.h"
-#include <string>
+
 #include <sys/types.h>
+
 namespace chroma::shared::packet {
 class InputMessage {
 
 public:
     InputMessage() = default;
-    InputMessage(uint32_t sequence, float delta_time, const std::string& player_id);
+    InputMessage(uint32_t sequence, float delta_time);
     InputMessage(const InputMessage &) = default;
     InputMessage(InputMessage &&) = delete;
     InputMessage &operator=(const InputMessage &) = default;
@@ -19,30 +18,24 @@ public:
 
     [[nodiscard]] uint32_t GetSeq() const;
     [[nodiscard]] float GetDeltaTime() const;
-    [[nodiscard]] const std::string& GetPlayerId() const;
 
     [[nodiscard]] event::Event::Type GetEventType() const;
 
-    [[nodiscard]] const event::KeyEvent& GetKeyEvent() const;
-    [[nodiscard]] const event::MouseEvent& GetMouseEvent() const;
+    [[nodiscard]] const event::Event& GetEvent() const;
 
     void SetSeq(uint32_t sequence);
     void SetDeltaTime(float delta_time);
-    void SetPlayerId(const std::string& id);
 
     void SetEventType(event::Event::Type type);
 
-    void SetKeyEvent(const event::KeyEvent& key_evt);
-    void SetMouseEvent(const event::MouseEvent& mouse_evt);
+    void SetEvent(const event::Event& event);
 
 private:
     uint32_t seq_ {};
     float dt_ {};
-    std::string player_id_;
 
     event::Event::Type type_ { event::Event::Type::None };
 
-    event::KeyEvent key_event_;
-    event::MouseEvent mouse_event_;
+    event::Event event_;
 };
 } // namespace chroma::shared::packet

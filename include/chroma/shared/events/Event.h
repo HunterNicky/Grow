@@ -13,6 +13,7 @@ public:
     MouseEvent = 3,
   };
 
+  Event() = default;
   Event(const Event &) = default;
   Event(Event &&) = delete;
   Event &operator=(const Event &) = default;

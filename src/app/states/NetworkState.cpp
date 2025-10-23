@@ -1,16 +1,16 @@
 #include "chroma/app/states/NetworkState.h"
 #include "chroma/shared/events/Event.h"
-#include "chroma/shared/events/KeyEvent.h"
-#include "chroma/shared/events/MouseEvent.h"
-#include "GameObject_generated.h"
 #include "chroma/app/states/State.h"
 #include "chroma/server/Server.h"
-#include "flatbuffers/flatbuffer_builder.h"
+#include "chroma/shared/packet/InputMessage.h"
+#include "chroma/shared/packet/PacketHandler.h"
 
+#include <cstdint>
 #include <thread>
 #include <memory>
 #include <enet.h>
 #include <future>
+#include <vector>
 
 namespace chroma::app::layer::states {
 
@@ -37,7 +37,10 @@ NetworkState::NetworkState()
         enet_deinitialize();
     } 
 
-    ConnectToServer("127.0.0.1", 6969);
+    if(!ConnectToServer("127.0.0.1", 6969)) {
+        connected_ = false;
+        return; 
+    }
 }
 
 NetworkState::~NetworkState() {
@@ -84,7 +87,6 @@ void NetworkState::OnReceiveData() const {
     }
 }
 
-// NOLINTNEXTLINE
 bool NetworkState::TryConnect(const std::string& host, enet_uint16 port)
 {
     server_peer_.reset();
@@ -109,7 +111,7 @@ bool NetworkState::TryConnect(const std::string& host, enet_uint16 port)
     return (enet_host_service(client_.get(), &event, 1000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT);
 }
 
-void NetworkState::ConnectToServer(const std::string& host, enet_uint16 port) {
+bool NetworkState::ConnectToServer(const std::string& host, enet_uint16 port) {
     if (!TryConnect(host, port)) {
         std::promise<bool> ready;
         auto fut = ready.get_future();
@@ -122,9 +124,15 @@ void NetworkState::ConnectToServer(const std::string& host, enet_uint16 port) {
         thread_server.detach();
 
         if (fut.wait_for(std::chrono::seconds(2)) == std::future_status::ready && fut.get()) {
-            TryConnect(host, port);
+            if (!TryConnect(host, port)) {
+                connected_ = false;
+                return false;
+            }
         } 
     }
+
+    connected_ = true;
+    return true;
 }
 
 
@@ -152,59 +160,15 @@ void NetworkState::OnEvent(shared::event::Event& event) {
         return;
     }
 
-    flatbuffers::FlatBufferBuilder builder(1024);
+    auto input_message = std::make_shared<chroma::shared::packet::InputMessage>();
 
-    Game::InputEventType type = Game::InputEventType::NONE;
-    Game::InputEvent event_type = Game::InputEvent::NONE;
-    flatbuffers::Offset<void> event_union;
+    input_message->SetSeq(seq_num_++);
+    input_message->SetDeltaTime(0.016F);
+    input_message->SetEventType(event.GetType());
+    input_message->SetEvent(event);
 
-    switch (event.GetType()) {
-        case shared::event::Event::KeyEvent: {
-            const auto& key_event = dynamic_cast<const shared::event::KeyEvent&>(event);
-            auto fb_key_event = Game::CreateKeyEvent(
-                builder,
-                key_event.GetKey(),
-                key_event.IsPressed(),
-                key_event.IsReleased()
-            );
-            type = Game::InputEventType::KEYEVENT;
-            event_type = Game::InputEvent::KeyEvent;
-            event_union = fb_key_event.Union();
-            break;
-        }
+    std::vector<uint8_t> buf = chroma::shared::packet::PacketHandler::InputMessageToFlatBuffer(input_message);
 
-        case shared::event::Event::MouseClickEvent: {
-            const auto& mouse_event = dynamic_cast<const shared::event::MouseEvent&>(event);
-            auto fb_mouse_pos = Game::CreateVec2(
-                builder,
-                mouse_event.GetMousePosition().x,
-                mouse_event.GetMousePosition().y
-            );
-            auto fb_mouse_event = Game::CreateMouseEvent(
-                builder,
-                mouse_event.IsLeftButtonPressed(),
-                mouse_event.IsRightButtonPressed(),
-                fb_mouse_pos
-            );
-            type = Game::InputEventType::MOUSEEVENT;
-            event_type = Game::InputEvent::MouseEvent;
-            event_union = fb_mouse_event.Union();
-            break;
-        }
-
-        default:
-            return;
-    }
-
-    auto fb_input_msg = Game::CreateInputMessage(builder,0, 0.0F,builder.CreateString("PlayerTest"),
-                                                type, event_type, event_union );
-
-    auto fb_envelope = Game::CreateEnvelope(builder,Game::MsgType::INPUT,
-                                                     Game::MsgUnion::InputMessage,fb_input_msg.Union());
-
-    builder.Finish(fb_envelope);
-
-    auto buf = builder.Release();
     ENetPacket* packet = enet_packet_create(
         buf.data(),
         buf.size(),

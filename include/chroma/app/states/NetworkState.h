@@ -40,7 +40,7 @@ private:
 
 
     static void PeerDeleter(ENetPeer* peer);
-    void ConnectToServer(const std::string& host, enet_uint16 port);
+    bool ConnectToServer(const std::string& host, enet_uint16 port);
     void DisconnectFromServer();
     bool TryConnect(const std::string& host, enet_uint16 port);
     void OnReceiveData() const;

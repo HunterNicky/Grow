@@ -1,5 +1,5 @@
 #include "chroma/server/Server.h"
-#include "chroma/shared/packet/ImputMessage.h"
+#include "chroma/shared/packet/InputMessage.h"
 #include "chroma/shared/packet/PacketHandler.h"
 #include <chrono>
 #include <memory>
@@ -38,10 +38,10 @@ int Server::Start()
         ConnectClient(event);
       }
       if (event.type == ENET_EVENT_TYPE_RECEIVE){
-        std::shared_ptr<chroma::shared::packet::InputMessage> input_message = packet::PacketHandler::FlatBufferToInputMessage(event.packet->data);
+        std::shared_ptr<chroma::shared::packet::InputMessage> input_message = shared::packet::PacketHandler::FlatBufferToInputMessage(event.packet->data);
         
         if (input_message != nullptr) {
-          world_simulation_.OnReceivedImputMessage(input_message);
+          world_simulation_.OnReceivedInputMessage(input_message, connected_players_[event.peer]);
         }
 
         enet_packet_destroy(event.packet);
@@ -80,7 +80,7 @@ int Server::Stop()
   return 0;
 }
 
-bool Server::ConnectClient(const ENetEvent& event) const
+bool Server::ConnectClient(const ENetEvent& event)
 {
   if (!is_running_) { 
     return false;
@@ -93,7 +93,10 @@ bool Server::ConnectClient(const ENetEvent& event) const
   if(event.type != ENET_EVENT_TYPE_CONNECT) {
     return false;
   }
-  
+
+  auto player = world_simulation_.CreatePlayer();
+  connected_players_.emplace(event.peer, player->GetId());
+
   return true;
 }
 
@@ -110,6 +113,8 @@ bool Server::DisconnectClient(const ENetEvent& event)
   if (server_->connectedPeers == 0) {
     is_running_ = false;
   }
+
+  connected_players_.erase(event.peer);
 
   return true;
 }
