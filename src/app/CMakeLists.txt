@@ -29,5 +29,13 @@ target_include_directories(intro
 )
 
 if(MSVC)
+  target_compile_options(intro PRIVATE /arch:AVX)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(intro PRIVATE -mavx -mavx2 -msse4.1)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "MinGW")
+  target_compile_options(intro PRIVATE -msse4.1)
+endif()
+
+if(MSVC)
   target_compile_options(intro PRIVATE /wd4242 /wd4701 /wd4703 /wd4996)
 endif()

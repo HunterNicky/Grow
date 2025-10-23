@@ -5,15 +5,17 @@
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/packet/InputMessage.h"
 
+#include <cstdint>
 #include <unordered_map>
 #include <uuid_v4.h>
 #include <memory>
+#include <vector>
 
 namespace chroma::server {
 class WorldSimulation {
 public:
     WorldSimulation();
-    ~WorldSimulation() = default;
+    ~WorldSimulation();
 
     WorldSimulation(const WorldSimulation &) = default;
     WorldSimulation(WorldSimulation &&) = delete;
@@ -24,9 +26,10 @@ public:
     void Update(const float delta_time);
 
     std::shared_ptr<chroma::shared::core::player::Player> CreatePlayer();
+    std::vector<uint8_t> GetGameStateSnapshot() const;
 
-    static void OnReceivedInputMessage(const std::shared_ptr<chroma::shared::packet::InputMessage>& input_message, const UUIDv4::UUID& player_id);
-    static void HandleInput(shared::event::Event& event, const UUIDv4::UUID& player_id);
+    void OnReceivedInputMessage(const std::shared_ptr<chroma::shared::packet::InputMessage>& input_message, const UUIDv4::UUID& player_id);
+    void HandleInput(shared::event::Event& event, const UUIDv4::UUID& player_id);
 
 private:
     std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>> game_objects_;

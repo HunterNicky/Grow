@@ -2,6 +2,7 @@
 #include "chroma/shared/packet/InputMessage.h"
 #include "chroma/shared/packet/PacketHandler.h"
 #include <chrono>
+#include <enet.h>
 #include <memory>
 
 namespace chroma::server {
@@ -23,7 +24,9 @@ Server::Server(ENetHost* server, ENetAddress address, bool is_running, int tick_
   address_(address), is_running_(is_running), tick_counter_(tick_counter)
 {}
 
-Server::~Server() { Stop(); }
+Server::~Server() {
+  Stop();
+}
 
 int Server::Start()
 {
@@ -33,21 +36,22 @@ int Server::Start()
   auto last_tick = std::chrono::steady_clock::now();
 
   while (is_running_) {
-    while (is_running_ && enet_host_service(server_.get(), &event, 0) > 0) {
-      if (event.type == ENET_EVENT_TYPE_CONNECT) {
-        ConnectClient(event);
-      }
-      if (event.type == ENET_EVENT_TYPE_RECEIVE){
-        std::shared_ptr<chroma::shared::packet::InputMessage> input_message = shared::packet::PacketHandler::FlatBufferToInputMessage(event.packet->data);
-        
-        if (input_message != nullptr) {
-          world_simulation_.OnReceivedInputMessage(input_message, connected_players_[event.peer]);
-        }
-
-        enet_packet_destroy(event.packet);
-      } 
-      if (event.type == ENET_EVENT_TYPE_DISCONNECT) {
-        DisconnectClient(event);
+    while (is_running_ && enet_host_service(server_.get(), &event, 10) > 0) {
+      switch (event.type) {
+        case ENET_EVENT_TYPE_CONNECT:
+          ConnectClient(event);
+          break;
+        case ENET_EVENT_TYPE_DISCONNECT:
+          DisconnectClient(event);
+          break;
+        case ENET_EVENT_TYPE_RECEIVE:
+          std::shared_ptr<chroma::shared::packet::InputMessage> input_message = shared::packet::PacketHandler::FlatBufferToInputMessage(event.packet->data, event.packet->dataLength);
+          
+          if (input_message != nullptr) {
+            world_simulation_.OnReceivedInputMessage(input_message, connected_players_[event.peer]);
+          }
+          enet_packet_destroy(event.packet);
+          break;
       }
     }
 
@@ -82,23 +86,28 @@ int Server::Stop()
 
 bool Server::ConnectClient(const ENetEvent& event)
 {
-  if (!is_running_) { 
-    return false;
-  }
-  
-  if (event.peer == nullptr) { 
-    return false;
-  }
-
-  if(event.type != ENET_EVENT_TYPE_CONNECT) {
+  if (!is_running_ || event.peer == nullptr || event.type != ENET_EVENT_TYPE_CONNECT)
+  {
     return false;
   }
 
   auto player = world_simulation_.CreatePlayer();
   connected_players_.emplace(event.peer, player->GetId());
 
+  std::vector<uint8_t> game_state = world_simulation_.GetGameStateSnapshot();
+
+  ENetPacket* packet = enet_packet_create(
+      game_state.data(),
+      game_state.size(),
+      ENET_PACKET_FLAG_RELIABLE
+  );
+
+  enet_peer_send(event.peer, 0, packet);
+  enet_host_flush(server_.get());
+
   return true;
 }
+
 
 bool Server::DisconnectClient(const ENetEvent& event)
 {
@@ -149,6 +158,19 @@ void Server::BroadcastGameObjectState() const
   if (!server_) {
     return;
   }
+  std::vector<uint8_t> game_state = world_simulation_.GetGameStateSnapshot();
+
+  for (const auto& [peer, player_id] : connected_players_) {
+    ENetPacket* packet = enet_packet_create(
+        game_state.data(),
+        game_state.size(),
+        ENET_PACKET_FLAG_RELIABLE
+    );
+
+    enet_peer_send(peer, 0, packet);
+  }
+
+  enet_host_flush(server_.get());
 }
 
 void Server::Run() { Start(); }

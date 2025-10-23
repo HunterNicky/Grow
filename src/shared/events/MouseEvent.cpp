@@ -43,4 +43,8 @@ void MouseEvent::SetRightButtonPressed(bool pressed) {
     right_button_pressed_ = pressed;
 }
 
+std::shared_ptr<Event> MouseEvent::Clone() const {
+    return std::make_shared<MouseEvent>(*this);
+}
+
 } // namespace chroma::shared::event

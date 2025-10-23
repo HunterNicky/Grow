@@ -1,6 +1,8 @@
 #pragma once
 
+#include <cstdint>
 #include <memory>
+#include <vector>
 
 #include "GameObject_generated.h"
 
@@ -14,7 +16,7 @@ public:
     GameNetworkMediator() = default;
     GameNetworkMediator(const std::shared_ptr<GameState>& game, const std::shared_ptr<NetworkState>& net);
 
-    static void OnSnapshotReceived(const std::unique_ptr<Game::Snapshot>& snapshot);
+    void OnSnapshotReceived(const std::vector<uint8_t>& data);
 
     static void SendInput(const Game::InputMessage& input);
 
@@ -25,8 +27,8 @@ public:
     [[nodiscard]] std::shared_ptr<NetworkState> GetNetworkState() const;
 
 private:
-    std::weak_ptr<GameState> game_layer_;
-    std::weak_ptr<NetworkState> network_layer_;
+    std::weak_ptr<GameState> game_state_;
+    std::weak_ptr<NetworkState> network_state_;
 };
 
 } // namespace chroma::app::states

@@ -4,7 +4,7 @@
 
 namespace chroma::shared::packet {
 InputMessage::InputMessage(uint32_t sequence, float delta_time)
-: seq_(sequence), dt_(delta_time), event_(event::Event::None)
+: seq_(sequence), dt_(delta_time)
 {
 }
 
@@ -21,7 +21,7 @@ event::Event::Type InputMessage::GetEventType() const {
     return type_;
 }
 
-const event::Event& InputMessage::GetEvent() const {
+const std::shared_ptr<event::Event>& InputMessage::GetEvent() const {
     return event_;
 }
 
@@ -38,7 +38,6 @@ void InputMessage::SetEventType(event::Event::Type type) {
 }
 
 void InputMessage::SetEvent(const event::Event& event) {
-    event_ = event;
+    event_ = event.Clone();
 }
-
 }

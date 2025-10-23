@@ -1,4 +1,4 @@
-#include "chroma/app/states/NetworkState.h"
+#include "chroma/app/states/network/NetworkState.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/app/states/State.h"
 #include "chroma/server/Server.h"
@@ -11,6 +11,7 @@
 #include <enet.h>
 #include <future>
 #include <vector>
+#include <iostream>
 
 namespace chroma::app::states {
 
@@ -55,7 +56,6 @@ bool NetworkState::InitNetworkClient() {
 
     client_ = std::unique_ptr<ENetHost, decltype(&enet_host_destroy)>(enet_host_create(nullptr, 1, 2, 0, 0), &enet_host_destroy);
     if (client_ == nullptr) {
-        enet_deinitialize();
         return false;
     } 
 
@@ -69,7 +69,6 @@ bool NetworkState::InitNetworkClient() {
 NetworkState::~NetworkState() {
     DisconnectFromServer();
     client_.reset();
-    enet_deinitialize();
 }
 
 void NetworkState::DisconnectFromServer() {
@@ -96,16 +95,17 @@ void NetworkState::DisconnectFromServer() {
 
 void NetworkState::OnUpdate(float delta_time) {
 
+    (void)delta_time;
     while (enet_host_service(client_.get(), &event_, 0) > 0) {
-        ProcessEvent(event_);
+        ProcessEvent();
     }
-
-    InterpolateGameObjectStates(delta_time);
 }
 
 void NetworkState::OnReceiveData() const {
     if (event_.type == ENET_EVENT_TYPE_RECEIVE) {
-        //Adicionar conversão de pacote e numero de recebimento
+        game_mediator_.get()->OnSnapshotReceived(
+            std::vector<uint8_t>(event_.packet->data, event_.packet->data + event_.packet->dataLength)
+        );
         enet_packet_destroy(event_.packet);
     }
 }
@@ -113,15 +113,9 @@ void NetworkState::OnReceiveData() const {
 bool NetworkState::TryConnect(const std::string& host, enet_uint16 port)
 {
     server_peer_.reset();
-    ENetEvent event;
 
     server_address_.port = port;
     enet_address_set_host(&server_address_, host.c_str());
-
-    client_ = std::unique_ptr<ENetHost, decltype(&enet_host_destroy)>(
-        enet_host_create(nullptr, 1, 2, 0, 0),
-        &enet_host_destroy
-    );
 
     if (!client_) { return false; }
 
@@ -131,7 +125,7 @@ bool NetworkState::TryConnect(const std::string& host, enet_uint16 port)
     );
     enet_host_flush(client_.get());
 
-    return (enet_host_service(client_.get(), &event, 1000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT);
+    return (enet_host_service(client_.get(), &event_, 1000) > 0 && event_.type == ENET_EVENT_TYPE_CONNECT);
 }
 
 bool NetworkState::ConnectToServer(const std::string& host, enet_uint16 port) {
@@ -159,8 +153,8 @@ bool NetworkState::ConnectToServer(const std::string& host, enet_uint16 port) {
 }
 
 
-void NetworkState::ProcessEvent(const ENetEvent& event) {
-    switch (event.type) {
+void NetworkState::ProcessEvent() {
+    switch (event_.type) {
         case ENET_EVENT_TYPE_CONNECT:
             break;
         case ENET_EVENT_TYPE_RECEIVE:
@@ -174,33 +168,24 @@ void NetworkState::ProcessEvent(const ENetEvent& event) {
     }
 }
 
-void NetworkState::InterpolateGameObjectStates(float delta_time) {
-    (void)delta_time;
-}
-
 void NetworkState::OnEvent(shared::event::Event& event) {
-    if (!IsActive()) {
-        return;
-    }
+    if (!IsActive() || !server_peer_) { return; }
 
     auto input_message = std::make_shared<chroma::shared::packet::InputMessage>();
-
-    input_message->SetSeq(seq_num_++);
+    
+    input_message->SetSeq(seq_num_++); 
     input_message->SetDeltaTime(0.016F);
-    input_message->SetEventType(event.GetType());
+    input_message->SetEventType(event.GetType()); 
     input_message->SetEvent(event);
+    
+    auto buf = chroma::shared::packet::PacketHandler::InputMessageToFlatBuffer(input_message);
+    if (buf.empty()) { return; }
 
-    std::vector<uint8_t> buf = chroma::shared::packet::PacketHandler::InputMessageToFlatBuffer(input_message);
-
-    ENetPacket* packet = enet_packet_create(
-        buf.data(),
-        buf.size(),
-        ENET_PACKET_FLAG_RELIABLE
-    );
-
-    enet_peer_send(server_peer_.get(), 0, packet);
+    ENetPacket* packet = enet_packet_create(buf.data(), buf.size(), ENET_PACKET_FLAG_RELIABLE);
+    int send_res = enet_peer_send(server_peer_.get(), 0, packet);
     enet_host_flush(client_.get());
 }
+
 
 
 } // namespace chroma::app::states

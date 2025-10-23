@@ -45,8 +45,6 @@ private:
     void DisconnectFromServer();
     bool TryConnect(const std::string& host, enet_uint16 port);
     void OnReceiveData() const;
-    void ProcessEvent(const ENetEvent& event);
-    static void InterpolateGameObjectStates(float delta_time);
-
+    void ProcessEvent();
 };
 } // namespace chroma::app::states

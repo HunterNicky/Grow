@@ -1,5 +1,7 @@
 #include "chroma/server/WorldSimulation.h"
 #include "chroma/shared/core/player/Player.h"
+#include "chroma/shared/events/Event.h"
+#include "chroma/shared/packet/PacketHandler.h"
 
 #include <memory>
 #include <uuid_v4.h>
@@ -11,6 +13,11 @@ void WorldSimulation::CreateWorld() {
     //Criar mundo do jogo
 }
 
+WorldSimulation::~WorldSimulation()
+{
+    game_objects_.clear();
+}
+
 void WorldSimulation::Update(const float delta_time) {
     for (const auto& [id, obj] : game_objects_) {
         obj->OnUpdate(delta_time);
@@ -18,8 +25,8 @@ void WorldSimulation::Update(const float delta_time) {
 }
 
 void WorldSimulation::OnReceivedInputMessage(const std::shared_ptr<chroma::shared::packet::InputMessage>& input_message, const UUIDv4::UUID& player_id) {
-    (void)input_message;
-    (void)player_id;
+    std::shared_ptr<shared::event::Event> event = input_message->GetEvent();
+    HandleInput(*event, player_id);
 }
 
 std::shared_ptr<chroma::shared::core::player::Player> WorldSimulation::CreatePlayer() {
@@ -30,7 +37,16 @@ std::shared_ptr<chroma::shared::core::player::Player> WorldSimulation::CreatePla
 }
 
 void WorldSimulation::HandleInput(shared::event::Event& event, const UUIDv4::UUID& player_id) {
-    (void)event;
-    (void)player_id;
+    auto it = game_objects_.find(player_id);
+    if (it != game_objects_.end()) {
+        auto player = std::dynamic_pointer_cast<chroma::shared::core::player::Player>(it->second);
+        if (player) {
+            player->HandleEvent(event);
+        }
+    }
+}
+
+std::vector<uint8_t> WorldSimulation::GetGameStateSnapshot() const {
+    return shared::packet::PacketHandler::GameObjectsToFlatBuffer(game_objects_);
 }
 } // namespace chroma::server

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "chroma/shared/core/GameObject.h"
+#include "chroma/shared/events/Event.h"
 
 namespace chroma::shared::core::player {
 class Player : public GameObject
@@ -18,5 +19,6 @@ public:
   void OnFixedUpdate(float fixed_delta_time) override;
   void OnCollision(const collision::CollisionEvent &event) override;
   void OnRender() override;
+  void HandleEvent(shared::event::Event &event);
 };
 }// namespace chroma::shared::core::player

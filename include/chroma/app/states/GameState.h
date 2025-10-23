@@ -5,7 +5,7 @@
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
 
 #include <memory>
-#include <vector>
+#include <unordered_map>
 
 enum SelectLevel : uint8_t {
     MeadowLevel = 0,
@@ -21,8 +21,11 @@ public:
     void OnRender() override;
     void OnUpdate(float delta_time) override;
 
+    void SetGameObjects(const std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>>& game_objects);
+    [[nodiscard]] const std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>>& GetGameObjects() const;
+
 private:
-    std::vector<std::shared_ptr<chroma::shared::core::GameObject>> game_objects_;
+    std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>> game_objects_;
     std::shared_ptr<chroma::app::states::GameNetworkMediator> network_mediator_;
 };
 } // namespace chroma::app::states

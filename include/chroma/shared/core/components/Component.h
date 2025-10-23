@@ -13,6 +13,7 @@ enum class ComponentType : uint8_t {
   NONE = 0,
   TRANSFORM = 1,
   SPEED = 2,
+  MOVEMENT = 3,
 };
 
 class Component

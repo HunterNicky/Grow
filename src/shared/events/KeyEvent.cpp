@@ -20,4 +20,8 @@ bool KeyEvent::IsReleased() const {
 void KeyEvent::SetPressed(bool pressed) {
     pressed_ = pressed;
 }
+
+std::shared_ptr<Event> KeyEvent::Clone() const {
+    return std::make_shared<KeyEvent>(*this);
+}
 } // namespace chroma::shared::event

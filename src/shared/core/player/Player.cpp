@@ -1,8 +1,10 @@
 #include "chroma/shared/core/player/Player.h"
 
 #include "chroma/shared/core/components/Speed.h"
+#include "chroma/shared/core/components/Movement.h"
 #include "chroma/shared/core/components/Transform.h"
 #include "chroma/shared/core/GameObject.h"
+#include "chroma/shared/events/KeyEvent.h"
 #include "raylib.h" 
 #include <memory>
 #include <cmath>
@@ -17,7 +19,9 @@ namespace chroma::shared::core::player
     void Player::InitComponents()
     {
         auto speed_component = std::make_shared<component::Speed>(200.0F);
+        auto movement_component = std::make_shared<component::Movement>();
         AttachComponent(speed_component);
+        AttachComponent(movement_component);
         transform_->SetScale({50.0F, 50.0F});
         AttachComponent(transform_);
     }
@@ -33,23 +37,18 @@ namespace chroma::shared::core::player
             return;
         }
 
-        Vector2 direction = { 0.0F, 0.0F };
+        auto movement = GetComponent<component::Movement>();
+        if (!movement || (movement->GetDirection().x == 0.0F && movement->GetDirection().y == 0.0F)) { return; }
 
-        if (IsKeyDown(KEY_W)) { direction.y -= 1.0F; }
-        if (IsKeyDown(KEY_S)) { direction.y += 1.0F; }
-        if (IsKeyDown(KEY_A)) { direction.x -= 1.0F; }
-        if (IsKeyDown(KEY_D)) { direction.x += 1.0F; }
-        
-        const float magnitude = std::sqrt((direction.x * direction.x) + (direction.y * direction.y));
-        
+        const float magnitude = std::sqrt((movement->GetDirection().x * movement->GetDirection().x) + (movement->GetDirection().y * movement->GetDirection().y));
+
         if (magnitude > 0.0F) {
-            direction.x /= magnitude;
-            direction.y /= magnitude;
+            movement->SetDirection({ movement->GetDirection().x / magnitude, movement->GetDirection().y / magnitude });
         }
 
         Vector2 pos = transform->GetPosition();
-        pos.x += direction.x * speed->GetSpeed().x * delta_time;
-        pos.y += direction.y * speed->GetSpeed().y * delta_time;
+        pos.x += movement->GetDirection().x * speed->GetSpeed().x * delta_time;
+        pos.y += movement->GetDirection().y * speed->GetSpeed().y * delta_time;
         transform->SetPosition(pos);
     }
 
@@ -67,5 +66,39 @@ namespace chroma::shared::core::player
         if (!transform) { return; }
 
         DrawRectangleV(transform->GetPosition(), transform->GetScale(), BLUE);
+    }
+
+    void Player::HandleEvent(shared::event::Event &event) 
+    {
+        if(event.GetType() == shared::event::Event::KeyEvent) {
+            auto key_event = dynamic_cast<shared::event::KeyEvent&>(event);
+            auto movement = GetComponent<component::Movement>();
+            if (!movement) { return; }
+
+            Vector2 direction = movement->GetDirection();
+
+            if (key_event.IsPressed()) {
+                switch (key_event.GetKey()) {
+                    case KEY_W:
+                        direction.y -= 1.0F;
+                        break;
+                    case KEY_S:
+                        direction.y += 1.0F;
+                        break;
+                    case KEY_A:
+                        direction.x -= 1.0F;
+                        break;
+                    case KEY_D:
+                        direction.x += 1.0F;
+                        break;
+                    default:
+                        break;
+                }
+            } else if (key_event.IsReleased()) {
+                //movement->Reset();
+                return;  
+            }
+            movement->SetDirection(direction);
+        }
     }
 }

@@ -2,27 +2,29 @@
 #include "chroma/shared/core/GameObject.h"
 #include "GameObject_generated.h"
 #include "chroma/shared/core/components/Speed.h"
+#include "chroma/shared/core/components/Movement.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/packet/InputMessage.h"
 #include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/events/MouseEvent.h"
 
-#include <algorithm>
 #include <cstdint>
 #include <flatbuffers/flatbuffers.h>
 #include <raylib.h>
+#include <unordered_map>
+#include <uuid_v4.h>
 #include <vector>
 #include <memory>
 
 namespace chroma::shared::packet {
 
-std::vector<uint8_t> PacketHandler::GameObjectsToFlatBuffer(const std::vector<std::shared_ptr<chroma::shared::core::GameObject>>& objects,  uint64_t time_lapse, uint32_t last_processed_input)
+std::vector<uint8_t> PacketHandler::GameObjectsToFlatBuffer(const std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>>& objects,  uint64_t time_lapse, uint32_t last_processed_input)
 {
     flatbuffers::FlatBufferBuilder builder(1024);
 
     std::vector<flatbuffers::Offset<Game::EntityState>> fb_entities;
 
-    for (const auto& object : objects) {
+    for (const auto& [uuid, object] : objects) {
         auto pos = object->GetComponent<chroma::shared::core::component::Transform>();
         auto vel = object->GetComponent<chroma::shared::core::component::Speed>();
 
@@ -57,10 +59,10 @@ std::vector<uint8_t> PacketHandler::GameObjectsToFlatBuffer(const std::vector<st
     return std::vector<uint8_t>(buf.begin(), buf.end());
 }
 
-void PacketHandler::FlatBufferToGameObject(const uint8_t* data, std::vector<std::shared_ptr<chroma::shared::core::GameObject>>& game_objects)
+void PacketHandler::FlatBufferToGameObject(const uint8_t* data, size_t size, std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>>& game_objects)
 {
 
-  flatbuffers::Verifier verifier(data, 1024);
+  flatbuffers::Verifier verifier(data, size);
   if (!Game::VerifyEnvelopeBuffer(verifier)) {
       return;
   }
@@ -76,20 +78,20 @@ void PacketHandler::FlatBufferToGameObject(const uint8_t* data, std::vector<std:
   }
 
   for (const auto& entity_state : *snapshot->entities()) {
-    auto it = std::ranges::find_if(game_objects, [&](const std::shared_ptr<chroma::shared::core::GameObject>& obj) {
-        return static_cast<Game::GameObjectType>(obj->GetTag()) == entity_state->type();
-    });
+    auto it = game_objects.find(UUIDv4::UUID(entity_state->id()->str()));
 
     if (it != std::end(game_objects)) {
-        UpdateGameObjectWithEntityState(entity_state, *it);
+        UpdateGameObjectWithEntityState(entity_state, it->second);
     } else {
 
         std::shared_ptr<chroma::shared::core::GameObject> game_object = nullptr;
         switch (entity_state->type()) {
           case Game::GameObjectType::PLAYER: {
-              game_object = std::make_shared<chroma::shared::core::player::Player>();
-              game_objects.push_back(game_object);
-              break;
+            std::shared_ptr<chroma::shared::core::player::Player> player = std::make_shared<chroma::shared::core::player::Player>();
+            player->InitComponents();
+            game_object = player;
+            game_objects.emplace(player->GetId(), player);
+            break;
           }
         }   
         UpdateGameObjectWithEntityState(entity_state, game_object);
@@ -115,6 +117,12 @@ void PacketHandler::UpdateGameObjectWithEntityState(const Game::EntityState* ent
                         ComponentToSpeed(component, game_object);
                         break;
                     }
+
+                    case Game::ComponentUnion::Movement: {
+                        ComponentToMovement(component, game_object);
+                        break;
+                    }
+
                     default:
                         break;
                 }
@@ -135,6 +143,20 @@ void PacketHandler::ComponentToSpeed(const Game::Component* component, std::shar
         auto speed = game_object->GetComponent<chroma::shared::core::component::Speed>();
         if (speed) {
             speed->SetSpeed(Vector2{vel_vec->x(), vel_vec->y()});
+            game_object->AttachComponent(speed);
+        }
+    }
+}
+
+void PacketHandler::ComponentToMovement(const Game::Component* component, std::shared_ptr<chroma::shared::core::GameObject>& game_object)
+{
+    const auto* fb_mov = component->type_as_Movement();
+    if (fb_mov != nullptr) {
+        const auto* mov_vec = fb_mov->mov();
+        auto movement = game_object->GetComponent<chroma::shared::core::component::Movement>();
+        if (movement) {
+            movement->SetDirection(Vector2{mov_vec->x(), mov_vec->y()});
+            game_object->AttachComponent(movement);
         }
     }
 }
@@ -147,13 +169,14 @@ void PacketHandler::ComponentToTransform(const Game::Component* component, std::
         auto transform = game_object->GetComponent<chroma::shared::core::component::Transform>();
         if (transform) {
             transform->SetPosition(Vector2{pos_vec->x(), pos_vec->y()});
+            game_object->AttachComponent(transform);
         }
     }
 }
 
-std::shared_ptr<shared::packet::InputMessage> PacketHandler::FlatBufferToInputMessage(const uint8_t* data)
+std::shared_ptr<shared::packet::InputMessage> PacketHandler::FlatBufferToInputMessage(const uint8_t* data, std::size_t size)
 {
-    flatbuffers::Verifier verifier(data, 1024);
+    flatbuffers::Verifier verifier(data, size);
     if (!Game::VerifyEnvelopeBuffer(verifier)) {
         return nullptr;
     }
@@ -207,12 +230,12 @@ std::vector<uint8_t> PacketHandler::InputMessageToFlatBuffer(const std::shared_p
 
     switch (input_message->GetEventType()) {
         case shared::event::Event::KeyEvent: {
-            const auto& key_event = dynamic_cast<const shared::event::KeyEvent&>(input_message->GetEvent());
+            const auto key_event = std::static_pointer_cast<const shared::event::KeyEvent>(input_message->GetEvent());
             auto fb_key_event = Game::CreateKeyEvent(
                 builder,
-                key_event.GetKey(),
-                key_event.IsPressed(),
-                key_event.IsReleased()
+                key_event->GetKey(),
+                key_event->IsPressed(),
+                key_event->IsReleased()
             );
             type = Game::InputEventType::KEYEVENT;
             event_type = Game::InputEvent::KeyEvent;
@@ -221,16 +244,16 @@ std::vector<uint8_t> PacketHandler::InputMessageToFlatBuffer(const std::shared_p
         }
 
         case shared::event::Event::MouseClickEvent: {
-            const auto& mouse_event = dynamic_cast<const shared::event::MouseEvent&>(input_message->GetEvent());
+            const auto mouse_event = std::static_pointer_cast<const shared::event::MouseEvent>(input_message->GetEvent());
             auto fb_mouse_pos = Game::CreateVec2(
                 builder,
-                mouse_event.GetMousePosition().x,
-                mouse_event.GetMousePosition().y
+                mouse_event->GetMousePosition().x,
+                mouse_event->GetMousePosition().y
             );
             auto fb_mouse_event = Game::CreateMouseEvent(
                 builder,
-                mouse_event.IsLeftButtonPressed(),
-                mouse_event.IsRightButtonPressed(),
+                mouse_event->IsLeftButtonPressed(),
+                mouse_event->IsRightButtonPressed(),
                 fb_mouse_pos
             );
             type = Game::InputEventType::MOUSEEVENT;

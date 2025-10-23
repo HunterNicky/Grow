@@ -5,11 +5,12 @@ table Vec2 { x:float; y:float; }
 table Position { pos:Vec2; }
 table Scale { scl: Vec2; }
 table Velocity { vel:Vec2; }
+table Movement {mov: Vec2; }
 table Health { value:int32; }
 table Facing { angle:float; }
 
 // Adicione novos componentes aqui
-union ComponentUnion { Position, Scale, Velocity, Health, Facing }
+union ComponentUnion { Position, Scale, Velocity, Movement, Health, Facing }
 
 table Component {
   type:ComponentUnion;

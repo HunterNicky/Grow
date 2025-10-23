@@ -2,6 +2,7 @@
 
 #include "chroma/shared/events/Event.h"
 
+#include <memory>
 #include <sys/types.h>
 
 namespace chroma::shared::packet {
@@ -21,7 +22,7 @@ public:
 
     [[nodiscard]] event::Event::Type GetEventType() const;
 
-    [[nodiscard]] const event::Event& GetEvent() const;
+    [[nodiscard]] const std::shared_ptr<event::Event>& GetEvent() const;
 
     void SetSeq(uint32_t sequence);
     void SetDeltaTime(float delta_time);
@@ -36,6 +37,6 @@ private:
 
     event::Event::Type type_ { event::Event::Type::None };
 
-    event::Event event_;
+    std::shared_ptr<event::Event> event_ { nullptr };
 };
 } // namespace chroma::shared::packet

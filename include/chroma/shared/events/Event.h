@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 
 namespace chroma::shared::event {
 class Event
@@ -20,6 +21,8 @@ public:
   Event &operator=(Event &&) = delete;
   explicit Event(Event::Type type);
   virtual ~Event() = default;
+
+  [[nodiscard]] virtual std::shared_ptr<Event> Clone() const = 0;
 
   [[nodiscard]] Type GetType() const;
   [[nodiscard]] bool IsHandled() const;

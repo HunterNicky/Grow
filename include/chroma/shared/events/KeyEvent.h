@@ -3,6 +3,7 @@
 #include "chroma/shared/events/Event.h"
 
 #include <cstdint>
+#include <memory>
 
 namespace chroma::shared::event {
 
@@ -13,6 +14,8 @@ public:
     [[nodiscard]] uint8_t GetKey() const;
     [[nodiscard]] bool IsPressed() const;
     [[nodiscard]] bool IsReleased() const;
+
+    [[nodiscard]] std::shared_ptr<Event> Clone() const override;
 
     void SetPressed(bool pressed);
 
