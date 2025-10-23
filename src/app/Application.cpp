@@ -14,6 +14,7 @@
 #include "chroma/app/layers/network/NetworkLayer.h"
 #include "chroma/app/states/NetworkState.h"
 #include "chroma/shared/events/EventCatcher.h"
+#include "chroma/app/states/mediator/GameNetworkMediator.h"
 
 namespace chroma::app {
 Application::Application() : layer_stack_(std::make_unique<layer::LayerStack>()), delta_time_(0.F), window_(1280, 720, "Chroma") {};
@@ -23,10 +24,19 @@ void Application::Run()
     window_.Init();
 
     auto game_layer = std::make_unique<layer::game::GameLayer>();
-    game_layer->PushState(std::make_shared<layer::states::GameState>());
-
     auto network_layer = std::make_unique<layer::network::NetworkLayer>();
-    network_layer->PushState(std::make_shared<layer::states::NetworkState>());
+
+
+    states::GameNetworkMediator mediator = states::GameNetworkMediator();
+    
+    auto game_state = std::make_shared<states::GameState>(std::make_shared<states::GameNetworkMediator>(mediator));
+    auto network_state = std::make_shared<states::NetworkState>(std::make_shared<states::GameNetworkMediator>(mediator));
+    
+    mediator.SetGameState(game_state);
+    mediator.SetNetworkState(network_state);
+
+    game_layer->PushState(game_state);
+    network_layer->PushState(network_state);
 
     PushLayer(std::move(network_layer));
     PushLayer(std::move(game_layer));

@@ -4,7 +4,7 @@
 
 #include "chroma/shared/events/Event.h"
 
-namespace chroma::app::layer::states {
+namespace chroma::app::states {
 class State
 {
 public:
@@ -33,4 +33,4 @@ protected:
   std::string name_;
   bool active_;
 };
-}// namespace chroma::app::layer::state
+}// namespace chroma::app::states

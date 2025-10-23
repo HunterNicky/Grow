@@ -5,7 +5,7 @@
 
 #include "chroma/app/states/State.h"
 
-namespace chroma::app::layer::states {
+namespace chroma::app::states {
 class StateMachine
 {
 public:
@@ -31,4 +31,4 @@ public:
 private:
   std::stack<std::shared_ptr<State>> states_;
 };
-}// namespace chroma::app::layer::state
+}// namespace chroma::app::states

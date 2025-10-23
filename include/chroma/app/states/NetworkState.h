@@ -7,14 +7,14 @@
 
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/app/states/State.h"
-#include "chroma/app/layers/mediator/GameNetworkMediator.h"
+#include "chroma/app/states/mediator/GameNetworkMediator.h"
 
-namespace chroma::app::layer::states {
+namespace chroma::app::states {
 class NetworkState : public State
 {
 public:
     NetworkState();
-    explicit NetworkState(std::shared_ptr<GameNetworkMediator> game_mediator);
+    explicit NetworkState(std::shared_ptr<chroma::app::states::GameNetworkMediator> game_mediator);
     ~NetworkState() override;
 
     NetworkState(const NetworkState&) = delete;
@@ -36,10 +36,11 @@ private:
 
     std::vector<std::shared_ptr<chroma::shared::core::GameObject>> game_objects_past_;
     std::vector<std::shared_ptr<chroma::shared::core::GameObject>> game_objects_present_;
-    std::shared_ptr<chroma::app::layer::GameNetworkMediator> game_mediator_;
+    std::shared_ptr<chroma::app::states::GameNetworkMediator> game_mediator_;
 
 
     static void PeerDeleter(ENetPeer* peer);
+    bool InitNetworkClient();
     bool ConnectToServer(const std::string& host, enet_uint16 port);
     void DisconnectFromServer();
     bool TryConnect(const std::string& host, enet_uint16 port);
@@ -48,4 +49,4 @@ private:
     static void InterpolateGameObjectStates(float delta_time);
 
 };
-}
+} // namespace chroma::app::states

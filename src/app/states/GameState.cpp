@@ -4,7 +4,7 @@
  #include "chroma/app/states/State.h"
  #include <memory>
 
-namespace chroma::app::layer::states {
+namespace chroma::app::states {
 
 GameState::GameState() : State("GameState"), network_mediator_(nullptr) {
     
@@ -41,4 +41,4 @@ void GameState::OnUpdate(float delta_time) {
     }
 }
 
-} // namespace chroma::app::layer::states
+} // namespace chroma::app::states

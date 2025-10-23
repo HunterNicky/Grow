@@ -4,7 +4,7 @@
 #include "chroma/app/states/State.h"
 #include "chroma/app/states/StateMachine.h"
 
-namespace chroma::app::layer::states {
+namespace chroma::app::states {
 void StateMachine::OnUpdate(const float delta_time)
 {
   if (!states_.empty() && states_.top()->IsActive()) { states_.top()->OnUpdate(delta_time); }
@@ -49,4 +49,4 @@ std::shared_ptr<State> StateMachine::GetCurrentState()
   if (!states_.empty()) { return states_.top(); }
   return nullptr;
 }
-}// namespace chroma::app::layer::state
+}// namespace chroma::app::state

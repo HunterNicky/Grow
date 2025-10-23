@@ -12,7 +12,7 @@
 #include <future>
 #include <vector>
 
-namespace chroma::app::layer::states {
+namespace chroma::app::states {
 
 void NetworkState::PeerDeleter(ENetPeer* peer) {
     if (peer != nullptr && peer->host != nullptr) {
@@ -28,19 +28,42 @@ NetworkState::NetworkState()
       server_address_({}),
       event_({})
 {
-    if (enet_initialize() != 0) {
+    if (!InitNetworkClient()) {
+        connected_ = false;
         return;
+    }
+}
+
+NetworkState::NetworkState(std::shared_ptr<GameNetworkMediator> game_mediator)
+    : State("NetworkState"),
+      client_(nullptr, &enet_host_destroy),
+      server_peer_(nullptr, &PeerDeleter),
+      server_address_({}),
+      event_({}),
+      game_mediator_(std::move(game_mediator))
+{
+    if (!InitNetworkClient()) {
+        connected_ = false;
+        return;
+    }
+}
+
+bool NetworkState::InitNetworkClient() {
+    if (enet_initialize() != 0) {
+        return false;
     }
 
     client_ = std::unique_ptr<ENetHost, decltype(&enet_host_destroy)>(enet_host_create(nullptr, 1, 2, 0, 0), &enet_host_destroy);
     if (client_ == nullptr) {
         enet_deinitialize();
+        return false;
     } 
 
     if(!ConnectToServer("127.0.0.1", 6969)) {
         connected_ = false;
-        return; 
+        return false; 
     }
+    return true;
 }
 
 NetworkState::~NetworkState() {
@@ -180,4 +203,4 @@ void NetworkState::OnEvent(shared::event::Event& event) {
 }
 
 
-} // namespace chroma::app::layer::states
+} // namespace chroma::app::states
