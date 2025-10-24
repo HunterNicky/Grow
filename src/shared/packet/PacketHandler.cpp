@@ -81,7 +81,7 @@ void PacketHandler::FlatBufferToGameObject(const uint8_t* data, size_t size, std
   for (const auto& entity_state : *snapshot->entities()) {
     auto it = game_objects.find(UUIDv4::UUID(entity_state->id()->str()));
 
-    if (it != std::end(game_objects)) {
+    if (it != game_objects.end()) {
         UpdateGameObjectWithEntityState(entity_state, it->second);
     } else {
 
@@ -90,6 +90,7 @@ void PacketHandler::FlatBufferToGameObject(const uint8_t* data, size_t size, std
           case Game::GameObjectType::PLAYER: {
             std::shared_ptr<chroma::shared::core::player::Player> player = std::make_shared<chroma::shared::core::player::Player>();
             player->InitComponents();
+            player->SetId(UUIDv4::UUID(entity_state->id()->str()));
             game_object = player;
             game_objects.emplace(player->GetId(), player);
             break;
