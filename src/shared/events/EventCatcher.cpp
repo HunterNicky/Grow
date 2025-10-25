@@ -1,5 +1,4 @@
 #include "chroma/shared/events/EventCatcher.h"
-#include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/events/MouseEvent.h"
 
@@ -8,40 +7,44 @@
 
 namespace chroma::shared::event {
 
-std::shared_ptr<event::Event> EventCatcher::CatchEvent() {
+void EventCatcher::CatchEvent() {
     //Key code A ~ Z
     for (int key_code = 65; key_code <= 90; ++key_code) {
-        auto key_event = VerifyKeyEvent(key_code);
-        if (key_event != nullptr) {
-            return key_event;
+        if (IsKeyPressed(key_code)) {
+            event::KeyEvent ev = event::KeyEvent(key_code);
+            ev.SetPressed(true);
+            event_dispatcher_->Dispatch(ev);
+            return;
+        }
+        else if (IsKeyReleased(key_code)) {
+            event::KeyEvent ev = event::KeyEvent(key_code);
+            ev.SetPressed(false);
+            event_dispatcher_->Dispatch(ev);
+            return;
         }
     }
     
     Vector2 pos = GetMousePosition();
 
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-        return std::make_shared<event::MouseEvent>(pos, true, false);
+        event::MouseEvent ev = event::MouseEvent(pos, true, false);
+        event_dispatcher_->Dispatch(ev);
+        return;
     }
     if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
-        return std::make_shared<event::MouseEvent>(pos, false, true);
+        event::MouseEvent ev = event::MouseEvent(pos, false, true);
+        event_dispatcher_->Dispatch(ev);
+        return;
     }
     if (GetMouseDelta().x != 0 || GetMouseDelta().y != 0) {
-        return std::make_shared<event::MouseEvent>(pos);
+        event::MouseEvent ev = event::MouseEvent(pos, false, false);
+        event_dispatcher_->Dispatch(ev);
+        return;
     }
-    return nullptr;
 }
 
-std::shared_ptr<event::Event> EventCatcher::VerifyKeyEvent(int key_code) {
-    if (IsKeyPressed(key_code)) {
-        auto ev = std::make_shared<event::KeyEvent>(key_code);
-        ev->SetPressed(true);
-        return ev;
-    }
-    if (IsKeyReleased(key_code)) {
-        auto ev = std::make_shared<event::KeyEvent>(key_code);
-        ev->SetPressed(false);
-        return ev;
-    }
-    return nullptr;
+void EventCatcher::SetEventDispatcher(const std::shared_ptr<chroma::shared::event::EventDispatcher>& event_dispatcher) {
+    event_dispatcher_ = event_dispatcher;
 }
+
 } // namespace chroma::shared::event

@@ -2,6 +2,7 @@
 
 #include "chroma/app/states/State.h"
 #include "chroma/shared/core/GameObject.h"
+#include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
 
 #include <memory>
@@ -18,18 +19,22 @@ class GameState : public State
 public:
     GameState();
     explicit GameState(std::shared_ptr<chroma::app::states::GameNetworkMediator> network_mediator);
+    explicit GameState(std::shared_ptr<chroma::shared::event::EventDispatcher> event_dispatcher);
 
     void OnRender() override;
     void OnUpdate(float delta_time) override;
     void OnEvent(shared::event::Event& event) override;
 
     void SetPlayerId(const UUIDv4::UUID& player_id);
-    UUIDv4::UUID GetPlayerId() const;
+    void SetEventDispatcher(const std::shared_ptr<chroma::shared::event::EventDispatcher>& event_dispatcher);
     void SetGameObjects(const std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>>& game_objects);
+
+    UUIDv4::UUID GetPlayerId() const;
     [[nodiscard]] const std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>>& GetGameObjects() const;
 
 private:
     UUIDv4::UUID player_id_;
+    std::shared_ptr<chroma::shared::event::EventDispatcher> event_dispatcher_;
     std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>> game_objects_;
     std::shared_ptr<chroma::app::states::GameNetworkMediator> network_mediator_;
 };

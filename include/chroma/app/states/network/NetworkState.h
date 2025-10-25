@@ -3,11 +3,10 @@
 #include <cstdint>
 #include <enet.h>
 #include <memory>
-#include <vector>
 
-#include "chroma/shared/core/GameObject.h"
 #include "chroma/app/states/State.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
+#include "chroma/shared/events/EventDispatcher.h"
 
 namespace chroma::app::states {
 class NetworkState : public State
@@ -15,6 +14,7 @@ class NetworkState : public State
 public:
     NetworkState();
     explicit NetworkState(std::shared_ptr<chroma::app::states::GameNetworkMediator> game_mediator);
+    explicit NetworkState(std::shared_ptr<chroma::shared::event::EventDispatcher> event_dispatcher);
     ~NetworkState() override;
 
     NetworkState(const NetworkState&) = delete;
@@ -25,6 +25,8 @@ public:
     void OnUpdate(float delta_time) override;
     void OnEvent(shared::event::Event& event) override;
 
+    void SetEventDispatcher(const std::shared_ptr<chroma::shared::event::EventDispatcher>& event_dispatcher);
+
 private:
 
     std::unique_ptr<ENetHost, decltype(&enet_host_destroy)> client_;
@@ -34,10 +36,8 @@ private:
     uint32_t seq_num_ = 0;
     bool connected_ = false;
 
-    std::vector<std::shared_ptr<chroma::shared::core::GameObject>> game_objects_past_;
-    std::vector<std::shared_ptr<chroma::shared::core::GameObject>> game_objects_present_;
     std::shared_ptr<chroma::app::states::GameNetworkMediator> game_mediator_;
-
+    std::shared_ptr<chroma::shared::event::EventDispatcher> event_dispatcher_;
 
     static void PeerDeleter(ENetPeer* peer);
     bool InitNetworkClient();

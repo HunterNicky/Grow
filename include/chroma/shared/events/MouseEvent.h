@@ -15,6 +15,7 @@ public:
     [[nodiscard]] bool IsLeftButtonPressed() const;
     [[nodiscard]] bool IsRightButtonPressed() const;
     [[nodiscard]] std::shared_ptr<Event> Clone() const override;
+    [[nodiscard]] static Event::Type GetStaticType();
 
     void SetMousePosition(const Vector2& position);
     void SetLeftButtonPressed(bool pressed);

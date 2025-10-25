@@ -25,4 +25,8 @@ std::shared_ptr<Event> KeyEvent::Clone() const {
     return std::make_shared<KeyEvent>(*this);
 }
 
+Event::Type KeyEvent::GetStaticType() {
+    return Event::KeyEvent;
+}
+
 } // namespace chroma::shared::event

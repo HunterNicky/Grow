@@ -17,6 +17,8 @@ public:
 
     [[nodiscard]] std::shared_ptr<Event> Clone() const override;
 
+    [[nodiscard]] static Event::Type GetStaticType();
+
     void SetPressed(bool pressed);
 
 private:

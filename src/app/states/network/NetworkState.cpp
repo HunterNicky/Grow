@@ -2,6 +2,7 @@
 #include "chroma/shared/events/Event.h"
 #include "chroma/app/states/State.h"
 #include "chroma/server/Server.h"
+#include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/packet/InputMessage.h"
 #include "chroma/shared/packet/PacketHandler.h"
 
@@ -11,7 +12,6 @@
 #include <enet.h>
 #include <future>
 #include <vector>
-#include <iostream>
 
 namespace chroma::app::states {
 
@@ -28,6 +28,20 @@ NetworkState::NetworkState()
       server_peer_(nullptr, &PeerDeleter),
       server_address_({}),
       event_({})
+{
+    if (!InitNetworkClient()) {
+        connected_ = false;
+        return;
+    }
+}
+
+NetworkState::NetworkState(std::shared_ptr<chroma::shared::event::EventDispatcher> event_dispatcher)
+    : State("NetworkState"),
+      client_(nullptr, &enet_host_destroy),
+      server_peer_(nullptr, &PeerDeleter),
+      server_address_({}),
+      event_({}),
+      event_dispatcher_(std::move(event_dispatcher))
 {
     if (!InitNetworkClient()) {
         connected_ = false;
@@ -186,6 +200,12 @@ void NetworkState::OnEvent(shared::event::Event& event) {
     enet_host_flush(client_.get());
 }
 
+void NetworkState::SetEventDispatcher(const std::shared_ptr<chroma::shared::event::EventDispatcher>& event_dispatcher) {
+    event_dispatcher_ = event_dispatcher;
 
+    event_dispatcher_->Subscribe<shared::event::KeyEvent>([this](shared::event::Event& event) {
+        this->OnEvent(event);
+    });
+}
 
 } // namespace chroma::app::states

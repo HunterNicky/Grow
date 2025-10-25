@@ -13,7 +13,6 @@
 #include "chroma/app/states/GameState.h"
 #include "chroma/app/layers/network/NetworkLayer.h"
 #include "chroma/app/states/network/NetworkState.h"
-#include "chroma/shared/events/EventCatcher.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
 
 namespace chroma::app {
@@ -23,13 +22,18 @@ void Application::Run()
 {
     window_.Init();
 
+    event_dispatcher_ = std::make_shared<shared::event::EventDispatcher>();
+
     auto game_layer = std::make_unique<layer::game::GameLayer>();
-    
     auto network_layer = std::make_unique<layer::network::NetworkLayer>();
+
     auto mediator = std::make_shared<states::GameNetworkMediator>();
     auto game_state = std::make_shared<states::GameState>(mediator);
     auto network_state = std::make_shared<states::NetworkState>(mediator);
-    
+
+    game_state->SetEventDispatcher(event_dispatcher_);
+    network_state->SetEventDispatcher(event_dispatcher_);
+
     mediator->SetGameState(game_state);
     mediator->SetNetworkState(network_state);
     
@@ -41,6 +45,9 @@ void Application::Run()
     PushLayer(std::move(network_layer));
     PushLayer(std::move(game_layer));
 
+    event_catcher_ = std::make_shared<shared::event::EventCatcher>();
+    event_catcher_->SetEventDispatcher(event_dispatcher_);
+
     auto last_time = static_cast<float>(GetTime());
 
     while (!client::core::Window::ShouldClose()) {
@@ -49,11 +56,7 @@ void Application::Run()
       delta_time_ = current_time - last_time;
       last_time = current_time;
 
-      auto event_ptr = shared::event::EventCatcher::CatchEvent();
-
-      if (event_ptr) {
-        layer_stack_->HandleEvent(*event_ptr);
-      }
+      event_catcher_->CatchEvent();
 
       layer_stack_->UpdateLayers(delta_time_);
 

@@ -2,6 +2,7 @@
 
  #include "chroma/shared/core/player/Player.h"
  #include "chroma/app/states/State.h"
+#include "chroma/shared/events/KeyEvent.h"
  #include <memory>
 #include <uuid_v4.h>
 
@@ -17,6 +18,10 @@ GameState::GameState() : State("GameState"), network_mediator_(nullptr) {
 
 GameState::GameState(std::shared_ptr<GameNetworkMediator> network_mediator)
     : State("GameState"), network_mediator_(std::move(network_mediator)) {
+}
+
+GameState::GameState(std::shared_ptr<chroma::shared::event::EventDispatcher> event_dispatcher)
+    : State("GameState"), event_dispatcher_(std::move(event_dispatcher)), network_mediator_(nullptr) {
 }
 
 void GameState::OnRender() {
@@ -65,6 +70,14 @@ void GameState::OnEvent(shared::event::Event& event) {
 
 void GameState::SetPlayerId(const UUIDv4::UUID& player_id) {
     player_id_ = player_id;
+}
+
+void GameState::SetEventDispatcher(const std::shared_ptr<chroma::shared::event::EventDispatcher>& event_dispatcher) {
+    event_dispatcher_ = event_dispatcher;
+
+    event_dispatcher_->Subscribe<shared::event::KeyEvent>([this](shared::event::Event& event) {
+        this->OnEvent(event);
+    });
 }
 
 UUIDv4::UUID GameState::GetPlayerId() const {

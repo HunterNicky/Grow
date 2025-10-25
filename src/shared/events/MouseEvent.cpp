@@ -1,4 +1,5 @@
 #include "chroma/shared/events/MouseEvent.h"
+#include "chroma/shared/events/Event.h"
 
 namespace chroma::shared::event {
 
@@ -45,6 +46,10 @@ void MouseEvent::SetRightButtonPressed(bool pressed) {
 
 std::shared_ptr<Event> MouseEvent::Clone() const {
     return std::make_shared<MouseEvent>(*this);
+}
+
+Event::Type MouseEvent::GetStaticType() {
+    return Event::MouseEvent;
 }
 
 } // namespace chroma::shared::event
