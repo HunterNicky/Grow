@@ -6,15 +6,12 @@
 namespace chroma::app::layer::network {
 NetworkLayer::NetworkLayer() : Layer("NetworkLayer") {}
 
-NetworkLayer::~NetworkLayer()
-{
-    std::cout << "NetworkLayer destroyed\n";
-}
+NetworkLayer::~NetworkLayer() { std::cout << "NetworkLayer destroyed\n"; }
 
-void NetworkLayer::OnUpdate(float delta_time) 
+void NetworkLayer::OnUpdate(float delta_time)
 {
-    if(!IsActive()) {return;}
+  if (!IsActive()) { return; }
 
-    state_machine_->OnUpdate(delta_time);
+  state_machine_->OnUpdate(delta_time);
 }
-} // namespace chroma::app::layer::network
+}// namespace chroma::app::layer::network

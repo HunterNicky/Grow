@@ -1,71 +1,72 @@
 #define RAYGUI_IMPLEMENTATION
 
-#include <raylib.h>
 #include <memory>
 #include <raygui.h>
+#include <raylib.h>
 #include <utility>
 
 #include "chroma/app/Application.h"
-#include "chroma/shared/events/Event.h"
 #include "chroma/app/layers/Layer.h"
 #include "chroma/app/layers/LayerStack.h"
 #include "chroma/app/layers/game/GameLayer.h"
-#include "chroma/app/states/GameState.h"
 #include "chroma/app/layers/network/NetworkLayer.h"
-#include "chroma/app/states/network/NetworkState.h"
+#include "chroma/app/states/GameState.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
+#include "chroma/app/states/network/NetworkState.h"
+#include "chroma/shared/events/Event.h"
 
 namespace chroma::app {
-Application::Application() : layer_stack_(std::make_unique<layer::LayerStack>()), delta_time_(0.F), window_(1280, 720, "Chroma") {};
+Application::Application()
+  : layer_stack_(std::make_unique<layer::LayerStack>()), delta_time_(0.F), window_(1280, 720, "Chroma") {};
 
 void Application::Run()
 {
-    window_.Init();
+  window_.Init();
 
-    event_dispatcher_ = std::make_shared<shared::event::EventDispatcher>();
+  event_dispatcher_ = std::make_shared<shared::event::EventDispatcher>();
 
-    auto game_layer = std::make_unique<layer::game::GameLayer>();
-    auto network_layer = std::make_unique<layer::network::NetworkLayer>();
+  auto game_layer = std::make_unique<layer::game::GameLayer>();
+  auto network_layer = std::make_unique<layer::network::NetworkLayer>();
 
-    auto mediator = std::make_shared<states::GameNetworkMediator>();
-    auto game_state = std::make_shared<states::GameState>(mediator);
-    auto network_state = std::make_shared<states::NetworkState>(mediator);
+  auto mediator = std::make_shared<states::GameNetworkMediator>();
+  auto game_state = std::make_shared<states::GameState>(mediator);
+  auto network_state = std::make_shared<states::NetworkState>(mediator);
 
-    game_state->SetEventDispatcher(event_dispatcher_);
-    network_state->SetEventDispatcher(event_dispatcher_);
+  game_state->SetEventDispatcher(event_dispatcher_);
+  network_state->SetEventDispatcher(event_dispatcher_);
 
-    mediator->SetGameState(game_state);
-    mediator->SetNetworkState(network_state);
-    
-    // auto game_state = std::make_shared<states::GameState>();
-   
-    game_layer->PushState(game_state);
-    network_layer->PushState(network_state);
+  mediator->SetGameState(game_state);
+  mediator->SetNetworkState(network_state);
 
-    PushLayer(std::move(network_layer));
-    PushLayer(std::move(game_layer));
+  // auto game_state = std::make_shared<states::GameState>();
 
-    event_catcher_ = std::make_shared<shared::event::EventCatcher>();
-    event_catcher_->SetEventDispatcher(event_dispatcher_);
+  game_layer->PushState(game_state);
+  network_layer->PushState(network_state);
 
-    auto last_time = static_cast<float>(GetTime());
+  PushLayer(std::move(network_layer));
+  PushLayer(std::move(game_layer));
 
-    while (!client::core::Window::ShouldClose()) {
-      
-      const auto current_time = static_cast<float>(GetTime());
-      delta_time_ = current_time - last_time;
-      last_time = current_time;
+  event_catcher_ = std::make_shared<shared::event::EventCatcher>();
+  event_catcher_->SetEventDispatcher(event_dispatcher_);
 
-      event_catcher_->CatchEvent();
+  auto last_time = static_cast<float>(GetTime());
 
-      layer_stack_->UpdateLayers(delta_time_);
+  while (!client::core::Window::ShouldClose()) {
 
-      BeginDrawing();
-      ClearBackground(RAYWHITE);
+    const auto current_time = static_cast<float>(GetTime());
+    delta_time_ = current_time - last_time;
+    last_time = current_time;
 
-      layer_stack_->RenderLayers();
+    event_catcher_->CatchEvent();
 
-      EndDrawing();
+    layer_stack_->UpdateLayers(delta_time_);
+
+    BeginDrawing();
+    ClearBackground(RAYWHITE);
+
+    layer_stack_->RenderLayers();
+
+    EndDrawing();
   }
 
   client::core::Window::Close();

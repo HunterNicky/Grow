@@ -4,52 +4,28 @@
 namespace chroma::shared::event {
 
 MouseEvent::MouseEvent(Vector2 position, bool left_pressed, bool right_pressed)
-    : Event(Event::MouseClickEvent), mouse_position_(position),
-    left_button_pressed_(left_pressed), right_button_pressed_(right_pressed) 
-{
+  : Event(Event::MouseClickEvent), mouse_position_(position), left_button_pressed_(left_pressed),
+    right_button_pressed_(right_pressed)
+{}
 
-}
+MouseEvent::MouseEvent() : Event(Event::MouseEvent), mouse_position_({ 0.0F, 0.0F }) {}
 
-MouseEvent::MouseEvent() : Event(Event::MouseEvent), mouse_position_({0.0F, 0.0F})
-{
+MouseEvent::MouseEvent(Vector2 position) : Event(Event::MouseEvent), mouse_position_(position) {}
 
-}
+Vector2 MouseEvent::GetMousePosition() const { return mouse_position_; }
 
-MouseEvent::MouseEvent(Vector2 position) : Event(Event::MouseEvent), mouse_position_(position)
-{
+bool MouseEvent::IsLeftButtonPressed() const { return left_button_pressed_; }
 
-}
+bool MouseEvent::IsRightButtonPressed() const { return right_button_pressed_; }
 
-Vector2 MouseEvent::GetMousePosition() const {
-    return mouse_position_;
-}
+void MouseEvent::SetMousePosition(const Vector2 &position) { mouse_position_ = position; }
 
-bool MouseEvent::IsLeftButtonPressed() const {
-    return left_button_pressed_;
-}
+void MouseEvent::SetLeftButtonPressed(bool pressed) { left_button_pressed_ = pressed; }
 
-bool MouseEvent::IsRightButtonPressed() const {
-    return right_button_pressed_;
-}
+void MouseEvent::SetRightButtonPressed(bool pressed) { right_button_pressed_ = pressed; }
 
-void MouseEvent::SetMousePosition(const Vector2& position) {
-    mouse_position_ = position;
-}
+std::shared_ptr<Event> MouseEvent::Clone() const { return std::make_shared<MouseEvent>(*this); }
 
-void MouseEvent::SetLeftButtonPressed(bool pressed) {
-    left_button_pressed_ = pressed;
-}
+Event::Type MouseEvent::GetStaticType() { return Event::MouseEvent; }
 
-void MouseEvent::SetRightButtonPressed(bool pressed) {
-    right_button_pressed_ = pressed;
-}
-
-std::shared_ptr<Event> MouseEvent::Clone() const {
-    return std::make_shared<MouseEvent>(*this);
-}
-
-Event::Type MouseEvent::GetStaticType() {
-    return Event::MouseEvent;
-}
-
-} // namespace chroma::shared::event
+}// namespace chroma::shared::event

@@ -43,6 +43,6 @@ private:
   int tick_counter_;
 
   WorldSimulation world_simulation_;
-  std::unordered_map<ENetPeer*, UUIDv4::UUID> connected_players_;
+  std::unordered_map<ENetPeer *, UUIDv4::UUID> connected_players_;
 };
 }// namespace chroma::server

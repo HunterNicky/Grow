@@ -1,8 +1,8 @@
 #include <memory>
 
-#include "chroma/shared/events/Event.h"
 #include "chroma/app/states/State.h"
 #include "chroma/app/states/StateMachine.h"
+#include "chroma/shared/events/Event.h"
 
 namespace chroma::app::states {
 void StateMachine::OnUpdate(const float delta_time)
@@ -49,4 +49,4 @@ std::shared_ptr<State> StateMachine::GetCurrentState()
   if (!states_.empty()) { return states_.top(); }
   return nullptr;
 }
-}// namespace chroma::app::state
+}// namespace chroma::app::states

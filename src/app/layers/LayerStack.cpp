@@ -3,9 +3,9 @@
 #include <string>
 #include <utility>
 
-#include "chroma/shared/events/Event.h"
 #include "chroma/app/layers/Layer.h"
 #include "chroma/app/layers/LayerStack.h"
+#include "chroma/shared/events/Event.h"
 
 namespace chroma::app::layer {
 void LayerStack::PushLayer(std::unique_ptr<Layer> layer) { layers_.emplace_back(std::move(layer)); }

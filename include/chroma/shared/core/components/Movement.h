@@ -23,4 +23,4 @@ public:
 private:
   Vector2 direction_;
 };
-} // namespace chroma::shared::core::component
+}// namespace chroma::shared::core::component

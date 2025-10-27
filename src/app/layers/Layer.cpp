@@ -2,10 +2,10 @@
 #include <string>
 #include <utility>
 
-#include "chroma/shared/events/Event.h"
 #include "chroma/app/layers/Layer.h"
 #include "chroma/app/states/State.h"
 #include "chroma/app/states/StateMachine.h"
+#include "chroma/shared/events/Event.h"
 
 namespace chroma::app::layer {
 Layer::Layer(std::string name)

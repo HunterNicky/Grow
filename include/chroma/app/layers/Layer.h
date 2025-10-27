@@ -4,9 +4,9 @@
 #include <memory>
 #include <string>
 
-#include "chroma/shared/events/Event.h"
-#include "chroma/app/states/StateMachine.h"
 #include "chroma/app/states/State.h"
+#include "chroma/app/states/StateMachine.h"
+#include "chroma/shared/events/Event.h"
 
 namespace chroma::app::layer {
 class Layer
