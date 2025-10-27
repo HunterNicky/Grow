@@ -1,13 +1,13 @@
 #include "chroma/server/WorldSimulation.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/events/Event.h"
-#include "chroma/shared/packet/PacketHandler.h"
 #include "chroma/shared/packet/InputMessage.h"
+#include "chroma/shared/packet/PacketHandler.h"
 
-#include <memory>
-#include <vector>
 #include <cstdint>
+#include <memory>
 #include <uuid_v4.h>
+#include <vector>
 
 namespace chroma::server {
 WorldSimulation::WorldSimulation() = default;

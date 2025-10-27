@@ -1,8 +1,8 @@
 #include "chroma/shared/packet/InputMessage.h"
 #include "chroma/shared/events/Event.h"
 
-#include <memory>
 #include <cstdint>
+#include <memory>
 
 namespace chroma::shared::packet {
 InputMessage::InputMessage(uint32_t sequence, float delta_time) : seq_(sequence), dt_(delta_time) {}

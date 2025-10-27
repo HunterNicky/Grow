@@ -2,11 +2,11 @@
 #include "chroma/shared/packet/InputMessage.h"
 #include "chroma/shared/packet/PacketHandler.h"
 #include <chrono>
+#include <cstddef>
+#include <cstdint>
 #include <enet.h>
 #include <memory>
 #include <vector>
-#include <cstdint>
-#include <cstddef>
 
 namespace chroma::server {
 

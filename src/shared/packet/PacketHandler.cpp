@@ -4,21 +4,21 @@
 #include "chroma/shared/core/components/Movement.h"
 #include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/core/player/Player.h"
+#include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/events/MouseEvent.h"
-#include "chroma/shared/events/Event.h"
 #include "chroma/shared/packet/InputMessage.h"
 
-#include <memory>
-#include <vector>
 #include <cstddef>
 #include <cstdint>
-#include <raylib.h>
-#include <uuid_v4.h>
-#include <unordered_map>
+#include <flatbuffers/buffer.h>
 #include <flatbuffers/flatbuffers.h>
 #include <flatbuffers/verifier.h>
-#include <flatbuffers/buffer.h>
+#include <memory>
+#include <raylib.h>
+#include <unordered_map>
+#include <uuid_v4.h>
+#include <vector>
 
 namespace chroma::shared::packet {
 
