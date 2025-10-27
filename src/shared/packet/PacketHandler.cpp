@@ -11,12 +11,12 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <raylib.h>
-#include <uuid_v4.h>
-#include <unordered_map>
 #include <flatbuffers/flatbuffer_builder.h>
 #include <flatbuffers/verifier.h>
 #include <memory>
+#include <raylib.h>
+#include <unordered_map>
+#include <uuid_v4.h>
 #include <vector>
 
 namespace chroma::shared::packet {
