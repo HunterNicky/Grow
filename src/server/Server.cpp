@@ -4,6 +4,9 @@
 #include <chrono>
 #include <enet.h>
 #include <memory>
+#include <vector>
+#include <cstdint>
+#include <cstddef>
 
 namespace chroma::server {
 
@@ -38,7 +41,6 @@ Server::~Server()
   }
 
   connected_players_.clear();
-  std::cout << "Server destroyed\n";
 }
 
 int Server::Start()
@@ -62,7 +64,7 @@ int Server::Start()
         DisconnectClient(event);
         break;
       case ENET_EVENT_TYPE_RECEIVE:
-        std::shared_ptr<chroma::shared::packet::InputMessage> input_message =
+        const std::shared_ptr<chroma::shared::packet::InputMessage> input_message =
           shared::packet::PacketHandler::FlatBufferToInputMessage(event.packet->data, event.packet->dataLength);
 
         if (input_message != nullptr) {

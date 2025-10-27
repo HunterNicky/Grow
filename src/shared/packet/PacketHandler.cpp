@@ -6,15 +6,19 @@
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/events/MouseEvent.h"
+#include "chroma/shared/events/Event.h"
 #include "chroma/shared/packet/InputMessage.h"
 
-#include <cstdint>
-#include <flatbuffers/flatbuffers.h>
 #include <memory>
-#include <raylib.h>
-#include <unordered_map>
-#include <uuid_v4.h>
 #include <vector>
+#include <cstddef>
+#include <cstdint>
+#include <raylib.h>
+#include <uuid_v4.h>
+#include <unordered_map>
+#include <flatbuffers/flatbuffers.h>
+#include <flatbuffers/verifier.h>
+#include <flatbuffers/buffer.h>
 
 namespace chroma::shared::packet {
 
@@ -61,7 +65,7 @@ std::vector<uint8_t> PacketHandler::GameObjectsToFlatBuffer(
 
   auto buf = builder.Release();
 
-  return std::vector<uint8_t>(buf.begin(), buf.end());
+  return { buf.begin(), buf.end() };
 }
 
 void PacketHandler::FlatBufferToGameObject(const uint8_t *data,
@@ -88,7 +92,7 @@ void PacketHandler::FlatBufferToGameObject(const uint8_t *data,
       std::shared_ptr<chroma::shared::core::GameObject> game_object = nullptr;
       switch (entity_state->type()) {
       case Game::GameObjectType::PLAYER: {
-        std::shared_ptr<chroma::shared::core::player::Player> player =
+        const std::shared_ptr<chroma::shared::core::player::Player> player =
           std::make_shared<chroma::shared::core::player::Player>();
         player->InitComponents();
         player->SetId(UUIDv4::UUID(entity_state->id()->str()));
@@ -265,7 +269,7 @@ std::vector<uint8_t> PacketHandler::InputMessageToFlatBuffer(
   builder.Finish(fb_envelope);
   auto buf = builder.Release();
 
-  return std::vector<uint8_t>(buf.begin(), buf.end());
+  return { buf.begin(), buf.end() };
 }
 
 UUIDv4::UUID PacketHandler::FlatBufferSnapshotGetUUID(const uint8_t *data, std::size_t size)

@@ -2,8 +2,11 @@
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/packet/PacketHandler.h"
+#include "chroma/shared/packet/InputMessage.h"
 
 #include <memory>
+#include <vector>
+#include <cstdint>
 #include <uuid_v4.h>
 
 namespace chroma::server {
@@ -24,7 +27,7 @@ void WorldSimulation::Update(const float delta_time)
 void WorldSimulation::OnReceivedInputMessage(const std::shared_ptr<chroma::shared::packet::InputMessage> &input_message,
   const UUIDv4::UUID &player_id)
 {
-  std::shared_ptr<shared::event::Event> event = input_message->GetEvent();
+  const std::shared_ptr<shared::event::Event> event = input_message->GetEvent();
   HandleInput(*event, player_id);
 }
 

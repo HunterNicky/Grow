@@ -1,5 +1,7 @@
 #include "chroma/shared/packet/InputMessage.h"
 #include "chroma/shared/events/Event.h"
+
+#include <memory>
 #include <cstdint>
 
 namespace chroma::shared::packet {
