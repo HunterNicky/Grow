@@ -11,13 +11,12 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <flatbuffers/buffer.h>
-#include <flatbuffers/flatbuffers.h>
+#include <raylib.h>
+#include <uuid_v4.h>
+#include <unordered_map>
+#include <flatbuffers/flatbuffer_builder.h>
 #include <flatbuffers/verifier.h>
 #include <memory>
-#include <raylib.h>
-#include <unordered_map>
-#include <uuid_v4.h>
 #include <vector>
 
 namespace chroma::shared::packet {
@@ -216,7 +215,7 @@ std::shared_ptr<shared::packet::InputMessage> PacketHandler::FlatBufferToInputMe
     shared::event::MouseEvent mouse_event;
     const auto *fb_mouse_event = input_msg->event_as_MouseEvent();
     if (fb_mouse_event != nullptr) {
-      Vector2 position{ fb_mouse_event->mouse_position()->x(), fb_mouse_event->mouse_position()->y() };
+      const Vector2 position{ fb_mouse_event->mouse_position()->x(), fb_mouse_event->mouse_position()->y() };
       mouse_event = shared::event::MouseEvent(position, fb_mouse_event->left(), fb_mouse_event->right());
       input_message->SetEventType(shared::event::Event::Type::MouseEvent);
       input_message->SetEvent(mouse_event);
