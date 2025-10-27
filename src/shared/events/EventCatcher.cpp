@@ -23,7 +23,7 @@ void EventCatcher::CatchEvent()
       return;
     }
   }
-  
+
   const Vector2 pos = GetMousePosition();
 
   if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
