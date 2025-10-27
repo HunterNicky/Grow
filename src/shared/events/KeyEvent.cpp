@@ -1,4 +1,5 @@
 #include "chroma/shared/events/KeyEvent.h"
+#include "chroma/shared/events/Event.h"
 
 namespace chroma::shared::event {
 

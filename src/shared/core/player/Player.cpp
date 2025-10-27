@@ -5,6 +5,7 @@
 #include "chroma/shared/core/components/Transform.h"
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/events/KeyEvent.h"
+#include "chroma/shared/events/Event.h"
 #include "raylib.h" 
 #include <memory>
 #include <cmath>

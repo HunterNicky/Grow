@@ -24,7 +24,7 @@ void EventCatcher::CatchEvent() {
         }
     }
     
-    Vector2 pos = GetMousePosition();
+    const Vector2 pos = GetMousePosition();
 
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         event::MouseEvent ev = event::MouseEvent(pos, true, false);
