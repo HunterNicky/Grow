@@ -1,6 +1,7 @@
 #include "chroma/shared/events/EventCatcher.h"
 #include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/events/MouseEvent.h"
+#include "chroma/shared/events/EventDispatcher.h"
 
 #include <memory>
 #include <raylib.h>

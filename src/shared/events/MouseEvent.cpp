@@ -1,6 +1,8 @@
 #include "chroma/shared/events/MouseEvent.h"
 #include "chroma/shared/events/Event.h"
+
 #include <memory.h>
+#include <raylib.h>
 
 namespace chroma::shared::event {
 
@@ -9,7 +11,7 @@ MouseEvent::MouseEvent(Vector2 position, bool left_pressed, bool right_pressed)
     right_button_pressed_(right_pressed)
 {}
 
-MouseEvent::MouseEvent() : Event(Event::MouseEvent), mouse_position_({ 0.0F, 0.0F }) {}
+MouseEvent::MouseEvent() : Event(Event::MouseEvent), mouse_position_({ .x = 0.0F, .y = 0.0F }) {}
 
 MouseEvent::MouseEvent(Vector2 position) : Event(Event::MouseEvent), mouse_position_(position) {}
 

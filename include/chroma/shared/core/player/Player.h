@@ -20,7 +20,7 @@ public:
   void OnFixedUpdate(float fixed_delta_time) override;
   void OnCollision(const collision::CollisionEvent &event) override;
   void OnRender() override;
-  void HandleEvent(shared::event::Event &event);
+  void HandleEvent(const shared::event::Event &event);
 
 private:
   shared::events::InputState input_state_;

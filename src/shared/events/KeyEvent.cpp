@@ -1,6 +1,9 @@
 #include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/events/Event.h"
 
+#include <memory>
+#include <cstdint>
+
 namespace chroma::shared::event {
 
 KeyEvent::KeyEvent(uint8_t key) : Event(Event::KeyEvent), key_(key) {}

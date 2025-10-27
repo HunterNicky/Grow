@@ -4,6 +4,7 @@
 #include "chroma/shared/core/components/Movement.h"
 #include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/core/components/Transform.h"
+#include "chroma/shared/events/InputState.h"
 #include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/events/Event.h"
 
@@ -14,7 +15,6 @@
 namespace chroma::shared::core::player {
 Player::Player()
 {
-  input_state_ = shared::events::InputState();
   Type_ = GameObjectType::PLAYER;
 }
 
@@ -64,11 +64,11 @@ void Player::OnRender()
   DrawRectangleV(transform->GetPosition(), transform->GetScale(), BLUE);
 }
 
-void Player::HandleEvent(shared::event::Event &event)
+void Player::HandleEvent(const shared::event::Event &event)
 {
   if (event.GetType() != shared::event::Event::KeyEvent) { return; }
 
-  auto &key_event = dynamic_cast<shared::event::KeyEvent &>(event);
+  const auto &key_event = dynamic_cast<const shared::event::KeyEvent &>(event);
   auto movement = GetComponent<component::Movement>();
   if (!movement) { return; }
 
