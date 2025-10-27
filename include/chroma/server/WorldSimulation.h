@@ -30,7 +30,7 @@ public:
   std::vector<uint8_t> GetGameStateSnapshot(const UUIDv4::UUID &player_id) const;
 
   void OnReceivedInputMessage(const std::shared_ptr<chroma::shared::packet::InputMessage> &input_message,
-  const UUIDv4::UUID &player_id);
+    const UUIDv4::UUID &player_id);
   void HandleInput(shared::event::Event &event, const UUIDv4::UUID &player_id);
 
 private:

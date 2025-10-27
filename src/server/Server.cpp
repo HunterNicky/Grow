@@ -114,7 +114,6 @@ void Server::ConnectClient(const ENetEvent &event)
 
   enet_peer_send(event.peer, 0, packet);
   enet_host_flush(server_.get());
-
 }
 
 
