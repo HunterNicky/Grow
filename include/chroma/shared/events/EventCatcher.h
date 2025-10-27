@@ -1,6 +1,5 @@
 #pragma once
 
-#include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventDispatcher.h"
 
 #include <memory>

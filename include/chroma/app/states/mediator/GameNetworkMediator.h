@@ -16,6 +16,12 @@ class GameNetworkMediator {
 public:
     GameNetworkMediator() = default;
     GameNetworkMediator(const std::shared_ptr<GameState>& game, const std::shared_ptr<NetworkState>& net);
+    ~GameNetworkMediator();
+
+    GameNetworkMediator(const GameNetworkMediator&) = default;
+    GameNetworkMediator& operator=(const GameNetworkMediator&) = default;
+    GameNetworkMediator(GameNetworkMediator&&) noexcept = default;
+    GameNetworkMediator& operator=(GameNetworkMediator&&) noexcept = default;
 
     void OnSnapshotReceived(const std::vector<uint8_t>& data);
 

@@ -18,6 +18,13 @@ class GameState : public State
 {
 public:
     GameState();
+    ~GameState() override;
+
+    GameState(const GameState&) = default;
+    GameState& operator=(const GameState&) = default;
+    GameState(GameState&&) noexcept = default;
+    GameState& operator=(GameState&&) noexcept = default;
+    
     explicit GameState(std::shared_ptr<chroma::app::states::GameNetworkMediator> network_mediator);
     explicit GameState(std::shared_ptr<chroma::shared::event::EventDispatcher> event_dispatcher);
 

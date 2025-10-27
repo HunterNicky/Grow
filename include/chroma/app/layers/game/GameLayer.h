@@ -7,6 +7,13 @@ class GameLayer : public Layer
 {
 public:        
     GameLayer();
+    ~GameLayer() override;
+
+    GameLayer(const GameLayer&) = delete;
+    GameLayer& operator=(const GameLayer&) = delete;
+    GameLayer(GameLayer&&) = delete;
+    GameLayer& operator=(GameLayer&&) = delete;
+
     void OnUpdate(const float delta_time) override;
     void OnRender() override;
 };

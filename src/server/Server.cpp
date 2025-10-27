@@ -25,7 +25,15 @@ Server::Server(ENetHost* server, ENetAddress address, bool is_running, int tick_
 {}
 
 Server::~Server() {
-  Stop();
+    Stop(); 
+
+    if (server_) {
+        enet_host_destroy(server_.get()); 
+        server_.reset();
+    }
+
+    connected_players_.clear(); 
+    std::cout << "Server destroyed\n";
 }
 
 int Server::Start()

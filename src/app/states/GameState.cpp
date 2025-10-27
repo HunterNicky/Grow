@@ -24,6 +24,13 @@ GameState::GameState(std::shared_ptr<chroma::shared::event::EventDispatcher> eve
     : State("GameState"), event_dispatcher_(std::move(event_dispatcher)), network_mediator_(nullptr) {
 }
 
+GameState::~GameState() {
+    game_objects_.clear();         
+    event_dispatcher_.reset();
+    network_mediator_.reset();
+    std::cout << "GameState destroyed\n";
+}
+
 void GameState::OnRender() {
 
     if(!IsActive() || game_objects_.empty()) { return; }

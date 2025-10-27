@@ -13,6 +13,12 @@ namespace chroma::app::states {
     {
     }
 
+    GameNetworkMediator::~GameNetworkMediator()
+    {
+        game_state_.reset();
+        network_state_.reset();
+    }
+
    void GameNetworkMediator::OnSnapshotReceived(const std::vector<uint8_t>& data) {
         auto state = game_state_.lock();
         if (!state) {
