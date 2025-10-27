@@ -25,7 +25,7 @@ target_link_system_libraries(chroma_server
 )
 
 if (WIN32)
-  target_compile_definitions(chroma_server PUBLIC WIN32_LEAN_AND_MEAN NOMINMAX NOGDI NOUSER)
+  target_compile_definitions(chroma_server PUBLIC WIN32_LEAN_AND_MEAN NOMINMAX NOGDI NOUSER MMNOSOUND)
 endif()
 
 if(MSVC)
