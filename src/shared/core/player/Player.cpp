@@ -5,12 +5,12 @@
 #include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/core/components/Transform.h"
 #include "chroma/shared/events/InputState.h"
-#include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/events/Event.h"
+#include "chroma/shared/events/KeyEvent.h"
 
-#include <raylib.h> 
-#include <memory>
 #include <cmath>
+#include <memory>
+#include <raylib.h>
 
 namespace chroma::shared::core::player {
 Player::Player()
