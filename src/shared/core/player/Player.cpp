@@ -4,8 +4,8 @@
 #include "chroma/shared/core/components/Movement.h"
 #include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/core/components/Transform.h"
-#include "chroma/shared/events/InputState.h"
 #include "chroma/shared/events/Event.h"
+#include "chroma/shared/events/InputState.h"
 #include "chroma/shared/events/KeyEvent.h"
 
 #include <cmath>
@@ -13,10 +13,7 @@
 #include <raylib.h>
 
 namespace chroma::shared::core::player {
-Player::Player()
-{
-  Type_ = GameObjectType::PLAYER;
-}
+Player::Player() { Type_ = GameObjectType::PLAYER; }
 
 void Player::InitComponents()
 {
