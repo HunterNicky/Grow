@@ -20,10 +20,7 @@ GameObject::GameObject(const UUIDv4::UUID &id, bool active, uint32_t layer, Game
   AttachComponent(transform_);
 }
 
-GameObject::~GameObject()
-{
-  components_.clear();
-}
+GameObject::~GameObject() { components_.clear(); }
 
 void GameObject::SetActive(const bool active) { active_ = active; }
 

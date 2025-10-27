@@ -6,37 +6,38 @@
 #include <sys/types.h>
 
 namespace chroma::shared::packet {
-class InputMessage {
+class InputMessage
+{
 
 public:
-    InputMessage() = default;
-    InputMessage(uint32_t sequence, float delta_time);
-    InputMessage(const InputMessage &) = default;
-    InputMessage(InputMessage &&) = delete;
-    InputMessage &operator=(const InputMessage &) = default;
-    InputMessage &operator=(InputMessage &&) = delete;
-    ~InputMessage() = default;
+  InputMessage() = default;
+  InputMessage(uint32_t sequence, float delta_time);
+  InputMessage(const InputMessage &) = default;
+  InputMessage(InputMessage &&) = delete;
+  InputMessage &operator=(const InputMessage &) = default;
+  InputMessage &operator=(InputMessage &&) = delete;
+  ~InputMessage() = default;
 
-    [[nodiscard]] uint32_t GetSeq() const;
-    [[nodiscard]] float GetDeltaTime() const;
+  [[nodiscard]] uint32_t GetSeq() const;
+  [[nodiscard]] float GetDeltaTime() const;
 
-    [[nodiscard]] event::Event::Type GetEventType() const;
+  [[nodiscard]] event::Event::Type GetEventType() const;
 
-    [[nodiscard]] const std::shared_ptr<event::Event>& GetEvent() const;
+  [[nodiscard]] const std::shared_ptr<event::Event> &GetEvent() const;
 
-    void SetSeq(uint32_t sequence);
-    void SetDeltaTime(float delta_time);
+  void SetSeq(uint32_t sequence);
+  void SetDeltaTime(float delta_time);
 
-    void SetEventType(event::Event::Type type);
+  void SetEventType(event::Event::Type type);
 
-    void SetEvent(const event::Event& event);
+  void SetEvent(const event::Event &event);
 
 private:
-    uint32_t seq_ {};
-    float dt_ {};
+  uint32_t seq_{};
+  float dt_{};
 
-    event::Event::Type type_ { event::Event::Type::None };
+  event::Event::Type type_{ event::Event::Type::None };
 
-    std::shared_ptr<event::Event> event_ { nullptr };
+  std::shared_ptr<event::Event> event_{ nullptr };
 };
-} // namespace chroma::shared::packet
+}// namespace chroma::shared::packet

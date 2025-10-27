@@ -57,7 +57,7 @@ public:
     if (it != components_.end()) { return std::dynamic_pointer_cast<T>(it->second); }
     return nullptr;
   }
-  
+
   std::shared_ptr<core::component::Transform> GetTransform() const;
 
   virtual void OnUpdate(float delta_time) = 0;
