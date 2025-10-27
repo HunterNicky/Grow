@@ -5,13 +5,17 @@
 #include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/packet/InputMessage.h"
 #include "chroma/shared/packet/PacketHandler.h"
+#include "chroma/shared/events/EventDispatcher.h"
+#include "chroma/app/states/mediator/GameNetworkMediator.h"
 
 #include <cstdint>
 #include <enet.h>
 #include <future>
 #include <memory>
 #include <thread>
+#include <chrono>
 #include <vector>
+#include <utility>
 
 namespace chroma::app::states {
 
@@ -100,8 +104,10 @@ void NetworkState::OnUpdate(float delta_time)
 void NetworkState::OnReceiveData() const
 {
   if (event_.type == ENET_EVENT_TYPE_RECEIVE) {
-    game_mediator_.get()->OnSnapshotReceived(
-      std::vector<uint8_t>(event_.packet->data, event_.packet->data + event_.packet->dataLength));
+    std::span<const uint8_t> packet_span{static_cast<const uint8_t*>(event_.packet->data), event_.packet->dataLength};
+    std::vector<uint8_t> packet_data(packet_span.begin(), packet_span.end());
+
+    game_mediator_->OnSnapshotReceived(packet_data);
     enet_packet_destroy(event_.packet);
   }
 }
@@ -179,7 +185,7 @@ void NetworkState::OnEvent(shared::event::Event &event)
   if (buf.empty()) { return; }
 
   ENetPacket *packet = enet_packet_create(buf.data(), buf.size(), ENET_PACKET_FLAG_RELIABLE);
-  int send_res = enet_peer_send(server_peer_.get(), 0, packet);
+  enet_peer_send(server_peer_.get(), 0, packet);
   enet_host_flush(client_.get());
 }
 

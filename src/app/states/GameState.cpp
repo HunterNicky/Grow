@@ -1,10 +1,17 @@
 #include "chroma/app/states/GameState.h"
 
 #include "chroma/app/states/State.h"
-#include "chroma/shared/core/player/Player.h"
+#include "chroma/shared/events/Event.h"
+#include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/events/KeyEvent.h"
+#include "chroma/shared/core/player/Player.h"
+#include "chroma/shared/events/EventDispatcher.h"
+#include "chroma/app/states/mediator/GameNetworkMediator.h"
+
 #include <memory>
+#include <utility>
 #include <uuid_v4.h>
+#include <unordered_map>
 
 namespace chroma::app::states {
 
@@ -28,7 +35,6 @@ GameState::GameState(std::shared_ptr<chroma::shared::event::EventDispatcher> eve
 GameState::~GameState()
 {
   game_objects_.clear();
-  std::cout << "GameState destroyed\n";
 }
 
 void GameState::OnRender()

@@ -1,11 +1,13 @@
 #include <cstdint>
 #include <uuid_v4.h>
 #include <vector>
+#include <memory>
 
+#include "GameObject_generated.h"
 #include "chroma/app/states/GameState.h"
-#include "chroma/app/states/mediator/GameNetworkMediator.h"
-#include "chroma/app/states/network/NetworkState.h"
 #include "chroma/shared/packet/PacketHandler.h"
+#include "chroma/app/states/network/NetworkState.h"
+#include "chroma/app/states/mediator/GameNetworkMediator.h"
 
 namespace chroma::app::states {
 GameNetworkMediator::GameNetworkMediator(const std::shared_ptr<GameState> &game,
