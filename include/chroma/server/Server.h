@@ -23,8 +23,8 @@ public:
   int Start();
   int Stop();
 
-  [[nodiscard]] bool ConnectClient(const ENetEvent &event);
-  bool DisconnectClient(const ENetEvent &event);
+  void ConnectClient(const ENetEvent &event);
+  void DisconnectClient(const ENetEvent &event);
 
   bool InitServer(int port, int max_clients);
 

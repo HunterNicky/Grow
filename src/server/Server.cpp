@@ -101,9 +101,9 @@ int Server::Stop()
   return 0;
 }
 
-bool Server::ConnectClient(const ENetEvent &event)
+void Server::ConnectClient(const ENetEvent &event)
 {
-  if (!is_running_ || event.peer == nullptr || event.type != ENET_EVENT_TYPE_CONNECT) { return false; }
+  if (!is_running_ || event.peer == nullptr || event.type != ENET_EVENT_TYPE_CONNECT) { return; }
 
   auto player = world_simulation_.CreatePlayer();
   connected_players_.emplace(event.peer, player->GetId());
@@ -115,21 +115,18 @@ bool Server::ConnectClient(const ENetEvent &event)
   enet_peer_send(event.peer, 0, packet);
   enet_host_flush(server_.get());
 
-  return true;
 }
 
 
-bool Server::DisconnectClient(const ENetEvent &event)
+void Server::DisconnectClient(const ENetEvent &event)
 {
-  if (event.type != ENET_EVENT_TYPE_DISCONNECT) { return false; }
+  if (event.type != ENET_EVENT_TYPE_DISCONNECT) { return; }
 
-  if (!is_running_ || !server_) { return false; }
+  if (!is_running_ || !server_) { return; }
 
   if (server_->connectedPeers == 0) { is_running_ = false; }
 
   connected_players_.erase(event.peer);
-
-  return true;
 }
 
 bool Server::InitServer(int port, int max_clients)

@@ -13,6 +13,7 @@
 #include <cstdint>
 #include <flatbuffers/flatbuffer_builder.h>
 #include <flatbuffers/verifier.h>
+#include <flatbuffers/buffer.h>
 #include <memory>
 #include <raylib.h>
 #include <unordered_map>

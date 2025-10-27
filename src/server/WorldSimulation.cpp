@@ -19,7 +19,7 @@ void WorldSimulation::CreateWorld()
 
 WorldSimulation::~WorldSimulation() { game_objects_.clear(); }
 
-void WorldSimulation::Update(const float delta_time)
+void WorldSimulation::Update(const float delta_time) const
 {
   for (const auto &[id, obj] : game_objects_) { obj->OnUpdate(delta_time); }
 }

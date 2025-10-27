@@ -7,13 +7,15 @@
 
 #include "chroma/app/Application.h"
 #include "chroma/app/layers/Layer.h"
+#include "chroma/app/states/GameState.h"
+#include "chroma/shared/events/Event.h"
 #include "chroma/app/layers/LayerStack.h"
 #include "chroma/app/layers/game/GameLayer.h"
-#include "chroma/app/layers/network/NetworkLayer.h"
-#include "chroma/app/states/GameState.h"
-#include "chroma/app/states/mediator/GameNetworkMediator.h"
+#include "chroma/shared/events/EventCatcher.h"
+#include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/app/states/network/NetworkState.h"
-#include "chroma/shared/events/Event.h"
+#include "chroma/app/layers/network/NetworkLayer.h"
+#include "chroma/app/states/mediator/GameNetworkMediator.h"
 
 namespace chroma::app {
 Application::Application()
