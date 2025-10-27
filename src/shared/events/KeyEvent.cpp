@@ -1,8 +1,8 @@
 #include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/events/Event.h"
 
-#include <memory>
 #include <cstdint>
+#include <memory>
 
 namespace chroma::shared::event {
 
