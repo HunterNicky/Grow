@@ -29,6 +29,7 @@ Server::~Server() {
 
     if (server_) {
         enet_host_destroy(server_.get()); 
+        server_.reset();
     }
 
     connected_players_.clear(); 
@@ -87,8 +88,10 @@ int Server::Stop()
     return -1;
   }
 
+  server_.reset(); 
   enet_deinitialize();
   is_running_ = false;
+
   return 0;
 }
 
