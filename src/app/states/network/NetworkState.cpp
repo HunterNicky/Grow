@@ -82,17 +82,6 @@ bool NetworkState::InitNetworkClient() {
 
 NetworkState::~NetworkState() {
     DisconnectFromServer(); 
-
-    if (server_peer_) {
-        server_peer_.reset();
-    }
-
-    if (client_) {
-        client_.reset();
-    }
-
-    event_dispatcher_.reset();
-    game_mediator_.reset();
 }
 
 

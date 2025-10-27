@@ -68,9 +68,6 @@ void Application::Run()
       EndDrawing();
   }
 
-  layer_stack_.reset();        
-  event_dispatcher_.reset();
-  event_catcher_.reset();
   client::core::Window::Close();
 }
 

@@ -26,8 +26,6 @@ GameState::GameState(std::shared_ptr<chroma::shared::event::EventDispatcher> eve
 
 GameState::~GameState() {
     game_objects_.clear();         
-    event_dispatcher_.reset();
-    network_mediator_.reset();
     std::cout << "GameState destroyed\n";
 }
 

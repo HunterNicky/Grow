@@ -23,7 +23,6 @@ GameObject::GameObject(const UUIDv4::UUID &id, bool active, uint32_t layer, Game
 GameObject::~GameObject()
 {
   components_.clear();
-  transform_.reset();
 }
 
 void GameObject::SetActive(const bool active) { active_ = active; }
