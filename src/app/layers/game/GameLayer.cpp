@@ -1,13 +1,11 @@
 #include "chroma/app/layers/game/GameLayer.h"
 #include "chroma/app/layers/Layer.h"
 
-#include <iostream>
-
 namespace chroma::app::layer::game {
 
 GameLayer::GameLayer() : Layer("GameLayer") {}
 
-GameLayer::~GameLayer() { std::cout << "GameLayer destroyed\n"; }
+GameLayer::~GameLayer()  = default;
 
 void GameLayer::OnUpdate(const float delta_time)
 {
