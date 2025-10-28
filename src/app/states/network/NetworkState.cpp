@@ -105,9 +105,9 @@ void NetworkState::OnUpdate(float delta_time)
 void NetworkState::OnReceiveData() const
 {
   if (event_.type == ENET_EVENT_TYPE_RECEIVE) {
-    std::span<const uint8_t> packet_span{ static_cast<const uint8_t *>(event_.packet->data),
+    const std::span<const uint8_t> packet_span{ static_cast<const uint8_t *>(event_.packet->data),
       event_.packet->dataLength };
-    std::vector<uint8_t> packet_data(packet_span.begin(), packet_span.end());
+    const std::vector<uint8_t> packet_data(packet_span.begin(), packet_span.end());
 
     game_mediator_->OnSnapshotReceived(packet_data);
     enet_packet_destroy(event_.packet);
