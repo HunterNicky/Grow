@@ -41,6 +41,7 @@ Server::~Server()
   }
 
   connected_players_.clear();
+  peer_last_processed_input_.clear();
 }
 
 int Server::Start()
@@ -106,7 +107,9 @@ void Server::ConnectClient(const ENetEvent &event)
   if (!is_running_ || event.peer == nullptr || event.type != ENET_EVENT_TYPE_CONNECT) { return; }
 
   auto player = world_simulation_.CreatePlayer();
+
   connected_players_.emplace(event.peer, player->GetId());
+  peer_last_processed_input_.emplace(event.peer, 0);
 
   std::vector<uint8_t> game_state = world_simulation_.GetGameStateSnapshot(player->GetId());
 

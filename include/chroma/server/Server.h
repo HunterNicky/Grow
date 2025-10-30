@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <enet.h>
 #include <memory>
 #include <unordered_map>
@@ -44,5 +45,6 @@ private:
 
   WorldSimulation world_simulation_;
   std::unordered_map<ENetPeer *, UUIDv4::UUID> connected_players_;
+  std::unordered_map<ENetPeer *, uint32_t> peer_last_processed_input_;
 };
 }// namespace chroma::server

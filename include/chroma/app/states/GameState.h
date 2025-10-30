@@ -1,9 +1,10 @@
 #pragma once
 
-#include "chroma/app/states/State.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
-#include "chroma/shared/core/GameObject.h"
+#include "chroma/app/states/network/PredictiveSyncSystem.h"
 #include "chroma/shared/events/EventDispatcher.h"
+#include "chroma/shared/core/GameObject.h"
+#include "chroma/app/states/State.h"
 
 #include <memory>
 #include <unordered_map>
@@ -42,9 +43,10 @@ public:
     GetGameObjects() const;
 
 private:
-  UUIDv4::UUID player_id_;
-  std::shared_ptr<chroma::shared::event::EventDispatcher> event_dispatcher_;
-  std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>> game_objects_;
-  std::shared_ptr<chroma::app::states::GameNetworkMediator> network_mediator_;
+std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>> game_objects_;
+std::shared_ptr<chroma::app::states::network::PredictiveSyncSystem> predictive_sync_system_;
+std::shared_ptr<chroma::app::states::GameNetworkMediator> network_mediator_;
+std::shared_ptr<chroma::shared::event::EventDispatcher> event_dispatcher_;
+UUIDv4::UUID player_id_;
 };
 }// namespace chroma::app::states
