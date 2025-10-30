@@ -16,12 +16,10 @@ void EventCatcher::CatchEvent()
       event::KeyEvent ev = event::KeyEvent(key_code);
       ev.SetPressed(true);
       event_dispatcher_->Dispatch(ev);
-      return;
     } else if (IsKeyReleased(key_code)) {
       event::KeyEvent ev = event::KeyEvent(key_code);
       ev.SetPressed(false);
       event_dispatcher_->Dispatch(ev);
-      return;
     }
   }
 
@@ -30,17 +28,14 @@ void EventCatcher::CatchEvent()
   if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
     event::MouseEvent ev = event::MouseEvent(pos, true, false);
     event_dispatcher_->Dispatch(ev);
-    return;
   }
   if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
     event::MouseEvent ev = event::MouseEvent(pos, false, true);
     event_dispatcher_->Dispatch(ev);
-    return;
   }
   if (GetMouseDelta().x != 0 || GetMouseDelta().y != 0) {
     event::MouseEvent ev = event::MouseEvent(pos, false, false);
     event_dispatcher_->Dispatch(ev);
-    return;
   }
 }
 
