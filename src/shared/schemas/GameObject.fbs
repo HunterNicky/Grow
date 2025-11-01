@@ -1,0 +1,74 @@
+namespace Game;
+
+table Vec2 { x:float; y:float; }
+
+table Position { pos:Vec2; }
+table Scale { scl: Vec2; }
+table Velocity { vel:Vec2; }
+table Movement {mov: Vec2; }
+table Health { value:int32; }
+table Facing { angle:float; }
+
+// Adicione novos componentes aqui
+union ComponentUnion { Position, Scale, Velocity, Movement, Health, Facing }
+
+table Component {
+  type:ComponentUnion;
+}
+
+enum GameObjectType : uint8 { NONE = 0, PLAYER = 1, ENEMY = 2, PROJECTILE = 3, OBSTACLE = 4 }
+
+table EntityState {
+  id:string;
+  type: GameObjectType;
+  components:[Component];
+}
+
+table Snapshot {
+  server_time:uint64;
+  last_processed_input:uint32;
+  player_id: string;
+  entities:[EntityState];
+}
+
+enum InputEventType : uint8 {
+  NONE = 0,
+  KEYEVENT = 1,
+  MOUSEEVENT = 2
+}
+
+
+table KeyEvent {
+  key: uint8;
+  is_pressed: bool;
+  is_released: bool;
+}
+
+table MouseEvent {
+  left: bool;
+  right: bool;
+  mouse_position: Vec2;
+}
+
+union InputEvent {
+  KeyEvent,
+  MouseEvent
+}
+
+table InputMessage {
+  seq: uint32;
+  dt: float;
+  type: InputEventType;
+  event: InputEvent;
+}
+
+enum MsgType:byte { NONE = 0, INPUT = 1, SNAPSHOT = 2 }
+
+union MsgUnion { InputMessage, Snapshot }
+
+table Envelope {
+  type:MsgType;
+  msg:MsgUnion;
+}
+
+root_type Envelope;

@@ -3,9 +3,9 @@
 #include <memory>
 #include <stack>
 
-#include "chroma/app/layers/states/State.h"
+#include "chroma/app/states/State.h"
 
-namespace chroma::app::layer::state {
+namespace chroma::app::states {
 class StateMachine
 {
 public:
@@ -17,11 +17,11 @@ public:
   StateMachine &operator=(const StateMachine &) = delete;
   StateMachine &operator=(StateMachine &&) = delete;
 
-  void OnUpdate(const float deltaTime);
-  void OnFixedUpdate(const float fixedDeltaTime);
+  void OnUpdate(const float delta_time);
+  void OnFixedUpdate(const float fixed_delta_time);
   void OnRender();
 
-  void OnEvent(event::Event &event);
+  void OnEvent(shared::event::Event &event);
 
   void PushState(const std::shared_ptr<State> &state);
   void PopState();
@@ -31,4 +31,4 @@ public:
 private:
   std::stack<std::shared_ptr<State>> states_;
 };
-}// namespace chroma::app::layer::state
+}// namespace chroma::app::states

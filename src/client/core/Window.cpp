@@ -44,8 +44,8 @@ void Window::Resize(const int width, const int height)
 
 void Window::FixMouseScale() const
 {
-  const float scaleX = static_cast<float>(virtual_size_.width) / static_cast<float>(actual_window_size_.width);
-  const float scaleY = static_cast<float>(virtual_size_.height) / static_cast<float>(actual_window_size_.height);
-  SetMouseScale(scaleX, scaleY);
+  const float scale_x = static_cast<float>(virtual_size_.width) / static_cast<float>(actual_window_size_.width);
+  const float scale_y = static_cast<float>(virtual_size_.height) / static_cast<float>(actual_window_size_.height);
+  SetMouseScale(scale_x, scale_y);
 }
 }// namespace chroma::client::core

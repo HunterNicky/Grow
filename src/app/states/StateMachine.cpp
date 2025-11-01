@@ -1,18 +1,18 @@
 #include <memory>
 
-#include "chroma/app/events/Event.h"
-#include "chroma/app/layers/states/State.h"
-#include "chroma/app/layers/states/StateMachine.h"
+#include "chroma/app/states/State.h"
+#include "chroma/app/states/StateMachine.h"
+#include "chroma/shared/events/Event.h"
 
-namespace chroma::app::layer::state {
-void StateMachine::OnUpdate(const float deltaTime)
+namespace chroma::app::states {
+void StateMachine::OnUpdate(const float delta_time)
 {
-  if (!states_.empty() && states_.top()->IsActive()) { states_.top()->OnUpdate(deltaTime); }
+  if (!states_.empty() && states_.top()->IsActive()) { states_.top()->OnUpdate(delta_time); }
 }
 
-void StateMachine::OnFixedUpdate(const float fixedDeltaTime)
+void StateMachine::OnFixedUpdate(const float fixed_delta_time)
 {
-  if (!states_.empty() && states_.top()->IsActive()) { states_.top()->OnFixedUpdate(fixedDeltaTime); }
+  if (!states_.empty() && states_.top()->IsActive()) { states_.top()->OnFixedUpdate(fixed_delta_time); }
 }
 
 void StateMachine::OnRender()
@@ -20,7 +20,7 @@ void StateMachine::OnRender()
   if (!states_.empty() && states_.top()->IsActive()) { states_.top()->OnRender(); }
 }
 
-void StateMachine::OnEvent(event::Event &event)
+void StateMachine::OnEvent(shared::event::Event &event)
 {
   if (!states_.empty() && states_.top()->IsActive()) { states_.top()->OnEvent(event); }
 }
@@ -49,4 +49,4 @@ std::shared_ptr<State> StateMachine::GetCurrentState()
   if (!states_.empty()) { return states_.top(); }
   return nullptr;
 }
-}// namespace chroma::app::layer::state
+}// namespace chroma::app::states

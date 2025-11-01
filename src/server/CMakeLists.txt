@@ -19,6 +19,24 @@ target_link_libraries(chroma_server
     chroma::chroma_warnings
 )
 
+target_link_system_libraries(chroma_server
+  PUBLIC
+    enet::enet_static
+)
+
+if (WIN32)
+  target_compile_definitions(chroma_server PUBLIC WIN32_LEAN_AND_MEAN NOMINMAX NOGDI NOUSER MMNOSOUND)
+endif()
+
+if(MSVC)
+  target_compile_options(chroma_server PRIVATE /arch:AVX)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(chroma_server PRIVATE -mavx -mavx2 -msse4.1)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "MinGW")
+  target_compile_options(chroma_server PRIVATE -msse4.1)
+endif()
+
+
 if(MSVC)
   target_compile_options(chroma_server PRIVATE /wd4242 /wd4701 /wd4703 /wd4996)
 endif()

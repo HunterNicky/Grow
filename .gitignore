@@ -38,8 +38,6 @@ Thumbs.db
 .cache/*
 
 # Dependency directories
-third_party/raylib/*
-third_party/raygui/*
 third_party/sqlite/*
 third_party/sqlite_orm/*
 third_party/glfw/*

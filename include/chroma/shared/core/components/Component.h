@@ -1,8 +1,8 @@
 #pragma once
 
-#include "uuid_v4.h"
 #include <cstdint>
 #include <memory>
+#include <uuid_v4.h>
 
 namespace chroma::shared::core {
 class GameObject;
@@ -12,6 +12,8 @@ namespace chroma::shared::core::component {
 enum class ComponentType : uint8_t {
   NONE = 0,
   TRANSFORM = 1,
+  SPEED = 2,
+  MOVEMENT = 3,
 };
 
 class Component
