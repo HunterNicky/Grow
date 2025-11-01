@@ -1,35 +1,49 @@
-#include "chroma/shared/packet/PacketHandler.h"
-#include "GameObject_generated.h"
-#include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/Movement.h"
 #include "chroma/shared/core/components/Speed.h"
-#include "chroma/shared/core/player/Player.h"
-#include "chroma/shared/events/Event.h"
-#include "chroma/shared/events/KeyEvent.h"
-#include "chroma/shared/events/MouseEvent.h"
+#include "chroma/shared/packet/PacketHandler.h"
 #include "chroma/shared/packet/InputMessage.h"
+#include "chroma/shared/core/player/Player.h"
+#include "chroma/shared/events/MouseEvent.h"
+#include "chroma/shared/events/KeyEvent.h"
+#include "chroma/shared/core/GameObject.h"
+#include "chroma/shared/events/Event.h"
+#include "GameObject_generated.h"
 
-#include <cstddef>
-#include <cstdint>
-#include <flatbuffers/buffer.h>
 #include <flatbuffers/flatbuffer_builder.h>
 #include <flatbuffers/verifier.h>
-#include <memory>
-#include <raylib.h>
+#include <flatbuffers/buffer.h>
 #include <unordered_map>
 #include <uuid_v4.h>
+#include <raylib.h>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
 #include <vector>
 
 namespace chroma::shared::packet {
 
 std::vector<uint8_t> PacketHandler::GameObjectsToFlatBuffer(
-  const std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>> &objects,
+  flatbuffers::FlatBufferBuilder &builder,
+  const std::vector<flatbuffers::Offset<Game::EntityState>> &entities,
   const UUIDv4::UUID &player_id,
   uint64_t time_lapse,
   uint32_t last_processed_input)
 {
-  flatbuffers::FlatBufferBuilder builder(1024);
 
+  auto fb_player_id = builder.CreateString(player_id.str());
+  auto fb_entities_vec = builder.CreateVector(entities);
+  auto snapshot = Game::CreateSnapshot(builder, time_lapse, last_processed_input, fb_player_id, fb_entities_vec);
+  auto envelope = Game::CreateEnvelope(builder, Game::MsgType::SNAPSHOT, Game::MsgUnion::Snapshot, snapshot.Union());
+  builder.Finish(envelope);
+
+  auto buf = builder.Release();
+
+  return { buf.begin(), buf.end() };
+}
+
+std::vector<flatbuffers::Offset<Game::EntityState>> PacketHandler::GameObjectsToFlatBufferEntities(flatbuffers::FlatBufferBuilder &builder,
+   const std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>> &objects)
+{
   std::vector<flatbuffers::Offset<Game::EntityState>> fb_entities;
 
   for (const auto &[uuid, object] : objects) {
@@ -57,15 +71,7 @@ std::vector<uint8_t> PacketHandler::GameObjectsToFlatBuffer(
     fb_entities.push_back(fb_entity);
   }
 
-  auto fb_player_id = builder.CreateString(player_id.str());
-  auto fb_entities_vec = builder.CreateVector(fb_entities);
-  auto snapshot = Game::CreateSnapshot(builder, time_lapse, last_processed_input, fb_player_id, fb_entities_vec);
-  auto envelope = Game::CreateEnvelope(builder, Game::MsgType::SNAPSHOT, Game::MsgUnion::Snapshot, snapshot.Union());
-  builder.Finish(envelope);
-
-  auto buf = builder.Release();
-
-  return { buf.begin(), buf.end() };
+  return fb_entities;
 }
 
 void PacketHandler::FlatBufferToGameObject(const uint8_t *data,
@@ -284,6 +290,34 @@ UUIDv4::UUID PacketHandler::FlatBufferSnapshotGetUUID(const uint8_t *data, std::
   if (snapshot == nullptr) { return UUIDv4::UUID{}; }
 
   return UUIDv4::UUID(snapshot->player_id()->str());
+}
+
+uint32_t PacketHandler::FlatBufferSnapshotGetLastProcessedInputSeq(const uint8_t *data, std::size_t size)
+{
+  flatbuffers::Verifier verifier(data, size);
+  if (!Game::VerifyEnvelopeBuffer(verifier)) { return 0; }
+
+  const auto *envelope = Game::GetEnvelope(data);
+  if (envelope->type() != Game::MsgType::SNAPSHOT) { return 0; }
+
+  const auto *snapshot = envelope->msg_as<Game::Snapshot>();
+  if (snapshot == nullptr) { return 0; }
+
+  return snapshot->last_processed_input();
+}
+
+uint32_t PacketHandler::FlatBufferInputMessageGetSequenceNumber(const uint8_t *data, std::size_t size)
+{
+  flatbuffers::Verifier verifier(data, size);
+  if (!Game::VerifyEnvelopeBuffer(verifier)) { return 0; }
+
+  const auto *envelope = Game::GetEnvelope(data);
+  if (envelope->type() != Game::MsgType::INPUT) { return 0; }
+
+  const auto *input_msg = envelope->msg_as<Game::InputMessage>();
+  if (input_msg == nullptr) { return 0; }
+
+  return input_msg->seq();
 }
 
 }// namespace chroma::shared::packet

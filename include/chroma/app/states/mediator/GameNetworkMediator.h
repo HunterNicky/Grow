@@ -2,10 +2,12 @@
 
 #include <cstdint>
 #include <memory>
+#include <sys/types.h>
 #include <uuid_v4.h>
 #include <vector>
 
 #include "GameObject_generated.h"
+#include "chroma/app/states/network/PredictiveSyncSystem.h"
 
 namespace chroma::app::states {
 
@@ -30,13 +32,16 @@ public:
 
   void SetGameState(const std::shared_ptr<GameState> &game);
   void SetNetworkState(const std::shared_ptr<NetworkState> &network);
-  void RegisterPlayerId(const UUIDv4::UUID &player_id);
   [[nodiscard]] std::shared_ptr<GameState> GetGameState() const;
   [[nodiscard]] std::shared_ptr<NetworkState> GetNetworkState() const;
+
+  void AddInputEvent(const shared::event::Event &event);
+  [[nodiscard]] uint32_t GetSeqCounter() const;
 
 private:
   std::weak_ptr<GameState> game_state_;
   std::weak_ptr<NetworkState> network_state_;
+  std::unique_ptr<chroma::app::states::network::PredictiveSyncSystem> predictive_sync_system_;
 };
 
 }// namespace chroma::app::states

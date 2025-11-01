@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstdint>
 #include <enet.h>
 #include <memory>
 
@@ -33,7 +32,6 @@ private:
   ENetAddress server_address_;
   ENetEvent event_;
 
-  uint32_t seq_input_ = 0;
   bool connected_ = false;
 
   std::shared_ptr<chroma::app::states::GameNetworkMediator> game_mediator_;

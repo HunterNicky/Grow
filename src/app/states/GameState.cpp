@@ -26,16 +26,18 @@ GameState::GameState() : State("GameState"), network_mediator_(nullptr)
 
 GameState::GameState(std::shared_ptr<GameNetworkMediator> network_mediator)
   : State("GameState"),
-    network_mediator_(std::move(network_mediator)), 
-    predictive_sync_system_(std::make_shared<chroma::app::states::network::PredictiveSyncSystem>())
-{}
+    network_mediator_(std::move(network_mediator))
+{
+  player_id_ = UUIDv4::UUID{};
+}
 
 GameState::GameState(std::shared_ptr<chroma::shared::event::EventDispatcher> event_dispatcher)
-  : State("GameState"), 
-    event_dispatcher_(std::move(event_dispatcher)),
-    network_mediator_(nullptr),
-    predictive_sync_system_(nullptr)
-{}
+: State("GameState"), 
+event_dispatcher_(std::move(event_dispatcher)),
+network_mediator_(nullptr)
+{
+  player_id_ = UUIDv4::UUID{};
+}
 
 GameState::~GameState() { game_objects_.clear(); }
 
@@ -51,9 +53,8 @@ void GameState::OnRender()
 
 void GameState::OnUpdate(float delta_time)
 {
-
-  if (!IsActive() || !network_mediator_) { return; }
-
+  if (!IsActive()) { return; }
+  
   for (const auto &[uuid, obj] : game_objects_) {
     if (obj && obj->IsActive()) { obj->OnUpdate(delta_time); }
   }
@@ -73,12 +74,16 @@ void GameState::SetGameObjects(
 
 void GameState::OnEvent(shared::event::Event &event)
 {
-  if (player_id_ == UUIDv4::UUID{} || network_mediator_ != nullptr) { return; }
+  if (player_id_ == UUIDv4::UUID{}) { return; }
 
   auto it = game_objects_.find(player_id_);
   if (it != game_objects_.end()) {
     auto player = std::dynamic_pointer_cast<chroma::shared::core::player::Player>(it->second);
     player->HandleEvent(event);
+  }
+
+  if(network_mediator_) {
+    network_mediator_->AddInputEvent(event);
   }
 }
 
@@ -88,6 +93,15 @@ void GameState::SetEventDispatcher(const std::shared_ptr<chroma::shared::event::
 {
   event_dispatcher_ = event_dispatcher;
   event_dispatcher_->Subscribe<shared::event::KeyEvent>([this](shared::event::Event &event) { this->OnEvent(event); });
+}
+
+std::shared_ptr<chroma::shared::core::player::Player> GameState::GetPlayer()
+{
+  auto it = game_objects_.find(player_id_);
+  if (it != game_objects_.end()) {
+    return std::dynamic_pointer_cast<chroma::shared::core::player::Player>(it->second);
+  }
+  return nullptr;
 }
 
 UUIDv4::UUID GameState::GetPlayerId() const { return player_id_; }

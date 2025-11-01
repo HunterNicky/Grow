@@ -16,7 +16,8 @@ class PacketHandler
 {
 public:
   static std::vector<uint8_t> GameObjectsToFlatBuffer(
-    const std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>> &objects,
+    flatbuffers::FlatBufferBuilder &builder,
+    const std::vector<flatbuffers::Offset<Game::EntityState>> &entities,
     const UUIDv4::UUID &player_id,
     uint64_t time_lapse = 0,
     uint32_t last_processed_input = 0);
@@ -27,6 +28,11 @@ public:
   static std::vector<uint8_t> InputMessageToFlatBuffer(
     const std::shared_ptr<shared::packet::InputMessage> &input_message);
   static UUIDv4::UUID FlatBufferSnapshotGetUUID(const uint8_t *data, std::size_t size);
+  static uint32_t FlatBufferSnapshotGetLastProcessedInputSeq(const uint8_t *data, std::size_t size);
+  static uint32_t FlatBufferInputMessageGetSequenceNumber(const uint8_t *data, std::size_t size);
+  static std::vector<flatbuffers::Offset<Game::EntityState>> GameObjectsToFlatBufferEntities( flatbuffers::FlatBufferBuilder &builder,
+  const std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>> &objects);
+
 
 private:
   static void UpdateGameObjectWithEntityState(const Game::EntityState *entity_state,

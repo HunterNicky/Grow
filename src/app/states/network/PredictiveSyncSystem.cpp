@@ -4,10 +4,10 @@
 #include <cstdint>
 
 namespace chroma::app::states::network {
-void PredictiveSyncSystem::ApplyEvents(shared::core::player::Player& player)
+void PredictiveSyncSystem::ApplyEvents(const std::shared_ptr<chroma::shared::core::player::Player> &player)
 {
     for (const auto& [seq, event] : input_event_history_) {
-        player.HandleEvent(*event);
+        player->HandleEvent(*event);
     }
 }
 
@@ -45,6 +45,11 @@ void PredictiveSyncSystem::SetLastProcessedInputSeq(uint32_t seq)
 uint32_t PredictiveSyncSystem::GetNextSeq()
 {
     return seq_counter_++;
+}
+
+uint32_t PredictiveSyncSystem::GetSeqCounter() const
+{
+    return seq_counter_;
 }
 
 void PredictiveSyncSystem::ResetSeqCounter()

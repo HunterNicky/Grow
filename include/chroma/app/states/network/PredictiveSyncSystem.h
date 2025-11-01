@@ -19,7 +19,7 @@ public:
     PredictiveSyncSystem(PredictiveSyncSystem&&) noexcept = default;
     PredictiveSyncSystem& operator=(PredictiveSyncSystem&&) noexcept = default;
 
-    void ApplyEvents(shared::core::player::Player& player);
+    void ApplyEvents(const std::shared_ptr<chroma::shared::core::player::Player>& player);
     void AddInputEventHistory(const shared::event::Event& event);
     void RemoveEventsAt(uint32_t seq);
     void ClearInputEventHistory();
@@ -28,6 +28,7 @@ public:
     void SetLastProcessedInputSeq(uint32_t seq);
 
     [[nodiscard]] uint32_t GetNextSeq();
+    [[nodiscard]] uint32_t GetSeqCounter() const;
     void ResetSeqCounter();
 
 private:

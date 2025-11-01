@@ -3,7 +3,6 @@
 #include "chroma/shared/packet/PacketHandler.h"
 #include <chrono>
 #include <cstddef>
-#include <cstdint>
 #include <enet.h>
 #include <memory>
 #include <vector>
@@ -71,7 +70,9 @@ int Server::Start()
         if (input_message != nullptr) {
           world_simulation_.OnReceivedInputMessage(input_message, connected_players_[event.peer]);
           world_simulation_.Update(static_cast<float>(elapsed) / 10000.0F);
+          peer_last_processed_input_[event.peer] = input_message->GetSeq();
         }
+        
         enet_packet_destroy(event.packet);
         break;
       }
@@ -111,14 +112,16 @@ void Server::ConnectClient(const ENetEvent &event)
   connected_players_.emplace(event.peer, player->GetId());
   peer_last_processed_input_.emplace(event.peer, 0);
 
-  std::vector<uint8_t> game_state = world_simulation_.GetGameStateSnapshot(player->GetId());
+  flatbuffers::FlatBufferBuilder builder(1024);
+  std::vector<flatbuffers::Offset<Game::EntityState>> game_entities = world_simulation_.GetEntitiesFlatBuffer(builder);
+
+  auto game_state = chroma::shared::packet::PacketHandler::GameObjectsToFlatBuffer(builder, game_entities, player->GetId(), 0, 0);
 
   ENetPacket *packet = enet_packet_create(game_state.data(), game_state.size(), ENET_PACKET_FLAG_RELIABLE);
 
   enet_peer_send(event.peer, 0, packet);
   enet_host_flush(server_.get());
 }
-
 
 void Server::DisconnectClient(const ENetEvent &event)
 {
@@ -155,9 +158,15 @@ bool Server::InitServer(int port, int max_clients)
 void Server::BroadcastGameObjectState() const
 {
   if (!server_) { return; }
-  std::vector<uint8_t> game_state = world_simulation_.GetGameStateSnapshot(UUIDv4::UUID{});
+
+  flatbuffers::FlatBufferBuilder builder(1024);
+
+  std::vector<flatbuffers::Offset<Game::EntityState>> game_entities = world_simulation_.GetEntitiesFlatBuffer(builder);
 
   for (const auto &[peer, player_id] : connected_players_) {
+    auto game_state = chroma::shared::packet::PacketHandler::GameObjectsToFlatBuffer(
+      builder, game_entities, player_id, 0, peer_last_processed_input_.at(peer));
+
     ENetPacket *packet = enet_packet_create(game_state.data(), game_state.size(), ENET_PACKET_FLAG_RELIABLE);
 
     enet_peer_send(peer, 0, packet);
