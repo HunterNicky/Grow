@@ -74,7 +74,7 @@ void GameState::SetGameObjects(
 
 void GameState::OnEvent(shared::event::Event &event)
 {
-  if (player_id_ == UUIDv4::UUID{}) { return; }
+  if (player_id_ == UUIDv4::UUID{} || network_mediator_) { return; }
 
   auto it = game_objects_.find(player_id_);
   if (it != game_objects_.end()) {
