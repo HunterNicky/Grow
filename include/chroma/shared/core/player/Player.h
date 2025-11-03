@@ -1,11 +1,14 @@
 #pragma once
 
 #include "chroma/shared/core/GameObject.h"
+#include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/InputState.h"
+ 
+enum class FacingDir : uint8_t { Up = 0, Down = 1, Side = 2 };
 
 namespace chroma::shared::core::player {
-class Player : public GameObject
+class Player final : public GameObject
 {
 public:
   Player();
@@ -20,9 +23,15 @@ public:
   void OnFixedUpdate(float fixed_delta_time) override;
   void OnCollision(const collision::CollisionEvent &event) override;
   void OnRender() override;
-  void HandleEvent(const shared::event::Event &event);
+  void HandleEvent(const event::Event &event);
+
+  void UpdateAnimationFromDirection(Vector2 dir);
+
+  static void SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &anim_component);
 
 private:
-  shared::events::InputState input_state_;
+  events::InputState input_state_;
+  FacingDir last_facing_ { FacingDir::Down };
+  bool last_left_ { false };
 };
 }// namespace chroma::shared::core::player

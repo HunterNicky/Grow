@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "chroma/app/layers/LayerStack.h"
-#include "chroma/client/core/Window.h"
+#include "chroma/client/render/Renderer.h"
 #include "chroma/shared/events/EventCatcher.h"
 #include "chroma/shared/events/EventDispatcher.h"
 
@@ -35,7 +35,6 @@ private:
   std::shared_ptr<shared::event::EventCatcher> event_catcher_;
 
   float delta_time_;
-
-  client::core::Window window_;
+  std::unique_ptr<client::render::Renderer> renderer_;
 };
 }// namespace chroma::app

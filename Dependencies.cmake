@@ -12,24 +12,24 @@ function(chroma_setup_dependencies)
 
   find_package(raylib QUIET)
   if (NOT raylib_FOUND)
-     CPMAddPackage("gh:raysan5/raylib#5.5")
-  endif()
-  
+    CPMAddPackage("gh:raysan5/raylib#5.5")
+  endif ()
+
   find_package(raygui QUIET CONFIG)
   if (NOT raygui_FOUND)
-     CPMAddPackage("gh:raysan5/raygui#4.0")
-  if (NOT TARGET raygui)
-     add_library(raygui INTERFACE)
-     if (MSVC)
-         target_compile_options(raygui INTERFACE /w)
-     elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-         target_compile_options(raygui INTERFACE -w)
-     endif()
+    CPMAddPackage("gh:raysan5/raygui#4.0")
+    if (NOT TARGET raygui)
+      add_library(raygui INTERFACE)
+      if (MSVC)
+        target_compile_options(raygui INTERFACE /w)
+      elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+        target_compile_options(raygui INTERFACE -w)
+      endif ()
 
-     target_include_directories(raygui SYSTEM INTERFACE "${raygui_SOURCE_DIR}/src")
-  endif()
+      target_include_directories(raygui SYSTEM INTERFACE "${raygui_SOURCE_DIR}/src")
+    endif ()
 
-  endif()
+  endif ()
 
   include(cmake/dependencies/sqlite.cmake)
 
@@ -54,60 +54,60 @@ function(chroma_setup_dependencies)
   #   )
   # endif()
 
-CPMAddPackage(
+  CPMAddPackage(
     NAME uuid_v4
     GITHUB_REPOSITORY crashoz/uuid_v4
     GIT_TAG master
-)
+  )
 
   if (NOT TARGET uuid_v4_silenced)
     add_library(uuid_v4_silenced INTERFACE)
 
     if (MSVC)
-        target_compile_options(uuid_v4_silenced INTERFACE /w)
+      target_compile_options(uuid_v4_silenced INTERFACE /w /arch:AVX2)
     elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-        target_compile_options(uuid_v4_silenced INTERFACE -w)
-    endif()
+      target_compile_options(uuid_v4_silenced INTERFACE -w -mavx2)
+    endif ()
 
     target_link_libraries(uuid_v4_silenced INTERFACE uuid_v4)
     target_include_directories(uuid_v4_silenced SYSTEM INTERFACE
-        "${uuid_v4_SOURCE_DIR}"
+      "${uuid_v4_SOURCE_DIR}"
     )
-  endif()
+  endif ()
 
 
   find_package(Flatbuffers CONFIG QUIET)
-  if(Flatbuffers_FOUND)
-    if(TARGET flatbuffers::flatbuffers AND NOT TARGET flatbuffers)
+  if (Flatbuffers_FOUND)
+    if (TARGET flatbuffers::flatbuffers AND NOT TARGET flatbuffers)
       add_library(flatbuffers INTERFACE IMPORTED)
       target_link_libraries(flatbuffers INTERFACE flatbuffers::flatbuffers)
-    endif()
-  else()
+    endif ()
+  else ()
     CPMAddPackage(
       NAME flatbuffers
       GITHUB_REPOSITORY google/flatbuffers
       GIT_TAG v25.9.23
       OPTIONS
-        "FLATBUFFERS_BUILD_TESTS OFF"
+      "FLATBUFFERS_BUILD_TESTS OFF"
     )
-  endif()
+  endif ()
 
   CPMAddPackage(
     NAME Tracy
     GITHUB_REPOSITORY wolfpld/tracy
     GIT_TAG v0.12.2
     OPTIONS
-        "TRACY_ENABLE ON"
+    "TRACY_ENABLE OFF"
   )
 
   CPMAddPackage(
-          NAME Enet
-          GITHUB_REPOSITORY zpl-c/enet
-          GIT_TAG v2.6.5
-          OPTIONS
-            "ENET_STATIC ON"
-            "ENET_TEST OFF"
-            "ENET_SHARED OFF"
+    NAME Enet
+    GITHUB_REPOSITORY zpl-c/enet
+    GIT_TAG v2.6.5
+    OPTIONS
+    "ENET_STATIC ON"
+    "ENET_TEST OFF"
+    "ENET_SHARED OFF"
   )
 
 endfunction()

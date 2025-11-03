@@ -14,6 +14,9 @@ enum class ComponentType : uint8_t {
   TRANSFORM = 1,
   SPEED = 2,
   MOVEMENT = 3,
+  SPRITE_STATIC = 4,
+  SPRITE_ANIMATION = 5,
+  CAMERA = 6,
 };
 
 class Component

@@ -100,3 +100,5 @@ set(CPACK_PACKAGE_FILE_NAME
 )
 
 include(CPack)
+
+file (COPY "${CMAKE_SOURCE_DIR}/assets" DESTINATION "${CMAKE_BINARY_DIR}/src/app")
