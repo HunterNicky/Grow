@@ -72,7 +72,7 @@ int Server::Start()
           world_simulation_.Update(static_cast<float>(elapsed) / 1000.0F);
           peer_last_processed_input_[event.peer] = input_message->GetSeq();
         }
-        
+
         enet_packet_destroy(event.packet);
         break;
       }
@@ -115,7 +115,8 @@ void Server::ConnectClient(const ENetEvent &event)
   flatbuffers::FlatBufferBuilder builder(1024);
   std::vector<flatbuffers::Offset<Game::EntityState>> game_entities = world_simulation_.GetEntitiesFlatBuffer(builder);
 
-  auto game_state = chroma::shared::packet::PacketHandler::GameObjectsToFlatBuffer(builder, game_entities, player->GetId(), 0, 0);
+  auto game_state =
+    chroma::shared::packet::PacketHandler::GameObjectsToFlatBuffer(builder, game_entities, player->GetId(), 0, 0);
 
   ENetPacket *packet = enet_packet_create(game_state.data(), game_state.size(), ENET_PACKET_FLAG_RELIABLE);
 
@@ -159,10 +160,11 @@ void Server::BroadcastGameObjectState(uint64_t delta_time) const
 {
   if (!server_) { return; }
 
-  
+
   for (const auto &[peer, player_id] : connected_players_) {
     flatbuffers::FlatBufferBuilder builder(1024);
-    std::vector<flatbuffers::Offset<Game::EntityState>> game_entities = world_simulation_.GetEntitiesFlatBuffer(builder);
+    std::vector<flatbuffers::Offset<Game::EntityState>> game_entities =
+      world_simulation_.GetEntitiesFlatBuffer(builder);
 
     auto game_state = chroma::shared::packet::PacketHandler::GameObjectsToFlatBuffer(
       builder, game_entities, player_id, delta_time, peer_last_processed_input_.at(peer));

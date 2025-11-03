@@ -40,7 +40,9 @@ public:
   [[nodiscard]] uint32_t GetSeqCounter() const;
 
   void UpdateInterpolation(uint64_t delta_time);
-  void SetGameObjects(const std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>>>& game_objects);
+  void SetGameObjects(
+    const std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>>>
+      &game_objects);
 
 private:
   std::weak_ptr<GameState> game_state_;
