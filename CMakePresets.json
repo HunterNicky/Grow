@@ -181,6 +181,51 @@
                 "CMAKE_CXX_COMPILER": "clang++",
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo"
             }
+        },
+        {
+            "name": "dev-fast-windows",
+            "displayName": "Dev Fast (Ninja + MSVC)",
+            "description": "Fast development build for Windows (no analyzers)",
+            "inherits": "conf-windows-common",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "cl",
+                "CMAKE_CXX_COMPILER": "cl",
+                "CMAKE_BUILD_TYPE": "Debug",
+                "chroma_ENABLE_IPO": "OFF",
+                "chroma_ENABLE_CLANG_TIDY": "OFF",
+                "chroma_ENABLE_CPPCHECK": "OFF",
+                "chroma_ENABLE_UNITY_BUILD": "ON",
+                "chroma_ENABLE_PCH": "ON",
+                "chroma_ENABLE_CACHE": "ON",
+                "CACHE_OPTION": "sccache",
+                "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "OFF",
+                "CMAKE_EXE_LINKER_FLAGS_DEBUG": "/DEBUG:FASTLINK",
+                "CMAKE_SHARED_LINKER_FLAGS_DEBUG": "/DEBUG:FASTLINK"
+            }
+        },
+        {
+            "name": "dev-fast-linux",
+            "displayName": "Dev Fast (Ninja + Clang/Linux)",
+            "description": "Fast development build for Linux (no analyzers)",
+            "inherits": "conf-unixlike-common",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            },
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++",
+                "CMAKE_BUILD_TYPE": "Debug",
+                "chroma_ENABLE_IPO": "OFF",
+                "chroma_ENABLE_CLANG_TIDY": "OFF",
+                "chroma_ENABLE_CPPCHECK": "OFF",
+                "chroma_ENABLE_UNITY_BUILD": "ON",
+                "chroma_ENABLE_PCH": "ON",
+                "chroma_ENABLE_CACHE": "ON",
+                "CACHE_OPTION": "sccache",
+                "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "OFF"
+            }
         }
     ],
     "buildPresets" :[
@@ -191,6 +236,8 @@
       { "name": "build-windows-clang-release", "configurePreset": "windows-clang-release", "displayName": "Build Clang Release (Windows)" },
       { "name": "build-windows-clang-debug", "configurePreset": "windows-clang-debug", "displayName": "Build Clang Debug (Windows)" },
       { "name": "build-windows-msvc-release-dev", "configurePreset": "windows-msvc-release-developer-mode", "displayName": "Build MSVC Release (Dev)" },
-      { "name": "build-windows-msvc-debug-dev", "configurePreset": "windows-msvc-debug-developer-mode", "displayName": "Build MSVC Debug (Dev)" }
+      { "name": "build-windows-msvc-debug-dev", "configurePreset": "windows-msvc-debug-developer-mode", "displayName": "Build MSVC Debug (Dev)" },
+      { "name": "build-dev-fast-windows", "configurePreset": "dev-fast-windows", "displayName": "Build Dev Fast (Windows)" },
+      { "name": "build-dev-fast-linux", "configurePreset": "dev-fast-linux", "displayName": "Build Dev Fast (Linux)" }
     ]
 }
