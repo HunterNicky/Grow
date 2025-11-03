@@ -13,18 +13,27 @@
 #include "chroma/app/states/GameState.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
 #include "chroma/app/states/network/NetworkState.h"
+#include "chroma/client/render/RenderBridgeImpl.h"
+#include "chroma/client/render/Renderer.h"
+#include "chroma/client/render/Window.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventCatcher.h"
 #include "chroma/shared/events/EventDispatcher.h"
+#include "chroma/shared/render/RenderBridge.h"
 
 namespace chroma::app {
-Application::Application()
-  : layer_stack_(std::make_unique<layer::LayerStack>()), delta_time_(0.F), window_(1280, 720, "Chroma") {};
+Application::Application() : layer_stack_(std::make_unique<layer::LayerStack>()), delta_time_(0.F)
+{
+  const client::render::RenderConfig config{};
+  auto window = std::make_unique<client::render::Window>(1280, 720, "Chroma");
+  renderer_ = std::make_unique<client::render::Renderer>(std::move(window), config);
+  auto bridge = std::make_shared<client::render::RenderBridgeImpl>(renderer_.get());
+  shared::render::SetRenderBridge(bridge);
+};
 
 void Application::Run()
 {
-  window_.Init();
-
+  Initialize();
   event_dispatcher_ = std::make_shared<shared::event::EventDispatcher>();
 
   auto game_layer = std::make_unique<layer::game::GameLayer>();
@@ -53,8 +62,7 @@ void Application::Run()
 
   auto last_time = static_cast<float>(GetTime());
 
-  while (!client::core::Window::ShouldClose()) {
-
+  while (!renderer_->ShouldClose()) {
     const auto current_time = static_cast<float>(GetTime());
     delta_time_ = current_time - last_time;
     last_time = current_time;
@@ -63,18 +71,12 @@ void Application::Run()
 
     layer_stack_->UpdateLayers(delta_time_);
 
-    BeginDrawing();
-    ClearBackground(RAYWHITE);
-
-    layer_stack_->RenderLayers();
-
-    EndDrawing();
+    renderer_->RenderFrame([&] { layer_stack_->RenderLayers(); });
   }
-
-  client::core::Window::Close();
+  renderer_->Close();
 }
 
-void Application::Initialize() {}
+void Application::Initialize() { shared::render::GetRenderBridge()->LoadSprite("assets/sprites/player/randi-1.png"); }
 
 void Application::Shutdown() {}
 

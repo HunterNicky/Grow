@@ -39,11 +39,11 @@ private:
   static void UpdateGameObjectWithEntityState(const Game::EntityState *entity_state,
     std::shared_ptr<chroma::shared::core::GameObject> &game_object);
   static void ComponentToSpeed(const Game::Component *component,
-    std::shared_ptr<chroma::shared::core::GameObject> &game_object);
+    const std::shared_ptr<chroma::shared::core::GameObject> &game_object);
   static void ComponentToTransform(const Game::Component *component,
-    std::shared_ptr<chroma::shared::core::GameObject> &game_object);
+    const std::shared_ptr<chroma::shared::core::GameObject> &game_object);
   static void ComponentToMovement(const Game::Component *component,
-    std::shared_ptr<chroma::shared::core::GameObject> &game_object);
+    const std::shared_ptr<chroma::shared::core::GameObject> &game_object);
   static void ComponentToColor(const Game::Component *component,
     std::shared_ptr<chroma::shared::core::GameObject> &game_object);
 };
