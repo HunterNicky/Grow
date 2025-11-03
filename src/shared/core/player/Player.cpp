@@ -19,7 +19,7 @@ Player::Player() { Type_ = GameObjectType::PLAYER; }
 
 void Player::InitComponents()
 {
-  auto speed_component = std::make_shared<component::Speed>(200.0F);
+  auto speed_component = std::make_shared<component::Speed>(20.0F);
   auto movement_component = std::make_shared<component::Movement>();
   AttachComponent(speed_component);
   AttachComponent(movement_component);
@@ -94,28 +94,25 @@ void Player::OnRender()
 
 void Player::HandleEvent(const shared::event::Event &event)
 {
-  if (event.GetType() != shared::event::Event::KeyEvent) { return; }
+    if (event.GetType() != shared::event::Event::KeyEvent) { return; }
 
-  const auto &key_event = dynamic_cast<const shared::event::KeyEvent &>(event);
-  auto movement = GetComponent<component::Movement>();
-  if (!movement) { return; }
+    const auto &key_event = dynamic_cast<const shared::event::KeyEvent &>(event);
+    auto movement = GetComponent<component::Movement>();
+    if (!movement) { return; }
+    
+    if (key_event.IsPressed()) {
+        input_state_.SetKeyState(key_event.GetKey(), true);
+    } else if (key_event.IsReleased()) {
+        input_state_.SetKeyState(key_event.GetKey(), false);
+    }
+    
+    Vector2 direction{ 0.0F, 0.0F };
+    if (input_state_.IsKeyPressed(KEY_W)) { direction.y -= 1.0F; }
+    if (input_state_.IsKeyPressed(KEY_S)) { direction.y += 1.0F; }
+    if (input_state_.IsKeyPressed(KEY_A)) { direction.x -= 1.0F; }
+    if (input_state_.IsKeyPressed(KEY_D)) { direction.x += 1.0F; }
 
-  movement->Reset();
-
-  if (key_event.IsPressed()) {
-    input_state_.SetKeyState(key_event.GetKey(), true);
-  } else if (key_event.IsReleased()) {
-    input_state_.SetKeyState(key_event.GetKey(), false);
-  }
-
-  Vector2 direction{ 0.0F, 0.0F };
-
-  if (input_state_.IsKeyPressed(KEY_W)) { direction.y -= 1.0F; }
-  if (input_state_.IsKeyPressed(KEY_S)) { direction.y += 1.0F; }
-  if (input_state_.IsKeyPressed(KEY_A)) { direction.x -= 1.0F; }
-  if (input_state_.IsKeyPressed(KEY_D)) { direction.x += 1.0F; }
-
-  movement->SetDirection(direction);
+    movement->SetDirection(direction);
 }
 
 std::shared_ptr<GameObject> Player::Clone()

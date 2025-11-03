@@ -69,7 +69,7 @@ int Server::Start()
 
         if (input_message != nullptr) {
           world_simulation_.OnReceivedInputMessage(input_message, connected_players_[event.peer]);
-          world_simulation_.Update(static_cast<float>(elapsed) / 10000.0F);
+          world_simulation_.Update(static_cast<float>(elapsed) / 1000.0F);
           peer_last_processed_input_[event.peer] = input_message->GetSeq();
         }
         
@@ -86,7 +86,7 @@ int Server::Start()
       BroadcastGameObjectState(elapsed);
     }
 
-    world_simulation_.Update(static_cast<float>(elapsed) / 10000.0F);
+    world_simulation_.Update(static_cast<float>(elapsed) / 1000.0F);
   }
 
   return 0;
