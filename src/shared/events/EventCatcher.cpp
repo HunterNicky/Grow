@@ -11,7 +11,7 @@ namespace chroma::shared::event {
 void EventCatcher::CatchEvent()
 {
   // Key code A ~ Z
-  for (int key_code = 65; key_code <= 90; ++key_code) {
+  for (int key_code = KEY_A; key_code <= KEY_Z; ++key_code) {
     if (IsKeyPressed(key_code)) {
       event::KeyEvent ev = event::KeyEvent(key_code);
       ev.SetPressed(true);

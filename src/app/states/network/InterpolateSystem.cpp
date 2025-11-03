@@ -15,6 +15,7 @@ void InterpolateSystem::Interpolate(std::unordered_map<UUIDv4::UUID, std::shared
         past_game_objects_ = new_snapshot;
         target_game_objects_ = new_snapshot;
         interp_elapsed_ = 0;
+        time_last_snapshot_ = delta_time;
         return;
     }
 
@@ -22,6 +23,11 @@ void InterpolateSystem::Interpolate(std::unordered_map<UUIDv4::UUID, std::shared
         past_game_objects_ = target_game_objects_;
         target_game_objects_ = new_snapshot;
         interp_elapsed_ = 0;
+        
+        uint64_t interval = delta_time - time_last_snapshot_;
+
+        snapshot_interval_ = interval > 0 ? interval : snapshot_interval_;
+        time_last_snapshot_ = delta_time;
     }
 
     Update(delta_time);
