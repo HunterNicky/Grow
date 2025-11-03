@@ -7,8 +7,8 @@
 #include <flatbuffers/flatbuffer_builder.h>
 #include <flatbuffers/flatbuffers.h>
 #include <GameObject_generated.h>
-#include <uuid_v4.h>
 #include <memory>
+#include <uuid_v4.h>
 #include <vector>
 
 namespace chroma::server {
@@ -50,7 +50,8 @@ void WorldSimulation::HandleInput(shared::event::Event &event, const UUIDv4::UUI
   }
 }
 
-std::vector<flatbuffers::Offset<Game::EntityState>> WorldSimulation::GetEntitiesFlatBuffer(flatbuffers::FlatBufferBuilder &builder) const
+std::vector<flatbuffers::Offset<Game::EntityState>> WorldSimulation::GetEntitiesFlatBuffer(
+  flatbuffers::FlatBufferBuilder &builder) const
 {
   return shared::packet::PacketHandler::GameObjectsToFlatBufferEntities(builder, game_objects_);
 }

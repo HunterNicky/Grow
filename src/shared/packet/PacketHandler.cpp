@@ -1,30 +1,29 @@
+#include "chroma/shared/packet/PacketHandler.h"
+#include "GameObject_generated.h"
+#include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/Color.h"
 #include "chroma/shared/core/components/Movement.h"
 #include "chroma/shared/core/components/Speed.h"
-#include "chroma/shared/packet/PacketHandler.h"
-#include "chroma/shared/packet/InputMessage.h"
 #include "chroma/shared/core/player/Player.h"
-#include "chroma/shared/events/MouseEvent.h"
-#include "chroma/shared/events/KeyEvent.h"
-#include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/events/Event.h"
-#include "GameObject_generated.h"
+#include "chroma/shared/events/KeyEvent.h"
+#include "chroma/shared/events/MouseEvent.h"
+#include "chroma/shared/packet/InputMessage.h"
 
-#include <flatbuffers/flatbuffer_builder.h>
-#include <flatbuffers/verifier.h>
-#include <flatbuffers/buffer.h>
-#include <unordered_map>
-#include <uuid_v4.h>
-#include <raylib.h>
 #include <cstddef>
 #include <cstdint>
+#include <flatbuffers/buffer.h>
+#include <flatbuffers/flatbuffer_builder.h>
+#include <flatbuffers/verifier.h>
 #include <memory>
+#include <raylib.h>
+#include <unordered_map>
+#include <uuid_v4.h>
 #include <vector>
 
 namespace chroma::shared::packet {
 
-std::vector<uint8_t> PacketHandler::GameObjectsToFlatBuffer(
-  flatbuffers::FlatBufferBuilder &builder,
+std::vector<uint8_t> PacketHandler::GameObjectsToFlatBuffer(flatbuffers::FlatBufferBuilder &builder,
   const std::vector<flatbuffers::Offset<Game::EntityState>> &entities,
   const UUIDv4::UUID &player_id,
   uint64_t time_lapse,
@@ -42,8 +41,9 @@ std::vector<uint8_t> PacketHandler::GameObjectsToFlatBuffer(
   return { buf.begin(), buf.end() };
 }
 
-std::vector<flatbuffers::Offset<Game::EntityState>> PacketHandler::GameObjectsToFlatBufferEntities(flatbuffers::FlatBufferBuilder &builder,
-   const std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>> &objects)
+std::vector<flatbuffers::Offset<Game::EntityState>> PacketHandler::GameObjectsToFlatBufferEntities(
+  flatbuffers::FlatBufferBuilder &builder,
+  const std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>> &objects)
 {
   std::vector<flatbuffers::Offset<Game::EntityState>> fb_entities;
 
@@ -66,7 +66,7 @@ std::vector<flatbuffers::Offset<Game::EntityState>> PacketHandler::GameObjectsTo
       components.push_back(Game::CreateComponent(builder, Game::ComponentUnion::Velocity, fb_vel.Union()));
     }
 
-    if(color) {
+    if (color) {
       auto fb_color = Game::CreateColor(builder,
         static_cast<int32_t>(color->GetRed() * 255.0F),
         static_cast<int32_t>(color->GetGreen() * 255.0F),
@@ -186,8 +186,7 @@ void PacketHandler::ComponentToColor(const Game::Component *component,
   if (fb_color != nullptr) {
     auto color = game_object->GetComponent<chroma::shared::core::component::Color>();
     if (color) {
-      color->SetColor(
-        static_cast<float>(fb_color->r()) / 255.0F,
+      color->SetColor(static_cast<float>(fb_color->r()) / 255.0F,
         static_cast<float>(fb_color->g()) / 255.0F,
         static_cast<float>(fb_color->b()) / 255.0F,
         static_cast<float>(fb_color->a()) / 255.0F);

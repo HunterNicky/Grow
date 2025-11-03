@@ -25,18 +25,16 @@ GameState::GameState() : State("GameState"), network_mediator_(nullptr)
 }
 
 GameState::GameState(std::shared_ptr<GameNetworkMediator> network_mediator)
-  : State("GameState"),
-    network_mediator_(std::move(network_mediator))
+  : State("GameState"), network_mediator_(std::move(network_mediator))
 {
   player_id_ = UUIDv4::UUID{};
-  game_objects_ = std::make_shared<std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>>>();
+  game_objects_ =
+    std::make_shared<std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>>>();
   network_mediator_->SetGameObjects(game_objects_);
 }
 
 GameState::GameState(std::shared_ptr<chroma::shared::event::EventDispatcher> event_dispatcher)
-: State("GameState"), 
-event_dispatcher_(std::move(event_dispatcher)),
-network_mediator_(nullptr)
+  : State("GameState"), event_dispatcher_(std::move(event_dispatcher)), network_mediator_(nullptr)
 {
   player_id_ = UUIDv4::UUID{};
 }
@@ -56,11 +54,8 @@ void GameState::OnRender()
 void GameState::OnUpdate(float delta_time)
 {
   if (!IsActive()) { return; }
- 
-  if(network_mediator_)
-  {
-    network_mediator_->UpdateInterpolation(static_cast<uint64_t>(delta_time * 1000));
-  }
+
+  if (network_mediator_) { network_mediator_->UpdateInterpolation(static_cast<uint64_t>(delta_time * 1000)); }
 
   for (const auto &[uuid, obj] : *game_objects_) {
     if (obj && obj->IsActive()) { obj->OnUpdate(delta_time); }
@@ -70,10 +65,12 @@ void GameState::OnUpdate(float delta_time)
 void GameState::SetGameObjects(
   const std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>> &game_objects)
 {
-  game_objects_ = std::make_shared<std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>>>(game_objects);
+  game_objects_ =
+    std::make_shared<std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>>>(game_objects);
 }
 
-std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>>> &GameState::GetGameObjects()
+std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>>> &
+  GameState::GetGameObjects()
 {
   return game_objects_;
 }
@@ -88,9 +85,7 @@ void GameState::OnEvent(shared::event::Event &event)
     player->HandleEvent(event);
   }
 
-  if(network_mediator_) {
-    network_mediator_->AddInputEvent(event);
-  }
+  if (network_mediator_) { network_mediator_->AddInputEvent(event); }
 }
 
 void GameState::SetPlayerId(const UUIDv4::UUID &player_id) { player_id_ = player_id; }
