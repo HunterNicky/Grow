@@ -32,7 +32,7 @@ public:
   [[nodiscard]] bool IsRunning() const { return is_running_; }
   void SetRunning(bool running) { is_running_ = running; }
 
-  void BroadcastGameObjectState() const;
+  void BroadcastGameObjectState(uint64_t delta_time) const;
 
   void Run();
 

@@ -83,7 +83,7 @@ int Server::Start()
     if (tick_counter_ >= TICKS) {
       last_tick = now;
       tick_counter_ = 0;
-      BroadcastGameObjectState();
+      BroadcastGameObjectState(elapsed);
     }
 
     world_simulation_.Update(static_cast<float>(elapsed) / 10000.0F);
@@ -155,17 +155,17 @@ bool Server::InitServer(int port, int max_clients)
 }
 
 
-void Server::BroadcastGameObjectState() const
+void Server::BroadcastGameObjectState(uint64_t delta_time) const
 {
   if (!server_) { return; }
 
-  flatbuffers::FlatBufferBuilder builder(1024);
-
-  std::vector<flatbuffers::Offset<Game::EntityState>> game_entities = world_simulation_.GetEntitiesFlatBuffer(builder);
-
+  
   for (const auto &[peer, player_id] : connected_players_) {
+    flatbuffers::FlatBufferBuilder builder(1024);
+    std::vector<flatbuffers::Offset<Game::EntityState>> game_entities = world_simulation_.GetEntitiesFlatBuffer(builder);
+
     auto game_state = chroma::shared::packet::PacketHandler::GameObjectsToFlatBuffer(
-      builder, game_entities, player_id, 0, peer_last_processed_input_.at(peer));
+      builder, game_entities, player_id, delta_time, peer_last_processed_input_.at(peer));
 
     ENetPacket *packet = enet_packet_create(game_state.data(), game_state.size(), ENET_PACKET_FLAG_RELIABLE);
 

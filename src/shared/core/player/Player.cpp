@@ -4,6 +4,7 @@
 #include "chroma/shared/core/components/Movement.h"
 #include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/core/components/Transform.h"
+#include "chroma/shared/core/components/Color.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/InputState.h"
 #include "chroma/shared/events/KeyEvent.h"
@@ -11,6 +12,7 @@
 #include <cmath>
 #include <memory>
 #include <raylib.h>
+#include <random>
 
 namespace chroma::shared::core::player {
 Player::Player() { Type_ = GameObjectType::PLAYER; }
@@ -22,7 +24,21 @@ void Player::InitComponents()
   AttachComponent(speed_component);
   AttachComponent(movement_component);
   transform_->SetScale({ 50.0F, 50.0F });
+  auto color_component = std::make_shared<component::Color>();
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_real_distribution<float> dist(0.0F, 1.0F);
+
+  color_component->SetColor(
+      dist(gen),
+      dist(gen),
+      dist(gen),
+      1.0F
+  );
+
+  AttachComponent(color_component);
   AttachComponent(transform_);
+
 }
 
 Player::~Player() = default;
@@ -58,7 +74,22 @@ void Player::OnRender()
   auto transform = GetComponent<component::Transform>();
   if (!transform) { return; }
 
-  DrawRectangleV(transform->GetPosition(), transform->GetScale(), BLUE);
+  auto color_component = GetComponent<component::Color>();
+
+  if (!color_component) { return; }
+
+  Color color = {
+      static_cast<uint8_t>(color_component->GetRed() * 255.0F),
+      static_cast<uint8_t>(color_component->GetGreen() * 255.0F),
+      static_cast<uint8_t>(color_component->GetBlue() * 255.0F),
+      static_cast<uint8_t>(color_component->GetAlpha() * 255.0F)
+  };
+  DrawRectangleV(transform->GetPosition(), transform->GetScale(), color);
+  
+  DrawRectangleLinesEx(
+      { transform->GetPosition().x, transform->GetPosition().y, transform->GetScale().x, transform->GetScale().y },
+      2.0F,
+      BLACK);
 }
 
 void Player::HandleEvent(const shared::event::Event &event)
@@ -85,6 +116,11 @@ void Player::HandleEvent(const shared::event::Event &event)
   if (input_state_.IsKeyPressed(KEY_D)) { direction.x += 1.0F; }
 
   movement->SetDirection(direction);
+}
+
+std::shared_ptr<GameObject> Player::Clone()
+{
+  return std::make_shared<Player>(*this);
 }
 
 }// namespace chroma::shared::core::player

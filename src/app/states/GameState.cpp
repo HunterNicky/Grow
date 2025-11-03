@@ -21,7 +21,7 @@ GameState::GameState() : State("GameState"), network_mediator_(nullptr)
   auto player = std::make_shared<chroma::shared::core::player::Player>();
   SetPlayerId(player->GetId());
   player->InitComponents();
-  game_objects_.emplace(player->GetId(), player);
+  game_objects_->emplace(player->GetId(), player);
 }
 
 GameState::GameState(std::shared_ptr<GameNetworkMediator> network_mediator)
@@ -29,6 +29,8 @@ GameState::GameState(std::shared_ptr<GameNetworkMediator> network_mediator)
     network_mediator_(std::move(network_mediator))
 {
   player_id_ = UUIDv4::UUID{};
+  game_objects_ = std::make_shared<std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>>>();
+  network_mediator_->SetGameObjects(game_objects_);
 }
 
 GameState::GameState(std::shared_ptr<chroma::shared::event::EventDispatcher> event_dispatcher)
@@ -39,14 +41,14 @@ network_mediator_(nullptr)
   player_id_ = UUIDv4::UUID{};
 }
 
-GameState::~GameState() { game_objects_.clear(); }
+GameState::~GameState() { game_objects_->clear(); }
 
 void GameState::OnRender()
 {
 
-  if (!IsActive() || game_objects_.empty()) { return; }
+  if (!IsActive() || game_objects_->empty()) { return; }
 
-  for (const auto &[uuid, obj] : game_objects_) {
+  for (const auto &[uuid, obj] : *game_objects_) {
     if (obj && obj->IsActive()) { obj->OnRender(); }
   }
 }
@@ -54,8 +56,13 @@ void GameState::OnRender()
 void GameState::OnUpdate(float delta_time)
 {
   if (!IsActive()) { return; }
-  
-  for (const auto &[uuid, obj] : game_objects_) {
+ 
+  if(network_mediator_)
+  {
+    network_mediator_->UpdateInterpolation(static_cast<uint64_t>(delta_time * 1000));
+  }
+
+  for (const auto &[uuid, obj] : *game_objects_) {
     if (obj && obj->IsActive()) { obj->OnUpdate(delta_time); }
   }
 }
@@ -63,11 +70,10 @@ void GameState::OnUpdate(float delta_time)
 void GameState::SetGameObjects(
   const std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>> &game_objects)
 {
-  game_objects_ = game_objects;
+  game_objects_ = std::make_shared<std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>>>(game_objects);
 }
 
-[[nodiscard]] const std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>> &
-  GameState::GetGameObjects() const
+std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>>> &GameState::GetGameObjects()
 {
   return game_objects_;
 }
@@ -76,8 +82,8 @@ void GameState::OnEvent(shared::event::Event &event)
 {
   if (player_id_ == UUIDv4::UUID{}) { return; }
 
-  auto it = game_objects_.find(player_id_);
-  if (it != game_objects_.end()) {
+  auto it = game_objects_->find(player_id_);
+  if (it != game_objects_->end()) {
     auto player = std::dynamic_pointer_cast<chroma::shared::core::player::Player>(it->second);
     player->HandleEvent(event);
   }
@@ -97,8 +103,8 @@ void GameState::SetEventDispatcher(const std::shared_ptr<chroma::shared::event::
 
 std::shared_ptr<chroma::shared::core::player::Player> GameState::GetPlayer()
 {
-  auto it = game_objects_.find(player_id_);
-  if (it != game_objects_.end()) {
+  auto it = game_objects_->find(player_id_);
+  if (it != game_objects_->end()) {
     return std::dynamic_pointer_cast<chroma::shared::core::player::Player>(it->second);
   }
   return nullptr;

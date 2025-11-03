@@ -1,3 +1,4 @@
+#include "chroma/shared/core/components/Color.h"
 #include "chroma/shared/core/components/Movement.h"
 #include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/packet/PacketHandler.h"
@@ -49,6 +50,7 @@ std::vector<flatbuffers::Offset<Game::EntityState>> PacketHandler::GameObjectsTo
   for (const auto &[uuid, object] : objects) {
     auto pos = object->GetComponent<chroma::shared::core::component::Transform>();
     auto vel = object->GetComponent<chroma::shared::core::component::Speed>();
+    auto color = object->GetComponent<chroma::shared::core::component::Color>();
 
     std::vector<flatbuffers::Offset<Game::Component>> components;
 
@@ -62,6 +64,15 @@ std::vector<flatbuffers::Offset<Game::EntityState>> PacketHandler::GameObjectsTo
       auto vec2 = Game::CreateVec2(builder, vel->GetSpeed().x, vel->GetSpeed().y);
       auto fb_vel = Game::CreateVelocity(builder, vec2);
       components.push_back(Game::CreateComponent(builder, Game::ComponentUnion::Velocity, fb_vel.Union()));
+    }
+
+    if(color) {
+      auto fb_color = Game::CreateColor(builder,
+        static_cast<int32_t>(color->GetRed() * 255.0F),
+        static_cast<int32_t>(color->GetGreen() * 255.0F),
+        static_cast<int32_t>(color->GetBlue() * 255.0F),
+        static_cast<int32_t>(color->GetAlpha() * 255.0F));
+      components.push_back(Game::CreateComponent(builder, Game::ComponentUnion::Color, fb_color.Union()));
     }
 
     auto fb_id = builder.CreateString(object->GetId().str());
@@ -137,6 +148,11 @@ void PacketHandler::UpdateGameObjectWithEntityState(const Game::EntityState *ent
           break;
         }
 
+        case Game::ComponentUnion::Color: {
+          ComponentToColor(component, game_object);
+          break;
+        }
+
         default:
           break;
         }
@@ -159,6 +175,23 @@ void PacketHandler::ComponentToSpeed(const Game::Component *component,
     if (speed) {
       speed->SetSpeed(Vector2{ vel_vec->x(), vel_vec->y() });
       game_object->AttachComponent(speed);
+    }
+  }
+}
+
+void PacketHandler::ComponentToColor(const Game::Component *component,
+  std::shared_ptr<chroma::shared::core::GameObject> &game_object)
+{
+  const auto *fb_color = component->type_as_Color();
+  if (fb_color != nullptr) {
+    auto color = game_object->GetComponent<chroma::shared::core::component::Color>();
+    if (color) {
+      color->SetColor(
+        static_cast<float>(fb_color->r()) / 255.0F,
+        static_cast<float>(fb_color->g()) / 255.0F,
+        static_cast<float>(fb_color->b()) / 255.0F,
+        static_cast<float>(fb_color->a()) / 255.0F);
+      game_object->AttachComponent(color);
     }
   }
 }
@@ -318,6 +351,20 @@ uint32_t PacketHandler::FlatBufferInputMessageGetSequenceNumber(const uint8_t *d
   if (input_msg == nullptr) { return 0; }
 
   return input_msg->seq();
+}
+
+uint64_t PacketHandler::FlatBufferSnapshotGetTimeLapse(const uint8_t *data, std::size_t size)
+{
+  flatbuffers::Verifier verifier(data, size);
+  if (!Game::VerifyEnvelopeBuffer(verifier)) { return 0; }
+
+  const auto *envelope = Game::GetEnvelope(data);
+  if (envelope->type() != Game::MsgType::SNAPSHOT) { return 0; }
+
+  const auto *snapshot = envelope->msg_as<Game::Snapshot>();
+  if (snapshot == nullptr) { return 0; }
+
+  return snapshot->server_time();
 }
 
 }// namespace chroma::shared::packet
