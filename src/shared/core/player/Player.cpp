@@ -9,8 +9,8 @@
 #include "chroma/shared/events/InputState.h"
 #include "chroma/shared/events/KeyEvent.h"
 
-#include <cstdint>
 #include <cmath>
+#include <cstdint>
 #include <memory>
 #include <random>
 #include <raylib.h>
@@ -73,12 +73,10 @@ void Player::OnRender()
 
   if (!color_component) { return; }
 
-  Color color = {
-      static_cast<uint8_t>(color_component->GetRed() * 255.0F),
-      static_cast<uint8_t>(color_component->GetGreen() * 255.0F),
-      static_cast<uint8_t>(color_component->GetBlue() * 255.0F),
-      static_cast<uint8_t>(color_component->GetAlpha() * 255.0F)
-  };
+  Color color = { static_cast<uint8_t>(color_component->GetRed() * 255.0F),
+    static_cast<uint8_t>(color_component->GetGreen() * 255.0F),
+    static_cast<uint8_t>(color_component->GetBlue() * 255.0F),
+    static_cast<uint8_t>(color_component->GetAlpha() * 255.0F) };
   DrawRectangleV(transform->GetPosition(), transform->GetScale(), color);
 
   DrawRectangleLinesEx(

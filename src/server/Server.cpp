@@ -1,15 +1,15 @@
 #include "chroma/server/Server.h"
+#include "GameObject_generated.h"
 #include "chroma/shared/packet/InputMessage.h"
 #include "chroma/shared/packet/PacketHandler.h"
-#include "GameObject_generated.h"
 
-#include <flatbuffers/flatbuffers.h>
 #include <chrono>
 #include <cstddef>
+#include <cstdint>
 #include <enet.h>
+#include <flatbuffers/flatbuffers.h>
 #include <memory>
 #include <vector>
-#include <cstdint>
 
 namespace chroma::server {
 
@@ -117,7 +117,8 @@ void Server::ConnectClient(const ENetEvent &event)
   peer_last_processed_input_.emplace(event.peer, 0);
 
   flatbuffers::FlatBufferBuilder builder(1024);
-  const std::vector<flatbuffers::Offset<Game::EntityState>> game_entities = world_simulation_.GetEntitiesFlatBuffer(builder);
+  const std::vector<flatbuffers::Offset<Game::EntityState>> game_entities =
+    world_simulation_.GetEntitiesFlatBuffer(builder);
 
   auto game_state =
     chroma::shared::packet::PacketHandler::GameObjectsToFlatBuffer(builder, game_entities, player->GetId(), 0, 0);
@@ -167,7 +168,8 @@ void Server::BroadcastGameObjectState(uint64_t delta_time) const
 
   for (const auto &[peer, player_id] : connected_players_) {
     flatbuffers::FlatBufferBuilder builder(1024);
-    const std::vector<flatbuffers::Offset<Game::EntityState>> game_entities = world_simulation_.GetEntitiesFlatBuffer(builder);
+    const std::vector<flatbuffers::Offset<Game::EntityState>> game_entities =
+      world_simulation_.GetEntitiesFlatBuffer(builder);
 
     auto game_state = chroma::shared::packet::PacketHandler::GameObjectsToFlatBuffer(
       builder, game_entities, player_id, delta_time, peer_last_processed_input_.at(peer));
