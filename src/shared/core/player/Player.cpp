@@ -9,6 +9,7 @@
 #include "chroma/shared/events/InputState.h"
 #include "chroma/shared/events/KeyEvent.h"
 
+#include <cstdint>
 #include <cmath>
 #include <memory>
 #include <raylib.h>
@@ -24,7 +25,7 @@ void Player::InitComponents()
   AttachComponent(speed_component);
   AttachComponent(movement_component);
   transform_->SetScale({ 50.0F, 50.0F });
-  auto color_component = std::make_shared<component::Color>();
+  const auto color_component = std::make_shared<component::Color>();
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<float> dist(0.0F, 1.0F);
@@ -34,7 +35,7 @@ void Player::InitComponents()
       dist(gen),
       dist(gen),
       1.0F
-  );
+  );  
 
   AttachComponent(color_component);
   AttachComponent(transform_);
@@ -74,11 +75,11 @@ void Player::OnRender()
   auto transform = GetComponent<component::Transform>();
   if (!transform) { return; }
 
-  auto color_component = GetComponent<component::Color>();
+  const auto color_component = GetComponent<component::Color>();
 
   if (!color_component) { return; }
 
-  Color color = {
+  const Color color = {
       static_cast<uint8_t>(color_component->GetRed() * 255.0F),
       static_cast<uint8_t>(color_component->GetGreen() * 255.0F),
       static_cast<uint8_t>(color_component->GetBlue() * 255.0F),
