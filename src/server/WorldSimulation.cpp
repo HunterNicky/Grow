@@ -5,8 +5,8 @@
 #include "chroma/shared/packet/PacketHandler.h"
 
 #include <GameObject_generated.h>
-#include <flatbuffers/flatbuffer_builder.h>
 #include <flatbuffers/buffer.h>
+#include <flatbuffers/flatbuffer_builder.h>
 #include <memory>
 #include <uuid_v4.h>
 #include <vector>
