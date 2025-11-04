@@ -31,11 +31,7 @@ void Player::InitComponents()
   std::uniform_int_distribution<int> dist(0, 255);
 
   color_component->SetColoring(
-      static_cast<uint8_t>(dist(gen)),
-      static_cast<uint8_t>(dist(gen)),
-      static_cast<uint8_t>(dist(gen)),
-      255
-  );
+    static_cast<uint8_t>(dist(gen)), static_cast<uint8_t>(dist(gen)), static_cast<uint8_t>(dist(gen)), 255);
 
   AttachComponent(color_component);
   AttachComponent(transform_);
