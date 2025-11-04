@@ -10,6 +10,8 @@ namespace chroma::shared::core::component {
 void AudioListener::Update(const float delta_time)
 {
   (void)delta_time;
+  if (!IsAutonomousProxy()) { return; }
+
   const auto obj = GetGameObject();
   if (!obj) { return; }
   const auto transform = obj->GetComponent<Transform>();

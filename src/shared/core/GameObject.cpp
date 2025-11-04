@@ -10,12 +10,13 @@
 namespace chroma::shared::core {
 
 GameObject::GameObject()
-  : active_(true), id_(utils::UUID::Generate()), layer_(0), Type_(GameObjectType::NONE),
+  : active_(true), id_(utils::UUID::Generate()), layer_(0), Type_(GameObjectType::NONE), net_role_(NetRole::ROLE_None),
     transform_(std::make_shared<component::Transform>())
 {}
 
 GameObject::GameObject(const UUIDv4::UUID &id, bool active, uint32_t layer, GameObjectType tag)
-  : active_(active), id_(id), layer_(layer), Type_(tag), transform_(std::make_shared<component::Transform>())
+  : active_(active), id_(id), layer_(layer), Type_(tag), net_role_(NetRole::ROLE_None),
+    transform_(std::make_shared<component::Transform>())
 {
   AttachComponent(transform_);
 }
@@ -30,6 +31,8 @@ void GameObject::SetTag(const GameObjectType tag) { Type_ = tag; }
 
 void GameObject::SetId(const UUIDv4::UUID &id_obj) { id_ = id_obj; }
 
+void GameObject::SetNetRole(const NetRole role) { net_role_ = role; }
+
 const UUIDv4::UUID &GameObject::GetId() const { return id_; }
 
 bool GameObject::IsActive() const { return active_; }
@@ -37,6 +40,14 @@ bool GameObject::IsActive() const { return active_; }
 uint32_t GameObject::GetLayer() const { return layer_; }
 
 GameObjectType GameObject::GetTag() const { return Type_; }
+
+NetRole GameObject::GetNetRole() const { return net_role_; }
+
+bool GameObject::HasAuthority() const { return net_role_ == NetRole::ROLE_Authority; }
+
+bool GameObject::IsAutonomousProxy() const { return net_role_ == NetRole::ROLE_AutonomousProxy; }
+
+bool GameObject::IsSimulatedProxy() const { return net_role_ == NetRole::ROLE_SimulatedProxy; }
 
 void GameObject::AttachComponent(const std::shared_ptr<component::Component> &component)
 {

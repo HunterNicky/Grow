@@ -1,9 +1,9 @@
 #include "chroma/shared/core/player/Player.h"
 
-#include "chroma/shared/core/GameObject.h"
-#include "chroma/shared/core/components/Camera.h"
-#include "chroma/shared/core/components/AudioListener.h"
 #include "chroma/shared/audio/AudioBridge.h"
+#include "chroma/shared/core/GameObject.h"
+#include "chroma/shared/core/components/AudioListener.h"
+#include "chroma/shared/core/components/Camera.h"
 #include "chroma/shared/core/components/Coloring.h"
 #include "chroma/shared/core/components/Movement.h"
 #include "chroma/shared/core/components/Speed.h"
@@ -126,11 +126,14 @@ void Player::OnUpdate(float delta_time)
 {
   const auto transform = GetComponent<component::Transform>();
   const auto speed = GetComponent<component::Speed>();
-  const auto cam = GetComponent<component::CameraComponent>();
-  if (!transform || !speed || !cam) { return; }
+  if (!transform || !speed) { return; }
 
   const auto movement = GetComponent<component::Movement>();
   if (!movement) { return; }
+
+  const bool is_authority = HasAuthority();
+  const bool is_autonomous = IsAutonomousProxy();
+  const bool should_simulate = (is_authority || is_autonomous);
 
   Vector2 dir = movement->GetDirection();
   const float magnitude = Vector2Length(dir);
@@ -138,18 +141,23 @@ void Player::OnUpdate(float delta_time)
   if (magnitude > 0.0F) {
     dir = Vector2Normalize(dir);
     movement->SetDirection(dir);
-    Vector2 pos = transform->GetPosition();
-    pos.x += dir.x * speed->GetSpeed().x * delta_time;
-    pos.y += dir.y * speed->GetSpeed().y * delta_time;
-    transform->SetPosition(pos);
 
-    step_timer_ += delta_time;
-    constexpr float step_interval = 3.5F;
-    if (step_timer_ >= step_interval) {
-      step_timer_ = 0.0F;
-      if (const auto ab = audio::GetAudioBridge()) {
-        const float pitch = 0.95F + (static_cast<float>(GetRandomValue(0, 10)) / 100.0F);
-        ab->PlaySound("step", 0.6F, pitch);
+    if (should_simulate) {
+      Vector2 pos = transform->GetPosition();
+      pos.x += dir.x * speed->GetSpeed().x * delta_time;
+      pos.y += dir.y * speed->GetSpeed().y * delta_time;
+      transform->SetPosition(pos);
+
+      if (is_autonomous) {
+        step_timer_ += delta_time;
+        constexpr float step_interval = 3.5F;
+        if (step_timer_ >= step_interval) {
+          step_timer_ = 0.0F;
+          if (const auto ab = audio::GetAudioBridge()) {
+            const float pitch = 0.95F + (static_cast<float>(GetRandomValue(0, 10)) / 100.0F);
+            ab->PlaySound("step", 0.6F, pitch);
+          }
+        }
       }
     }
     was_moving_ = true;
@@ -216,9 +224,11 @@ void Player::OnRender()
 
 void Player::HandleEvent(const event::Event &event)
 {
+  if (!HasAuthority() && !IsAutonomousProxy()) { return; }
+
   if (event.GetType() != event::Event::KeyEvent) { return; }
 
-  const auto &key_event = dynamic_cast<const event::KeyEvent &>(event);
+  const auto &key_event = static_cast<const event::KeyEvent &>(event);
   const auto movement = GetComponent<component::Movement>();
   if (!movement) { return; }
 

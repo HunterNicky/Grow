@@ -17,6 +17,7 @@
 #include <flatbuffers/verifier.h>
 #include <memory>
 #include <raylib.h>
+#include <string>
 #include <unordered_map>
 #include <uuid_v4.h>
 #include <vector>
@@ -48,6 +49,8 @@ std::vector<flatbuffers::Offset<Game::EntityState>> PacketHandler::GameObjectsTo
   std::vector<flatbuffers::Offset<Game::EntityState>> fb_entities;
 
   for (const auto &[uuid, object] : objects) {
+    if (!object || !object->HasAuthority()) { continue; }
+
     auto pos = object->GetComponent<core::component::Transform>();
     auto vel = object->GetComponent<core::component::Speed>();
     auto mov = object->GetComponent<core::component::Movement>();
@@ -115,27 +118,44 @@ void PacketHandler::FlatBufferToGameObject(const uint8_t *data,
   const auto *snapshot = envelope->msg_as<Game::Snapshot>();
   if (snapshot == nullptr) { return; }
 
+  const std::string local_player_id_str = snapshot->player_id()->str();
+
   for (const auto &entity_state : *snapshot->entities()) {
-    auto it = game_objects.find(UUIDv4::UUID(entity_state->id()->str()));
+  const UUIDv4::UUID entity_id(entity_state->id()->str());
+  const bool is_local_player = (entity_state->id() && entity_state->id()->str() == local_player_id_str);
+
+    std::shared_ptr<core::GameObject> game_object = nullptr;
+    auto it = game_objects.find(entity_id);
 
     if (it != game_objects.end()) {
-      UpdateGameObjectWithEntityState(entity_state, it->second);
+      game_object = it->second;
     } else {
 
-      std::shared_ptr<core::GameObject> game_object = nullptr;
       switch (entity_state->type()) {
       case Game::GameObjectType::PLAYER: {
-        const std::shared_ptr<core::player::Player> player =
-          std::make_shared<core::player::Player>();
+        const auto player = std::make_shared<core::player::Player>();
+  player->SetNetRole(is_local_player ? core::NetRole::ROLE_AutonomousProxy : core::NetRole::ROLE_SimulatedProxy);
         player->InitComponents();
-        player->SetId(UUIDv4::UUID(entity_state->id()->str()));
+        player->SetId(entity_id);
         game_object = player;
         game_objects.emplace(player->GetId(), player);
         break;
       }
+      default:
+        break;
       }
-      UpdateGameObjectWithEntityState(entity_state, game_object);
     }
+
+    if (!game_object) { continue; }
+
+    if (entity_state->type() == Game::GameObjectType::PLAYER) {
+      const auto player = std::static_pointer_cast<core::player::Player>(game_object);
+      if (player) {
+        player->SetNetRole(is_local_player ? core::NetRole::ROLE_AutonomousProxy : core::NetRole::ROLE_SimulatedProxy);
+      }
+    }
+
+    UpdateGameObjectWithEntityState(entity_state, game_object);
   }
 }
 

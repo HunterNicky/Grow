@@ -63,13 +63,22 @@ void InterpolateSystem::Update(uint64_t delta_time)
   alpha = std::clamp(alpha, 0.0F, 1.0F);
 
   for (auto &[id, target_obj] : target_game_objects_) {
+    if (!target_obj) { continue; }
+
+    if (id == player_id_) { continue; }
+
     auto past_it = past_game_objects_.find(id);
-    if (past_it != past_game_objects_.end()) {
+    if (past_it != past_game_objects_.end() && past_it->second) {
       auto interpolated = target_obj->Clone();
+      if (!interpolated) { continue; }
+      interpolated->SetNetRole(target_obj->GetNetRole());
       InterpolatePosition(past_it->second, target_obj, interpolated, alpha);
       (*game_objects_)[id] = interpolated;
     } else {
-      (*game_objects_)[id] = target_obj;
+      auto clone = target_obj->Clone();
+      if (!clone) { continue; }
+      clone->SetNetRole(target_obj->GetNetRole());
+      (*game_objects_)[id] = clone;
     }
   }
 }

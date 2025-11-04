@@ -23,7 +23,9 @@ WorldSimulation::~WorldSimulation() { game_objects_.clear(); }
 
 void WorldSimulation::Update(const float delta_time) const
 {
-  for (const auto &[id, obj] : game_objects_) { obj->OnUpdate(delta_time); }
+  for (const auto &[id, obj] : game_objects_) {
+    if (obj && obj->HasAuthority()) { obj->OnUpdate(delta_time); }
+  }
 }
 
 void WorldSimulation::OnReceivedInputMessage(const std::shared_ptr<chroma::shared::packet::InputMessage> &input_message,
@@ -36,6 +38,7 @@ void WorldSimulation::OnReceivedInputMessage(const std::shared_ptr<chroma::share
 std::shared_ptr<chroma::shared::core::player::Player> WorldSimulation::CreatePlayer()
 {
   auto player = std::make_shared<chroma::shared::core::player::Player>();
+  player->SetNetRole(chroma::shared::core::NetRole::ROLE_Authority);
   player->InitComponents();
   game_objects_.emplace(player->GetId(), player);
   return player;
@@ -45,8 +48,8 @@ void WorldSimulation::HandleInput(shared::event::Event &event, const UUIDv4::UUI
 {
   auto it = game_objects_.find(player_id);
   if (it != game_objects_.end()) {
-    auto player = std::dynamic_pointer_cast<chroma::shared::core::player::Player>(it->second);
-    if (player) { player->HandleEvent(event); }
+    auto player = std::static_pointer_cast<chroma::shared::core::player::Player>(it->second);
+    if (player && player->HasAuthority()) { player->HandleEvent(event); }
   }
 }
 

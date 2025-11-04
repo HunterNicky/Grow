@@ -6,6 +6,7 @@
 
 namespace chroma::shared::core {
 class GameObject;
+enum class NetRole : uint8_t;
 }
 
 namespace chroma::shared::core::component {
@@ -52,5 +53,9 @@ protected:
 
   UUIDv4::UUID id_;
   std::weak_ptr<GameObject> game_object_;
+
+  [[nodiscard]] bool HasAuthority() const;
+  [[nodiscard]] bool IsAutonomousProxy() const;
+  [[nodiscard]] bool IsSimulatedProxy() const;
 };
 }// namespace chroma::shared::core::component

@@ -24,6 +24,7 @@ GameState::GameState()
 {
   auto player = std::make_shared<chroma::shared::core::player::Player>();
   SetPlayerId(player->GetId());
+  player->SetNetRole(chroma::shared::core::NetRole::ROLE_AutonomousProxy);
   player->InitComponents();
   player_id_ = player->GetId();
   game_objects_->emplace(player->GetId(), player);
@@ -88,7 +89,7 @@ void GameState::OnEvent(shared::event::Event &event)
 
   auto it = game_objects_->find(player_id_);
   if (it != game_objects_->end()) {
-    auto player = std::dynamic_pointer_cast<chroma::shared::core::player::Player>(it->second);
+    auto player = std::static_pointer_cast<chroma::shared::core::player::Player>(it->second);
     player->HandleEvent(event);
   }
 
@@ -107,7 +108,7 @@ std::shared_ptr<chroma::shared::core::player::Player> GameState::GetPlayer()
 {
   auto it = game_objects_->find(player_id_);
   if (it != game_objects_->end()) {
-    return std::dynamic_pointer_cast<chroma::shared::core::player::Player>(it->second);
+    return std::static_pointer_cast<chroma::shared::core::player::Player>(it->second);
   }
   return nullptr;
 }

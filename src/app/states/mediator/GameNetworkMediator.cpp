@@ -51,7 +51,7 @@ void GameNetworkMediator::OnSnapshotReceived(const std::vector<uint8_t> &data)
 
   if (game_objects->contains(state->GetPlayerId())) {
     auto player =
-      std::dynamic_pointer_cast<chroma::shared::core::player::Player>((*game_objects)[state->GetPlayerId()]);
+      std::static_pointer_cast<chroma::shared::core::player::Player>((*game_objects)[state->GetPlayerId()]);
 
     if (player && predictive_sync_system_) {
 
