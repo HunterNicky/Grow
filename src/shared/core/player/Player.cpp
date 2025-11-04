@@ -10,6 +10,7 @@
 #include "chroma/shared/events/KeyEvent.h"
 
 #include <cmath>
+#include <cstdint>
 #include <memory>
 #include <random>
 #include <raylib.h>
@@ -27,9 +28,14 @@ void Player::InitComponents()
   const auto color_component = std::make_shared<component::Coloring>();
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_int_distribution<uint8_t> dist(0, 255);
+  std::uniform_int_distribution<int> dist(0, 255);
 
-  color_component->SetColoring(dist(gen), dist(gen), dist(gen), 255);
+  color_component->SetColoring(
+      static_cast<uint8_t>(dist(gen)),
+      static_cast<uint8_t>(dist(gen)),
+      static_cast<uint8_t>(dist(gen)),
+      255
+  );
 
   AttachComponent(color_component);
   AttachComponent(transform_);

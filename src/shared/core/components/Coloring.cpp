@@ -1,6 +1,7 @@
 #include "chroma/shared/core/components/Coloring.h"
 #include "chroma/shared/core/components/Component.h"
-#include <sys/types.h>
+
+#include <cstdint>
 
 namespace chroma::shared::core::component {
 
