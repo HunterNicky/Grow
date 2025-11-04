@@ -8,11 +8,11 @@
 #include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/events/KeyEvent.h"
 
+#include <cstdint>
 #include <memory>
 #include <unordered_map>
 #include <utility>
 #include <uuid_v4.h>
-#include <cstdint>
 
 namespace chroma::app::states {
 

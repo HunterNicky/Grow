@@ -1,19 +1,19 @@
 #include <cstdint>
 #include <memory>
+#include <unordered_map>
 #include <uuid_v4.h>
 #include <vector>
-#include <unordered_map>
 
+#include "GameObject_generated.h"
+#include "chroma/app/states/GameState.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
-#include "chroma/app/states/network/PredictiveSyncSystem.h"
 #include "chroma/app/states/network/InterpolateSystem.h"
 #include "chroma/app/states/network/NetworkState.h"
-#include "chroma/shared/packet/PacketHandler.h"
-#include "chroma/shared/core/player/Player.h"
+#include "chroma/app/states/network/PredictiveSyncSystem.h"
 #include "chroma/shared/core/GameObject.h"
-#include "chroma/app/states/GameState.h"
+#include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/events/Event.h"
-#include "GameObject_generated.h"
+#include "chroma/shared/packet/PacketHandler.h"
 
 namespace chroma::app::states {
 GameNetworkMediator::GameNetworkMediator(const std::shared_ptr<GameState> &game,

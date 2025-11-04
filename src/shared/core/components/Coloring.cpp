@@ -4,10 +4,7 @@
 
 namespace chroma::shared::core::component {
 
-Coloring::Coloring(uint8_t r, uint8_t g, uint8_t b, uint8_t a) : color_{ r, g, b, a }
-{
-  type_ = ComponentType::COLOR;
-}
+Coloring::Coloring(uint8_t r, uint8_t g, uint8_t b, uint8_t a) : color_{ r, g, b, a } { type_ = ComponentType::COLOR; }
 
 uint8_t Coloring::GetRed() const { return color_.r; }
 
@@ -25,14 +22,8 @@ void Coloring::SetBlue(uint8_t b) { color_.b = b; }
 
 void Coloring::SetAlpha(uint8_t a) { color_.a = a; }
 
-void Coloring::SetColoring(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
-{
-  color_ = Color{r,g,b, a};
-}
+void Coloring::SetColoring(uint8_t r, uint8_t g, uint8_t b, uint8_t a) { color_ = Color{ r, g, b, a }; }
 
-Color Coloring::GetColor() const
-{
-  return color_;
-}
+Color Coloring::GetColor() const { return color_; }
 
 }// namespace chroma::shared::core::component
