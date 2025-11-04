@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <utility>
 #include <uuid_v4.h>
+#include <cstdint>
 
 namespace chroma::app::states {
 

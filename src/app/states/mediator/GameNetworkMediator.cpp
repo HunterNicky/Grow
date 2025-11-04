@@ -1,14 +1,19 @@
 #include <cstdint>
 #include <memory>
-#include <sys/types.h>
 #include <uuid_v4.h>
 #include <vector>
+#include <unordered_map>
 
-#include "GameObject_generated.h"
-#include "chroma/app/states/GameState.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
+#include "chroma/app/states/network/PredictiveSyncSystem.h"
+#include "chroma/app/states/network/InterpolateSystem.h"
 #include "chroma/app/states/network/NetworkState.h"
 #include "chroma/shared/packet/PacketHandler.h"
+#include "chroma/shared/core/player/Player.h"
+#include "chroma/shared/core/GameObject.h"
+#include "chroma/app/states/GameState.h"
+#include "chroma/shared/events/Event.h"
+#include "GameObject_generated.h"
 
 namespace chroma::app::states {
 GameNetworkMediator::GameNetworkMediator(const std::shared_ptr<GameState> &game,
@@ -41,7 +46,7 @@ void GameNetworkMediator::OnSnapshotReceived(const std::vector<uint8_t> &data)
   auto game_objects = state->GetGameObjects();
   chroma::shared::packet::PacketHandler::FlatBufferToGameObject(data.data(), data.size(), *game_objects);
 
-  uint32_t last_processed_input =
+  const uint32_t last_processed_input =
     shared::packet::PacketHandler::FlatBufferSnapshotGetLastProcessedInputSeq(data.data(), data.size());
 
   if (game_objects->contains(state->GetPlayerId())) {

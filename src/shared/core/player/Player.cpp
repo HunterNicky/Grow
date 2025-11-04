@@ -1,7 +1,7 @@
 #include "chroma/shared/core/player/Player.h"
 
 #include "chroma/shared/core/GameObject.h"
-#include "chroma/shared/core/components/Color.h"
+#include "chroma/shared/core/components/Coloring.h"
 #include "chroma/shared/core/components/Movement.h"
 #include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/core/components/Transform.h"
@@ -10,7 +10,6 @@
 #include "chroma/shared/events/KeyEvent.h"
 
 #include <cmath>
-#include <cstdint>
 #include <memory>
 #include <random>
 #include <raylib.h>
@@ -25,12 +24,12 @@ void Player::InitComponents()
   AttachComponent(speed_component);
   AttachComponent(movement_component);
   transform_->SetScale({ 50.0F, 50.0F });
-  const auto color_component = std::make_shared<component::Color>();
+  const auto color_component = std::make_shared<component::Coloring>();
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<float> dist(0.0F, 1.0F);
+  std::uniform_int_distribution<uint8_t> dist(0, 255);
 
-  color_component->SetColor(dist(gen), dist(gen), dist(gen), 1.0F);
+  color_component->SetColoring(dist(gen), dist(gen), dist(gen), 255);
 
   AttachComponent(color_component);
   AttachComponent(transform_);
@@ -69,14 +68,12 @@ void Player::OnRender()
   auto transform = GetComponent<component::Transform>();
   if (!transform) { return; }
 
-  const auto color_component = GetComponent<component::Color>();
+  const auto color_component = GetComponent<component::Coloring>();
 
   if (!color_component) { return; }
 
-  const Color color = { static_cast<uint8_t>(color_component->GetRed() * 255.0F),
-    static_cast<uint8_t>(color_component->GetGreen() * 255.0F),
-    static_cast<uint8_t>(color_component->GetBlue() * 255.0F),
-    static_cast<uint8_t>(color_component->GetAlpha() * 255.0F) };
+  const Color color = color_component->GetColor();
+
   DrawRectangleV(transform->GetPosition(), transform->GetScale(), color);
 
   DrawRectangleLinesEx(

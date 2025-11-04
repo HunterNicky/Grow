@@ -1,7 +1,7 @@
 #include "chroma/shared/packet/PacketHandler.h"
 #include "GameObject_generated.h"
 #include "chroma/shared/core/GameObject.h"
-#include "chroma/shared/core/components/Color.h"
+#include "chroma/shared/core/components/Coloring.h"
 #include "chroma/shared/core/components/Movement.h"
 #include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/core/player/Player.h"
@@ -50,7 +50,7 @@ std::vector<flatbuffers::Offset<Game::EntityState>> PacketHandler::GameObjectsTo
   for (const auto &[uuid, object] : objects) {
     auto pos = object->GetComponent<chroma::shared::core::component::Transform>();
     auto vel = object->GetComponent<chroma::shared::core::component::Speed>();
-    auto color = object->GetComponent<chroma::shared::core::component::Color>();
+    auto color = object->GetComponent<chroma::shared::core::component::Coloring>();
 
     std::vector<flatbuffers::Offset<Game::Component>> components;
 
@@ -68,10 +68,10 @@ std::vector<flatbuffers::Offset<Game::EntityState>> PacketHandler::GameObjectsTo
 
     if (color) {
       auto fb_color = Game::CreateColor(builder,
-        static_cast<int32_t>(color->GetRed() * 255.0F),
-        static_cast<int32_t>(color->GetGreen() * 255.0F),
-        static_cast<int32_t>(color->GetBlue() * 255.0F),
-        static_cast<int32_t>(color->GetAlpha() * 255.0F));
+        static_cast<int8_t>(color->GetRed()),
+        static_cast<int8_t>(color->GetGreen()),
+        static_cast<int8_t>(color->GetBlue()),
+        static_cast<int8_t>(color->GetAlpha()));
       components.push_back(Game::CreateComponent(builder, Game::ComponentUnion::Color, fb_color.Union()));
     }
 
@@ -184,12 +184,12 @@ void PacketHandler::ComponentToColor(const Game::Component *component,
 {
   const auto *fb_color = component->type_as_Color();
   if (fb_color != nullptr) {
-    auto color = game_object->GetComponent<chroma::shared::core::component::Color>();
+    auto color = game_object->GetComponent<chroma::shared::core::component::Coloring>();
     if (color) {
-      color->SetColor(static_cast<float>(fb_color->r()) / 255.0F,
-        static_cast<float>(fb_color->g()) / 255.0F,
-        static_cast<float>(fb_color->b()) / 255.0F,
-        static_cast<float>(fb_color->a()) / 255.0F);
+      color->SetColoring(fb_color->r(),
+        fb_color->g(),
+        fb_color->b(),
+        fb_color->a());
       game_object->AttachComponent(color);
     }
   }

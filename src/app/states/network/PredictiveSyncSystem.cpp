@@ -1,7 +1,9 @@
 #include "chroma/app/states/network/PredictiveSyncSystem.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/events/Event.h"
+
 #include <cstdint>
+#include <memory>
 
 namespace chroma::app::states::network {
 void PredictiveSyncSystem::ApplyEvents(const std::shared_ptr<chroma::shared::core::player::Player> &player)
