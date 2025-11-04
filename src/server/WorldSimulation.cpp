@@ -6,7 +6,7 @@
 
 #include <GameObject_generated.h>
 #include <flatbuffers/flatbuffer_builder.h>
-#include <flatbuffers/flatbuffers.h>
+#include <flatbuffers/buffer.h>
 #include <memory>
 #include <uuid_v4.h>
 #include <vector>

@@ -7,7 +7,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <enet.h>
-#include <flatbuffers/flatbuffers.h>
+#include <flatbuffers/buffer.h>
+#include <flatbuffers/flatbuffer_builder.h>
 #include <memory>
 #include <vector>
 
