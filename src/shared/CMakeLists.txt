@@ -42,6 +42,17 @@ target_link_libraries(chroma_shared
     chroma::chroma_warnings
 )
 
+if (WIN32)
+  target_compile_definitions(chroma_shared
+    PUBLIC
+      WIN32_LEAN_AND_MEAN
+      NOMINMAX
+      NOGDI
+      NOUSER
+      MMNOSOUND
+  )
+endif ()
+
 if(MSVC)
   target_compile_options(chroma_shared PRIVATE /wd4242 /wd4701 /wd4703 /wd4996 /wd4244)
 endif()
