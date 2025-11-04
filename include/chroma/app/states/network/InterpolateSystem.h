@@ -18,7 +18,8 @@ public:
   InterpolateSystem(InterpolateSystem &&) noexcept = default;
   InterpolateSystem &operator=(InterpolateSystem &&) noexcept = default;
 
-  void Interpolate(const std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>> &new_snapshot,
+  void Interpolate(
+    const std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>> &new_snapshot,
     uint64_t delta_time);
   void Update(uint64_t delta_time);
 

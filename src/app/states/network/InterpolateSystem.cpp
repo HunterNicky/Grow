@@ -40,7 +40,7 @@ void InterpolateSystem::Interpolate(
 void InterpolateSystem::InterpolatePosition(const std::shared_ptr<chroma::shared::core::GameObject> &past_object,
   const std::shared_ptr<chroma::shared::core::GameObject> &target_object,
   std::shared_ptr<chroma::shared::core::GameObject> &out_object,
-  float alpha) const 
+  float alpha) const
 {
   if (out_object->GetId() == player_id_) { return; }
 
