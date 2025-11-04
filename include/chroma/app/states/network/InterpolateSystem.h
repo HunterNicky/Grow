@@ -18,7 +18,7 @@ public:
   InterpolateSystem(InterpolateSystem &&) noexcept = default;
   InterpolateSystem &operator=(InterpolateSystem &&) noexcept = default;
 
-  void Interpolate(std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>> &new_snapshot,
+  void Interpolate(const std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>> &new_snapshot,
     uint64_t delta_time);
   void Update(uint64_t delta_time);
 
@@ -43,7 +43,7 @@ private:
   void InterpolatePosition(const std::shared_ptr<chroma::shared::core::GameObject> &past_object,
     const std::shared_ptr<chroma::shared::core::GameObject> &target_object,
     std::shared_ptr<chroma::shared::core::GameObject> &out_object,
-    float alpha);
+    float alpha) const;
 };
 
 }// namespace chroma::app::states::network

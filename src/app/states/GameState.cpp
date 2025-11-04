@@ -16,28 +16,37 @@
 
 namespace chroma::app::states {
 
-GameState::GameState() : State("GameState"), network_mediator_(nullptr)
+GameState::GameState()
+  : State("GameState"),
+    game_objects_(std::make_shared<std::unordered_map<UUIDv4::UUID,
+        std::shared_ptr<chroma::shared::core::GameObject>>>()),
+    network_mediator_(nullptr),
+    event_dispatcher_(nullptr)
 {
-
   auto player = std::make_shared<chroma::shared::core::player::Player>();
   SetPlayerId(player->GetId());
   player->InitComponents();
+  player_id_ = player->GetId();
   game_objects_->emplace(player->GetId(), player);
 }
 
 GameState::GameState(std::shared_ptr<GameNetworkMediator> network_mediator)
-  : State("GameState"), network_mediator_(std::move(network_mediator))
+  : State("GameState"),
+    game_objects_(std::make_shared<std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>>>()),
+    network_mediator_(std::move(network_mediator)),
+    event_dispatcher_(nullptr)
 {
-  game_objects_ =
-    std::make_shared<std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>>>();
   network_mediator_->SetGameObjects(game_objects_);
 }
 
+
 GameState::GameState(std::shared_ptr<chroma::shared::event::EventDispatcher> event_dispatcher)
-  : State("GameState"), event_dispatcher_(std::move(event_dispatcher)), network_mediator_(nullptr)
-{
-  player_id_ = UUIDv4::UUID{};
-}
+  : State("GameState"),
+    game_objects_(std::make_shared<std::unordered_map<UUIDv4::UUID,
+        std::shared_ptr<chroma::shared::core::GameObject>>>()),
+    network_mediator_(nullptr),
+    event_dispatcher_(std::move(event_dispatcher))
+{}
 
 GameState::~GameState() { game_objects_->clear(); }
 

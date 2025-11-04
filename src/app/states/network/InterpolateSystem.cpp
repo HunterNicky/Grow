@@ -12,7 +12,7 @@ namespace chroma::app::states::network {
 
 
 void InterpolateSystem::Interpolate(
-  std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>> &new_snapshot,
+  const std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>> &new_snapshot,
   uint64_t delta_time)
 {
   if (past_game_objects_.empty()) {
@@ -40,7 +40,7 @@ void InterpolateSystem::Interpolate(
 void InterpolateSystem::InterpolatePosition(const std::shared_ptr<chroma::shared::core::GameObject> &past_object,
   const std::shared_ptr<chroma::shared::core::GameObject> &target_object,
   std::shared_ptr<chroma::shared::core::GameObject> &out_object,
-  float alpha)
+  float alpha) const 
 {
   if (out_object->GetId() == player_id_) { return; }
 
