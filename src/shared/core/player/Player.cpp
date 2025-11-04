@@ -144,7 +144,7 @@ void Player::OnUpdate(float delta_time)
     transform->SetPosition(pos);
 
     step_timer_ += delta_time;
-    constexpr float step_interval = 0.35F;
+    constexpr float step_interval = 3.5F;
     if (step_timer_ >= step_interval) {
       step_timer_ = 0.0F;
       if (const auto ab = audio::GetAudioBridge()) {
@@ -236,5 +236,40 @@ void Player::HandleEvent(const event::Event &event)
 
   movement->SetDirection(direction);
 }
+
+void Player::UpdateAnimationFromDirection(const Vector2 dir)
+{
+  const auto anim = GetComponent<component::SpriteAnimation>();
+  if (!anim) { return; }
+
+  const float magnitude = Vector2Length(dir);
+  if (magnitude <= 0.0F) {
+    switch (last_facing_) {
+    case FacingDir::Up:
+      anim->Play("idle_up", false);
+      break;
+    case FacingDir::Down:
+      anim->Play("idle_down", false);
+      break;
+    case FacingDir::Side:
+      anim->Play("idle_side", false);
+      break;
+    }
+  } else {
+    if (std::fabs(dir.x) > std::fabs(dir.y)) {
+      last_facing_ = FacingDir::Side;
+      last_left_ = (dir.x < 0.0F);
+      anim->Play("walk_side", false);
+    } else if (dir.y < 0.0F) {
+      last_facing_ = FacingDir::Up;
+      anim->Play("walk_up", false);
+    } else {
+      last_facing_ = FacingDir::Down;
+      anim->Play("walk_down", false);
+    }
+  }
+}
+
+std::shared_ptr<GameObject> Player::Clone() { return std::make_shared<Player>(*this); }
 
 }// namespace chroma::shared::core::player

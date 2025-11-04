@@ -98,15 +98,7 @@ std::vector<flatbuffers::Offset<Game::EntityState>> PacketHandler::GameObjectsTo
     fb_entities.push_back(fb_entity);
   }
 
-  auto fb_player_id = builder.CreateString(player_id.str());
-  auto fb_entities_vec = builder.CreateVector(fb_entities);
-  auto snapshot = Game::CreateSnapshot(builder, time_lapse, last_processed_input, fb_player_id, fb_entities_vec);
-  auto envelope = Game::CreateEnvelope(builder, Game::MsgType::SNAPSHOT, Game::MsgUnion::Snapshot, snapshot.Union());
-  builder.Finish(envelope);
-
-  auto buf = builder.Release();
-
-  return { buf.begin(), buf.end() };
+  return fb_entities;
 }
 
 void PacketHandler::FlatBufferToGameObject(const uint8_t *data,
