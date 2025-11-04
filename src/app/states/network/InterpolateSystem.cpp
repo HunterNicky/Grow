@@ -1,9 +1,11 @@
 #include "chroma/app/states/network/InterpolateSystem.h"
+#include "chroma/shared/core/GameObject.h"
+
+#include <unordered_map>
 #include <algorithm>
 #include <cstdint>
 #include <memory>
 #include <raymath.h>
-#include <utility>
 #include <uuid_v4.h>
 
 namespace chroma::app::states::network {
@@ -26,7 +28,7 @@ void InterpolateSystem::Interpolate(
     target_game_objects_ = new_snapshot;
     interp_elapsed_ = 0;
 
-    uint64_t interval = delta_time - time_last_snapshot_;
+    const uint64_t interval = delta_time - time_last_snapshot_;
 
     snapshot_interval_ = interval > 0 ? interval : snapshot_interval_;
     time_last_snapshot_ = delta_time;

@@ -6,7 +6,7 @@
 #include <memory>
 
 namespace chroma::app::states::network {
-void PredictiveSyncSystem::ApplyEvents(const std::shared_ptr<chroma::shared::core::player::Player> &player)
+void PredictiveSyncSystem::ApplyEvents(const std::shared_ptr<chroma::shared::core::player::Player> &player) const
 {
   for (const auto &[seq, event] : input_event_history_) { player->HandleEvent(*event); }
 }

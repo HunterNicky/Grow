@@ -28,7 +28,6 @@ GameState::GameState() : State("GameState"), network_mediator_(nullptr)
 GameState::GameState(std::shared_ptr<GameNetworkMediator> network_mediator)
   : State("GameState"), network_mediator_(std::move(network_mediator))
 {
-  player_id_ = UUIDv4::UUID{};
   game_objects_ =
     std::make_shared<std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>>>();
   network_mediator_->SetGameObjects(game_objects_);

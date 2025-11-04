@@ -59,10 +59,8 @@ void GameNetworkMediator::OnSnapshotReceived(const std::vector<uint8_t> &data)
       predictive_sync_system_->ApplyEvents(player);
     }
   }
-  if (interpolate_system_) {
-    interpolate_system_->Interpolate(
-      *game_objects, shared::packet::PacketHandler::FlatBufferSnapshotGetTimeLapse(data.data(), data.size()));
-  }
+  interpolate_system_->Interpolate(
+    *game_objects, shared::packet::PacketHandler::FlatBufferSnapshotGetTimeLapse(data.data(), data.size()));
 }
 
 void GameNetworkMediator::SendInput(const Game::InputMessage &input) { (void)input; }
