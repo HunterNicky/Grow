@@ -2,6 +2,8 @@
 
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/Camera.h"
+#include "chroma/shared/core/components/AudioListener.h"
+#include "chroma/shared/audio/AudioBridge.h"
 #include "chroma/shared/core/components/Movement.h"
 #include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/core/components/SpriteAnimation.h"
@@ -38,6 +40,9 @@ void Player::InitComponents()
   cam_component->SetSmoothness(2.0F);
   cam_component->SetDeadzone({ .x = 64.0F, .y = 128.0F });
   AttachComponent(cam_component);
+
+  const auto listener_component = std::make_shared<component::AudioListener>();
+  AttachComponent(listener_component);
 
   SetupAnimation(anim_component);
 }
@@ -134,11 +139,26 @@ void Player::OnUpdate(float delta_time)
     pos.x += dir.x * speed->GetSpeed().x * delta_time;
     pos.y += dir.y * speed->GetSpeed().y * delta_time;
     transform->SetPosition(pos);
+
+    step_timer_ += delta_time;
+    constexpr float step_interval = 0.35F;
+    if (step_timer_ >= step_interval) {
+      step_timer_ = 0.0F;
+      if (const auto ab = audio::GetAudioBridge()) {
+        const float pitch = 0.95F + (static_cast<float>(GetRandomValue(0, 10)) / 100.0F);
+        ab->PlaySound("step", 0.6F, pitch);
+      }
+    }
+    was_moving_ = true;
   }
 
   const auto anim = GetComponent<component::SpriteAnimation>();
   if (anim) {
     if (magnitude <= 0.0F) {
+      if (was_moving_) {
+        step_timer_ = 0.0F;
+        was_moving_ = false;
+      }
       switch (last_facing_) {
       case FacingDir::Up:
         anim->Play("idle_up", false);

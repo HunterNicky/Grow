@@ -4,6 +4,7 @@
 
 #include "chroma/app/layers/LayerStack.h"
 #include "chroma/client/render/Renderer.h"
+#include "chroma/client/audio/AudioEngine.h"
 #include "chroma/shared/events/EventCatcher.h"
 #include "chroma/shared/events/EventDispatcher.h"
 
@@ -36,5 +37,6 @@ private:
 
   float delta_time_;
   std::unique_ptr<client::render::Renderer> renderer_;
+  std::unique_ptr<client::audio::AudioEngine> audio_;
 };
 }// namespace chroma::app

@@ -13,9 +13,12 @@
 #include "chroma/app/states/GameState.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
 #include "chroma/app/states/network/NetworkState.h"
+#include "chroma/client/audio/AudioBridgeImpl.h"
+#include "chroma/client/audio/AudioEngine.h"
 #include "chroma/client/render/RenderBridgeImpl.h"
 #include "chroma/client/render/Renderer.h"
 #include "chroma/client/render/Window.h"
+#include "chroma/shared/audio/AudioBridge.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventCatcher.h"
 #include "chroma/shared/events/EventDispatcher.h"
@@ -27,8 +30,16 @@ Application::Application() : layer_stack_(std::make_unique<layer::LayerStack>())
   const client::render::RenderConfig config{};
   auto window = std::make_unique<client::render::Window>(1280, 720, "Chroma");
   renderer_ = std::make_unique<client::render::Renderer>(std::move(window), config);
-  auto bridge = std::make_shared<client::render::RenderBridgeImpl>(renderer_.get());
+  const auto bridge = std::make_shared<client::render::RenderBridgeImpl>(renderer_.get());
   shared::render::SetRenderBridge(bridge);
+
+  audio_ = std::make_unique<client::audio::AudioEngine>();
+  const auto audio_bridge = std::make_shared<client::audio::AudioBridgeImpl>(audio_.get());
+  shared::audio::SetAudioBridge(audio_bridge);
+
+  audio_bridge->LoadSound("step", "assets/sfx/step.wav");
+  audio_bridge->LoadMusic("bgm", "assets/music/06.mp3");
+  audio_bridge->PlayMusic("bgm", true, 0.4F);
 };
 
 void Application::Run()
@@ -40,8 +51,8 @@ void Application::Run()
   auto network_layer = std::make_unique<layer::network::NetworkLayer>();
 
   auto mediator = std::make_shared<states::GameNetworkMediator>();
-  auto game_state = std::make_shared<states::GameState>(mediator);
-  auto network_state = std::make_shared<states::NetworkState>(mediator);
+  const auto game_state = std::make_shared<states::GameState>(mediator);
+  const auto network_state = std::make_shared<states::NetworkState>(mediator);
 
   game_state->SetEventDispatcher(event_dispatcher_);
   network_state->SetEventDispatcher(event_dispatcher_);
@@ -68,6 +79,8 @@ void Application::Run()
     last_time = current_time;
 
     event_catcher_->CatchEvent();
+
+    if (const auto ab = shared::audio::GetAudioBridge()) { ab->Update(); }
 
     layer_stack_->UpdateLayers(delta_time_);
 
