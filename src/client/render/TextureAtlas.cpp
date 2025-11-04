@@ -3,9 +3,10 @@
 #include <algorithm>
 #include <optional>
 #include <raylib.h>
+#define STB_RECT_PACK_IMPLEMENTATION
+#include <stb_rect_pack.h>
 #include <string>
 #include <vector>
-#include <stb_rect_pack.h>
 
 namespace chroma::client::render {
 TextureAtlas::TextureAtlas(const int width, const int height)

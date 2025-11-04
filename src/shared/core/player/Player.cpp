@@ -150,7 +150,7 @@ void Player::OnUpdate(float delta_time)
 
       if (is_autonomous) {
         step_timer_ += delta_time;
-        constexpr float step_interval = 3.5F;
+        constexpr float step_interval = 0.5F;
         if (step_timer_ >= step_interval) {
           step_timer_ = 0.0F;
           if (const auto ab = audio::GetAudioBridge()) {
@@ -228,7 +228,7 @@ void Player::HandleEvent(const event::Event &event)
 
   if (event.GetType() != event::Event::KeyEvent) { return; }
 
-  const auto &key_event = static_cast<const event::KeyEvent &>(event);
+  const auto &key_event = dynamic_cast<const event::KeyEvent &>(event);
   const auto movement = GetComponent<component::Movement>();
   if (!movement) { return; }
 

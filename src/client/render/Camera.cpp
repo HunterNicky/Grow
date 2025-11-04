@@ -32,11 +32,17 @@ void Camera::Update(const float delta_time)
   auto apply_deadzone = [&](Vector2 current_center, Vector2 focus) {
     if (deadzone_half_.x <= 0.0F || deadzone_half_.y <= 0.0F) { return focus; }
     Vector2 desired = current_center;
-    if (focus.x < current_center.x - deadzone_half_.x) { desired.x = focus.x + deadzone_half_.x; }
-    else if (focus.x > current_center.x + deadzone_half_.x) { desired.x = focus.x - deadzone_half_.x; }
+    if (focus.x < current_center.x - deadzone_half_.x) {
+      desired.x = focus.x + deadzone_half_.x;
+    } else if (focus.x > current_center.x + deadzone_half_.x) {
+      desired.x = focus.x - deadzone_half_.x;
+    }
 
-    if (focus.y < current_center.y - deadzone_half_.y) { desired.y = focus.y + deadzone_half_.y; }
-    else if (focus.y > current_center.y + deadzone_half_.y) { desired.y = focus.y - deadzone_half_.y; }
+    if (focus.y < current_center.y - deadzone_half_.y) {
+      desired.y = focus.y + deadzone_half_.y;
+    } else if (focus.y > current_center.y + deadzone_half_.y) {
+      desired.y = focus.y - deadzone_half_.y;
+    }
     return desired;
   };
 

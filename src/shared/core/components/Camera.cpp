@@ -9,16 +9,12 @@ CameraComponent::CameraComponent()
   : mode_(render::CameraMode::FollowSmooth), zoom_(1.0F), smoothness_(5.0F), use_bounds_(false), bounds_{}
 {
   type_ = ComponentType::CAMERA;
-
 }
 
 void CameraComponent::Update(const float delta_time)
 {
-  //if (!IsAutonomousProxy()) { return; }
+  // if (!IsAutonomousProxy()) { return; }
   if (HasAuthority()) { return; }
-  std::cout << "CameraComponent created with ID: " << id_.str() << std::endl;
-  std::cout << "NetRole: " << static_cast<int>(GetGameObject() ? GetGameObject()->GetNetRole() : NetRole::ROLE_None)
-            << std::endl;
 
   const auto bridge = render::GetRenderBridge();
   const auto obj = GetGameObject();
