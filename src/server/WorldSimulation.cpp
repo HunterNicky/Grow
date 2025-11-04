@@ -4,7 +4,9 @@
 #include "chroma/shared/packet/InputMessage.h"
 #include "chroma/shared/packet/PacketHandler.h"
 
-#include <cstdint>
+#include <GameObject_generated.h>
+#include <flatbuffers/buffer.h>
+#include <flatbuffers/flatbuffer_builder.h>
 #include <memory>
 #include <uuid_v4.h>
 #include <vector>
@@ -48,8 +50,9 @@ void WorldSimulation::HandleInput(shared::event::Event &event, const UUIDv4::UUI
   }
 }
 
-std::vector<uint8_t> WorldSimulation::GetGameStateSnapshot(const UUIDv4::UUID &player_id) const
+std::vector<flatbuffers::Offset<Game::EntityState>> WorldSimulation::GetEntitiesFlatBuffer(
+  flatbuffers::FlatBufferBuilder &builder) const
 {
-  return shared::packet::PacketHandler::GameObjectsToFlatBuffer(game_objects_, player_id, 0, 0);
+  return shared::packet::PacketHandler::GameObjectsToFlatBufferEntities(builder, game_objects_);
 }
 }// namespace chroma::server

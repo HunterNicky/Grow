@@ -34,16 +34,16 @@ void Application::Run()
   auto game_state = std::make_shared<states::GameState>(mediator);
   auto network_state = std::make_shared<states::NetworkState>(mediator);
 
-  game_state->SetEventDispatcher(event_dispatcher_);
   network_state->SetEventDispatcher(event_dispatcher_);
+  game_state->SetEventDispatcher(event_dispatcher_);
 
   mediator->SetGameState(game_state);
   mediator->SetNetworkState(network_state);
 
   // auto game_state = std::make_shared<states::GameState>();
 
-  game_layer->PushState(game_state);
   network_layer->PushState(network_state);
+  game_layer->PushState(game_state);
 
   PushLayer(std::move(network_layer));
   PushLayer(std::move(game_layer));

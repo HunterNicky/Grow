@@ -5,7 +5,8 @@
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/packet/InputMessage.h"
 
-#include <cstdint>
+#include <GameObject_generated.h>
+#include <flatbuffers/flatbuffer_builder.h>
 #include <memory>
 #include <unordered_map>
 #include <uuid_v4.h>
@@ -27,7 +28,8 @@ public:
   void Update(const float delta_time) const;
 
   std::shared_ptr<chroma::shared::core::player::Player> CreatePlayer();
-  std::vector<uint8_t> GetGameStateSnapshot(const UUIDv4::UUID &player_id) const;
+  std::vector<flatbuffers::Offset<Game::EntityState>> GetEntitiesFlatBuffer(
+    flatbuffers::FlatBufferBuilder &builder) const;
 
   void OnReceivedInputMessage(const std::shared_ptr<chroma::shared::packet::InputMessage> &input_message,
     const UUIDv4::UUID &player_id);

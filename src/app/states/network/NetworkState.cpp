@@ -178,7 +178,7 @@ void NetworkState::OnEvent(shared::event::Event &event)
 
   auto input_message = std::make_shared<chroma::shared::packet::InputMessage>();
 
-  input_message->SetSeq(seq_num_++);
+  input_message->SetSeq(game_mediator_->GetSeqCounter());
   input_message->SetDeltaTime(0.016F);
   input_message->SetEventType(event.GetType());
   input_message->SetEvent(event);

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstdint>
 #include <enet.h>
 #include <memory>
 
@@ -32,7 +31,7 @@ private:
   std::unique_ptr<ENetPeer, decltype(&enet_peer_reset)> server_peer_;
   ENetAddress server_address_;
   ENetEvent event_;
-  uint32_t seq_num_ = 0;
+
   bool connected_ = false;
 
   std::shared_ptr<chroma::app::states::GameNetworkMediator> game_mediator_;

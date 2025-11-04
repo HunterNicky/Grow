@@ -1,6 +1,7 @@
 #include "chroma/shared/packet/PacketHandler.h"
 #include "GameObject_generated.h"
 #include "chroma/shared/core/GameObject.h"
+#include "chroma/shared/core/components/Coloring.h"
 #include "chroma/shared/core/components/Movement.h"
 #include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/core/player/Player.h"
@@ -22,19 +23,34 @@
 
 namespace chroma::shared::packet {
 
-std::vector<uint8_t> PacketHandler::GameObjectsToFlatBuffer(
-  const std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>> &objects,
+std::vector<uint8_t> PacketHandler::GameObjectsToFlatBuffer(flatbuffers::FlatBufferBuilder &builder,
+  const std::vector<flatbuffers::Offset<Game::EntityState>> &entities,
   const UUIDv4::UUID &player_id,
   uint64_t time_lapse,
   uint32_t last_processed_input)
 {
-  flatbuffers::FlatBufferBuilder builder(1024);
 
+  auto fb_player_id = builder.CreateString(player_id.str());
+  auto fb_entities_vec = builder.CreateVector(entities);
+  auto snapshot = Game::CreateSnapshot(builder, time_lapse, last_processed_input, fb_player_id, fb_entities_vec);
+  auto envelope = Game::CreateEnvelope(builder, Game::MsgType::SNAPSHOT, Game::MsgUnion::Snapshot, snapshot.Union());
+  builder.Finish(envelope);
+
+  auto buf = builder.Release();
+
+  return { buf.begin(), buf.end() };
+}
+
+std::vector<flatbuffers::Offset<Game::EntityState>> PacketHandler::GameObjectsToFlatBufferEntities(
+  flatbuffers::FlatBufferBuilder &builder,
+  const std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>> &objects)
+{
   std::vector<flatbuffers::Offset<Game::EntityState>> fb_entities;
 
   for (const auto &[uuid, object] : objects) {
     auto pos = object->GetComponent<chroma::shared::core::component::Transform>();
     auto vel = object->GetComponent<chroma::shared::core::component::Speed>();
+    auto color = object->GetComponent<chroma::shared::core::component::Coloring>();
 
     std::vector<flatbuffers::Offset<Game::Component>> components;
 
@@ -50,6 +66,15 @@ std::vector<uint8_t> PacketHandler::GameObjectsToFlatBuffer(
       components.push_back(Game::CreateComponent(builder, Game::ComponentUnion::Velocity, fb_vel.Union()));
     }
 
+    if (color) {
+      auto fb_color = Game::CreateColor(builder,
+        static_cast<int8_t>(color->GetRed()),
+        static_cast<int8_t>(color->GetGreen()),
+        static_cast<int8_t>(color->GetBlue()),
+        static_cast<int8_t>(color->GetAlpha()));
+      components.push_back(Game::CreateComponent(builder, Game::ComponentUnion::Color, fb_color.Union()));
+    }
+
     auto fb_id = builder.CreateString(object->GetId().str());
     auto fb_type = static_cast<Game::GameObjectType>(object->GetTag());
     auto fb_components = builder.CreateVector(components);
@@ -57,15 +82,7 @@ std::vector<uint8_t> PacketHandler::GameObjectsToFlatBuffer(
     fb_entities.push_back(fb_entity);
   }
 
-  auto fb_player_id = builder.CreateString(player_id.str());
-  auto fb_entities_vec = builder.CreateVector(fb_entities);
-  auto snapshot = Game::CreateSnapshot(builder, time_lapse, last_processed_input, fb_player_id, fb_entities_vec);
-  auto envelope = Game::CreateEnvelope(builder, Game::MsgType::SNAPSHOT, Game::MsgUnion::Snapshot, snapshot.Union());
-  builder.Finish(envelope);
-
-  auto buf = builder.Release();
-
-  return { buf.begin(), buf.end() };
+  return fb_entities;
 }
 
 void PacketHandler::FlatBufferToGameObject(const uint8_t *data,
@@ -131,6 +148,11 @@ void PacketHandler::UpdateGameObjectWithEntityState(const Game::EntityState *ent
           break;
         }
 
+        case Game::ComponentUnion::Color: {
+          ComponentToColor(component, game_object);
+          break;
+        }
+
         default:
           break;
         }
@@ -153,6 +175,19 @@ void PacketHandler::ComponentToSpeed(const Game::Component *component,
     if (speed) {
       speed->SetSpeed(Vector2{ vel_vec->x(), vel_vec->y() });
       game_object->AttachComponent(speed);
+    }
+  }
+}
+
+void PacketHandler::ComponentToColor(const Game::Component *component,
+  std::shared_ptr<chroma::shared::core::GameObject> &game_object)
+{
+  const auto *fb_color = component->type_as_Color();
+  if (fb_color != nullptr) {
+    auto color = game_object->GetComponent<chroma::shared::core::component::Coloring>();
+    if (color) {
+      color->SetColoring(fb_color->r(), fb_color->g(), fb_color->b(), fb_color->a());
+      game_object->AttachComponent(color);
     }
   }
 }
@@ -284,6 +319,48 @@ UUIDv4::UUID PacketHandler::FlatBufferSnapshotGetUUID(const uint8_t *data, std::
   if (snapshot == nullptr) { return UUIDv4::UUID{}; }
 
   return UUIDv4::UUID(snapshot->player_id()->str());
+}
+
+uint32_t PacketHandler::FlatBufferSnapshotGetLastProcessedInputSeq(const uint8_t *data, std::size_t size)
+{
+  flatbuffers::Verifier verifier(data, size);
+  if (!Game::VerifyEnvelopeBuffer(verifier)) { return 0; }
+
+  const auto *envelope = Game::GetEnvelope(data);
+  if (envelope->type() != Game::MsgType::SNAPSHOT) { return 0; }
+
+  const auto *snapshot = envelope->msg_as<Game::Snapshot>();
+  if (snapshot == nullptr) { return 0; }
+
+  return snapshot->last_processed_input();
+}
+
+uint32_t PacketHandler::FlatBufferInputMessageGetSequenceNumber(const uint8_t *data, std::size_t size)
+{
+  flatbuffers::Verifier verifier(data, size);
+  if (!Game::VerifyEnvelopeBuffer(verifier)) { return 0; }
+
+  const auto *envelope = Game::GetEnvelope(data);
+  if (envelope->type() != Game::MsgType::INPUT) { return 0; }
+
+  const auto *input_msg = envelope->msg_as<Game::InputMessage>();
+  if (input_msg == nullptr) { return 0; }
+
+  return input_msg->seq();
+}
+
+uint64_t PacketHandler::FlatBufferSnapshotGetTimeLapse(const uint8_t *data, std::size_t size)
+{
+  flatbuffers::Verifier verifier(data, size);
+  if (!Game::VerifyEnvelopeBuffer(verifier)) { return 0; }
+
+  const auto *envelope = Game::GetEnvelope(data);
+  if (envelope->type() != Game::MsgType::SNAPSHOT) { return 0; }
+
+  const auto *snapshot = envelope->msg_as<Game::Snapshot>();
+  if (snapshot == nullptr) { return 0; }
+
+  return snapshot->server_time();
 }
 
 }// namespace chroma::shared::packet

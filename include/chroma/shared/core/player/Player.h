@@ -21,6 +21,7 @@ public:
   void OnCollision(const collision::CollisionEvent &event) override;
   void OnRender() override;
   void HandleEvent(const shared::event::Event &event);
+  std::shared_ptr<GameObject> Clone() override;
 
 private:
   shared::events::InputState input_state_;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <enet.h>
 #include <memory>
 #include <unordered_map>
@@ -31,7 +32,7 @@ public:
   [[nodiscard]] bool IsRunning() const { return is_running_; }
   void SetRunning(bool running) { is_running_ = running; }
 
-  void BroadcastGameObjectState() const;
+  void BroadcastGameObjectState(uint64_t delta_time) const;
 
   void Run();
 
@@ -44,5 +45,6 @@ private:
 
   WorldSimulation world_simulation_;
   std::unordered_map<ENetPeer *, UUIDv4::UUID> connected_players_;
+  std::unordered_map<ENetPeer *, uint32_t> peer_last_processed_input_;
 };
 }// namespace chroma::server

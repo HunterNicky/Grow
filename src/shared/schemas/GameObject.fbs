@@ -2,6 +2,7 @@ namespace Game;
 
 table Vec2 { x:float; y:float; }
 
+table Color { r: int8; g: int8; b:int8; a: int8; }
 table Position { pos:Vec2; }
 table Scale { scl: Vec2; }
 table Velocity { vel:Vec2; }
@@ -10,7 +11,7 @@ table Health { value:int32; }
 table Facing { angle:float; }
 
 // Adicione novos componentes aqui
-union ComponentUnion { Position, Scale, Velocity, Movement, Health, Facing }
+union ComponentUnion { Position, Scale, Velocity, Movement, Health, Facing, Color }
 
 table Component {
   type:ComponentUnion;
