@@ -186,10 +186,7 @@ void PacketHandler::ComponentToColor(const Game::Component *component,
   if (fb_color != nullptr) {
     auto color = game_object->GetComponent<chroma::shared::core::component::Coloring>();
     if (color) {
-      color->SetColoring(fb_color->r(),
-        fb_color->g(),
-        fb_color->b(),
-        fb_color->a());
+      color->SetColoring(fb_color->r(), fb_color->g(), fb_color->b(), fb_color->a());
       game_object->AttachComponent(color);
     }
   }
