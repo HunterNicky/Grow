@@ -4,7 +4,6 @@
 #include <uuid_v4.h>
 #include <vector>
 
-#include "GameObject_generated.h"
 #include "chroma/app/states/GameState.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
 #include "chroma/app/states/network/InterpolateSystem.h"
@@ -14,6 +13,7 @@
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/packet/PacketHandler.h"
+#include "game_generated.h"
 
 namespace chroma::app::states {
 GameNetworkMediator::GameNetworkMediator(const std::shared_ptr<GameState> &game,
@@ -50,8 +50,7 @@ void GameNetworkMediator::OnSnapshotReceived(const std::vector<uint8_t> &data)
     shared::packet::PacketHandler::FlatBufferSnapshotGetLastProcessedInputSeq(data.data(), data.size());
 
   if (game_objects->contains(state->GetPlayerId())) {
-    auto player =
-      std::static_pointer_cast<chroma::shared::core::player::Player>((*game_objects)[state->GetPlayerId()]);
+    auto player = std::static_pointer_cast<chroma::shared::core::player::Player>((*game_objects)[state->GetPlayerId()]);
 
     if (player && predictive_sync_system_) {
 
@@ -63,7 +62,7 @@ void GameNetworkMediator::OnSnapshotReceived(const std::vector<uint8_t> &data)
     *game_objects, shared::packet::PacketHandler::FlatBufferSnapshotGetTimeLapse(data.data(), data.size()));
 }
 
-void GameNetworkMediator::SendInput(const Game::InputMessage &input) { (void)input; }
+void GameNetworkMediator::SendInput(const Game::InputEventMessage &input) { (void)input; }
 
 void GameNetworkMediator::SetGameState(const std::shared_ptr<GameState> &game) { game_state_ = game; }
 

@@ -11,7 +11,8 @@ public:
     None = 0,
     KeyEvent = 1,
     MouseClickEvent = 2,
-    MouseEvent = 3,
+    MouseEvent = 3, 
+    SoundEvent = 4
   };
 
   Event() = default;

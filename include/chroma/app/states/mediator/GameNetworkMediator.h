@@ -6,9 +6,9 @@
 #include <uuid_v4.h>
 #include <vector>
 
-#include "GameObject_generated.h"
 #include "chroma/app/states/network/InterpolateSystem.h"
 #include "chroma/app/states/network/PredictiveSyncSystem.h"
+#include "game_generated.h"
 
 namespace chroma::app::states {
 
@@ -29,7 +29,7 @@ public:
 
   void OnSnapshotReceived(const std::vector<uint8_t> &data);
 
-  static void SendInput(const Game::InputMessage &input);
+  static void SendInput(const Game::InputEventMessage &input);
 
   void SetGameState(const std::shared_ptr<GameState> &game);
   void SetNetworkState(const std::shared_ptr<NetworkState> &network);

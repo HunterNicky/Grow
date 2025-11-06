@@ -21,6 +21,7 @@
 #include "chroma/shared/audio/AudioBridge.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventCatcher.h"
+#include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/render/RenderBridge.h"
 
@@ -46,6 +47,7 @@ void Application::Run()
 {
   Initialize();
   event_dispatcher_ = std::make_shared<shared::event::EventDispatcher>();
+  shared::event::EventBus::SetDispatcher(event_dispatcher_);
 
   auto game_layer = std::make_unique<layer::game::GameLayer>();
   auto network_layer = std::make_unique<layer::network::NetworkLayer>();

@@ -10,8 +10,10 @@
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/components/Transform.h"
 #include "chroma/shared/events/Event.h"
+#include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/InputState.h"
 #include "chroma/shared/events/KeyEvent.h"
+#include "chroma/shared/events/SoundEvent.h"
 #include "chroma/shared/render/RenderBridge.h"
 
 #include <cmath>
@@ -124,6 +126,7 @@ Player::~Player() = default;
 
 void Player::OnUpdate(float delta_time)
 {
+  debug_text_.clear();
   const auto transform = GetComponent<component::Transform>();
   const auto speed = GetComponent<component::Speed>();
   if (!transform || !speed) { return; }
@@ -138,26 +141,28 @@ void Player::OnUpdate(float delta_time)
   Vector2 dir = movement->GetDirection();
   const float magnitude = Vector2Length(dir);
 
+  debug_text_ += "Player Debug Info:\n";
   if (magnitude > 0.0F) {
     dir = Vector2Normalize(dir);
     movement->SetDirection(dir);
 
     if (should_simulate) {
+      debug_text_ += "Dir: (" + std::to_string(dir.x) + ", " + std::to_string(dir.y) + ")\n";
       Vector2 pos = transform->GetPosition();
       pos.x += dir.x * speed->GetSpeed().x * delta_time;
       pos.y += dir.y * speed->GetSpeed().y * delta_time;
       transform->SetPosition(pos);
+    }
 
-      if (is_autonomous) {
-        step_timer_ += delta_time;
-        constexpr float step_interval = 0.5F;
-        if (step_timer_ >= step_interval) {
-          step_timer_ = 0.0F;
-          if (const auto ab = audio::GetAudioBridge()) {
-            const float pitch = 0.95F + (static_cast<float>(GetRandomValue(0, 10)) / 100.0F);
-            ab->PlaySound("step", 0.6F, pitch);
-          }
-        }
+    if (is_authority) {
+      step_timer_ += delta_time;
+      constexpr float step_interval = 0.5F;
+      if (step_timer_ >= step_interval) {
+        step_timer_ = 0.0F;
+        debug_text_ += "Simulated sound\n";
+        event::SoundEvent sound_event =
+          event::SoundEvent("step", 0.6F, 0.95F + (static_cast<float>(GetRandomValue(0, 10)) / 100.0F));
+        event::EventBus::Dispatch(sound_event);
       }
     }
     was_moving_ = true;
@@ -220,31 +225,70 @@ void Player::OnRender()
   const bool flip_x = (last_facing_ == FacingDir::Side) && last_left_;
 
   bridge->DrawAnimation(*anim, pos, scale, rotation, WHITE, flip_x, false, { 0.5F, 0.5F });
+
+  if (HasAuthority()) {
+    debug_text_ += "Authority";
+    DrawText(debug_text_.c_str(),
+      static_cast<int>(pos.x) - MeasureText(debug_text_.c_str(), 10) / 2,
+      static_cast<int>(pos.y) - 40,
+      10,
+      GREEN);
+  } else if (IsAutonomousProxy()) {
+    debug_text_ += "Autonomous Proxy";
+    DrawText(debug_text_.c_str(),
+      static_cast<int>(pos.x) - MeasureText(debug_text_.c_str(), 10) / 2,
+      static_cast<int>(pos.y) - 40,
+      10,
+      BLUE);
+  } else if (IsSimulatedProxy()) {
+    debug_text_ += "Simulated Proxy";
+    DrawText(debug_text_.c_str(),
+      static_cast<int>(pos.x) - MeasureText(debug_text_.c_str(), 10) / 2,
+      static_cast<int>(pos.y) - 40,
+      10,
+      RED);
+  } else {
+    debug_text_ += "No Role";
+    DrawText(debug_text_.c_str(),
+      static_cast<int>(pos.x) - MeasureText(debug_text_.c_str(), 10) / 2,
+      static_cast<int>(pos.y) - 40,
+      10,
+      GRAY);
+  }
 }
 
 void Player::HandleEvent(const event::Event &event)
 {
-  if (!HasAuthority() && !IsAutonomousProxy()) { return; }
+  event::Event::Type event_type = event.GetType();
 
-  if (event.GetType() != event::Event::KeyEvent) { return; }
-
-  const auto &key_event = dynamic_cast<const event::KeyEvent &>(event);
-  const auto movement = GetComponent<component::Movement>();
-  if (!movement) { return; }
-
-  if (key_event.IsPressed()) {
-    input_state_.SetKeyState(key_event.GetKey(), true);
-  } else if (key_event.IsReleased()) {
-    input_state_.SetKeyState(key_event.GetKey(), false);
+  switch (event_type) {
+  case event::Event::KeyEvent: {
+    const auto &key_event = dynamic_cast<const event::KeyEvent &>(event);
+    const auto movement = GetComponent<component::Movement>();
+    if (!movement) { return; }
+    if (key_event.IsPressed()) {
+      input_state_.SetKeyState(key_event.GetKey(), true);
+    } else if (key_event.IsReleased()) {
+      input_state_.SetKeyState(key_event.GetKey(), false);
+    }
+    Vector2 direction{ 0.0F, 0.0F };
+    if (input_state_.IsKeyPressed(KEY_W)) { direction.y -= 1.0F; }
+    if (input_state_.IsKeyPressed(KEY_S)) { direction.y += 1.0F; }
+    if (input_state_.IsKeyPressed(KEY_A)) { direction.x -= 1.0F; }
+    if (input_state_.IsKeyPressed(KEY_D)) { direction.x += 1.0F; }
+    movement->SetDirection(direction);
+    break;
   }
-
-  Vector2 direction{ 0.0F, 0.0F };
-  if (input_state_.IsKeyPressed(KEY_W)) { direction.y -= 1.0F; }
-  if (input_state_.IsKeyPressed(KEY_S)) { direction.y += 1.0F; }
-  if (input_state_.IsKeyPressed(KEY_A)) { direction.x -= 1.0F; }
-  if (input_state_.IsKeyPressed(KEY_D)) { direction.x += 1.0F; }
-
-  movement->SetDirection(direction);
+  case event::Event::SoundEvent: {
+    const auto &sound_event = dynamic_cast<const event::SoundEvent &>(event);
+    if (const auto ab = audio::GetAudioBridge()) {
+      ab->PlaySound(sound_event.GetSoundName(), sound_event.GetVolume(), sound_event.GetPitch());
+    }
+    break;
+  }
+  default:
+    break;
+  }
 }
 
 void Player::UpdateAnimationFromDirection(const Vector2 dir)

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <GameObject_generated.h>
 #include <cstdint>
 #include <memory>
 #include <unordered_map>
@@ -8,7 +7,9 @@
 #include <vector>
 
 #include "chroma/shared/core/GameObject.h"
-#include "chroma/shared/packet/InputMessage.h"
+#include "chroma/shared/packet/events/InputEventMessage.h"
+#include "chroma/shared/packet/events/SoundEventMessage.h"
+#include "game_generated.h"
 
 namespace chroma::shared::packet {
 
@@ -23,11 +24,19 @@ public:
   static void FlatBufferToGameObject(const uint8_t *data,
     size_t size,
     std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>> &game_objects);
+  static UUIDv4::UUID FlatBufferSnapshotGetUUID(const uint8_t *data, std::size_t size);
+
+  static uint32_t FlatBufferSnapshotGetLastProcessedInputSeq(const uint8_t *data, std::size_t size);
   static std::shared_ptr<shared::packet::InputMessage> FlatBufferToInputMessage(const uint8_t *data, std::size_t size);
   static std::vector<uint8_t> InputMessageToFlatBuffer(
     const std::shared_ptr<shared::packet::InputMessage> &input_message);
-  static UUIDv4::UUID FlatBufferSnapshotGetUUID(const uint8_t *data, std::size_t size);
-  static uint32_t FlatBufferSnapshotGetLastProcessedInputSeq(const uint8_t *data, std::size_t size);
+
+  static std::shared_ptr<shared::packet::SoundEventMessage> FlatBufferToSoundEventMessage(
+    const uint8_t *data,
+    std::size_t size);
+  static std::vector<uint8_t> SoundEventMessageToFlatBuffer(
+    const std::shared_ptr<shared::packet::SoundEventMessage> &sound_message);
+
   static uint32_t FlatBufferInputMessageGetSequenceNumber(const uint8_t *data, std::size_t size);
   static uint64_t FlatBufferSnapshotGetTimeLapse(const uint8_t *data, std::size_t size);
   static std::vector<flatbuffers::Offset<Game::EntityState>> GameObjectsToFlatBufferEntities(

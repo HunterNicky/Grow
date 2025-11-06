@@ -1,4 +1,4 @@
-#include "chroma/shared/packet/InputMessage.h"
+#include "chroma/shared/packet/events/InputEventMessage.h"
 #include "chroma/shared/events/Event.h"
 
 #include <cstdint>
@@ -10,7 +10,6 @@ InputMessage::InputMessage(const uint32_t sequence, const float delta_time) : se
 uint32_t InputMessage::GetSeq() const { return seq_; }
 
 float InputMessage::GetDeltaTime() const { return dt_; }
-
 
 event::Event::Type InputMessage::GetEventType() const { return type_; }
 

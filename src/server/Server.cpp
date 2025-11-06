@@ -1,7 +1,7 @@
 #include "chroma/server/Server.h"
-#include "GameObject_generated.h"
-#include "chroma/shared/packet/InputMessage.h"
 #include "chroma/shared/packet/PacketHandler.h"
+#include "chroma/shared/packet/events/InputEventMessage.h"
+#include "game_generated.h"
 
 #include <chrono>
 #include <cstddef>

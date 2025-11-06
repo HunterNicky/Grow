@@ -1,10 +1,10 @@
 #include "chroma/server/WorldSimulation.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/events/Event.h"
-#include "chroma/shared/packet/InputMessage.h"
 #include "chroma/shared/packet/PacketHandler.h"
+#include "chroma/shared/packet/events/InputEventMessage.h"
+#include "game_generated.h"
 
-#include <GameObject_generated.h>
 #include <flatbuffers/buffer.h>
 #include <flatbuffers/flatbuffer_builder.h>
 #include <memory>

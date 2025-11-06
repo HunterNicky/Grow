@@ -5,8 +5,9 @@
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/events/KeyEvent.h"
-#include "chroma/shared/packet/InputMessage.h"
+#include "chroma/shared/events/SoundEvent.h"
 #include "chroma/shared/packet/PacketHandler.h"
+#include "chroma/shared/packet/events/InputEventMessage.h"
 
 #include <chrono>
 #include <cstdint>
@@ -176,15 +177,40 @@ void NetworkState::OnEvent(shared::event::Event &event)
 {
   if (!IsActive() || !server_peer_) { return; }
 
-  auto input_message = std::make_shared<chroma::shared::packet::InputMessage>();
+  std::vector<uint8_t> buf;
 
-  input_message->SetSeq(game_mediator_->GetSeqCounter());
-  input_message->SetDeltaTime(0.016F);
-  input_message->SetEventType(event.GetType());
-  input_message->SetEvent(event);
+  shared::event::Event::Type event_type = event.GetType();
+  switch (event_type) {
+  case shared::event::Event::Type::KeyEvent: {
+    auto input_message = std::make_shared<chroma::shared::packet::InputMessage>();
 
-  auto buf = chroma::shared::packet::PacketHandler::InputMessageToFlatBuffer(input_message);
-  if (buf.empty()) { return; }
+    input_message->SetSeq(game_mediator_->GetSeqCounter());
+    input_message->SetDeltaTime(0.016F);
+    input_message->SetEventType(event.GetType());
+    input_message->SetEvent(event);
+
+    buf = chroma::shared::packet::PacketHandler::InputMessageToFlatBuffer(input_message);
+    if (buf.empty()) { return; }
+    break;
+  }
+  case shared::event::Event::Type::SoundEvent: {
+    auto sound_message = std::make_shared<chroma::shared::packet::SoundEventMessage>();
+    auto &sound_event = dynamic_cast<shared::event::SoundEvent &>(event);
+
+    sound_message->SetSeq(game_mediator_->GetSeqCounter());
+    sound_message->SetDeltaTime(0.016F);
+    sound_message->SetSoundId(sound_event.GetSoundName());
+    sound_message->SetVolume(sound_event.GetVolume());
+    sound_message->SetPitch(sound_event.GetPitch());
+
+    buf = chroma::shared::packet::PacketHandler::SoundEventMessageToFlatBuffer(sound_message);
+    if (buf.empty()) { return; }
+    break;
+  }
+  default: {
+    break;
+  }
+  }
 
   ENetPacket *packet = enet_packet_create(buf.data(), buf.size(), ENET_PACKET_FLAG_RELIABLE);
   enet_peer_send(server_peer_.get(), 0, packet);
@@ -196,6 +222,8 @@ void NetworkState::SetEventDispatcher(const std::shared_ptr<chroma::shared::even
   event_dispatcher_ = event_dispatcher;
 
   event_dispatcher_->Subscribe<shared::event::KeyEvent>([this](shared::event::Event &event) { this->OnEvent(event); });
+  event_dispatcher_->Subscribe<shared::event::SoundEvent>(
+    [this](shared::event::Event &event) { this->OnEvent(event); });
 }
 
 }// namespace chroma::app::states

@@ -36,5 +36,6 @@ private:
   bool last_left_ { false };
   float step_timer_ { 0.0F };
   bool was_moving_ { false };
+  std::string debug_text_{};
 };
 }// namespace chroma::shared::core::player

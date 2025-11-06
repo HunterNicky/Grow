@@ -3,7 +3,12 @@ file(GLOB_RECURSE SHARED_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/
 add_library(chroma_shared STATIC
   ${SHARED_SOURCES}
 )
-set(INTERFACE_FBS schemas/GameObject.fbs)
+set(INTERFACE_FBS schemas/game.fbs
+  schemas/common.fbs
+  schemas/components.fbs
+  schemas/entities.fbs
+  schemas/messages.fbs
+  schemas/events.fbs)
 
 flatbuffers_generate_headers(
   TARGET incl

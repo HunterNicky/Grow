@@ -1,0 +1,46 @@
+include "common.fbs";
+
+namespace Game;
+
+enum InputEventType : uint8 {
+  None = 0,
+  KeyEvent = 1,
+  MouseEvent = 2
+}
+
+table SoundEvent {
+  sound_id:string;
+  volume:float;
+  pitch:float;
+}
+
+table KeyEvent {
+  key:uint8;
+  is_pressed:bool;
+  is_released:bool;
+}
+
+table MouseEvent {
+  left:bool;
+  right:bool;
+  mouse_position:Vec2;
+}
+
+union InputEvent { KeyEvent, MouseEvent }
+
+table SoundEventMessage {
+  seq:uint32;
+  dt:float;
+  sound_event:SoundEvent;
+}
+
+table InputEventMessage {
+  seq:uint32;
+  dt:float;
+  type:InputEventType;
+  event:InputEvent;
+}
+
+union EventUnion { InputEventMessage, SoundEventMessage }
+
+table Event { event:EventUnion; }
