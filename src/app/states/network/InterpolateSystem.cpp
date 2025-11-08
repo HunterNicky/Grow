@@ -33,8 +33,6 @@ void InterpolateSystem::Interpolate(
     snapshot_interval_ = interval > 0 ? interval : snapshot_interval_;
     time_last_snapshot_ = delta_time;
   }
-
-  Update(delta_time);
 }
 
 void InterpolateSystem::InterpolatePosition(const std::shared_ptr<shared::core::GameObject> &past_object,

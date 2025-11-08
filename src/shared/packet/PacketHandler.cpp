@@ -238,7 +238,8 @@ std::vector<uint8_t> PacketHandler::InputMessageToFlatBuffer(const std::shared_p
     return {};
   }
 
-  const auto fb_input_msg = Game::CreateInputEventMessage(builder, 0, 0.0F, type, event_type, event_union);
+  const auto fb_input_msg = Game::CreateInputEventMessage(
+    builder, input_message->GetSeq(), input_message->GetDeltaTime(), type, event_type, event_union);
 
   const auto fb_event = Game::CreateEvent(builder, Game::EventUnion::InputEventMessage, fb_input_msg.Union());
 

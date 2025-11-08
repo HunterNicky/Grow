@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <enet.h>
 
 #include "chroma/server/core/ServerConfig.h"
@@ -28,7 +29,7 @@ public:
   [[nodiscard]] bool IsRunning() const { return is_running_; }
   void SetRunning(const bool running) { is_running_ = running; }
 
-  void BroadcastGameObjectState(uint64_t delta_time) const;
+  void BroadcastGameObjectState(uint64_t server_time_ms);
 
 private:
   ServerConfig config_{};
@@ -39,6 +40,10 @@ private:
 
   bool is_running_ = false;
   int tick_counter_ = 0;
+
+  std::chrono::steady_clock::time_point start_time_{};
+  std::chrono::steady_clock::time_point last_frame_time_{};
+  std::chrono::steady_clock::time_point last_snapshot_time_{};
 };
 
 }// namespace chroma::server::core

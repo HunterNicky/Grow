@@ -58,11 +58,14 @@ int GameServer::Start()
   if (!is_running_ || !network_.IsReady()) { return -1; }
 
   ENetEvent event;
-  auto last_tick = std::chrono::steady_clock::now();
+  start_time_ = std::chrono::steady_clock::now();
+  last_frame_time_ = start_time_;
+  last_snapshot_time_ = start_time_;
 
   while (is_running_) {
     auto now = std::chrono::steady_clock::now();
-    const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_tick).count();
+    const auto frame_dt_sec = std::chrono::duration<float>(now - last_frame_time_).count();
+    last_frame_time_ = now;
 
     while (is_running_ && network_.PollEvent(event, 1)) {
       switch (event.type) {
@@ -81,7 +84,7 @@ int GameServer::Start()
         if (envelope->type() == Game::MsgType::Event) {
           const Game::Event *evt = envelope->msg_as_Event();
           const auto event_union = evt->event_type();
-          event_system_.ProcessGameEvent(event, elapsed, evt, event_union, game_logic_, sessions_);
+          event_system_.ProcessGameEvent(event, 0, evt, event_union, game_logic_, sessions_);
         }
         break;
       }
@@ -91,15 +94,14 @@ int GameServer::Start()
       enet_packet_destroy(event.packet);
     }
 
-    tick_counter_++;
-
-    if (tick_counter_ >= config_.ticks) {
-      last_tick = now;
-      tick_counter_ = 0;
-      BroadcastGameObjectState(static_cast<uint64_t>(elapsed));
+    const auto since_last_snapshot_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_snapshot_time_).count();
+    if (since_last_snapshot_ms >= config_.ticks) {
+      const auto server_time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time_).count();
+      last_snapshot_time_ = now;
+      BroadcastGameObjectState(static_cast<uint64_t>(server_time_ms));
     }
 
-    game_logic_.Update(static_cast<float>(elapsed) / 1000.0F);
+    game_logic_.Update(frame_dt_sec);
   }
 
   return 0;
@@ -138,7 +140,7 @@ void GameServer::DisconnectClient(const ENetEvent &event)
   sessions_.RemoveSession(event.peer);
 }
 
-void GameServer::BroadcastGameObjectState(const uint64_t delta_time) const
+void GameServer::BroadcastGameObjectState(const uint64_t server_time_ms)
 {
   if (!network_.IsReady()) { return; }
 
@@ -147,7 +149,7 @@ void GameServer::BroadcastGameObjectState(const uint64_t delta_time) const
     const std::vector<flatbuffers::Offset<Game::EntityState>> game_entities = game_logic_.GetEntitiesFlatBuffer(builder);
 
     auto game_state = shared::packet::PacketHandler::GameObjectsToFlatBuffer(
-      builder, game_entities, session.GetPlayerId(), delta_time, session.GetLastProcessedInput());
+      builder, game_entities, session.GetPlayerId(), server_time_ms, session.GetLastProcessedInput());
 
     network_.Send(peer, game_state.data(), game_state.size(), true);
   }

@@ -27,7 +27,7 @@ Player::Player() { Type_ = GameObjectType::PLAYER; }
 
 void Player::InitComponents()
 {
-  const auto speed_component = std::make_shared<component::Speed>(20.0F);
+  const auto speed_component = std::make_shared<component::Speed>(50.0F);
   const auto movement_component = std::make_shared<component::Movement>();
   AttachComponent(speed_component);
   AttachComponent(movement_component);

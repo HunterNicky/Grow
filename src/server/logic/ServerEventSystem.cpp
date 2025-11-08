@@ -10,13 +10,13 @@ void ServerEventSystem::ProcessGameEvent(const ENetEvent &event,
   ServerGameLogic &game_logic,
   core::SessionManager &sessions)
 {
+  (void)elapsed;
   switch (event_union) {
   case Game::EventUnion::InputEventMessage: {
     const auto input_message = network::ServerPacketHandler::EventToInputMessage(evt);
     if (input_message) {
       if (auto *session = sessions.GetSession(event.peer)) {
         game_logic.OnReceivedInputMessage(input_message, session->GetPlayerId());
-        game_logic.Update(static_cast<float>(elapsed) / 1000.0F);
         sessions.UpdateLastProcessedInput(event.peer, input_message->GetSeq());
       }
     }
@@ -32,4 +32,3 @@ void ServerEventSystem::ProcessGameEvent(const ENetEvent &event,
 }
 
 }// namespace chroma::server::logic
-
