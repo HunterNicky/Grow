@@ -27,9 +27,7 @@ public:
   GameNetworkMediator(GameNetworkMediator &&) noexcept = default;
   GameNetworkMediator &operator=(GameNetworkMediator &&) noexcept = default;
 
-  // Previous API (buffer-based). Retained for compatibility but prefer pointer based overload.
   void OnSnapshotReceived(const std::vector<uint8_t> &data);
-  // New pointer-based API: caller already parsed FlatBuffer and provides snapshot.
   void OnSnapshotReceived(const Game::Snapshot *snapshot);
   void OnEventReceived(const Game::Event *evt);
 

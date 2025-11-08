@@ -34,7 +34,6 @@ GameNetworkMediator::~GameNetworkMediator()
   network_state_.reset();
 }
 
-// Buffer-based legacy API
 void GameNetworkMediator::OnSnapshotReceived(const std::vector<uint8_t> &data)
 {
   flatbuffers::Verifier verifier(data.data(), data.size());
@@ -45,7 +44,6 @@ void GameNetworkMediator::OnSnapshotReceived(const std::vector<uint8_t> &data)
   OnSnapshotReceived(snapshot);
 }
 
-// New pointer-based API
 void GameNetworkMediator::OnSnapshotReceived(const Game::Snapshot *snapshot)
 {
   if (!snapshot) { return; }
@@ -76,7 +74,6 @@ void GameNetworkMediator::OnSnapshotReceived(const Game::Snapshot *snapshot)
 void GameNetworkMediator::OnEventReceived(const Game::Event *evt)
 {
   if (!evt) { return; }
-  // Placeholder: future event-specific mediation can be implemented here.
 }
 
 void GameNetworkMediator::SendInput(const Game::InputEventMessage &input) { (void)input; }

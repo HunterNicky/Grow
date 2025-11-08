@@ -1,7 +1,7 @@
 #include "chroma/app/states/network/NetworkState.h"
 #include "chroma/app/states/State.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
-#include "chroma/server/Server.h"
+#include "chroma/server/core/GameServer.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/EventDispatcher.h"
@@ -146,7 +146,7 @@ bool NetworkState::ConnectToServer(const std::string &host, const enet_uint16 po
     auto fut = ready.get_future();
 
     std::thread thread_server([&ready]() {
-      const auto server = std::make_shared<server::Server>();
+      const auto server = std::make_shared<server::core::GameServer>();
       ready.set_value(server->IsRunning());
       server->Run();
     });
