@@ -58,7 +58,7 @@ void Player::SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &a
   idle_down.name = "idle_down";
   idle_down.loop = false;
   idle_down.frames = {
-    { .sprite_id = filepath, .duration_ticks = 60, .subregion = { .x = 0, .y = 0, .width = 16, .height = 32 } }
+    { .sprite_id = filepath, .duration_ticks = 60, .subregion = { .x = 1, .y = 1, .width = 16, .height = 32 } }
   };
   anim_component->LoadAnimation("idle_down", idle_down);
 
@@ -66,7 +66,7 @@ void Player::SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &a
   idle_up.name = "idle_up";
   idle_up.loop = false;
   idle_up.frames = {
-    { .sprite_id = filepath, .duration_ticks = 60, .subregion = { .x = 16, .y = 0, .width = 16, .height = 32 } }
+    { .sprite_id = filepath, .duration_ticks = 60, .subregion = { .x = 18, .y = 1, .width = 16, .height = 32 } }
   };
   anim_component->LoadAnimation("idle_up", idle_up);
 
@@ -74,7 +74,7 @@ void Player::SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &a
   idle_side.name = "idle_side";
   idle_side.loop = false;
   idle_side.frames = {
-    { .sprite_id = filepath, .duration_ticks = 60, .subregion = { .x = 34, .y = 0, .width = 15, .height = 32 } }
+    { .sprite_id = filepath, .duration_ticks = 60, .subregion = { .x = 35, .y = 1, .width = 15, .height = 32 } }
   };
   anim_component->LoadAnimation("idle_side", idle_side);
 
@@ -82,12 +82,12 @@ void Player::SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &a
   walk_down.name = "walk_down";
   walk_down.loop = true;
   walk_down.frames = {
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 64, .y = 0, .width = 18, .height = 32 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 83, .y = 0, .width = 19, .height = 32 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 103, .y = 0, .width = 19, .height = 32 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 123, .y = 0, .width = 18, .height = 32 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 142, .y = 0, .width = 19, .height = 32 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 162, .y = 0, .width = 19, .height = 32 } }
+    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 51, .y = 1, .width = 18, .height = 30 } },
+    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 70, .y = 1, .width = 19, .height = 32 } },
+    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 90, .y = 1, .width = 19, .height = 32 } },
+    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 110, .y = 1, .width = 18, .height = 31 } },
+    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 129, .y = 1, .width = 19, .height = 32 } },
+    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 149, .y = 1, .width = 19, .height = 32 } }
   };
   anim_component->LoadAnimation("walk_down", walk_down);
 
@@ -95,12 +95,12 @@ void Player::SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &a
   walk_up.name = "walk_up";
   walk_up.loop = true;
   walk_up.frames = {
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 192, .y = 0, .width = 16, .height = 32 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 209, .y = 0, .width = 18, .height = 32 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 228, .y = 0, .width = 18, .height = 32 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 247, .y = 0, .width = 16, .height = 32 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 264, .y = 0, .width = 18, .height = 32 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 283, .y = 0, .width = 18, .height = 32 } }
+    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 169, .y = 1, .width = 16, .height = 32 } },
+    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 186, .y = 1, .width = 18, .height = 32 } },
+    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 205, .y = 1, .width = 18, .height = 32 } },
+    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 224, .y = 1, .width = 16, .height = 32 } },
+    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 241, .y = 1, .width = 18, .height = 32 } },
+    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 260, .y = 1, .width = 18, .height = 32 } }
   };
   anim_component->LoadAnimation("walk_up", walk_up);
 
@@ -108,12 +108,12 @@ void Player::SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &a
   walk_side.name = "walk_side";
   walk_side.loop = true;
   walk_side.frames = {
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 320, .y = 0, .width = 20, .height = 32 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 341, .y = 0, .width = 19, .height = 32 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 360, .y = 0, .width = 19, .height = 32 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 378, .y = 0, .width = 20, .height = 32 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 402, .y = 0, .width = 19, .height = 32 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 419, .y = 0, .width = 19, .height = 32 } }
+    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 279, .y = 1, .width = 20, .height = 32 } },
+    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 300, .y = 1, .width = 18, .height = 32 } },
+    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 319, .y = 1, .width = 17, .height = 32 } },
+    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 337, .y = 1, .width = 23, .height = 29 } },
+    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 361, .y = 1, .width = 16, .height = 32 } },
+    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 378, .y = 1, .width = 18, .height = 32 } }
   };
   anim_component->LoadAnimation("walk_side", walk_side);
 
