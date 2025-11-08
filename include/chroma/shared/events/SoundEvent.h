@@ -10,7 +10,7 @@ namespace chroma::shared::event {
 class SoundEvent : public Event
 {
 public:
-  SoundEvent(const std::string &sound_name, float volume, float pitch);
+  SoundEvent(std::string sound_name, float volume, float pitch);
   SoundEvent();
 
   [[nodiscard]] const std::string &GetSoundName() const;

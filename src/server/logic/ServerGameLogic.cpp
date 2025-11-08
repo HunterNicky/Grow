@@ -1,12 +1,16 @@
 #include "chroma/server/logic/ServerGameLogic.h"
 
+#include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/packet/PacketHandler.h"
 #include "chroma/shared/packet/events/InputEventMessage.h"
-#include "game_generated.h"
+#include "entities_generated.h"
 
+#include <flatbuffers/buffer.h>
+#include <flatbuffers/flatbuffer_builder.h>
 #include <memory>
+#include <uuid_v4.h>
 #include <vector>
 
 namespace chroma::server::logic {
@@ -59,4 +63,3 @@ std::vector<flatbuffers::Offset<Game::EntityState>> ServerGameLogic::GetEntities
 }
 
 }// namespace chroma::server::logic
-

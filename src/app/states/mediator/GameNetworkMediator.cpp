@@ -1,5 +1,7 @@
 #include <cstdint>
+#include <flatbuffers/verifier.h>
 #include <memory>
+#include <string>
 #include <unordered_map>
 #include <uuid_v4.h>
 #include <vector>
@@ -14,13 +16,15 @@
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/SoundEvent.h"
 #include "chroma/shared/packet/PacketHandler.h"
+#include "entities_generated.h"
+#include "events_generated.h"
 #include "game_generated.h"
+#include "messages_generated.h"
 
 namespace chroma::app::states {
 GameNetworkMediator::GameNetworkMediator(const std::shared_ptr<GameState> &game,
   const std::shared_ptr<NetworkState> &net)
-  : game_state_(game), network_state_(net),
-    interpolate_system_(std::make_unique<network::InterpolateSystem>()),
+  : game_state_(game), network_state_(net), interpolate_system_(std::make_unique<network::InterpolateSystem>()),
     predictive_sync_system_(std::make_unique<network::PredictiveSyncSystem>())
 {}
 
@@ -35,19 +39,19 @@ GameNetworkMediator::~GameNetworkMediator()
   network_state_.reset();
 }
 
-void GameNetworkMediator::OnSnapshotReceived(const std::vector<uint8_t> &data)
+void GameNetworkMediator::OnSnapshotReceived(const std::vector<uint8_t> &data) const
 {
   flatbuffers::Verifier verifier(data.data(), data.size());
   if (!Game::VerifyEnvelopeBuffer(verifier)) { return; }
   const auto *envelope = Game::GetEnvelope(data.data());
-  if (!envelope || envelope->type() != Game::MsgType::Snapshot) { return; }
+  if (envelope == nullptr || envelope->type() != Game::MsgType::Snapshot) { return; }
   const auto *snapshot = envelope->msg_as<Game::Snapshot>();
   OnSnapshotReceived(snapshot);
 }
 
 void GameNetworkMediator::OnSnapshotReceived(const Game::Snapshot *snapshot) const
 {
-  if (!snapshot) { return; }
+  if (snapshot == nullptr) { return; }
   const auto state = game_state_.lock();
   if (!state) { return; }
 
@@ -68,8 +72,7 @@ void GameNetworkMediator::OnSnapshotReceived(const Game::Snapshot *snapshot) con
       predictive_sync_system_->ApplyEvents(player);
     }
   }
-  interpolate_system_->Interpolate(*game_objects,
-    shared::packet::PacketHandler::SnapshotGetTimeLapse(snapshot));
+  interpolate_system_->Interpolate(*game_objects, shared::packet::PacketHandler::SnapshotGetTimeLapse(snapshot));
 }
 
 void GameNetworkMediator::OnEventReceived(const Game::Event *evt) const
@@ -138,8 +141,7 @@ void GameNetworkMediator::UpdateInterpolation(const uint64_t delta_time) const
 }
 
 void GameNetworkMediator::SetGameObjects(
-  const std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>>
-    &game_objects)
+  const std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>> &game_objects)
   const
 {
   if (interpolate_system_) { interpolate_system_->SetGameObjects(game_objects); }

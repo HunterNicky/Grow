@@ -17,7 +17,6 @@
 
 #include <cmath>
 #include <memory>
-#include <random>
 #include <raylib.h>
 #include <raymath.h>
 #include <string>

@@ -10,12 +10,12 @@
 namespace chroma::shared::core {
 
 GameObject::GameObject()
-  : active_(true), id_(utils::UUID::Generate()), layer_(0), Type_(GameObjectType::NONE), net_role_(NetRole::ROLE_None),
+  : active_(true), id_(utils::UUID::Generate()), layer_(0), Type_(GameObjectType::NONE),
     transform_(std::make_shared<component::Transform>())
 {}
 
 GameObject::GameObject(const UUIDv4::UUID &id, bool active, uint32_t layer, GameObjectType tag)
-  : active_(active), id_(id), layer_(layer), Type_(tag), net_role_(NetRole::ROLE_None),
+  : active_(active), id_(id), layer_(layer), Type_(tag),
     transform_(std::make_shared<component::Transform>())
 {
   AttachComponent(transform_);

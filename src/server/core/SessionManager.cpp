@@ -1,5 +1,9 @@
 #include "chroma/server/core/SessionManager.h"
 
+#include <enet.h>
+#include <uuid_v4.h>
+#include <cstdint>
+
 namespace chroma::server::core {
 
 void SessionManager::AddSession(ENetPeer *peer, const UUIDv4::UUID &player_id)

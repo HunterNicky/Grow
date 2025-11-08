@@ -6,9 +6,12 @@
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/events/KeyEvent.h"
-#include "chroma/shared/events/SoundEvent.h"
 #include "chroma/shared/packet/PacketHandler.h"
 #include "chroma/shared/packet/events/InputEventMessage.h"
+#include "entities_generated.h"
+#include "events_generated.h"
+#include "game_generated.h"
+#include "messages_generated.h"
 
 #include <chrono>
 #include <cstdint>
@@ -211,7 +214,8 @@ void NetworkState::OnEvent(shared::event::Event &event)
 
 void NetworkState::SetEventDispatcher()
 {
-  shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::KeyEvent>([this](shared::event::Event &event) { this->OnEvent(event); });
+  shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::KeyEvent>(
+    [this](shared::event::Event &event) { this->OnEvent(event); });
 }
 
 }// namespace chroma::app::states

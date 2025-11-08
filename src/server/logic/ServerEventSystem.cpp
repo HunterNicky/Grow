@@ -1,6 +1,11 @@
 #include "chroma/server/logic/ServerEventSystem.h"
 
+#include "chroma/server/core/SessionManager.h"
+#include "chroma/server/logic/ServerGameLogic.h"
 #include "chroma/server/network/ServerPacketHandler.h"
+#include "events_generated.h"
+
+#include <enet.h>
 
 namespace chroma::server::logic {
 void ServerEventSystem::ProcessGameEvent(const ENetEvent &event,

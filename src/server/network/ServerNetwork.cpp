@@ -1,7 +1,11 @@
 #include "chroma/server/network/ServerNetwork.h"
 
-namespace chroma::server::network {
+#include <cstddef>
+#include <cstdint>
+#include <enet.h>
+#include <memory>
 
+namespace chroma::server::network {
 ServerNetwork::ServerNetwork() = default;
 
 ServerNetwork::~ServerNetwork() { Stop(); }
@@ -40,7 +44,7 @@ bool ServerNetwork::PollEvent(ENetEvent &event, const int timeout_ms) const
 
 void ServerNetwork::Send(ENetPeer *peer, const uint8_t *data, const size_t size, const bool reliable) const
 {
-  if (!peer || !host_) { return; }
+  if (peer == nullptr || !host_) { return; }
   const enet_uint32 flags = reliable ? ENET_PACKET_FLAG_RELIABLE : 0;
   ENetPacket *packet = enet_packet_create(data, size, flags);
   enet_peer_send(peer, 0, packet);
@@ -52,4 +56,3 @@ void ServerNetwork::Flush() const
 }
 
 }// namespace chroma::server::network
-

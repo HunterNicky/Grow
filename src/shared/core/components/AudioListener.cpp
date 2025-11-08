@@ -3,8 +3,6 @@
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/Transform.h"
 
-#include <raylib.h>
-
 namespace chroma::shared::core::component {
 
 void AudioListener::Update(const float delta_time)

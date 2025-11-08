@@ -27,7 +27,7 @@ public:
   GameNetworkMediator(GameNetworkMediator &&) noexcept = default;
   GameNetworkMediator &operator=(GameNetworkMediator &&) noexcept = default;
 
-  void OnSnapshotReceived(const std::vector<uint8_t> &data);
+  void OnSnapshotReceived(const std::vector<uint8_t> &data) const;
   void OnSnapshotReceived(const Game::Snapshot *snapshot) const;
   void OnEventReceived(const Game::Event *evt) const;
 

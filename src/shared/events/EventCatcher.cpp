@@ -5,7 +5,6 @@
 #include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/events/MouseEvent.h"
 
-#include <memory>
 #include <raylib.h>
 
 namespace chroma::shared::event {

@@ -1,15 +1,23 @@
 #include "chroma/server/core/GameServer.h"
 
 #include <chrono>
+#include <cstdint>
+#include <enet.h>
+#include <flatbuffers/buffer.h>
 #include <flatbuffers/flatbuffer_builder.h>
+#include <memory>
 #include <vector>
 
+#include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
-#include "chroma/shared/events/SoundEvent.h"
 #include "chroma/shared/events/EventDispatcher.h"
+#include "chroma/shared/events/SoundEvent.h"
 #include "chroma/shared/packet/PacketHandler.h"
 #include "chroma/shared/packet/events/SoundEventMessage.h"
+#include "entities_generated.h"
+#include "events_generated.h"
 #include "game_generated.h"
+#include "messages_generated.h"
 
 namespace chroma::server::core {
 
@@ -48,10 +56,7 @@ GameServer::GameServer()
   });
 }
 
-bool GameServer::InitServer(const int port, const int max_clients)
-{
-  return network_.InitServer(port, max_clients);
-}
+bool GameServer::InitServer(const int port, const int max_clients) { return network_.InitServer(port, max_clients); }
 
 int GameServer::Start()
 {
@@ -94,7 +99,8 @@ int GameServer::Start()
       enet_packet_destroy(event.packet);
     }
 
-    const auto since_last_snapshot_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_snapshot_time_).count();
+    const auto since_last_snapshot_ms =
+      std::chrono::duration_cast<std::chrono::milliseconds>(now - last_snapshot_time_).count();
     if (since_last_snapshot_ms >= config_.ticks) {
       const auto server_time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time_).count();
       last_snapshot_time_ = now;
@@ -124,7 +130,8 @@ void GameServer::ConnectClient(const ENetEvent &event)
   flatbuffers::FlatBufferBuilder builder(1024);
   const std::vector<flatbuffers::Offset<Game::EntityState>> game_entities = game_logic_.GetEntitiesFlatBuffer(builder);
 
-  const auto game_state = shared::packet::PacketHandler::GameObjectsToFlatBuffer(builder, game_entities, player->GetId(), 0, 0);
+  const auto game_state =
+    shared::packet::PacketHandler::GameObjectsToFlatBuffer(builder, game_entities, player->GetId(), 0, 0);
 
   network_.Send(event.peer, game_state.data(), game_state.size(), true);
   network_.Flush();
@@ -146,7 +153,8 @@ void GameServer::BroadcastGameObjectState(const uint64_t server_time_ms)
 
   for (const auto &[peer, session] : sessions_.GetAll()) {
     flatbuffers::FlatBufferBuilder builder(1024);
-    const std::vector<flatbuffers::Offset<Game::EntityState>> game_entities = game_logic_.GetEntitiesFlatBuffer(builder);
+    const std::vector<flatbuffers::Offset<Game::EntityState>> game_entities =
+      game_logic_.GetEntitiesFlatBuffer(builder);
 
     auto game_state = shared::packet::PacketHandler::GameObjectsToFlatBuffer(
       builder, game_entities, session.GetPlayerId(), server_time_ms, session.GetLastProcessedInput());

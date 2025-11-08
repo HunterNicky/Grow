@@ -7,15 +7,18 @@
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/events/MouseEvent.h"
+#include "chroma/shared/factory/GameObjectFactory.h"
 #include "chroma/shared/packet/events/InputEventMessage.h"
 #include "chroma/shared/packet/events/SoundEventMessage.h"
-#include "game_generated.h"
+#include "common_generated.h"
+#include "components_generated.h"
+#include "entities_generated.h"
+#include "events_generated.h"
+#include "messages_generated.h"
 
-#include <cstddef>
 #include <cstdint>
 #include <flatbuffers/buffer.h>
 #include <flatbuffers/flatbuffer_builder.h>
-#include <flatbuffers/verifier.h>
 #include <memory>
 #include <raylib.h>
 #include <string>
@@ -32,10 +35,11 @@ std::vector<uint8_t> PacketHandler::GameObjectsToFlatBuffer(flatbuffers::FlatBuf
   const uint32_t last_processed_input)
 {
 
-  auto fb_player_id = builder.CreateString(player_id.str());
-  auto fb_entities_vec = builder.CreateVector(entities);
-  auto snapshot = Game::CreateSnapshot(builder, time_lapse, last_processed_input, fb_player_id, fb_entities_vec);
-  auto envelope = Game::CreateEnvelope(builder, Game::MsgType::Snapshot, Game::MsgUnion::Snapshot, snapshot.Union());
+  const auto fb_player_id = builder.CreateString(player_id.str());
+  const auto fb_entities_vec = builder.CreateVector(entities);
+  const auto snapshot = Game::CreateSnapshot(builder, time_lapse, last_processed_input, fb_player_id, fb_entities_vec);
+  const auto envelope =
+    Game::CreateEnvelope(builder, Game::MsgType::Snapshot, Game::MsgUnion::Snapshot, snapshot.Union());
   builder.Finish(envelope);
 
   auto buf = builder.Release();
@@ -167,7 +171,7 @@ void PacketHandler::ComponentToColor(const Game::Component *component, std::shar
 {
   const auto *fb_color = component->type_as_Color();
   if (fb_color != nullptr) {
-    auto color = game_object->GetComponent<core::component::Coloring>();
+    const auto color = game_object->GetComponent<core::component::Coloring>();
     if (color) {
       color->SetColoring(fb_color->r(), fb_color->g(), fb_color->b(), fb_color->a());
       game_object->AttachComponent(color);
@@ -260,8 +264,8 @@ std::vector<uint8_t> PacketHandler::SoundEventMessageToFlatBuffer(
 
   const auto fb_sound_id = builder.CreateString(sound_message->GetSoundId());
   const auto fb_source_id = builder.CreateString(sound_message->GetSourceId());
-  const auto fb_sound = Game::CreateSoundEvent(
-    builder, fb_sound_id, sound_message->GetVolume(), sound_message->GetPitch(), fb_source_id);
+  const auto fb_sound =
+    Game::CreateSoundEvent(builder, fb_sound_id, sound_message->GetVolume(), sound_message->GetPitch(), fb_source_id);
   const auto fb_sound_msg =
     Game::CreateSoundEventMessage(builder, sound_message->GetSeq(), sound_message->GetDeltaTime(), fb_sound);
 
@@ -294,42 +298,29 @@ uint64_t PacketHandler::SnapshotGetTimeLapse(const Game::Snapshot *snapshot)
 void PacketHandler::SnapshotToGameObjects(const Game::Snapshot *snapshot,
   std::unordered_map<UUIDv4::UUID, std::shared_ptr<core::GameObject>> &game_objects)
 {
-  if (snapshot == nullptr) { return; }
+  if (snapshot == nullptr || snapshot->entities() == nullptr) { return; }
 
-  const std::string local_player_id_str = snapshot->player_id() ? snapshot->player_id()->str() : std::string{};
+  const std::string local_player_id_str =
+    snapshot->player_id() != nullptr ? snapshot->player_id()->str() : std::string{};
 
-  if (!snapshot->entities()) { return; }
   for (const auto &entity_state : *snapshot->entities()) {
-    if (!entity_state || !entity_state->id()) { continue; }
+    if (entity_state == nullptr || entity_state->id() == nullptr) { continue; }
+
     const UUIDv4::UUID entity_id(entity_state->id()->str());
     const bool is_local_player = (entity_state->id()->str() == local_player_id_str);
 
-    std::shared_ptr<core::GameObject> game_object = nullptr;
-    auto it = game_objects.find(entity_id);
-
-    if (it != game_objects.end()) {
+    std::shared_ptr<core::GameObject> game_object;
+    if (const auto it = game_objects.find(entity_id); it != game_objects.end()) {
       game_object = it->second;
     } else {
-      switch (entity_state->type()) {
-      case Game::GameObjectType::Player: {
-        const auto player = std::make_shared<core::player::Player>();
-        player->SetNetRole(is_local_player ? core::NetRole::ROLE_AutonomousProxy : core::NetRole::ROLE_SimulatedProxy);
-        player->InitComponents();
-        player->SetId(entity_id);
-        game_object = player;
-        game_objects.emplace(player->GetId(), player);
-        break;
-      }
-      default:
-        break;
-      }
+      game_object = factory::GameObjectFactory::Create(entity_state, is_local_player);
+      if (game_object) { game_objects.emplace(entity_id, game_object); }
     }
 
     if (!game_object) { continue; }
 
     if (entity_state->type() == Game::GameObjectType::Player) {
-      const auto player = std::static_pointer_cast<core::player::Player>(game_object);
-      if (player) {
+      if (const auto player = std::dynamic_pointer_cast<core::player::Player>(game_object)) {
         player->SetNetRole(is_local_player ? core::NetRole::ROLE_AutonomousProxy : core::NetRole::ROLE_SimulatedProxy);
       }
     }
