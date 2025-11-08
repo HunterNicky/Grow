@@ -258,8 +258,9 @@ std::vector<uint8_t> PacketHandler::SoundEventMessageToFlatBuffer(
   flatbuffers::FlatBufferBuilder builder(256);
 
   const auto fb_sound_id = builder.CreateString(sound_message->GetSoundId());
-  const auto fb_sound =
-    Game::CreateSoundEvent(builder, fb_sound_id, sound_message->GetVolume(), sound_message->GetPitch());
+  const auto fb_source_id = builder.CreateString(sound_message->GetSourceId());
+  const auto fb_sound = Game::CreateSoundEvent(
+    builder, fb_sound_id, sound_message->GetVolume(), sound_message->GetPitch(), fb_source_id);
   const auto fb_sound_msg =
     Game::CreateSoundEventMessage(builder, sound_message->GetSeq(), sound_message->GetDeltaTime(), fb_sound);
 

@@ -3,7 +3,6 @@
 #include "chroma/server/network/ServerPacketHandler.h"
 
 namespace chroma::server::logic {
-
 void ServerEventSystem::ProcessGameEvent(const ENetEvent &event,
   const long long elapsed,
   const Game::Event *evt,

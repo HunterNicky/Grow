@@ -28,8 +28,8 @@ public:
   GameNetworkMediator &operator=(GameNetworkMediator &&) noexcept = default;
 
   void OnSnapshotReceived(const std::vector<uint8_t> &data);
-  void OnSnapshotReceived(const Game::Snapshot *snapshot);
-  void OnEventReceived(const Game::Event *evt);
+  void OnSnapshotReceived(const Game::Snapshot *snapshot) const;
+  void OnEventReceived(const Game::Event *evt) const;
 
   static void SendInput(const Game::InputEventMessage &input);
 
@@ -38,13 +38,14 @@ public:
   [[nodiscard]] std::shared_ptr<GameState> GetGameState() const;
   [[nodiscard]] std::shared_ptr<NetworkState> GetNetworkState() const;
 
-  void AddInputEvent(const shared::event::Event &event);
+  void AddInputEvent(const shared::event::Event &event) const;
   [[nodiscard]] uint32_t GetSeqCounter() const;
 
-  void UpdateInterpolation(uint64_t delta_time);
+  void UpdateInterpolation(uint64_t delta_time) const;
   void SetGameObjects(
     const std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>>
-      &game_objects);
+      &game_objects)
+    const;
 
 private:
   std::weak_ptr<GameState> game_state_;

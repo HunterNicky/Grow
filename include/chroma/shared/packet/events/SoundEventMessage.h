@@ -21,12 +21,14 @@ public:
   [[nodiscard]] const std::string &GetSoundId() const { return sound_id_; }
   [[nodiscard]] float GetVolume() const { return volume_; }
   [[nodiscard]] float GetPitch() const { return pitch_; }
+  [[nodiscard]] const std::string &GetSourceId() const { return source_id_; }
 
   void SetSeq(uint32_t seq) { seq_ = seq; }
   void SetDeltaTime(float dt) { dt_ = dt; }
   void SetSoundId(std::string id) { sound_id_ = std::move(id); }
   void SetVolume(float v) { volume_ = v; }
   void SetPitch(float p) { pitch_ = p; }
+  void SetSourceId(std::string id) { source_id_ = std::move(id); }
 
 private:
   uint32_t seq_{};
@@ -34,5 +36,6 @@ private:
   std::string sound_id_{};
   float volume_{};
   float pitch_{};
+  std::string source_id_{};
 };
 } // namespace chroma::shared::packet

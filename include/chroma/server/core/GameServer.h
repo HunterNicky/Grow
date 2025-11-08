@@ -28,7 +28,7 @@ public:
   [[nodiscard]] bool IsRunning() const { return is_running_; }
   void SetRunning(const bool running) { is_running_ = running; }
 
-  void BroadcastGameObjectState(uint64_t delta_time);
+  void BroadcastGameObjectState(uint64_t delta_time) const;
 
 private:
   ServerConfig config_{};

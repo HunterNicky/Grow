@@ -4,7 +4,11 @@
 #include <flatbuffers/flatbuffer_builder.h>
 #include <vector>
 
+#include "chroma/shared/events/EventBus.h"
+#include "chroma/shared/events/SoundEvent.h"
+#include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/packet/PacketHandler.h"
+#include "chroma/shared/packet/events/SoundEventMessage.h"
 #include "game_generated.h"
 
 namespace chroma::server::core {
@@ -13,6 +17,35 @@ GameServer::GameServer()
 {
   if (!InitServer(config_.port, config_.max_clients)) { return; }
   is_running_ = true;
+
+  // Subscribe to server-side sound events and broadcast to clients
+  if (shared::event::EventBus::GetDispatcher() == nullptr) {
+    auto dispatcher = std::make_unique<shared::event::EventDispatcher>();
+    shared::event::EventBus::SetDispatcher(dispatcher);
+  }
+
+  shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::SoundEvent>([this](shared::event::Event &ev) {
+    if (!network_.IsReady()) { return; }
+
+    auto &sound_ev = dynamic_cast<shared::event::SoundEvent &>(ev);
+
+    auto sound_msg = std::make_shared<shared::packet::SoundEventMessage>();
+    sound_msg->SetSeq(0);
+    sound_msg->SetDeltaTime(0.0F);
+    sound_msg->SetSoundId(sound_ev.GetSoundName());
+    sound_msg->SetVolume(sound_ev.GetVolume());
+    sound_msg->SetPitch(sound_ev.GetPitch());
+    sound_msg->SetSourceId(sound_ev.GetEmitterId());
+
+    const auto buf = shared::packet::PacketHandler::SoundEventMessageToFlatBuffer(sound_msg);
+    if (buf.empty()) { return; }
+
+    for (const auto &[peer, session] : sessions_.GetAll()) {
+      (void)session;
+      network_.Send(peer, buf.data(), buf.size(), true);
+    }
+    network_.Flush();
+  });
 }
 
 bool GameServer::InitServer(const int port, const int max_clients)
@@ -105,7 +138,7 @@ void GameServer::DisconnectClient(const ENetEvent &event)
   sessions_.RemoveSession(event.peer);
 }
 
-void GameServer::BroadcastGameObjectState(const uint64_t delta_time)
+void GameServer::BroadcastGameObjectState(const uint64_t delta_time) const
 {
   if (!network_.IsReady()) { return; }
 
@@ -123,4 +156,3 @@ void GameServer::BroadcastGameObjectState(const uint64_t delta_time)
 }
 
 }// namespace chroma::server::core
-

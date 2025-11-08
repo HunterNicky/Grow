@@ -4,7 +4,6 @@
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/AudioListener.h"
 #include "chroma/shared/core/components/Camera.h"
-#include "chroma/shared/core/components/Coloring.h"
 #include "chroma/shared/core/components/Movement.h"
 #include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/core/components/SpriteAnimation.h"
@@ -17,7 +16,6 @@
 #include "chroma/shared/render/RenderBridge.h"
 
 #include <cmath>
-#include <cstdint>
 #include <memory>
 #include <random>
 #include <raylib.h>
@@ -124,52 +122,9 @@ void Player::SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &a
 
 Player::~Player() = default;
 
-void Player::OnUpdate(float delta_time)
+void Player::AnimationState(const Vector2 dir, const float magnitude)
 {
-  debug_text_.clear();
-  const auto transform = GetComponent<component::Transform>();
-  const auto speed = GetComponent<component::Speed>();
-  if (!transform || !speed) { return; }
-
-  const auto movement = GetComponent<component::Movement>();
-  if (!movement) { return; }
-
-  const bool is_authority = HasAuthority();
-  const bool is_autonomous = IsAutonomousProxy();
-  const bool should_simulate = (is_authority || is_autonomous);
-
-  Vector2 dir = movement->GetDirection();
-  const float magnitude = Vector2Length(dir);
-
-  debug_text_ += "Player Debug Info:\n";
-  if (magnitude > 0.0F) {
-    dir = Vector2Normalize(dir);
-    movement->SetDirection(dir);
-
-    if (should_simulate) {
-      debug_text_ += "Dir: (" + std::to_string(dir.x) + ", " + std::to_string(dir.y) + ")\n";
-      Vector2 pos = transform->GetPosition();
-      pos.x += dir.x * speed->GetSpeed().x * delta_time;
-      pos.y += dir.y * speed->GetSpeed().y * delta_time;
-      transform->SetPosition(pos);
-    }
-
-    if (is_authority) {
-      step_timer_ += delta_time;
-      constexpr float step_interval = 0.5F;
-      if (step_timer_ >= step_interval) {
-        step_timer_ = 0.0F;
-        debug_text_ += "Simulated sound\n";
-        event::SoundEvent sound_event =
-          event::SoundEvent("step", 0.6F, 0.95F + (static_cast<float>(GetRandomValue(0, 10)) / 100.0F));
-        event::EventBus::Dispatch(sound_event);
-      }
-    }
-    was_moving_ = true;
-  }
-
-  const auto anim = GetComponent<component::SpriteAnimation>();
-  if (anim) {
+  if (const auto anim = GetComponent<component::SpriteAnimation>()) {
     if (magnitude <= 0.0F) {
       if (was_moving_) {
         step_timer_ = 0.0F;
@@ -200,6 +155,49 @@ void Player::OnUpdate(float delta_time)
       }
     }
   }
+}
+void Player::OnUpdate(float delta_time)
+{
+  const auto transform = GetComponent<component::Transform>();
+  const auto speed = GetComponent<component::Speed>();
+  if (!transform || !speed) { return; }
+
+  const auto movement = GetComponent<component::Movement>();
+  if (!movement) { return; }
+
+  const bool is_authority = HasAuthority();
+  const bool is_autonomous = IsAutonomousProxy();
+  const bool should_simulate = (is_authority || is_autonomous);
+
+  Vector2 dir = movement->GetDirection();
+  const float magnitude = Vector2Length(dir);
+
+  if (magnitude > 0.0F) {
+    dir = Vector2Normalize(dir);
+    movement->SetDirection(dir);
+
+    if (should_simulate) {
+      Vector2 pos = transform->GetPosition();
+      pos.x += dir.x * speed->GetSpeed().x * delta_time;
+      pos.y += dir.y * speed->GetSpeed().y * delta_time;
+      transform->SetPosition(pos);
+    }
+
+    if (is_authority) {
+      step_timer_ += delta_time;
+      constexpr float step_interval = 0.5F;
+      if (step_timer_ >= step_interval) {
+        step_timer_ = 0.0F;
+        auto sound_event =
+          event::SoundEvent("step", 0.6F, 0.95F + (static_cast<float>(GetRandomValue(0, 10)) / 100.0F));
+        sound_event.SetEmitterId(GetId().str());
+        event::EventBus::Dispatch(sound_event);
+      }
+    }
+    was_moving_ = true;
+  }
+
+  AnimationState(dir, magnitude);
 
   for (const auto &[fst, snd] : components_) { snd->Update(delta_time); }
 }
@@ -225,43 +223,11 @@ void Player::OnRender()
   const bool flip_x = (last_facing_ == FacingDir::Side) && last_left_;
 
   bridge->DrawAnimation(*anim, pos, scale, rotation, WHITE, flip_x, false, { 0.5F, 0.5F });
-
-  if (HasAuthority()) {
-    debug_text_ += "Authority";
-    DrawText(debug_text_.c_str(),
-      static_cast<int>(pos.x) - MeasureText(debug_text_.c_str(), 10) / 2,
-      static_cast<int>(pos.y) - 40,
-      10,
-      GREEN);
-  } else if (IsAutonomousProxy()) {
-    debug_text_ += "Autonomous Proxy";
-    DrawText(debug_text_.c_str(),
-      static_cast<int>(pos.x) - MeasureText(debug_text_.c_str(), 10) / 2,
-      static_cast<int>(pos.y) - 40,
-      10,
-      BLUE);
-  } else if (IsSimulatedProxy()) {
-    debug_text_ += "Simulated Proxy";
-    DrawText(debug_text_.c_str(),
-      static_cast<int>(pos.x) - MeasureText(debug_text_.c_str(), 10) / 2,
-      static_cast<int>(pos.y) - 40,
-      10,
-      RED);
-  } else {
-    debug_text_ += "No Role";
-    DrawText(debug_text_.c_str(),
-      static_cast<int>(pos.x) - MeasureText(debug_text_.c_str(), 10) / 2,
-      static_cast<int>(pos.y) - 40,
-      10,
-      GRAY);
-  }
 }
 
 void Player::HandleEvent(const event::Event &event)
 {
-  event::Event::Type event_type = event.GetType();
-
-  switch (event_type) {
+  switch (event.GetType()) {
   case event::Event::KeyEvent: {
     const auto &key_event = dynamic_cast<const event::KeyEvent &>(event);
     const auto movement = GetComponent<component::Movement>();

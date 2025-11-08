@@ -17,13 +17,14 @@ public:
   Player &operator=(const Player &) = default;
   Player &operator=(Player &&) = delete;
   ~Player() override;
+  void AnimationState(Vector2 dir, float magnitude);
 
   void InitComponents();
   void OnUpdate(float delta_time) override;
   void OnFixedUpdate(float fixed_delta_time) override;
   void OnCollision(const collision::CollisionEvent &event) override;
   void OnRender() override;
-  void HandleEvent(const event::Event &event);
+  void HandleEvent(const event::Event &event) override;
 
   void UpdateAnimationFromDirection(Vector2 dir);
 
@@ -36,6 +37,5 @@ private:
   bool last_left_ { false };
   float step_timer_ { 0.0F };
   bool was_moving_ { false };
-  std::string debug_text_{};
 };
 }// namespace chroma::shared::core::player

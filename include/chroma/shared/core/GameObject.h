@@ -1,6 +1,7 @@
 #pragma once
 
 #include "chroma/shared/core/components/Transform.h"
+#include "chroma/shared/events/Event.h"
 
 #include <cstdint>
 #include <map>
@@ -81,6 +82,7 @@ public:
   virtual std::shared_ptr<GameObject> Clone() = 0;
   virtual void OnFixedUpdate(float fixed_delta_time) = 0;
   virtual void OnCollision(const collision::CollisionEvent &collision) = 0;
+  virtual void HandleEvent(const event::Event &event) = 0;
 
 protected:
   bool active_;

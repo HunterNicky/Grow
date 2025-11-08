@@ -12,6 +12,7 @@ table SoundEvent {
   sound_id:string;
   volume:float;
   pitch:float;
+  source_id:string; // UUID string do GameObject emissor
 }
 
 table KeyEvent {

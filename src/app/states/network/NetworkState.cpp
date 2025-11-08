@@ -188,7 +188,7 @@ void NetworkState::OnEvent(shared::event::Event &event)
   std::vector<uint8_t> buf;
   switch (event.GetType()) {
   case shared::event::Event::Type::KeyEvent: {
-    auto input_message = std::make_shared<shared::packet::InputMessage>();
+    const auto input_message = std::make_shared<shared::packet::InputMessage>();
 
     input_message->SetSeq(game_mediator_->GetSeqCounter());
     input_message->SetDeltaTime(delta_time_);
@@ -196,20 +196,6 @@ void NetworkState::OnEvent(shared::event::Event &event)
     input_message->SetEvent(event);
 
     buf = shared::packet::PacketHandler::InputMessageToFlatBuffer(input_message);
-    if (buf.empty()) { return; }
-    break;
-  }
-  case shared::event::Event::Type::SoundEvent: {
-    auto sound_message = std::make_shared<shared::packet::SoundEventMessage>();
-    auto &sound_event = dynamic_cast<shared::event::SoundEvent &>(event);
-
-    sound_message->SetSeq(game_mediator_->GetSeqCounter());
-    sound_message->SetDeltaTime(delta_time_);
-    sound_message->SetSoundId(sound_event.GetSoundName());
-    sound_message->SetVolume(sound_event.GetVolume());
-    sound_message->SetPitch(sound_event.GetPitch());
-
-    buf = shared::packet::PacketHandler::SoundEventMessageToFlatBuffer(sound_message);
     if (buf.empty()) { return; }
     break;
   }
@@ -226,8 +212,6 @@ void NetworkState::OnEvent(shared::event::Event &event)
 void NetworkState::SetEventDispatcher()
 {
   shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::KeyEvent>([this](shared::event::Event &event) { this->OnEvent(event); });
-  shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::SoundEvent>(
-    [this](shared::event::Event &event) { this->OnEvent(event); });
 }
 
 }// namespace chroma::app::states
