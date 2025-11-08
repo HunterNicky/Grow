@@ -1,20 +1,24 @@
 #pragma once
+#include "chroma/client/render/Camera.h"
 #include "chroma/client/render/RenderQueue.h"
 #include "chroma/client/render/RenderTarget.h"
 #include "chroma/client/render/SpriteRenderer.h"
-#include "chroma/client/render/Camera.h"
 #include "chroma/client/render/TextureAtlas.h"
 #include "chroma/client/render/Window.h"
 #include "chroma/client/render/animation/AnimationRenderer.h"
 
+#include <functional>
 #include <memory>
 #include <string>
-#include <functional>
 
 namespace chroma::client::render {
 class Renderer
 {
 public:
+  Renderer(const Renderer &) = delete;
+  Renderer(Renderer &&) = delete;
+  Renderer &operator=(const Renderer &) = delete;
+  Renderer &operator=(Renderer &&) = delete;
   Renderer(std::unique_ptr<Window> window, const RenderConfig &config);
   ~Renderer();
 
@@ -30,7 +34,12 @@ public:
   void LoadSprite(const std::string &filepath) const;
 
   [[nodiscard]] static bool ShouldClose() { return Window::ShouldClose(); }
-  static void Close() { Window::Close(); }
+  void Close()
+  {
+    atlas_manager_.reset();
+    render_target_.reset();
+    Window::Close();
+  }
 
   [[nodiscard]] Camera &GetCamera() const { return *camera_; }
   [[nodiscard]] RenderQueue &GetQueue() const { return *render_queue_; }

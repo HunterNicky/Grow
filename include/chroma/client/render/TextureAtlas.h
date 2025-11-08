@@ -4,6 +4,7 @@
 #include <raylib.h>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 namespace chroma::client::render {
 struct AtlasRegion
@@ -18,6 +19,10 @@ class TextureAtlas
 {
 public:
   explicit TextureAtlas(int width = 4096, int height = 4096);
+  TextureAtlas(const TextureAtlas &) = default;
+  TextureAtlas(TextureAtlas &&) = delete;
+  TextureAtlas &operator=(const TextureAtlas &) = default;
+  TextureAtlas &operator=(TextureAtlas &&) = delete;
   ~TextureAtlas();
 
   void AddImage(const std::string &filepath);

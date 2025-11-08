@@ -29,20 +29,20 @@ public:
 
 private:
   Camera2D camera_{};
-  CameraMode mode_;
+  CameraMode mode_{};
   Vector2 target_{};
   Rectangle bounds_{};
-  int virtual_width_, virtual_height_;
+  int virtual_width_{}, virtual_height_{};
 
-  float smoothness_;
-  Vector2 velocity_;
+  float smoothness_{};
+  Vector2 velocity_{};
 
   // Deadzone half-size in world units; if zero, disabled
-  Vector2 deadzone_half_ { 0.0F, 0.0F };
+  Vector2 deadzone_half_{ 0.0F, 0.0F };
 
-  float shake_intensity_;
-  float shake_duration_;
-  float shake_timer_;
+  float shake_intensity_{};
+  float shake_duration_{};
+  float shake_timer_{};
 
   void UpdateShake(float delta_time);
   void ApplyBounds();

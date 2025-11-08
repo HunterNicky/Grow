@@ -26,22 +26,25 @@
 #include "chroma/shared/render/RenderBridge.h"
 
 namespace chroma::app {
-Application::Application() : layer_stack_(std::make_unique<layer::LayerStack>()), delta_time_(0.F)
+
+Application::Application()
+  : layer_stack_(std::make_unique<layer::LayerStack>()), delta_time_(0.F), renderer_([&] {
+      const client::render::RenderConfig config{};
+      auto window = std::make_unique<client::render::Window>(1280, 720, "Chroma");
+      return std::make_unique<client::render::Renderer>(std::move(window), config);
+    }()),
+    audio_(std::make_unique<client::audio::AudioEngine>())
 {
-  const client::render::RenderConfig config{};
-  auto window = std::make_unique<client::render::Window>(1280, 720, "Chroma");
-  renderer_ = std::make_unique<client::render::Renderer>(std::move(window), config);
   const auto bridge = std::make_shared<client::render::RenderBridgeImpl>(renderer_.get());
   shared::render::SetRenderBridge(bridge);
 
-  audio_ = std::make_unique<client::audio::AudioEngine>();
   const auto audio_bridge = std::make_shared<client::audio::AudioBridgeImpl>(audio_.get());
   shared::audio::SetAudioBridge(audio_bridge);
 
   audio_bridge->LoadSound("step", "assets/sfx/step.wav");
   audio_bridge->LoadMusic("bgm", "assets/music/06.mp3");
   audio_bridge->PlayMusic("bgm", true, 0.4F);
-};
+}
 
 void Application::Run()
 {

@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <optional>
 #include <raylib.h>
-//#define STB_RECT_PACK_IMPLEMENTATION
 #include <stb_rect_pack.h>
 #include <string>
 #include <vector>
@@ -70,7 +69,7 @@ void TextureAtlas::Rebuild()
     ImageDraw(&atlas_img, img, src, dst, WHITE);
   }
 
-  for (auto &img : images) { UnloadImage(img); }
+  for (const auto &img : images) { UnloadImage(img); }
 
   if (texture_.id != 0) { UnloadTexture(texture_); }
   texture_ = LoadTextureFromImage(atlas_img);

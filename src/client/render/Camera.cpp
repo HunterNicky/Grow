@@ -9,8 +9,7 @@ namespace chroma::client::render {
 Camera::Camera(const float x, const float y, const int virtual_width, const int virtual_height)
   : mode_(CameraMode::Free), target_({ .x = x, .y = y }),
     bounds_({ .x = -INFINITY, .y = -INFINITY, .width = INFINITY, .height = INFINITY }), virtual_width_(virtual_width),
-    virtual_height_(virtual_height), smoothness_(5.0F), velocity_({ .x = 0, .y = 0 }), shake_intensity_(0),
-    shake_duration_(0), shake_timer_(0)
+    virtual_height_(virtual_height), smoothness_(5.0F), velocity_({ .x = 0, .y = 0 })
 {
   camera_.target = target_;
   camera_.offset = { .x = static_cast<float>(virtual_width) / 2.0F, .y = static_cast<float>(virtual_height) / 2.0F };
