@@ -15,5 +15,4 @@ public:
   void Update(float delta_time) override;
 };
 
-} // namespace chroma::shared::core::component
-
+}// namespace chroma::shared::core::component

@@ -1,8 +1,8 @@
 #include "chroma/server/core/SessionManager.h"
 
+#include <cstdint>
 #include <enet.h>
 #include <uuid_v4.h>
-#include <cstdint>
 
 namespace chroma::server::core {
 
@@ -27,4 +27,3 @@ void SessionManager::UpdateLastProcessedInput(ENetPeer *peer, const uint32_t seq
 }
 
 }// namespace chroma::server::core
-

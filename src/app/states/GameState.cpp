@@ -19,8 +19,7 @@ namespace chroma::app::states {
 
 GameState::GameState()
   : State("GameState"),
-    game_objects_(
-      std::make_shared<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>>()),
+    game_objects_(std::make_shared<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>>()),
     network_mediator_(nullptr)
 {
   auto player = std::make_shared<shared::core::player::Player>();
@@ -33,8 +32,7 @@ GameState::GameState()
 
 GameState::GameState(std::shared_ptr<GameNetworkMediator> network_mediator)
   : State("GameState"),
-    game_objects_(
-      std::make_shared<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>>()),
+    game_objects_(std::make_shared<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>>()),
     network_mediator_(std::move(network_mediator))
 {
   network_mediator_->SetGameObjects(game_objects_);
@@ -94,15 +92,14 @@ void GameState::SetPlayerId(const UUIDv4::UUID &player_id) { player_id_ = player
 
 void GameState::SetEventDispatcher()
 {
-  shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::KeyEvent>([this](shared::event::Event &event) { this->OnEvent(event); });
+  shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::KeyEvent>(
+    [this](shared::event::Event &event) { this->OnEvent(event); });
 }
 
 std::shared_ptr<shared::core::player::Player> GameState::GetPlayer() const
 {
   auto it = game_objects_->find(player_id_);
-  if (it != game_objects_->end()) {
-    return std::static_pointer_cast<shared::core::player::Player>(it->second);
-  }
+  if (it != game_objects_->end()) { return std::static_pointer_cast<shared::core::player::Player>(it->second); }
   return nullptr;
 }
 

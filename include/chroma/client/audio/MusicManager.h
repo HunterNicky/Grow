@@ -37,5 +37,4 @@ private:
   float current_volume_ = 1.0f;
 };
 
-} // namespace chroma::client::audio
-
+}// namespace chroma::client::audio

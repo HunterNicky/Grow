@@ -1,7 +1,7 @@
 #include "chroma/client/render/RenderTarget.h"
 
-#include <raylib.h>
 #include <algorithm>
+#include <raylib.h>
 
 namespace chroma::client::render {
 RenderTarget::RenderTarget(const int width, const int height)

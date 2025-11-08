@@ -18,14 +18,12 @@ public:
   InterpolateSystem(InterpolateSystem &&) noexcept = default;
   InterpolateSystem &operator=(InterpolateSystem &&) noexcept = default;
 
-  void Interpolate(
-    const std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>> &new_snapshot,
+  void Interpolate(const std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>> &new_snapshot,
     uint64_t delta_time);
   void Update(uint64_t delta_time);
 
   void SetGameObjects(
-    const std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>>
-      &objects);
+    const std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>> &objects);
   void SetPlayerId(const UUIDv4::UUID &player_id);
 
   [[nodiscard]] uint64_t GetTimeLastSnapshot() const;

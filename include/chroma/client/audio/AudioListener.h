@@ -15,5 +15,4 @@ private:
   Vector2 position_;
 };
 
-} // namespace chroma::client::audio
-
+}// namespace chroma::client::audio

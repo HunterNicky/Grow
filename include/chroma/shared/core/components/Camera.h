@@ -34,7 +34,7 @@ private:
   float smoothness_;
   bool use_bounds_;
   Rectangle bounds_;
-  Vector2 deadzone_ { 0.0F, 0.0F };
+  Vector2 deadzone_{ 0.0F, 0.0F };
 };
 
-} // namespace chroma::shared::core::component
+}// namespace chroma::shared::core::component

@@ -15,8 +15,7 @@ GameObject::GameObject()
 {}
 
 GameObject::GameObject(const UUIDv4::UUID &id, bool active, uint32_t layer, GameObjectType tag)
-  : active_(active), id_(id), layer_(layer), Type_(tag),
-    transform_(std::make_shared<component::Transform>())
+  : active_(active), id_(id), layer_(layer), Type_(tag), transform_(std::make_shared<component::Transform>())
 {
   AttachComponent(transform_);
 }

@@ -26,19 +26,19 @@ void Component::Render() {}
 
 bool Component::HasAuthority() const
 {
-	const auto obj = game_object_.lock();
-	return obj && obj->HasAuthority();
+  const auto obj = game_object_.lock();
+  return obj && obj->HasAuthority();
 }
 
 bool Component::IsAutonomousProxy() const
 {
-	const auto obj = game_object_.lock();
-	return obj && obj->IsAutonomousProxy();
+  const auto obj = game_object_.lock();
+  return obj && obj->IsAutonomousProxy();
 }
 
 bool Component::IsSimulatedProxy() const
 {
-	const auto obj = game_object_.lock();
-	return obj && obj->IsSimulatedProxy();
+  const auto obj = game_object_.lock();
+  return obj && obj->IsSimulatedProxy();
 }
 }// namespace chroma::shared::core::component

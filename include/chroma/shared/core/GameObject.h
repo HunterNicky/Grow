@@ -90,7 +90,7 @@ protected:
   UUIDv4::UUID id_;
   uint32_t layer_;
   GameObjectType Type_;
-  NetRole net_role_ { NetRole::ROLE_None };
+  NetRole net_role_{ NetRole::ROLE_None };
 
   std::map<component::ComponentType, std::shared_ptr<component::Component>> components_;
   std::shared_ptr<component::Transform> transform_;

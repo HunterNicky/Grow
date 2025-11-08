@@ -15,4 +15,4 @@ void SetRenderBridge(std::shared_ptr<IRenderBridge> bridge) { BridgeStorage() = 
 
 std::shared_ptr<IRenderBridge> GetRenderBridge() { return BridgeStorage(); }
 
-} // namespace chroma::shared::render
+}// namespace chroma::shared::render

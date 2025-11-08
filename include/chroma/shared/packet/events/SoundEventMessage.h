@@ -4,11 +4,13 @@
 #include <string>
 
 namespace chroma::shared::packet {
-class SoundEventMessage {
+class SoundEventMessage
+{
 public:
   SoundEventMessage() = default;
   SoundEventMessage(uint32_t sequence, float delta_time, std::string sound_id, float volume, float pitch)
-    : seq_(sequence), dt_(delta_time), sound_id_(std::move(sound_id)), volume_(volume), pitch_(pitch) {}
+    : seq_(sequence), dt_(delta_time), sound_id_(std::move(sound_id)), volume_(volume), pitch_(pitch)
+  {}
 
   SoundEventMessage(const SoundEventMessage &) = default;
   SoundEventMessage(SoundEventMessage &&) = default;
@@ -38,4 +40,4 @@ private:
   float pitch_{};
   std::string source_id_{};
 };
-} // namespace chroma::shared::packet
+}// namespace chroma::shared::packet

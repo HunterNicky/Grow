@@ -60,7 +60,6 @@ private:
   static void ComponentToMovement(const Game::Component *component,
     const std::shared_ptr<core::GameObject> &game_object);
   static void ComponentToColor(const Game::Component *component, std::shared_ptr<core::GameObject> &game_object);
-
 };
 
 }// namespace chroma::shared::packet

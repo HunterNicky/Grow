@@ -91,8 +91,8 @@ void Renderer::InitializeSubsystems()
   camera_ = std::make_unique<Camera>(0.0F, 0.0F, vw, vh);
   render_queue_ = std::make_unique<RenderQueue>();
   atlas_manager_ = std::make_unique<TextureAtlas>();
-  sprite_renderer_ = std::make_unique<SpriteRenderer>(
-    std::shared_ptr<TextureAtlas>(atlas_manager_.get(), [](TextureAtlas *) {}));
+  sprite_renderer_ =
+    std::make_unique<SpriteRenderer>(std::shared_ptr<TextureAtlas>(atlas_manager_.get(), [](TextureAtlas *) {}));
   animation_renderer_ = std::make_unique<animation::AnimationRenderer>(
     std::shared_ptr<TextureAtlas>(atlas_manager_.get(), [](TextureAtlas *) {}),
     std::shared_ptr<SpriteRenderer>(sprite_renderer_.get(), [](SpriteRenderer *) {}));

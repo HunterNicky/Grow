@@ -34,4 +34,3 @@ private:
   bool flip_y_;
 };
 }// namespace chroma::shared::core::component
-

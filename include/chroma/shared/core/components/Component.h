@@ -7,7 +7,7 @@
 namespace chroma::shared::core {
 class GameObject;
 enum class NetRole : uint8_t;
-}
+}// namespace chroma::shared::core
 
 namespace chroma::shared::core::component {
 enum class ComponentType : uint8_t {

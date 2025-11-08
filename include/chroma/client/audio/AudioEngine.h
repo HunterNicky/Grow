@@ -27,5 +27,4 @@ private:
   std::unique_ptr<AudioListener> audio_listener_;
   float master_volume_ = 1.0f;
 };
-} // namespace chroma::client::audio
-
+}// namespace chroma::client::audio

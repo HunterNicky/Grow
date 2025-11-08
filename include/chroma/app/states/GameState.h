@@ -34,8 +34,7 @@ public:
 
   void SetPlayerId(const UUIDv4::UUID &player_id);
   void SetEventDispatcher();
-  void SetGameObjects(
-    const std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>> &game_objects);
+  void SetGameObjects(const std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>> &game_objects);
 
   [[nodiscard]] UUIDv4::UUID GetPlayerId() const;
   [[nodiscard]] std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>> &

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "chroma/shared/render/RenderBridge.h"
 #include "chroma/client/render/Renderer.h"
+#include "chroma/shared/render/RenderBridge.h"
 #include <unordered_map>
 #include <unordered_set>
 
@@ -50,4 +50,4 @@ private:
   std::unordered_set<const void *> initialized_;
 };
 
-} // namespace chroma::client::render
+}// namespace chroma::client::render

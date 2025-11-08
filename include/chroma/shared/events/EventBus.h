@@ -12,7 +12,7 @@ public:
   EventBus() = delete;
 
   static void SetDispatcher(std::unique_ptr<EventDispatcher> &dispatcher);
-  [[nodiscard]] static EventDispatcher* GetDispatcher();
+  [[nodiscard]] static EventDispatcher *GetDispatcher();
   static void Dispatch(Event &event);
 
 private:

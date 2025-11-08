@@ -15,4 +15,4 @@ void SetAudioBridge(std::shared_ptr<IAudioBridge> bridge) { BridgeStorage() = st
 
 std::shared_ptr<IAudioBridge> GetAudioBridge() { return BridgeStorage(); }
 
-} // namespace chroma::shared::audio
+}// namespace chroma::shared::audio

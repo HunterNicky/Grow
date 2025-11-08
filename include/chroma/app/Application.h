@@ -3,8 +3,8 @@
 #include <memory>
 
 #include "chroma/app/layers/LayerStack.h"
-#include "chroma/client/render/Renderer.h"
 #include "chroma/client/audio/AudioEngine.h"
+#include "chroma/client/render/Renderer.h"
 #include "chroma/shared/events/EventCatcher.h"
 #include "chroma/shared/events/EventDispatcher.h"
 
@@ -28,7 +28,7 @@ public:
   void PushOverlay(std::unique_ptr<layer::Layer> overlay) const;
   void PopOverlay() const;
 
-  static void DispatchEvent(shared::event::Event &event) ;
+  static void DispatchEvent(shared::event::Event &event);
 
 private:
   std::unique_ptr<layer::LayerStack> layer_stack_;

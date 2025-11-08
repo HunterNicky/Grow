@@ -8,5 +8,4 @@ void AudioListener::SetPosition(const Vector2 position) { position_ = position; 
 
 Vector2 AudioListener::GetPosition() const { return position_; }
 
-} // namespace chroma::client::audio
-
+}// namespace chroma::client::audio

@@ -4,7 +4,7 @@
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/InputState.h"
- 
+
 enum class FacingDir : uint8_t { Up = 0, Down = 1, Side = 2 };
 
 namespace chroma::shared::core::player {
@@ -33,9 +33,9 @@ public:
 
 private:
   events::InputState input_state_;
-  FacingDir last_facing_ { FacingDir::Down };
-  bool last_left_ { false };
-  float step_timer_ { 0.0F };
-  bool was_moving_ { false };
+  FacingDir last_facing_{ FacingDir::Down };
+  bool last_left_{ false };
+  float step_timer_{ 0.0F };
+  bool was_moving_{ false };
 };
 }// namespace chroma::shared::core::player

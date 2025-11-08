@@ -9,9 +9,7 @@ class PlayerSession
 {
 public:
   PlayerSession() = default;
-  PlayerSession(ENetPeer *peer, const UUIDv4::UUID &player_id)
-    : peer_(peer), player_id_(player_id)
-  {}
+  PlayerSession(ENetPeer *peer, const UUIDv4::UUID &player_id) : peer_(peer), player_id_(player_id) {}
 
   [[nodiscard]] ENetPeer *GetPeer() const { return peer_; }
   [[nodiscard]] const UUIDv4::UUID &GetPlayerId() const { return player_id_; }
@@ -28,4 +26,3 @@ private:
 };
 
 }// namespace chroma::server::network
-

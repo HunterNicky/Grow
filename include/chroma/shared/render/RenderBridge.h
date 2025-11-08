@@ -46,4 +46,4 @@ public:
 
 void SetRenderBridge(std::shared_ptr<IRenderBridge> bridge);
 std::shared_ptr<IRenderBridge> GetRenderBridge();
-} // namespace chroma::shared::render
+}// namespace chroma::shared::render
