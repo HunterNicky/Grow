@@ -5,6 +5,7 @@
 #include <raylib.h>
 #include <raymath.h>
 #include <string>
+#include <vector>
 
 namespace chroma::client::audio {
 
