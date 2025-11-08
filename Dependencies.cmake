@@ -10,12 +10,10 @@ function(chroma_setup_dependencies)
 
   set(THIRD_PARTY_DIR ${CMAKE_SOURCE_DIR}/third_party)
 
-  find_package(raylib QUIET)
   if (NOT raylib_FOUND)
     CPMAddPackage("gh:raysan5/raylib#5.5")
   endif ()
 
-  find_package(raygui QUIET CONFIG)
   if (NOT raygui_FOUND)
     CPMAddPackage("gh:raysan5/raygui#4.0")
     if (NOT TARGET raygui)
