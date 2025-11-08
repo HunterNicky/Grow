@@ -248,7 +248,11 @@ void Player::HandleEvent(const event::Event &event)
   case event::Event::SoundEvent: {
     const auto &sound_event = dynamic_cast<const event::SoundEvent &>(event);
     if (const auto ab = audio::GetAudioBridge()) {
-      ab->PlaySound(sound_event.GetSoundName(), sound_event.GetVolume(), sound_event.GetPitch());
+      ab->PlaySoundAt(sound_event.GetSoundName(),
+        GetComponent<component::Transform>()->GetPosition().x,
+        GetComponent<component::Transform>()->GetPosition().y,
+        sound_event.GetVolume(),
+        sound_event.GetPitch());
     }
     break;
   }

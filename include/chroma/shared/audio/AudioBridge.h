@@ -17,8 +17,8 @@ public:
   virtual void SetListenerPosition(float x, float y) = 0;
 
   virtual void LoadSound(const std::string &id, const std::string &file_path) = 0;
-  virtual void PlaySound(const std::string &id, float volume = 1.0f, float pitch = 1.0f) = 0;
-  virtual void PlaySoundAt(const std::string &id, float x, float y, float volume = 1.0f, float pitch = 1.0f) = 0;
+  virtual void PlaySound(const std::string &id, float volume = 1.0F, float pitch = 1.0F) = 0;
+  virtual void PlaySoundAt(const std::string &id, float x, float y, float volume = 1.0F, float pitch = 1.0F) = 0;
   virtual void StopSound(const std::string &id) = 0;
   virtual void StopAllSounds() = 0;
   virtual void UnloadSound(const std::string &id) = 0;

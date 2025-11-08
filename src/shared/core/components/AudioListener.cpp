@@ -19,8 +19,8 @@ void AudioListener::Update(const float delta_time)
 
   const auto bridge = audio::GetAudioBridge();
   if (bridge) {
-    const Vector2 pos = transform->GetPosition();
-    bridge->SetListenerPosition(pos.x, pos.y);
+    const auto [x, y] = transform->GetPosition();
+    bridge->SetListenerPosition(x, y);
   }
 }
 

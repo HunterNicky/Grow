@@ -29,12 +29,12 @@ private:
     Sound sound;
     std::string base_id;
     Vector2 position;
-    float base_volume = 1.0f;
+    float base_volume = 1.0F;
   };
 
   std::unordered_map<std::string, Sound> sounds_;
+  Vector2 listener_position_{ 0, 0 };
   std::vector<ActiveInstance> active_;
 };
 
-} // namespace chroma::client::audio
-
+}// namespace chroma::client::audio
