@@ -1,20 +1,22 @@
 #pragma once
 
+#include "EventDispatcher.h"
+
 #include <memory>
 
 namespace chroma::shared::event {
-
-class Event;
-class EventDispatcher;
 
 class EventBus
 {
 public:
   EventBus() = delete;
 
-  static void SetDispatcher(std::shared_ptr<EventDispatcher> dispatcher);
-  [[nodiscard]] static std::shared_ptr<EventDispatcher> GetDispatcher();
+  static void SetDispatcher(std::unique_ptr<EventDispatcher> &dispatcher);
+  [[nodiscard]] static EventDispatcher* GetDispatcher();
   static void Dispatch(Event &event);
+
+private:
+  static std::unique_ptr<EventDispatcher> event_dispatcher;
 };
 
-} // namespace event::namespace shared::namespace chroma
+}// namespace chroma::shared::event

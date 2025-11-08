@@ -105,61 +105,6 @@ std::vector<flatbuffers::Offset<Game::EntityState>> PacketHandler::GameObjectsTo
   return fb_entities;
 }
 
-void PacketHandler::FlatBufferToGameObject(const uint8_t *data,
-  const size_t size,
-  std::unordered_map<UUIDv4::UUID, std::shared_ptr<core::GameObject>> &game_objects)
-{
-
-  flatbuffers::Verifier verifier(data, size);
-  if (!Game::VerifyEnvelopeBuffer(verifier)) { return; }
-
-  const auto *envelope = Game::GetEnvelope(data);
-  if (envelope->type() != Game::MsgType::Snapshot) { return; }
-
-  const auto *snapshot = envelope->msg_as<Game::Snapshot>();
-  if (snapshot == nullptr) { return; }
-
-  const std::string local_player_id_str = snapshot->player_id()->str();
-
-  for (const auto &entity_state : *snapshot->entities()) {
-    const UUIDv4::UUID entity_id(entity_state->id()->str());
-    const bool is_local_player = (entity_state->id() && entity_state->id()->str() == local_player_id_str);
-
-    std::shared_ptr<core::GameObject> game_object = nullptr;
-    auto it = game_objects.find(entity_id);
-
-    if (it != game_objects.end()) {
-      game_object = it->second;
-    } else {
-
-      switch (entity_state->type()) {
-      case Game::GameObjectType::Player: {
-        const auto player = std::make_shared<core::player::Player>();
-        player->SetNetRole(is_local_player ? core::NetRole::ROLE_AutonomousProxy : core::NetRole::ROLE_SimulatedProxy);
-        player->InitComponents();
-        player->SetId(entity_id);
-        game_object = player;
-        game_objects.emplace(player->GetId(), player);
-        break;
-      }
-      default:
-        break;
-      }
-    }
-
-    if (!game_object) { continue; }
-
-    if (entity_state->type() == Game::GameObjectType::Player) {
-      const auto player = std::static_pointer_cast<core::player::Player>(game_object);
-      if (player) {
-        player->SetNetRole(is_local_player ? core::NetRole::ROLE_AutonomousProxy : core::NetRole::ROLE_SimulatedProxy);
-      }
-    }
-
-    UpdateGameObjectWithEntityState(entity_state, game_object);
-  }
-}
-
 void PacketHandler::UpdateGameObjectWithEntityState(const Game::EntityState *entity_state,
   std::shared_ptr<core::GameObject> &game_object)
 {
@@ -218,8 +163,7 @@ void PacketHandler::ComponentToSpeed(const Game::Component *component,
   }
 }
 
-void PacketHandler::ComponentToColor(const Game::Component *component,
-  std::shared_ptr<core::GameObject> &game_object)
+void PacketHandler::ComponentToColor(const Game::Component *component, std::shared_ptr<core::GameObject> &game_object)
 {
   const auto *fb_color = component->type_as_Color();
   if (fb_color != nullptr) {
@@ -257,55 +201,6 @@ void PacketHandler::ComponentToTransform(const Game::Component *component,
       game_object->AttachComponent(transform);
     }
   }
-}
-
-std::shared_ptr<InputMessage> PacketHandler::FlatBufferToInputMessage(const uint8_t *data, const std::size_t size)
-{
-  flatbuffers::Verifier verifier(data, size);
-  if (!Game::VerifyEnvelopeBuffer(verifier)) { return nullptr; }
-
-  const auto *envelope = Game::GetEnvelope(data);
-  if (envelope->type() != Game::MsgType::Event) { return nullptr; }
-
-  const auto *evt = envelope->msg_as<Game::Event>();
-  if (evt == nullptr) { return nullptr; }
-
-  if (evt->event_type() != Game::EventUnion::InputEventMessage) { return nullptr; }
-
-  const auto *input_msg = evt->event_as<Game::InputEventMessage>();
-
-  if (input_msg == nullptr) { return nullptr; }
-
-  std::shared_ptr<InputMessage> input_message = std::make_unique<InputMessage>();
-
-  input_message->SetSeq(input_msg->seq());
-  input_message->SetDeltaTime(input_msg->dt());
-
-  switch (input_msg->event_type()) {
-  case Game::InputEvent::KeyEvent: {
-    const auto *fb_key_event = input_msg->event_as_KeyEvent();
-    if (fb_key_event != nullptr) {
-      auto key_event = event::KeyEvent(fb_key_event->key());
-      key_event.SetPressed(fb_key_event->is_pressed());
-      input_message->SetEventType(event::Event::Type::KeyEvent);
-      input_message->SetEvent(key_event);
-    }
-    break;
-  }
-  case Game::InputEvent::MouseEvent: {
-    const auto *fb_mouse_event = input_msg->event_as_MouseEvent();
-    if (fb_mouse_event != nullptr) {
-      const Vector2 position{ fb_mouse_event->mouse_position()->x(), fb_mouse_event->mouse_position()->y() };
-      const auto mouse_event = event::MouseEvent(position, fb_mouse_event->left(), fb_mouse_event->right());
-      input_message->SetEventType(event::Event::Type::MouseClickEvent);
-      input_message->SetEvent(mouse_event);
-    }
-    break;
-  }
-  default:
-    break;
-  }
-  return input_message;
 }
 
 std::vector<uint8_t> PacketHandler::InputMessageToFlatBuffer(const std::shared_ptr<InputMessage> &input_message)
@@ -355,36 +250,6 @@ std::vector<uint8_t> PacketHandler::InputMessageToFlatBuffer(const std::shared_p
   return { buf.begin(), buf.end() };
 }
 
-std::shared_ptr<SoundEventMessage> PacketHandler::FlatBufferToSoundEventMessage(const uint8_t *data,
-  const std::size_t size)
-{
-  flatbuffers::Verifier verifier(data, size);
-  if (!Game::VerifyEnvelopeBuffer(verifier)) { return nullptr; }
-
-  const auto *envelope = Game::GetEnvelope(data);
-  if (envelope->type() != Game::MsgType::Event) { return nullptr; }
-
-  const auto *evt = envelope->msg_as<Game::Event>();
-  if (evt == nullptr) { return nullptr; }
-
-  if (evt->event_type() != Game::EventUnion::SoundEventMessage) { return nullptr; }
-
-  const auto *sound_msg = evt->event_as<Game::SoundEventMessage>();
-  if (sound_msg == nullptr) { return nullptr; }
-
-  const auto *se = sound_msg->sound_event();
-  if (se == nullptr || se->sound_id() == nullptr) { return nullptr; }
-
-  auto message = std::make_shared<SoundEventMessage>();
-  message->SetSeq(sound_msg->seq());
-  message->SetDeltaTime(sound_msg->dt());
-  message->SetSoundId(se->sound_id()->str());
-  message->SetVolume(se->volume());
-  message->SetPitch(se->pitch());
-
-  return message;
-}
-
 std::vector<uint8_t> PacketHandler::SoundEventMessageToFlatBuffer(
   const std::shared_ptr<SoundEventMessage> &sound_message)
 {
@@ -406,65 +271,108 @@ std::vector<uint8_t> PacketHandler::SoundEventMessageToFlatBuffer(
   return { buf.begin(), buf.end() };
 }
 
-UUIDv4::UUID PacketHandler::FlatBufferSnapshotGetUUID(const uint8_t *data, const std::size_t size)
+UUIDv4::UUID PacketHandler::SnapshotGetUUID(const Game::Snapshot *snapshot)
 {
-  flatbuffers::Verifier verifier(data, size);
-  if (!Game::VerifyEnvelopeBuffer(verifier)) { return UUIDv4::UUID{}; }
-
-  const auto *envelope = Game::GetEnvelope(data);
-  if (envelope->type() != Game::MsgType::Snapshot) { return UUIDv4::UUID{}; }
-
-  const auto *snapshot = envelope->msg_as<Game::Snapshot>();
-  if (snapshot == nullptr) { return UUIDv4::UUID{}; }
-
+  if (snapshot == nullptr || snapshot->player_id() == nullptr) { return UUIDv4::UUID{}; }
   return UUIDv4::UUID(snapshot->player_id()->str());
 }
 
-uint32_t PacketHandler::FlatBufferSnapshotGetLastProcessedInputSeq(const uint8_t *data, std::size_t size)
+uint32_t PacketHandler::SnapshotGetLastProcessedInputSeq(const Game::Snapshot *snapshot)
 {
-  flatbuffers::Verifier verifier(data, size);
-  if (!Game::VerifyEnvelopeBuffer(verifier)) { return 0; }
-
-  const auto *envelope = Game::GetEnvelope(data);
-  if (envelope->type() != Game::MsgType::Snapshot) { return 0; }
-
-  const auto *snapshot = envelope->msg_as<Game::Snapshot>();
   if (snapshot == nullptr) { return 0; }
-
   return snapshot->last_processed_input();
 }
 
-uint32_t PacketHandler::FlatBufferInputMessageGetSequenceNumber(const uint8_t *data, std::size_t size)
+uint64_t PacketHandler::SnapshotGetTimeLapse(const Game::Snapshot *snapshot)
 {
-  flatbuffers::Verifier verifier(data, size);
-  if (!Game::VerifyEnvelopeBuffer(verifier)) { return 0; }
-
-  const auto *envelope = Game::GetEnvelope(data);
-  if (envelope->type() != Game::MsgType::Event) { return 0; }
-
-  const auto *evt = envelope->msg_as<Game::Event>();
-  if (evt == nullptr) { return 0; }
-
-  if (evt->event_type() != Game::EventUnion::InputEventMessage) { return 0; }
-
-  const auto *input_msg = evt->event_as<Game::InputEventMessage>();
-  if (input_msg == nullptr) { return 0; }
-
-  return input_msg->seq();
+  if (snapshot == nullptr) { return 0; }
+  return snapshot->server_time();
 }
 
-uint64_t PacketHandler::FlatBufferSnapshotGetTimeLapse(const uint8_t *data, std::size_t size)
+void PacketHandler::SnapshotToGameObjects(const Game::Snapshot *snapshot,
+  std::unordered_map<UUIDv4::UUID, std::shared_ptr<core::GameObject>> &game_objects)
 {
-  flatbuffers::Verifier verifier(data, size);
-  if (!Game::VerifyEnvelopeBuffer(verifier)) { return 0; }
+  if (snapshot == nullptr) { return; }
 
-  const auto *envelope = Game::GetEnvelope(data);
-  if (envelope->type() != Game::MsgType::Snapshot) { return 0; }
+  const std::string local_player_id_str = snapshot->player_id() ? snapshot->player_id()->str() : std::string{};
 
-  const auto *snapshot = envelope->msg_as<Game::Snapshot>();
-  if (snapshot == nullptr) { return 0; }
+  if (!snapshot->entities()) { return; }
+  for (const auto &entity_state : *snapshot->entities()) {
+    if (!entity_state || !entity_state->id()) { continue; }
+    const UUIDv4::UUID entity_id(entity_state->id()->str());
+    const bool is_local_player = (entity_state->id()->str() == local_player_id_str);
 
-  return snapshot->server_time();
+    std::shared_ptr<core::GameObject> game_object = nullptr;
+    auto it = game_objects.find(entity_id);
+
+    if (it != game_objects.end()) {
+      game_object = it->second;
+    } else {
+      switch (entity_state->type()) {
+      case Game::GameObjectType::Player: {
+        const auto player = std::make_shared<core::player::Player>();
+        player->SetNetRole(is_local_player ? core::NetRole::ROLE_AutonomousProxy : core::NetRole::ROLE_SimulatedProxy);
+        player->InitComponents();
+        player->SetId(entity_id);
+        game_object = player;
+        game_objects.emplace(player->GetId(), player);
+        break;
+      }
+      default:
+        break;
+      }
+    }
+
+    if (!game_object) { continue; }
+
+    if (entity_state->type() == Game::GameObjectType::Player) {
+      const auto player = std::static_pointer_cast<core::player::Player>(game_object);
+      if (player) {
+        player->SetNetRole(is_local_player ? core::NetRole::ROLE_AutonomousProxy : core::NetRole::ROLE_SimulatedProxy);
+      }
+    }
+
+    UpdateGameObjectWithEntityState(entity_state, game_object);
+  }
+}
+
+std::shared_ptr<InputMessage> PacketHandler::EventToInputMessage(const Game::Event *evt)
+{
+  if (evt == nullptr) { return nullptr; }
+  if (evt->event_type() != Game::EventUnion::InputEventMessage) { return nullptr; }
+
+  const auto *input_msg = evt->event_as<Game::InputEventMessage>();
+  if (input_msg == nullptr) { return nullptr; }
+
+  std::shared_ptr input_message = std::make_unique<InputMessage>();
+  input_message->SetSeq(input_msg->seq());
+  input_message->SetDeltaTime(input_msg->dt());
+
+  switch (input_msg->event_type()) {
+  case Game::InputEvent::KeyEvent: {
+    const auto *fb_key_event = input_msg->event_as_KeyEvent();
+    if (fb_key_event != nullptr) {
+      auto key_event = event::KeyEvent(fb_key_event->key());
+      key_event.SetPressed(fb_key_event->is_pressed());
+      input_message->SetEventType(event::Event::Type::KeyEvent);
+      input_message->SetEvent(key_event);
+    }
+    break;
+  }
+  case Game::InputEvent::MouseEvent: {
+    const auto *fb_mouse_event = input_msg->event_as_MouseEvent();
+    if (fb_mouse_event != nullptr) {
+      const Vector2 position{ fb_mouse_event->mouse_position()->x(), fb_mouse_event->mouse_position()->y() };
+      const auto mouse_event = event::MouseEvent(position, fb_mouse_event->left(), fb_mouse_event->right());
+      input_message->SetEventType(event::Event::Type::MouseClickEvent);
+      input_message->SetEvent(mouse_event);
+    }
+    break;
+  }
+  default:
+    break;
+  }
+  return input_message;
 }
 
 }// namespace chroma::shared::packet

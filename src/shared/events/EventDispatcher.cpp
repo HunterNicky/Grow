@@ -2,7 +2,7 @@
 #include "chroma/shared/events/Event.h"
 
 namespace chroma::shared::event {
-void EventDispatcher::Unsubscribe(Event::Type type) { listeners_.erase(type); }
+void EventDispatcher::Unsubscribe(const Event::Type type) { listeners_.erase(type); }
 
 void EventDispatcher::Dispatch(Event &event)
 {

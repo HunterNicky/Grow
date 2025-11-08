@@ -1,4 +1,6 @@
 #include "chroma/shared/events/EventCatcher.h"
+
+#include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/events/MouseEvent.h"
@@ -15,11 +17,11 @@ void EventCatcher::CatchEvent()
     if (IsKeyPressed(key_code)) {
       KeyEvent ev = KeyEvent(key_code);
       ev.SetPressed(true);
-      event_dispatcher_->Dispatch(ev);
+      EventBus::GetDispatcher()->Dispatch(ev);
     } else if (IsKeyReleased(key_code)) {
       KeyEvent ev = KeyEvent(key_code);
       ev.SetPressed(false);
-      event_dispatcher_->Dispatch(ev);
+      EventBus::GetDispatcher()->Dispatch(ev);
     }
   }
 
@@ -27,21 +29,16 @@ void EventCatcher::CatchEvent()
 
   if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
     MouseEvent ev = MouseEvent(pos, true, false);
-    event_dispatcher_->Dispatch(ev);
+    EventBus::GetDispatcher()->Dispatch(ev);
   }
   if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
     MouseEvent ev = MouseEvent(pos, false, true);
-    event_dispatcher_->Dispatch(ev);
+    EventBus::GetDispatcher()->Dispatch(ev);
   }
   if (GetMouseDelta().x != 0 || GetMouseDelta().y != 0) {
     MouseEvent ev = MouseEvent(pos, false, false);
-    event_dispatcher_->Dispatch(ev);
+    EventBus::GetDispatcher()->Dispatch(ev);
   }
-}
-
-void EventCatcher::SetEventDispatcher(const std::shared_ptr<EventDispatcher> &event_dispatcher)
-{
-  event_dispatcher_ = event_dispatcher;
 }
 
 }// namespace chroma::shared::event

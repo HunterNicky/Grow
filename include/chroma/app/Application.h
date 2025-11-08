@@ -28,11 +28,10 @@ public:
   void PushOverlay(std::unique_ptr<layer::Layer> overlay) const;
   void PopOverlay() const;
 
-  void DispatchEvent(shared::event::Event &event) const;
+  static void DispatchEvent(shared::event::Event &event) ;
 
 private:
   std::unique_ptr<layer::LayerStack> layer_stack_;
-  std::shared_ptr<shared::event::EventDispatcher> event_dispatcher_;
   std::shared_ptr<shared::event::EventCatcher> event_catcher_;
 
   float delta_time_;

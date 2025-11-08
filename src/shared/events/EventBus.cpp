@@ -7,24 +7,21 @@
 #include <utility>
 
 namespace chroma::shared::event {
-namespace {
-  std::weak_ptr<EventDispatcher> &DispatcherStorage()
-  {
-    static std::weak_ptr<EventDispatcher> dispatcher;
-    return dispatcher;
-  }
-}// namespace
+std::unique_ptr<EventDispatcher> EventBus::event_dispatcher = nullptr;
 
-void EventBus::SetDispatcher(std::shared_ptr<EventDispatcher> dispatcher)
+void EventBus::SetDispatcher(std::unique_ptr<EventDispatcher> &dispatcher)
 {
-  DispatcherStorage() = std::move(dispatcher);
+  if (!event_dispatcher) { event_dispatcher = std::move(dispatcher); }
 }
 
-std::shared_ptr<EventDispatcher> EventBus::GetDispatcher() { return DispatcherStorage().lock(); }
+EventDispatcher *EventBus::GetDispatcher()
+{
+  if (event_dispatcher) { return event_dispatcher.get(); }
+  return nullptr;
+}
 
 void EventBus::Dispatch(Event &event)
 {
-  if (auto dispatcher = DispatcherStorage().lock()) { dispatcher->Dispatch(event); }
+  if (event_dispatcher) { event_dispatcher->Dispatch(event); }
 }
-
 }// namespace chroma::shared::event

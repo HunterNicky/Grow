@@ -23,30 +23,28 @@ public:
 
   GameState(const GameState &) = default;
   GameState &operator=(const GameState &) = default;
-  GameState(GameState &&) noexcept = default;
-  GameState &operator=(GameState &&) noexcept = default;
+  GameState(GameState &&) noexcept = delete;
+  GameState &operator=(GameState &&) noexcept = delete;
 
   explicit GameState(std::shared_ptr<GameNetworkMediator> network_mediator);
-  explicit GameState(std::shared_ptr<shared::event::EventDispatcher> event_dispatcher);
 
   void OnRender() override;
   void OnUpdate(float delta_time) override;
   void OnEvent(shared::event::Event &event) override;
 
   void SetPlayerId(const UUIDv4::UUID &player_id);
-  void SetEventDispatcher(const std::shared_ptr<shared::event::EventDispatcher> &event_dispatcher);
+  void SetEventDispatcher();
   void SetGameObjects(
     const std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>> &game_objects);
 
   [[nodiscard]] UUIDv4::UUID GetPlayerId() const;
   [[nodiscard]] std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>> &
     GetGameObjects();
-  std::shared_ptr<shared::core::player::Player> GetPlayer();
+  [[nodiscard]] std::shared_ptr<shared::core::player::Player> GetPlayer() const;
 
 private:
   std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>> game_objects_;
   std::shared_ptr<GameNetworkMediator> network_mediator_;
-  std::shared_ptr<shared::event::EventDispatcher> event_dispatcher_;
   UUIDv4::UUID player_id_;
 };
 }// namespace chroma::app::states

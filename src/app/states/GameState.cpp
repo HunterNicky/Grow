@@ -5,6 +5,7 @@
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/events/Event.h"
+#include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/events/KeyEvent.h"
 
@@ -20,7 +21,7 @@ GameState::GameState()
   : State("GameState"),
     game_objects_(
       std::make_shared<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>>()),
-    network_mediator_(nullptr), event_dispatcher_(nullptr)
+    network_mediator_(nullptr)
 {
   auto player = std::make_shared<shared::core::player::Player>();
   SetPlayerId(player->GetId());
@@ -34,18 +35,11 @@ GameState::GameState(std::shared_ptr<GameNetworkMediator> network_mediator)
   : State("GameState"),
     game_objects_(
       std::make_shared<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>>()),
-    network_mediator_(std::move(network_mediator)), event_dispatcher_(nullptr)
+    network_mediator_(std::move(network_mediator))
 {
   network_mediator_->SetGameObjects(game_objects_);
 }
 
-
-GameState::GameState(std::shared_ptr<shared::event::EventDispatcher> event_dispatcher)
-  : State("GameState"),
-    game_objects_(
-      std::make_shared<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>>()),
-    network_mediator_(nullptr), event_dispatcher_(std::move(event_dispatcher))
-{}
 
 GameState::~GameState() { game_objects_->clear(); }
 
@@ -98,13 +92,12 @@ void GameState::OnEvent(shared::event::Event &event)
 
 void GameState::SetPlayerId(const UUIDv4::UUID &player_id) { player_id_ = player_id; }
 
-void GameState::SetEventDispatcher(const std::shared_ptr<shared::event::EventDispatcher> &event_dispatcher)
+void GameState::SetEventDispatcher()
 {
-  event_dispatcher_ = event_dispatcher;
-  event_dispatcher_->Subscribe<shared::event::KeyEvent>([this](shared::event::Event &event) { this->OnEvent(event); });
+  shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::KeyEvent>([this](shared::event::Event &event) { this->OnEvent(event); });
 }
 
-std::shared_ptr<shared::core::player::Player> GameState::GetPlayer()
+std::shared_ptr<shared::core::player::Player> GameState::GetPlayer() const
 {
   auto it = game_objects_->find(player_id_);
   if (it != game_objects_->end()) {

@@ -20,8 +20,8 @@
 #include "chroma/client/render/Window.h"
 #include "chroma/shared/audio/AudioBridge.h"
 #include "chroma/shared/events/Event.h"
-#include "chroma/shared/events/EventCatcher.h"
 #include "chroma/shared/events/EventBus.h"
+#include "chroma/shared/events/EventCatcher.h"
 #include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/render/RenderBridge.h"
 
@@ -46,18 +46,19 @@ Application::Application() : layer_stack_(std::make_unique<layer::LayerStack>())
 void Application::Run()
 {
   Initialize();
-  event_dispatcher_ = std::make_shared<shared::event::EventDispatcher>();
-  shared::event::EventBus::SetDispatcher(event_dispatcher_);
+  {
+    auto event_dispatcher = std::make_unique<shared::event::EventDispatcher>();
+    shared::event::EventBus::SetDispatcher(event_dispatcher);
+  }
 
   auto game_layer = std::make_unique<layer::game::GameLayer>();
   auto network_layer = std::make_unique<layer::network::NetworkLayer>();
 
   auto mediator = std::make_shared<states::GameNetworkMediator>();
   const auto game_state = std::make_shared<states::GameState>(mediator);
+  game_state->SetEventDispatcher();
   const auto network_state = std::make_shared<states::NetworkState>(mediator);
-
-  network_state->SetEventDispatcher(event_dispatcher_);
-  game_state->SetEventDispatcher(event_dispatcher_);
+  network_state->SetEventDispatcher();
 
   mediator->SetGameState(game_state);
   mediator->SetNetworkState(network_state);
@@ -71,7 +72,6 @@ void Application::Run()
   PushLayer(std::move(game_layer));
 
   event_catcher_ = std::make_shared<shared::event::EventCatcher>();
-  event_catcher_->SetEventDispatcher(event_dispatcher_);
 
   auto last_time = static_cast<float>(GetTime());
 
@@ -106,5 +106,8 @@ void Application::PushOverlay(std::unique_ptr<layer::Layer> overlay) const
 
 void Application::PopOverlay() const { layer_stack_->PopOverlay(); }
 
-void Application::DispatchEvent(shared::event::Event &event) const { event_dispatcher_->Dispatch(event); }
+void Application::DispatchEvent(shared::event::Event &event)
+{
+  shared::event::EventBus::GetDispatcher()->Dispatch(event);
+}
 }// namespace chroma::app

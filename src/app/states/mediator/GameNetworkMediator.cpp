@@ -34,32 +34,49 @@ GameNetworkMediator::~GameNetworkMediator()
   network_state_.reset();
 }
 
+// Buffer-based legacy API
 void GameNetworkMediator::OnSnapshotReceived(const std::vector<uint8_t> &data)
 {
+  flatbuffers::Verifier verifier(data.data(), data.size());
+  if (!Game::VerifyEnvelopeBuffer(verifier)) { return; }
+  const auto *envelope = Game::GetEnvelope(data.data());
+  if (!envelope || envelope->type() != Game::MsgType::Snapshot) { return; }
+  const auto *snapshot = envelope->msg_as<Game::Snapshot>();
+  OnSnapshotReceived(snapshot);
+}
+
+// New pointer-based API
+void GameNetworkMediator::OnSnapshotReceived(const Game::Snapshot *snapshot)
+{
+  if (!snapshot) { return; }
   auto state = game_state_.lock();
   if (!state) { return; }
 
-  const UUIDv4::UUID player_id = shared::packet::PacketHandler::FlatBufferSnapshotGetUUID(data.data(), data.size());
+  const UUIDv4::UUID player_id = shared::packet::PacketHandler::SnapshotGetUUID(snapshot);
   state->SetPlayerId(player_id);
   interpolate_system_->SetPlayerId(player_id);
 
   auto game_objects = state->GetGameObjects();
-  shared::packet::PacketHandler::FlatBufferToGameObject(data.data(), data.size(), *game_objects);
+  shared::packet::PacketHandler::SnapshotToGameObjects(snapshot, *game_objects);
 
-  const uint32_t last_processed_input =
-    shared::packet::PacketHandler::FlatBufferSnapshotGetLastProcessedInputSeq(data.data(), data.size());
+  const uint32_t last_processed_input = shared::packet::PacketHandler::SnapshotGetLastProcessedInputSeq(snapshot);
 
   if (game_objects->contains(state->GetPlayerId())) {
     auto player = std::static_pointer_cast<shared::core::player::Player>((*game_objects)[state->GetPlayerId()]);
 
     if (player && predictive_sync_system_) {
-
       predictive_sync_system_->RemoveEventsAt(last_processed_input);
       predictive_sync_system_->ApplyEvents(player);
     }
   }
-  interpolate_system_->Interpolate(
-    *game_objects, shared::packet::PacketHandler::FlatBufferSnapshotGetTimeLapse(data.data(), data.size()));
+  interpolate_system_->Interpolate(*game_objects,
+    shared::packet::PacketHandler::SnapshotGetTimeLapse(snapshot));
+}
+
+void GameNetworkMediator::OnEventReceived(const Game::Event *evt)
+{
+  if (!evt) { return; }
+  // Placeholder: future event-specific mediation can be implemented here.
 }
 
 void GameNetworkMediator::SendInput(const Game::InputEventMessage &input) { (void)input; }

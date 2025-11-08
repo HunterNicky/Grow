@@ -18,8 +18,9 @@ public:
   Server(Server &&) = delete;
   Server &operator=(const Server &) = default;
   Server &operator=(Server &&) = delete;
-  Server(ENetHost *server, ENetAddress address, bool is_running, int tick_counter);
+  Server(ENetHost *server, const ENetAddress &address, bool is_running, int tick_counter);
   ~Server();
+  void ProcessGameEvent(const ENetEvent &event, long long elapsed, const Game::Event *evt, Game::EventUnion event_union);
 
   int Start();
   int Stop();

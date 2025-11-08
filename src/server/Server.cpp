@@ -27,7 +27,7 @@ Server::Server()
 }
 
 
-Server::Server(ENetHost *server, ENetAddress address, bool is_running, int tick_counter)
+Server::Server(ENetHost *server, const ENetAddress &address, const bool is_running, const int tick_counter)
   : server_(server,
       [](ENetHost *h) {
         if (h) { enet_host_destroy(h); }
@@ -48,6 +48,28 @@ Server::~Server()
   peer_last_processed_input_.clear();
 }
 
+void Server::ProcessGameEvent(const ENetEvent &event,
+  const long long elapsed,
+  const Game::Event *evt,
+  const Game::EventUnion event_union)
+{
+  switch (event_union) {
+  case Game::EventUnion::InputEventMessage: {
+    const auto input_message = shared::packet::PacketHandler::EventToInputMessage(evt);
+    if (input_message) {
+      world_simulation_.OnReceivedInputMessage(input_message, connected_players_[event.peer]);
+      world_simulation_.Update(static_cast<float>(elapsed) / 1000.0F);
+      peer_last_processed_input_[event.peer] = input_message->GetSeq();
+    }
+    break;
+  }
+  case Game::EventUnion::SoundEventMessage: {
+    break;
+  }
+  default:
+    break;
+  }
+}
 int Server::Start()
 {
   if (!is_running_ || !server_) { return -1; }
@@ -56,31 +78,34 @@ int Server::Start()
   auto last_tick = std::chrono::steady_clock::now();
 
   while (is_running_) {
-
     auto now = std::chrono::steady_clock::now();
-    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_tick).count();
+    const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_tick).count();
 
     while (is_running_ && enet_host_service(server_.get(), &event, 1) > 0) {
       switch (event.type) {
-      case ENET_EVENT_TYPE_CONNECT:
+      case ENET_EVENT_TYPE_CONNECT: {
         ConnectClient(event);
         break;
-      case ENET_EVENT_TYPE_DISCONNECT:
+      }
+      case ENET_EVENT_TYPE_DISCONNECT: {
         DisconnectClient(event);
         break;
-      case ENET_EVENT_TYPE_RECEIVE:
-        const std::shared_ptr<shared::packet::InputMessage> input_message =
-          shared::packet::PacketHandler::FlatBufferToInputMessage(event.packet->data, event.packet->dataLength);
+      }
+      case ENET_EVENT_TYPE_RECEIVE: {
+        const auto *envelope = Game::GetEnvelope(event.packet->data);
+        if (envelope == nullptr) { break; }
 
-        if (input_message != nullptr) {
-          world_simulation_.OnReceivedInputMessage(input_message, connected_players_[event.peer]);
-          world_simulation_.Update(static_cast<float>(elapsed) / 1000.0F);
-          peer_last_processed_input_[event.peer] = input_message->GetSeq();
+        if (envelope->type() == Game::MsgType::Event) {
+          const Game::Event *evt = envelope->msg_as_Event();
+          const auto event_union = evt->event_type();
+          ProcessGameEvent(event, elapsed, evt, event_union);
         }
-
-        enet_packet_destroy(event.packet);
         break;
       }
+      default:
+        break;
+      }
+      enet_packet_destroy(event.packet);
     }
 
     tick_counter_++;
@@ -112,7 +137,7 @@ void Server::ConnectClient(const ENetEvent &event)
 {
   if (!is_running_ || event.peer == nullptr || event.type != ENET_EVENT_TYPE_CONNECT) { return; }
 
-  auto player = world_simulation_.CreatePlayer();
+  const auto player = world_simulation_.CreatePlayer();
 
   connected_players_.emplace(event.peer, player->GetId());
   peer_last_processed_input_.emplace(event.peer, 0);
@@ -121,7 +146,7 @@ void Server::ConnectClient(const ENetEvent &event)
   const std::vector<flatbuffers::Offset<Game::EntityState>> game_entities =
     world_simulation_.GetEntitiesFlatBuffer(builder);
 
-  auto game_state =
+  const auto game_state =
     shared::packet::PacketHandler::GameObjectsToFlatBuffer(builder, game_entities, player->GetId(), 0, 0);
 
   ENetPacket *packet = enet_packet_create(game_state.data(), game_state.size(), ENET_PACKET_FLAG_RELIABLE);
@@ -141,7 +166,7 @@ void Server::DisconnectClient(const ENetEvent &event)
   connected_players_.erase(event.peer);
 }
 
-bool Server::InitServer(int port, int max_clients)
+bool Server::InitServer(const int port, const int max_clients)
 {
   if (enet_initialize() != 0) { return false; }
 
@@ -162,7 +187,7 @@ bool Server::InitServer(int port, int max_clients)
 }
 
 
-void Server::BroadcastGameObjectState(uint64_t delta_time) const
+void Server::BroadcastGameObjectState(const uint64_t delta_time) const
 {
   if (!server_) { return; }
 
