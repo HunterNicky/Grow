@@ -27,15 +27,15 @@ public:
   static void CreateWorld();
   void Update(const float delta_time) const;
 
-  std::shared_ptr<chroma::shared::core::player::Player> CreatePlayer();
+  std::shared_ptr<shared::core::player::Player> CreatePlayer();
   std::vector<flatbuffers::Offset<Game::EntityState>> GetEntitiesFlatBuffer(
     flatbuffers::FlatBufferBuilder &builder) const;
 
-  void OnReceivedInputMessage(const std::shared_ptr<chroma::shared::packet::InputMessage> &input_message,
+  void OnReceivedInputMessage(const std::shared_ptr<shared::packet::InputMessage> &input_message,
     const UUIDv4::UUID &player_id);
   void HandleInput(shared::event::Event &event, const UUIDv4::UUID &player_id);
 
 private:
-  std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>> game_objects_;
+  std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>> game_objects_;
 };
 }// namespace chroma::server

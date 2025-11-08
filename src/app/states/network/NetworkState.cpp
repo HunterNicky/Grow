@@ -37,7 +37,7 @@ NetworkState::NetworkState()
   }
 }
 
-NetworkState::NetworkState(std::shared_ptr<chroma::shared::event::EventDispatcher> event_dispatcher)
+NetworkState::NetworkState(std::shared_ptr<shared::event::EventDispatcher> event_dispatcher)
   : State("NetworkState"), client_(nullptr, &enet_host_destroy), server_peer_(nullptr, &PeerDeleter),
     server_address_({}), event_({}), event_dispatcher_(std::move(event_dispatcher))
 {
@@ -138,7 +138,7 @@ bool NetworkState::ConnectToServer(const std::string &host, enet_uint16 port)
     auto fut = ready.get_future();
 
     std::thread thread_server([&ready]() {
-      auto server = std::make_shared<chroma::server::Server>();
+      auto server = std::make_shared<server::Server>();
       ready.set_value(server->IsRunning());
       server->Run();
     });
@@ -182,19 +182,19 @@ void NetworkState::OnEvent(shared::event::Event &event)
   shared::event::Event::Type event_type = event.GetType();
   switch (event_type) {
   case shared::event::Event::Type::KeyEvent: {
-    auto input_message = std::make_shared<chroma::shared::packet::InputMessage>();
+    auto input_message = std::make_shared<shared::packet::InputMessage>();
 
     input_message->SetSeq(game_mediator_->GetSeqCounter());
     input_message->SetDeltaTime(0.016F);
     input_message->SetEventType(event.GetType());
     input_message->SetEvent(event);
 
-    buf = chroma::shared::packet::PacketHandler::InputMessageToFlatBuffer(input_message);
+    buf = shared::packet::PacketHandler::InputMessageToFlatBuffer(input_message);
     if (buf.empty()) { return; }
     break;
   }
   case shared::event::Event::Type::SoundEvent: {
-    auto sound_message = std::make_shared<chroma::shared::packet::SoundEventMessage>();
+    auto sound_message = std::make_shared<shared::packet::SoundEventMessage>();
     auto &sound_event = dynamic_cast<shared::event::SoundEvent &>(event);
 
     sound_message->SetSeq(game_mediator_->GetSeqCounter());
@@ -203,7 +203,7 @@ void NetworkState::OnEvent(shared::event::Event &event)
     sound_message->SetVolume(sound_event.GetVolume());
     sound_message->SetPitch(sound_event.GetPitch());
 
-    buf = chroma::shared::packet::PacketHandler::SoundEventMessageToFlatBuffer(sound_message);
+    buf = shared::packet::PacketHandler::SoundEventMessageToFlatBuffer(sound_message);
     if (buf.empty()) { return; }
     break;
   }
@@ -217,7 +217,7 @@ void NetworkState::OnEvent(shared::event::Event &event)
   enet_host_flush(client_.get());
 }
 
-void NetworkState::SetEventDispatcher(const std::shared_ptr<chroma::shared::event::EventDispatcher> &event_dispatcher)
+void NetworkState::SetEventDispatcher(const std::shared_ptr<shared::event::EventDispatcher> &event_dispatcher)
 {
   event_dispatcher_ = event_dispatcher;
 

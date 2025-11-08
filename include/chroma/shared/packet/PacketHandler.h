@@ -23,38 +23,38 @@ public:
     uint32_t last_processed_input = 0);
   static void FlatBufferToGameObject(const uint8_t *data,
     size_t size,
-    std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>> &game_objects);
+    std::unordered_map<UUIDv4::UUID, std::shared_ptr<core::GameObject>> &game_objects);
   static UUIDv4::UUID FlatBufferSnapshotGetUUID(const uint8_t *data, std::size_t size);
 
   static uint32_t FlatBufferSnapshotGetLastProcessedInputSeq(const uint8_t *data, std::size_t size);
-  static std::shared_ptr<shared::packet::InputMessage> FlatBufferToInputMessage(const uint8_t *data, std::size_t size);
+  static std::shared_ptr<InputMessage> FlatBufferToInputMessage(const uint8_t *data, std::size_t size);
   static std::vector<uint8_t> InputMessageToFlatBuffer(
-    const std::shared_ptr<shared::packet::InputMessage> &input_message);
+    const std::shared_ptr<InputMessage> &input_message);
 
-  static std::shared_ptr<shared::packet::SoundEventMessage> FlatBufferToSoundEventMessage(
+  static std::shared_ptr<SoundEventMessage> FlatBufferToSoundEventMessage(
     const uint8_t *data,
     std::size_t size);
   static std::vector<uint8_t> SoundEventMessageToFlatBuffer(
-    const std::shared_ptr<shared::packet::SoundEventMessage> &sound_message);
+    const std::shared_ptr<SoundEventMessage> &sound_message);
 
   static uint32_t FlatBufferInputMessageGetSequenceNumber(const uint8_t *data, std::size_t size);
   static uint64_t FlatBufferSnapshotGetTimeLapse(const uint8_t *data, std::size_t size);
   static std::vector<flatbuffers::Offset<Game::EntityState>> GameObjectsToFlatBufferEntities(
     flatbuffers::FlatBufferBuilder &builder,
-    const std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>> &objects);
+    const std::unordered_map<UUIDv4::UUID, std::shared_ptr<core::GameObject>> &objects);
 
 
 private:
   static void UpdateGameObjectWithEntityState(const Game::EntityState *entity_state,
-    std::shared_ptr<chroma::shared::core::GameObject> &game_object);
+    std::shared_ptr<core::GameObject> &game_object);
   static void ComponentToSpeed(const Game::Component *component,
-    const std::shared_ptr<chroma::shared::core::GameObject> &game_object);
+    const std::shared_ptr<core::GameObject> &game_object);
   static void ComponentToTransform(const Game::Component *component,
-    const std::shared_ptr<chroma::shared::core::GameObject> &game_object);
+    const std::shared_ptr<core::GameObject> &game_object);
   static void ComponentToMovement(const Game::Component *component,
-    const std::shared_ptr<chroma::shared::core::GameObject> &game_object);
+    const std::shared_ptr<core::GameObject> &game_object);
   static void ComponentToColor(const Game::Component *component,
-    std::shared_ptr<chroma::shared::core::GameObject> &game_object);
+    std::shared_ptr<core::GameObject> &game_object);
 };
 
 }// namespace chroma::shared::packet

@@ -74,7 +74,7 @@ public:
 
   [[nodiscard]]
 
-  std::shared_ptr<core::component::Transform> GetTransform() const;
+  std::shared_ptr<component::Transform> GetTransform() const;
 
   virtual void OnRender() = 0;
   virtual void OnUpdate(float delta_time) = 0;
@@ -91,6 +91,6 @@ protected:
   NetRole net_role_ { NetRole::ROLE_None };
 
   std::map<component::ComponentType, std::shared_ptr<component::Component>> components_;
-  std::shared_ptr<core::component::Transform> transform_;
+  std::shared_ptr<component::Transform> transform_;
 };
 }// namespace chroma::shared::core

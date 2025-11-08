@@ -5,10 +5,10 @@
 namespace chroma::shared::event {
 
 SoundEvent::SoundEvent(const std::string &sound_name, float volume, float pitch)
-  : Event(Event::Type::SoundEvent), sound_name_(std::move(sound_name)), volume_(volume), pitch_(pitch)
+  : Event(Type::SoundEvent), sound_name_(std::move(sound_name)), volume_(volume), pitch_(pitch)
 {}
 
-SoundEvent::SoundEvent() : Event(Event::Type::SoundEvent), sound_name_(""), volume_(1.0F), pitch_(1.0F) {}
+SoundEvent::SoundEvent() : Event(Type::SoundEvent), sound_name_(""), volume_(1.0F), pitch_(1.0F) {}
 
 const std::string &SoundEvent::GetSoundName() const { return sound_name_; }
 

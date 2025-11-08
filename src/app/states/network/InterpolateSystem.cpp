@@ -12,7 +12,7 @@ namespace chroma::app::states::network {
 
 
 void InterpolateSystem::Interpolate(
-  const std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>> &new_snapshot,
+  const std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>> &new_snapshot,
   uint64_t delta_time)
 {
   if (past_game_objects_.empty()) {
@@ -37,9 +37,9 @@ void InterpolateSystem::Interpolate(
   Update(delta_time);
 }
 
-void InterpolateSystem::InterpolatePosition(const std::shared_ptr<chroma::shared::core::GameObject> &past_object,
-  const std::shared_ptr<chroma::shared::core::GameObject> &target_object,
-  std::shared_ptr<chroma::shared::core::GameObject> &out_object,
+void InterpolateSystem::InterpolatePosition(const std::shared_ptr<shared::core::GameObject> &past_object,
+  const std::shared_ptr<shared::core::GameObject> &target_object,
+  std::shared_ptr<shared::core::GameObject> &out_object,
   float alpha) const
 {
   if (out_object->GetId() == player_id_) { return; }
@@ -84,7 +84,7 @@ void InterpolateSystem::Update(uint64_t delta_time)
 }
 
 void InterpolateSystem::SetGameObjects(
-  const std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>>> &objects)
+  const std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>> &objects)
 {
   game_objects_ = objects;
 }

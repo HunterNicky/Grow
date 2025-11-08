@@ -17,7 +17,7 @@ public:
   [[nodiscard]] float GetVolume() const;
   [[nodiscard]] float GetPitch() const;
   [[nodiscard]] std::shared_ptr<Event> Clone() const override;
-  [[nodiscard]] static Event::Type GetStaticType();
+  [[nodiscard]] static Type GetStaticType();
 
 private:
   std::string sound_name_;

@@ -57,5 +57,5 @@ void GameObject::AttachComponent(const std::shared_ptr<component::Component> &co
   component->Attach();
 }
 
-std::shared_ptr<core::component::Transform> GameObject::GetTransform() const { return transform_; }
+std::shared_ptr<component::Transform> GameObject::GetTransform() const { return transform_; }
 }// namespace chroma::shared::core

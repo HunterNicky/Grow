@@ -12,8 +12,8 @@ class NetworkState : public State
 {
 public:
   NetworkState();
-  explicit NetworkState(std::shared_ptr<chroma::app::states::GameNetworkMediator> game_mediator);
-  explicit NetworkState(std::shared_ptr<chroma::shared::event::EventDispatcher> event_dispatcher);
+  explicit NetworkState(std::shared_ptr<GameNetworkMediator> game_mediator);
+  explicit NetworkState(std::shared_ptr<shared::event::EventDispatcher> event_dispatcher);
   ~NetworkState() override;
 
   NetworkState(const NetworkState &) = delete;
@@ -24,7 +24,7 @@ public:
   void OnUpdate(float delta_time) override;
   void OnEvent(shared::event::Event &event) override;
 
-  void SetEventDispatcher(const std::shared_ptr<chroma::shared::event::EventDispatcher> &event_dispatcher);
+  void SetEventDispatcher(const std::shared_ptr<shared::event::EventDispatcher> &event_dispatcher);
 
 private:
   std::unique_ptr<ENetHost, decltype(&enet_host_destroy)> client_;
@@ -34,8 +34,8 @@ private:
 
   bool connected_ = false;
 
-  std::shared_ptr<chroma::app::states::GameNetworkMediator> game_mediator_;
-  std::shared_ptr<chroma::shared::event::EventDispatcher> event_dispatcher_;
+  std::shared_ptr<GameNetworkMediator> game_mediator_;
+  std::shared_ptr<shared::event::EventDispatcher> event_dispatcher_;
 
   static void PeerDeleter(ENetPeer *peer);
   bool InitNetworkClient();

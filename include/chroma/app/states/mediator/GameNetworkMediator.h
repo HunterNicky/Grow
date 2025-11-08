@@ -41,14 +41,14 @@ public:
 
   void UpdateInterpolation(uint64_t delta_time);
   void SetGameObjects(
-    const std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>>>
+    const std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>>
       &game_objects);
 
 private:
   std::weak_ptr<GameState> game_state_;
   std::weak_ptr<NetworkState> network_state_;
-  std::unique_ptr<chroma::app::states::network::InterpolateSystem> interpolate_system_;
-  std::unique_ptr<chroma::app::states::network::PredictiveSyncSystem> predictive_sync_system_;
+  std::unique_ptr<network::InterpolateSystem> interpolate_system_;
+  std::unique_ptr<network::PredictiveSyncSystem> predictive_sync_system_;
 };
 
 }// namespace chroma::app::states

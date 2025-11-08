@@ -19,13 +19,13 @@ namespace chroma::app::states {
 GameNetworkMediator::GameNetworkMediator(const std::shared_ptr<GameState> &game,
   const std::shared_ptr<NetworkState> &net)
   : game_state_(game), network_state_(net),
-    interpolate_system_(std::make_unique<chroma::app::states::network::InterpolateSystem>()),
-    predictive_sync_system_(std::make_unique<chroma::app::states::network::PredictiveSyncSystem>())
+    interpolate_system_(std::make_unique<network::InterpolateSystem>()),
+    predictive_sync_system_(std::make_unique<network::PredictiveSyncSystem>())
 {}
 
 GameNetworkMediator::GameNetworkMediator()
-  : interpolate_system_(std::make_unique<chroma::app::states::network::InterpolateSystem>()),
-    predictive_sync_system_(std::make_unique<chroma::app::states::network::PredictiveSyncSystem>())
+  : interpolate_system_(std::make_unique<network::InterpolateSystem>()),
+    predictive_sync_system_(std::make_unique<network::PredictiveSyncSystem>())
 {}
 
 GameNetworkMediator::~GameNetworkMediator()
@@ -44,13 +44,13 @@ void GameNetworkMediator::OnSnapshotReceived(const std::vector<uint8_t> &data)
   interpolate_system_->SetPlayerId(player_id);
 
   auto game_objects = state->GetGameObjects();
-  chroma::shared::packet::PacketHandler::FlatBufferToGameObject(data.data(), data.size(), *game_objects);
+  shared::packet::PacketHandler::FlatBufferToGameObject(data.data(), data.size(), *game_objects);
 
   const uint32_t last_processed_input =
     shared::packet::PacketHandler::FlatBufferSnapshotGetLastProcessedInputSeq(data.data(), data.size());
 
   if (game_objects->contains(state->GetPlayerId())) {
-    auto player = std::static_pointer_cast<chroma::shared::core::player::Player>((*game_objects)[state->GetPlayerId()]);
+    auto player = std::static_pointer_cast<shared::core::player::Player>((*game_objects)[state->GetPlayerId()]);
 
     if (player && predictive_sync_system_) {
 
@@ -91,7 +91,7 @@ void GameNetworkMediator::UpdateInterpolation(uint64_t delta_time)
 }
 
 void GameNetworkMediator::SetGameObjects(
-  const std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>>>
+  const std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>>
     &game_objects)
 {
   if (interpolate_system_) { interpolate_system_->SetGameObjects(game_objects); }
