@@ -1,0 +1,20 @@
+include "entities.fbs";
+include "events.fbs";
+
+namespace Game;
+
+enum MsgType:byte {
+  None = 0,
+  Snapshot = 1,
+  Event = 2
+}
+
+union MsgUnion {
+  Snapshot,
+  Event
+}
+
+table Envelope {
+  type:MsgType;
+  msg:MsgUnion;
+}

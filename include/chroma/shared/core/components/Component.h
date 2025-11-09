@@ -6,7 +6,8 @@
 
 namespace chroma::shared::core {
 class GameObject;
-}
+enum class NetRole : uint8_t;
+}// namespace chroma::shared::core
 
 namespace chroma::shared::core::component {
 enum class ComponentType : uint8_t {
@@ -14,7 +15,11 @@ enum class ComponentType : uint8_t {
   TRANSFORM = 1,
   SPEED = 2,
   MOVEMENT = 3,
-  COLOR = 4,
+  SPRITE_STATIC = 4,
+  SPRITE_ANIMATION = 5,
+  CAMERA = 6,
+  AUDIO_LISTENER = 7,
+  COLOR = 8,
 };
 
 class Component
@@ -48,5 +53,9 @@ protected:
 
   UUIDv4::UUID id_;
   std::weak_ptr<GameObject> game_object_;
+
+  [[nodiscard]] bool HasAuthority() const;
+  [[nodiscard]] bool IsAutonomousProxy() const;
+  [[nodiscard]] bool IsSimulatedProxy() const;
 };
 }// namespace chroma::shared::core::component

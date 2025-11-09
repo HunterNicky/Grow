@@ -8,10 +8,6 @@ namespace chroma::shared::event {
 class EventCatcher
 {
 public:
-  void CatchEvent();
-  void SetEventDispatcher(const std::shared_ptr<chroma::shared::event::EventDispatcher> &event_dispatcher);
-
-private:
-  std::shared_ptr<chroma::shared::event::EventDispatcher> event_dispatcher_;
+  static void CatchEvent();
 };
 }// namespace chroma::shared::event

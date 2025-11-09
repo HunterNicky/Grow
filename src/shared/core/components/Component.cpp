@@ -23,4 +23,22 @@ void Component::Detach() {}
 void Component::Update([[maybe_unused]] float delta_time) {}
 void Component::FixedUpdate([[maybe_unused]] float fixed_delta_time) {}
 void Component::Render() {}
+
+bool Component::HasAuthority() const
+{
+  const auto obj = game_object_.lock();
+  return obj && obj->HasAuthority();
+}
+
+bool Component::IsAutonomousProxy() const
+{
+  const auto obj = game_object_.lock();
+  return obj && obj->IsAutonomousProxy();
+}
+
+bool Component::IsSimulatedProxy() const
+{
+  const auto obj = game_object_.lock();
+  return obj && obj->IsSimulatedProxy();
+}
 }// namespace chroma::shared::core::component

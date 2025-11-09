@@ -20,7 +20,7 @@ public:
   PredictiveSyncSystem(PredictiveSyncSystem &&) noexcept = default;
   PredictiveSyncSystem &operator=(PredictiveSyncSystem &&) noexcept = default;
 
-  void ApplyEvents(const std::shared_ptr<chroma::shared::core::player::Player> &player) const;
+  void ApplyEvents(const std::shared_ptr<shared::core::player::Player> &player) const;
   void AddInputEventHistory(const shared::event::Event &event);
   void RemoveEventsAt(uint32_t seq);
   void ClearInputEventHistory();

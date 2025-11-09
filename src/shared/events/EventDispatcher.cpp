@@ -2,11 +2,11 @@
 #include "chroma/shared/events/Event.h"
 
 namespace chroma::shared::event {
-void EventDispatcher::Unsubscribe(Event::Type type) { listeners_.erase(type); }
+void EventDispatcher::Unsubscribe(const Event::Type type) { listeners_.erase(type); }
 
 void EventDispatcher::Dispatch(Event &event)
 {
-  if (chroma::shared::event::Event::Type::None == event.GetType()) { return; }
+  if (Event::Type::None == event.GetType()) { return; }
 
   const auto iterator = listeners_.find(event.GetType());
   if (iterator != listeners_.end()) {

@@ -1,0 +1,16 @@
+include "common.fbs";
+
+namespace Game;
+
+table Position { pos:Vec2; }
+table Scale { scl:Vec2; }
+table Velocity { vel:Vec2; }
+table Movement { mov:Vec2; }
+table Health { value:int32; }
+table Facing { angle:float; }
+
+union ComponentUnion { Position, Scale, Velocity, Movement, Health, Facing, Color }
+
+table Component {
+  type:ComponentUnion;
+}

@@ -1,0 +1,24 @@
+include "components.fbs";
+
+namespace Game;
+
+enum GameObjectType : uint8 {
+  None = 0,
+  Player = 1,
+  Enemy = 2,
+  Projectile = 3,
+  Obstacle = 4
+}
+
+table EntityState {
+  id:string;
+  type:GameObjectType;
+  components:[Component];
+}
+
+table Snapshot {
+  server_time:uint64;
+  last_processed_input:uint32;
+  player_id:string;
+  entities:[EntityState];
+}

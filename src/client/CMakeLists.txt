@@ -6,26 +6,27 @@ add_library(chroma_client STATIC
 add_library(chroma::client ALIAS chroma_client)
 
 target_link_libraries(chroma_client
-    PRIVATE
-        chroma::chroma_options
-        chroma::chroma_warnings
-        chroma::server
-        chroma::shared
+  PRIVATE
+  chroma::chroma_options
+  chroma::chroma_warnings
+  chroma::server
+  chroma::shared
 )
 
 target_link_system_libraries(
-    chroma_client
-    PUBLIC
-        raylib
-        raygui
+  chroma_client
+  PUBLIC
+  raylib
+  raygui
+  stb
 )
 
 target_include_directories(chroma_client
-    PRIVATE
-      "${PROJECT_SOURCE_DIR}/include"
-      "${CMAKE_BINARY_DIR}/configured_files/include"
+  PRIVATE
+  "${PROJECT_SOURCE_DIR}/include"
+  "${CMAKE_BINARY_DIR}/configured_files/include"
 )
 
-if(MSVC)
+if (MSVC)
   target_compile_options(chroma_client PRIVATE /wd4242 /wd4701 /wd4703 /wd4996)
-endif()
+endif ()

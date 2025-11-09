@@ -30,6 +30,8 @@ void GameObject::SetTag(const GameObjectType tag) { Type_ = tag; }
 
 void GameObject::SetId(const UUIDv4::UUID &id_obj) { id_ = id_obj; }
 
+void GameObject::SetNetRole(const NetRole role) { net_role_ = role; }
+
 const UUIDv4::UUID &GameObject::GetId() const { return id_; }
 
 bool GameObject::IsActive() const { return active_; }
@@ -37,6 +39,14 @@ bool GameObject::IsActive() const { return active_; }
 uint32_t GameObject::GetLayer() const { return layer_; }
 
 GameObjectType GameObject::GetTag() const { return Type_; }
+
+NetRole GameObject::GetNetRole() const { return net_role_; }
+
+bool GameObject::HasAuthority() const { return net_role_ == NetRole::ROLE_Authority; }
+
+bool GameObject::IsAutonomousProxy() const { return net_role_ == NetRole::ROLE_AutonomousProxy; }
+
+bool GameObject::IsSimulatedProxy() const { return net_role_ == NetRole::ROLE_SimulatedProxy; }
 
 void GameObject::AttachComponent(const std::shared_ptr<component::Component> &component)
 {
@@ -46,5 +56,5 @@ void GameObject::AttachComponent(const std::shared_ptr<component::Component> &co
   component->Attach();
 }
 
-std::shared_ptr<core::component::Transform> GameObject::GetTransform() const { return transform_; }
+std::shared_ptr<component::Transform> GameObject::GetTransform() const { return transform_; }
 }// namespace chroma::shared::core

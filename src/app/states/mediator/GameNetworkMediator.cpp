@@ -1,10 +1,11 @@
 #include <cstdint>
+#include <flatbuffers/verifier.h>
 #include <memory>
+#include <string>
 #include <unordered_map>
 #include <uuid_v4.h>
 #include <vector>
 
-#include "GameObject_generated.h"
 #include "chroma/app/states/GameState.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
 #include "chroma/app/states/network/InterpolateSystem.h"
@@ -13,19 +14,23 @@
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/events/Event.h"
+#include "chroma/shared/events/SoundEvent.h"
 #include "chroma/shared/packet/PacketHandler.h"
+#include "entities_generated.h"
+#include "events_generated.h"
+#include "game_generated.h"
+#include "messages_generated.h"
 
 namespace chroma::app::states {
 GameNetworkMediator::GameNetworkMediator(const std::shared_ptr<GameState> &game,
   const std::shared_ptr<NetworkState> &net)
-  : game_state_(game), network_state_(net),
-    interpolate_system_(std::make_unique<chroma::app::states::network::InterpolateSystem>()),
-    predictive_sync_system_(std::make_unique<chroma::app::states::network::PredictiveSyncSystem>())
+  : game_state_(game), network_state_(net), interpolate_system_(std::make_unique<network::InterpolateSystem>()),
+    predictive_sync_system_(std::make_unique<network::PredictiveSyncSystem>())
 {}
 
 GameNetworkMediator::GameNetworkMediator()
-  : interpolate_system_(std::make_unique<chroma::app::states::network::InterpolateSystem>()),
-    predictive_sync_system_(std::make_unique<chroma::app::states::network::PredictiveSyncSystem>())
+  : interpolate_system_(std::make_unique<network::InterpolateSystem>()),
+    predictive_sync_system_(std::make_unique<network::PredictiveSyncSystem>())
 {}
 
 GameNetworkMediator::~GameNetworkMediator()
@@ -34,36 +39,80 @@ GameNetworkMediator::~GameNetworkMediator()
   network_state_.reset();
 }
 
-void GameNetworkMediator::OnSnapshotReceived(const std::vector<uint8_t> &data)
+void GameNetworkMediator::OnSnapshotReceived(const std::vector<uint8_t> &data) const
 {
-  auto state = game_state_.lock();
+  flatbuffers::Verifier verifier(data.data(), data.size());
+  if (!Game::VerifyEnvelopeBuffer(verifier)) { return; }
+  const auto *envelope = Game::GetEnvelope(data.data());
+  if (envelope == nullptr || envelope->type() != Game::MsgType::Snapshot) { return; }
+  const auto *snapshot = envelope->msg_as<Game::Snapshot>();
+  OnSnapshotReceived(snapshot);
+}
+
+void GameNetworkMediator::OnSnapshotReceived(const Game::Snapshot *snapshot) const
+{
+  if (snapshot == nullptr) { return; }
+  const auto state = game_state_.lock();
   if (!state) { return; }
 
-  const UUIDv4::UUID player_id = shared::packet::PacketHandler::FlatBufferSnapshotGetUUID(data.data(), data.size());
+  const UUIDv4::UUID player_id = shared::packet::PacketHandler::SnapshotGetUUID(snapshot);
   state->SetPlayerId(player_id);
   interpolate_system_->SetPlayerId(player_id);
 
-  auto game_objects = state->GetGameObjects();
-  chroma::shared::packet::PacketHandler::FlatBufferToGameObject(data.data(), data.size(), *game_objects);
+  const auto game_objects = state->GetGameObjects();
+  shared::packet::PacketHandler::SnapshotToGameObjects(snapshot, *game_objects);
 
-  const uint32_t last_processed_input =
-    shared::packet::PacketHandler::FlatBufferSnapshotGetLastProcessedInputSeq(data.data(), data.size());
+  const uint32_t last_processed_input = shared::packet::PacketHandler::SnapshotGetLastProcessedInputSeq(snapshot);
 
   if (game_objects->contains(state->GetPlayerId())) {
-    auto player =
-      std::dynamic_pointer_cast<chroma::shared::core::player::Player>((*game_objects)[state->GetPlayerId()]);
+    const auto player = std::static_pointer_cast<shared::core::player::Player>((*game_objects)[state->GetPlayerId()]);
 
     if (player && predictive_sync_system_) {
-
       predictive_sync_system_->RemoveEventsAt(last_processed_input);
       predictive_sync_system_->ApplyEvents(player);
     }
   }
-  interpolate_system_->Interpolate(
-    *game_objects, shared::packet::PacketHandler::FlatBufferSnapshotGetTimeLapse(data.data(), data.size()));
+  interpolate_system_->Interpolate(*game_objects, shared::packet::PacketHandler::SnapshotGetTimeLapse(snapshot));
 }
 
-void GameNetworkMediator::SendInput(const Game::InputMessage &input) { (void)input; }
+void GameNetworkMediator::OnEventReceived(const Game::Event *evt) const
+{
+  if (evt == nullptr) { return; }
+
+  switch (evt->event_type()) {
+  case Game::EventUnion::SoundEventMessage: {
+    const auto *sound_msg = evt->event_as_SoundEventMessage();
+    if ((sound_msg == nullptr) || (sound_msg->sound_event() == nullptr)) { return; }
+
+    const auto *snd = sound_msg->sound_event();
+    const std::string sound_id = (snd->sound_id() != nullptr) ? snd->sound_id()->str() : std::string();
+    const float volume = snd->volume();
+    const float pitch = snd->pitch();
+    const std::string source_id = (snd->source_id() != nullptr) ? snd->source_id()->str() : std::string();
+
+    shared::event::SoundEvent sound_event(sound_id, volume, pitch);
+    sound_event.SetEmitterId(source_id);
+
+    if (const auto state = game_state_.lock()) {
+      if (!source_id.empty()) {
+        const auto &game_object = state->GetGameObjects();
+        UUIDv4::UUID const src_uuid(source_id);
+        const auto it = game_object->find(src_uuid);
+        if (it != game_object->end() && it->second) {
+          it->second->HandleEvent(sound_event);
+          break;
+        }
+      }
+      state->OnEvent(sound_event);
+    }
+    break;
+  }
+  default:
+    break;
+  }
+}
+
+void GameNetworkMediator::SendInput(const Game::InputEventMessage &input) { (void)input; }
 
 void GameNetworkMediator::SetGameState(const std::shared_ptr<GameState> &game) { game_state_ = game; }
 
@@ -76,7 +125,7 @@ void GameNetworkMediator::SetNetworkState(const std::shared_ptr<NetworkState> &n
   return network_state_.lock();
 }
 
-void GameNetworkMediator::AddInputEvent(const shared::event::Event &event)
+void GameNetworkMediator::AddInputEvent(const shared::event::Event &event) const
 {
   if (predictive_sync_system_) { predictive_sync_system_->AddInputEventHistory(event); }
 }
@@ -86,14 +135,14 @@ uint32_t GameNetworkMediator::GetSeqCounter() const
   if (predictive_sync_system_) { return predictive_sync_system_->GetSeqCounter(); }
   return 0;
 }
-void GameNetworkMediator::UpdateInterpolation(uint64_t delta_time)
+void GameNetworkMediator::UpdateInterpolation(const uint64_t delta_time) const
 {
   if (interpolate_system_) { interpolate_system_->Update(delta_time); }
 }
 
 void GameNetworkMediator::SetGameObjects(
-  const std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<chroma::shared::core::GameObject>>>
-    &game_objects)
+  const std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>> &game_objects)
+  const
 {
   if (interpolate_system_) { interpolate_system_->SetGameObjects(game_objects); }
 }

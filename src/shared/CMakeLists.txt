@@ -3,7 +3,12 @@ file(GLOB_RECURSE SHARED_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/
 add_library(chroma_shared STATIC
   ${SHARED_SOURCES}
 )
-set(INTERFACE_FBS schemas/GameObject.fbs)
+set(INTERFACE_FBS schemas/game.fbs
+  schemas/common.fbs
+  schemas/components.fbs
+  schemas/entities.fbs
+  schemas/messages.fbs
+  schemas/events.fbs)
 
 flatbuffers_generate_headers(
   TARGET incl
@@ -41,6 +46,17 @@ target_link_libraries(chroma_shared
     chroma::chroma_options
     chroma::chroma_warnings
 )
+
+if (WIN32)
+  target_compile_definitions(chroma_shared
+    PUBLIC
+      WIN32_LEAN_AND_MEAN
+      NOMINMAX
+      NOGDI
+      NOUSER
+      MMNOSOUND
+  )
+endif ()
 
 if(MSVC)
   target_compile_options(chroma_shared PRIVATE /wd4242 /wd4701 /wd4703 /wd4996 /wd4244)
