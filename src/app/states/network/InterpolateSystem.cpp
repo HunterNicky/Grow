@@ -1,7 +1,9 @@
 #include "chroma/app/states/network/InterpolateSystem.h"
 #include "chroma/shared/core/GameObject.h"
+#include "chroma/shared/core/components/Health.h"
 
 #include <algorithm>
+#include <components_generated.h>
 #include <cstdint>
 #include <memory>
 #include <raymath.h>
@@ -48,6 +50,23 @@ void InterpolateSystem::InterpolatePosition(const std::shared_ptr<shared::core::
   out_object->GetTransform()->SetPosition(interpolated_pos);
 }
 
+void InterpolateSystem::InterpolateHealth(const std::shared_ptr<shared::core::GameObject> &past_object,
+  const std::shared_ptr<shared::core::GameObject> &target_object,
+  std::shared_ptr<shared::core::GameObject> &out_object,
+  float alpha)
+{
+  auto past_health = past_object->GetComponent<shared::core::component::Health>();
+  auto target_health = target_object->GetComponent<shared::core::component::Health>();
+  auto out_health = out_object->GetComponent<shared::core::component::Health>();
+
+  if (past_health && target_health && out_health) {
+    float past_value = past_health->GetCurrentHealth();
+    float target_value = target_health->GetCurrentHealth();
+    float interpolated_value = past_value + ((target_value - past_value) * alpha);
+    out_health->SetCurrentHealth(interpolated_value);
+  }
+}
+
 uint64_t InterpolateSystem::GetTimeLastSnapshot() const { return time_last_snapshot_; }
 
 void InterpolateSystem::SetSnapshotInterval(uint64_t interval) { snapshot_interval_ = interval; }
@@ -71,6 +90,7 @@ void InterpolateSystem::Update(uint64_t delta_time)
       if (!interpolated) { continue; }
       interpolated->SetNetRole(target_obj->GetNetRole());
       InterpolatePosition(past_it->second, target_obj, interpolated, alpha);
+      InterpolateHealth(past_it->second, target_obj, interpolated, alpha);
       (*game_objects_)[id] = interpolated;
     } else {
       auto clone = target_obj->Clone();

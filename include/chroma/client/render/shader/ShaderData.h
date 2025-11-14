@@ -24,9 +24,6 @@ public:
     ShaderData(ShaderData&&) noexcept = default;
     ShaderData& operator=(ShaderData&&) noexcept = default;
 
-    // ------------------------------------------------------------------
-    // Carregar shader
-    // ------------------------------------------------------------------
     void LoadShader(const std::string& vs, const std::string& fs)
     {
         shader_ = ::LoadShader(vs.c_str(), fs.c_str());
@@ -36,9 +33,6 @@ public:
         }
     }
 
-    // ------------------------------------------------------------------
-    // Descarregar shader
-    // ------------------------------------------------------------------
     void Unload()
     {
         if (shader_.id != 0) {
@@ -47,24 +41,15 @@ public:
         }
     }
 
-    // ------------------------------------------------------------------
-    // Acessar shader
-    // ------------------------------------------------------------------
     [[nodiscard]] const ::Shader& GetShader() const {
         return shader_;
     }
 
-    // ------------------------------------------------------------------
-    // Recuperar localização de uniform
-    // ------------------------------------------------------------------
     int GetLocation(const std::string& name)
     {
         return ::GetShaderLocation(shader_, name.c_str());
     }
 
-    // ------------------------------------------------------------------
-    // Registrar uniform (template completo no .h)
-    // ------------------------------------------------------------------
     template<typename T>
     void SetUniform(const std::string& name, UniformType type, std::shared_ptr<T> value)
     {
@@ -78,9 +63,6 @@ public:
         values_[name] = std::make_unique<ShaderValue<T>>(loc, type, value);
     }
 
-    // ------------------------------------------------------------------
-    // Prioridade
-    // ------------------------------------------------------------------
     void SetPriority(int priority) {
         priority_ = priority;
     }
@@ -90,7 +72,7 @@ public:
     }
 
     // ------------------------------------------------------------------
-    // Enviar todos os uniforms ao shader
+    // Enviar todos os uniforms ao shader, ou seja carregar todos os atributos que serão usados no shader
     // ------------------------------------------------------------------
     void UploadAll() const
     {

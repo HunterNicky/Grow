@@ -15,7 +15,6 @@
 #include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/events/SoundEvent.h"
 #include "chroma/shared/render/RenderBridge.h"
-#include "chroma/shared/context/GameContext.h"
 
 #include <cmath>
 #include <memory>
@@ -49,10 +48,9 @@ void Player::InitComponents()
   AttachComponent(listener_component);
 
   const auto health_component = std::make_shared<component::Health>(100.0F);
-  chroma::shared::context::GameContext::GetInstance().SetPlayerMaxHealth(health_component->GetMaxHealth());
   health_component->SetCurrentHealth(1.F);
   AttachComponent(health_component);
-
+  
   SetupAnimation(anim_component);
 }
 
@@ -75,7 +73,7 @@ void Player::SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &a
     { .sprite_id = filepath, .duration_ticks = 60, .subregion = { .x = 18, .y = 1, .width = 16, .height = 32 } }
   };
   anim_component->LoadAnimation("idle_up", idle_up);
-
+  
   component::SpriteAnimationDesc punch_side;
   punch_side.name = "punch_side";
   punch_side.loop = false;
@@ -85,7 +83,7 @@ void Player::SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &a
     { .sprite_id = filepath, .duration_ticks = 60, .subregion = { .x = 572, .y = 132, .width = 25, .height = 29 } }
   };
   anim_component->LoadAnimation("punch_side", punch_side);
-
+  
   component::SpriteAnimationDesc idle_side;
   idle_side.name = "idle_side";
   idle_side.loop = false;
@@ -93,7 +91,7 @@ void Player::SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &a
     { .sprite_id = filepath, .duration_ticks = 60, .subregion = { .x = 35, .y = 1, .width = 15, .height = 32 } }
   };
   anim_component->LoadAnimation("idle_side", idle_side);
-
+  
   component::SpriteAnimationDesc walk_down;
   walk_down.name = "walk_down";
   walk_down.loop = true;
@@ -148,12 +146,12 @@ void Player::AnimationState(const Vector2 dir, const float magnitude)
       }
       switch (last_facing_) {
       case FacingDir::Up:
-        anim->Play("idle_up", false);
+      anim->Play("idle_up", false);
         break;
       case FacingDir::Down:
         anim->Play("idle_down", false);
         break;
-      case FacingDir::Side:
+        case FacingDir::Side:
         anim->Play("idle_side", false);
         break;
       }
@@ -180,14 +178,17 @@ void Player::OnUpdate(float delta_time)
 
   const auto movement = GetComponent<component::Movement>();
   if (!movement) { return; }
+  
+  const auto health = GetComponent<core::component::Health>();
+  if (!health) { return; }
 
   const bool is_authority = HasAuthority();
   const bool is_autonomous = IsAutonomousProxy();
   const bool should_simulate = (is_authority || is_autonomous);
-
+  
   Vector2 dir = movement->GetDirection();
   const float magnitude = Vector2Length(dir);
-
+  
   if (magnitude > 0.0F) {
     dir = Vector2Normalize(dir);
     movement->SetDirection(dir);
@@ -198,7 +199,7 @@ void Player::OnUpdate(float delta_time)
       pos.y += dir.y * speed->GetSpeed().y * delta_time;
       transform->SetPosition(pos);
     }
-
+    
     if (is_authority) {
       step_timer_ += delta_time;
       constexpr float step_interval = 0.5F;
@@ -208,18 +209,13 @@ void Player::OnUpdate(float delta_time)
           event::SoundEvent("step", 0.6F, 0.95F + (static_cast<float>(GetRandomValue(0, 10)) / 100.0F));
         sound_event.SetEmitterId(GetId().str());
         event::EventBus::Dispatch(sound_event);
+        
       }
     }
     was_moving_ = true;
   }
-
-  const auto health = GetComponent<core::component::Health>();
-
-  if(health)
-  {
-    health->Heal(10.F * delta_time);
-    context::GameContext::GetInstance().SetPlayerHealth(health->GetCurrentHealth());
-  }
+  
+  health->Heal(10.F * delta_time);
 
   AnimationState(dir, magnitude);
 
