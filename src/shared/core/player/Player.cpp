@@ -4,6 +4,7 @@
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/AudioListener.h"
 #include "chroma/shared/core/components/Camera.h"
+#include "chroma/shared/core/components/Health.h"
 #include "chroma/shared/core/components/Movement.h"
 #include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/core/components/SpriteAnimation.h"
@@ -14,6 +15,7 @@
 #include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/events/SoundEvent.h"
 #include "chroma/shared/render/RenderBridge.h"
+#include "chroma/shared/context/GameContext.h"
 
 #include <cmath>
 #include <memory>
@@ -46,6 +48,11 @@ void Player::InitComponents()
   const auto listener_component = std::make_shared<component::AudioListener>();
   AttachComponent(listener_component);
 
+  const auto health_component = std::make_shared<component::Health>(100.0F);
+  chroma::shared::context::GameContext::GetInstance().SetPlayerMaxHealth(health_component->GetMaxHealth());
+  health_component->SetCurrentHealth(1.F);
+  AttachComponent(health_component);
+
   SetupAnimation(anim_component);
 }
 
@@ -68,6 +75,16 @@ void Player::SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &a
     { .sprite_id = filepath, .duration_ticks = 60, .subregion = { .x = 18, .y = 1, .width = 16, .height = 32 } }
   };
   anim_component->LoadAnimation("idle_up", idle_up);
+
+  component::SpriteAnimationDesc punch_side;
+  punch_side.name = "punch_side";
+  punch_side.loop = false;
+  punch_side.frames = {
+    { .sprite_id = filepath, .duration_ticks = 60, .subregion = { .x = 526, .y = 132, .width = 22, .height = 29 } },
+    { .sprite_id = filepath, .duration_ticks = 60, .subregion = { .x = 548, .y = 132, .width = 24, .height = 29 } },
+    { .sprite_id = filepath, .duration_ticks = 60, .subregion = { .x = 572, .y = 132, .width = 25, .height = 29 } }
+  };
+  anim_component->LoadAnimation("punch_side", punch_side);
 
   component::SpriteAnimationDesc idle_side;
   idle_side.name = "idle_side";
@@ -196,6 +213,14 @@ void Player::OnUpdate(float delta_time)
     was_moving_ = true;
   }
 
+  const auto health = GetComponent<core::component::Health>();
+
+  if(health)
+  {
+    health->Heal(10.F * delta_time);
+    context::GameContext::GetInstance().SetPlayerHealth(health->GetCurrentHealth());
+  }
+
   AnimationState(dir, magnitude);
 
   for (const auto &[fst, snd] : components_) { snd->Update(delta_time); }
@@ -216,32 +241,52 @@ void Player::OnRender()
   const auto bridge = render::GetRenderBridge();
   if (!bridge) { return; }
 
+  const auto health = GetComponent<core::component::Health>();
+  if (!health) { return; }
+
   const Vector2 pos = transform->GetPosition();
   const Vector2 scale = transform->GetScale();
   const float rotation = transform->GetRotation();
   const bool flip_x = (last_facing_ == FacingDir::Side) && last_left_;
 
   bridge->DrawAnimation(*anim, pos, scale, rotation, WHITE, flip_x, false, { 0.5F, 0.5F });
+
+  if(health)
+  {
+      Vector2 pos_h;
+      pos_h.y = pos.y - 21.F;
+      pos_h.x = pos.x - 15.F;
+      Vector2 size = {.x =30.F, .y = 4.F};
+      health->DrawHealth(pos_h, size);
+  }
 }
 
 void Player::HandleEvent(const event::Event &event)
 {
   switch (event.GetType()) {
   case event::Event::KeyEvent: {
+    
     const auto &key_event = dynamic_cast<const event::KeyEvent &>(event);
     const auto movement = GetComponent<component::Movement>();
+   
     if (!movement) { return; }
+   
     if (key_event.IsPressed()) {
       input_state_.SetKeyState(key_event.GetKey(), true);
     } else if (key_event.IsReleased()) {
       input_state_.SetKeyState(key_event.GetKey(), false);
     }
+   
     Vector2 direction{ 0.0F, 0.0F };
+   
     if (input_state_.IsKeyPressed(KEY_W)) { direction.y -= 1.0F; }
     if (input_state_.IsKeyPressed(KEY_S)) { direction.y += 1.0F; }
     if (input_state_.IsKeyPressed(KEY_A)) { direction.x -= 1.0F; }
     if (input_state_.IsKeyPressed(KEY_D)) { direction.x += 1.0F; }
+    if(input_state_.IsKeyPressed(KEY_L))  { attacking_ = true; }
+    if(!input_state_.IsKeyPressed(KEY_L)) { attacking_ = false; }
     movement->SetDirection(direction);
+   
     break;
   }
   case event::Event::SoundEvent: {

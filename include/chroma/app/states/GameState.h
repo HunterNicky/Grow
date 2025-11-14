@@ -4,7 +4,6 @@
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/player/Player.h"
-#include "chroma/shared/events/EventDispatcher.h"
 
 #include <memory>
 #include <unordered_map>

@@ -1,13 +1,11 @@
 #include "chroma/shared/packet/PacketHandler.h"
 #include "chroma/shared/core/GameObject.h"
-#include "chroma/shared/core/components/Coloring.h"
-#include "chroma/shared/core/components/Movement.h"
-#include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/events/MouseEvent.h"
 #include "chroma/shared/factory/GameObjectFactory.h"
+#include "chroma/shared/packet/adapter/ComponentAdapter.h"
 #include "chroma/shared/packet/events/InputEventMessage.h"
 #include "chroma/shared/packet/events/SoundEventMessage.h"
 #include "common_generated.h"
@@ -56,48 +54,8 @@ std::vector<flatbuffers::Offset<Game::EntityState>> PacketHandler::GameObjectsTo
   for (const auto &[uuid, object] : objects) {
     if (!object || !object->HasAuthority()) { continue; }
 
-    auto pos = object->GetComponent<core::component::Transform>();
-    auto vel = object->GetComponent<core::component::Speed>();
-    auto mov = object->GetComponent<core::component::Movement>();
-    auto color = object->GetComponent<core::component::Coloring>();
-
     std::vector<flatbuffers::Offset<Game::Component>> components;
-
-    if (pos) {
-      const auto vec2 = Game::CreateVec2(builder, pos->GetPosition().x, pos->GetPosition().y);
-      auto fb_pos = Game::CreatePosition(builder, vec2);
-      components.push_back(Game::CreateComponent(builder, Game::ComponentUnion::Position, fb_pos.Union()));
-    }
-
-    if (vel) {
-      const auto vec2 = Game::CreateVec2(builder, vel->GetSpeed().x, vel->GetSpeed().y);
-      auto fb_vel = Game::CreateVelocity(builder, vec2);
-      components.push_back(Game::CreateComponent(builder, Game::ComponentUnion::Velocity, fb_vel.Union()));
-    }
-
-    if (color) {
-      auto fb_color = Game::CreateColor(builder,
-        static_cast<int8_t>(color->GetRed()),
-        static_cast<int8_t>(color->GetGreen()),
-        static_cast<int8_t>(color->GetBlue()),
-        static_cast<int8_t>(color->GetAlpha()));
-      components.push_back(Game::CreateComponent(builder, Game::ComponentUnion::Color, fb_color.Union()));
-    }
-
-    if (color) {
-      auto fb_color = Game::CreateColor(builder,
-        static_cast<int8_t>(color->GetRed()),
-        static_cast<int8_t>(color->GetGreen()),
-        static_cast<int8_t>(color->GetBlue()),
-        static_cast<int8_t>(color->GetAlpha()));
-      components.push_back(Game::CreateComponent(builder, Game::ComponentUnion::Color, fb_color.Union()));
-    }
-
-    if (mov) {
-      const auto vec2 = Game::CreateVec2(builder, mov->GetDirection().x, mov->GetDirection().y);
-      auto fb_mov = Game::CreateMovement(builder, vec2);
-      components.push_back(Game::CreateComponent(builder, Game::ComponentUnion::Movement, fb_mov.Union()));
-    }
+    adapter::ComponentAdapter::ToComponent(object, builder, components);
 
     const auto fb_id = builder.CreateString(object->GetId().str());
     const auto fb_type = static_cast<Game::GameObjectType>(object->GetTag());
@@ -119,91 +77,15 @@ void PacketHandler::UpdateGameObjectWithEntityState(const Game::EntityState *ent
       player->SetId(UUIDv4::UUID(entity_state->id()->str()));
 
       for (const auto &component : *entity_state->components()) {
-        switch (component->type_type()) {
-        case Game::ComponentUnion::Position: {
-          ComponentToTransform(component, game_object);
-          break;
-        }
-        case Game::ComponentUnion::Velocity: {
-          ComponentToSpeed(component, game_object);
-          break;
-        }
-
-        case Game::ComponentUnion::Movement: {
-          ComponentToMovement(component, game_object);
-          const auto movement = game_object->GetComponent<core::component::Movement>();
-          player->UpdateAnimationFromDirection(movement->GetDirection());
-          break;
-        }
-
-        case Game::ComponentUnion::Color: {
-          ComponentToColor(component, game_object);
-          break;
-        }
-
-        default:
-          break;
-        }
+         if (component != nullptr) {
+           adapter::ComponentAdapter::FromComponent(*component);
+         }
       }
     }
     break;
   }
   default:
     break;
-  }
-}
-
-void PacketHandler::ComponentToSpeed(const Game::Component *component,
-  const std::shared_ptr<core::GameObject> &game_object)
-{
-  const auto *fb_vel = component->type_as_Velocity();
-  if (fb_vel != nullptr) {
-    const auto *vel_vec = fb_vel->vel();
-    const auto speed = game_object->GetComponent<core::component::Speed>();
-    if (speed) {
-      speed->SetSpeed(Vector2{ vel_vec->x(), vel_vec->y() });
-      game_object->AttachComponent(speed);
-    }
-  }
-}
-
-void PacketHandler::ComponentToColor(const Game::Component *component, std::shared_ptr<core::GameObject> &game_object)
-{
-  const auto *fb_color = component->type_as_Color();
-  if (fb_color != nullptr) {
-    const auto color = game_object->GetComponent<core::component::Coloring>();
-    if (color) {
-      color->SetColoring(fb_color->r(), fb_color->g(), fb_color->b(), fb_color->a());
-      game_object->AttachComponent(color);
-    }
-  }
-}
-
-void PacketHandler::ComponentToMovement(const Game::Component *component,
-  const std::shared_ptr<core::GameObject> &game_object)
-{
-  const auto *fb_mov = component->type_as_Movement();
-  if (fb_mov != nullptr) {
-    const auto *mov_vec = fb_mov->mov();
-    const auto movement = game_object->GetComponent<core::component::Movement>();
-    if (movement) {
-      movement->SetDirection(Vector2{ mov_vec->x(), mov_vec->y() });
-      game_object->AttachComponent(movement);
-    }
-  }
-}
-
-void PacketHandler::ComponentToTransform(const Game::Component *component,
-  const std::shared_ptr<core::GameObject> &game_object)
-{
-  const auto *fb_pos = component->type_as_Position();
-  if (fb_pos != nullptr) {
-    const auto *pos_vec = fb_pos->pos();
-    const auto transform = game_object->GetComponent<core::component::Transform>();
-    if (transform) {
-      transform->SetPosition(Vector2{ pos_vec->x(), pos_vec->y() });
-      game_object->AttachComponent(transform);
-    }
   }
 }
 

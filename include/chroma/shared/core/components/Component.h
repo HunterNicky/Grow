@@ -20,6 +20,7 @@ enum class ComponentType : uint8_t {
   CAMERA = 6,
   AUDIO_LISTENER = 7,
   COLOR = 8,
+  HEALTH = 9,
 };
 
 class Component

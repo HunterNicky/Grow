@@ -24,6 +24,12 @@
 #include "chroma/shared/events/EventCatcher.h"
 #include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/render/RenderBridge.h"
+#include "chroma/client/render/shader/ShaderData.h"
+#include "chroma/client/render/shader/IShaderValue.h"
+#include "chroma/shared/context/GameContext.h"
+#include "chroma/client/render/shader/RenderShader.h"
+
+using namespace chroma::client::render;
 
 namespace chroma::app {
 
@@ -41,7 +47,7 @@ Application::Application()
   const auto audio_bridge = std::make_shared<client::audio::AudioBridgeImpl>(audio_.get());
   shared::audio::SetAudioBridge(audio_bridge);
 
-  audio_bridge->LoadSound("step", "assets/sfx/step.wav");
+  audio_bridge->LoadSound("step", "assets/sfx/step2.wav");
   audio_bridge->LoadMusic("bgm", "assets/music/06.mp3");
   audio_bridge->PlayMusic("bgm", true, 0.4F);
 }
@@ -78,10 +84,24 @@ void Application::Run()
 
   auto last_time = static_cast<float>(GetTime());
 
+  shader::ShaderData shader_info;
+  shader_info.LoadShader(std::string{}, "assets/shaders/health.fs");
+  shader_info.SetPriority(1);
+
+  shader_info.SetUniform("health", shader::UniformType::FLOAT, shared::context::GameContext::GetInstance().GetPlayerHealth());
+  shader_info.SetUniform("max_health", shader::UniformType::FLOAT, shared::context::GameContext::GetInstance().GetPlayerMaxHealth());
+  shader_info.SetUniform("time", shader::UniformType::FLOAT, shared::context::GameContext::GetInstance().GetDeltaTime());
+
+  auto& render_shader = shader::RenderShader::GetInstance();
+  std::string shader_name = "health_shader";
+  render_shader.AddShader(std::move(shader_info), shader_name);
+
   while (!renderer_->ShouldClose()) {
     const auto current_time = static_cast<float>(GetTime());
     delta_time_ = current_time - last_time;
     last_time = current_time;
+
+    shared::context::GameContext::GetInstance().SetDeltaTime(delta_time_);
 
     event_catcher_->CatchEvent();
 

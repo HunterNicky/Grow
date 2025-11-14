@@ -5,6 +5,8 @@
 #include "chroma/client/render/TextureAtlas.h"
 #include "chroma/client/render/Window.h"
 #include "chroma/client/render/animation/AnimationRenderer.h"
+#include "chroma/client/render/shader/RenderShader.h"
+#include "chroma/client/render/shader/ShaderData.h"
 
 #include <functional>
 #include <memory>
@@ -15,7 +17,7 @@
 namespace chroma::client::render {
 
 Renderer::Renderer(std::unique_ptr<Window> window, const RenderConfig &config)
-  : window_(std::move(window)), config_(config), clear_color_(BLACK)
+  : window_(std::move(window)), config_(config), clear_color_(WHITE)
 {
   InitializeSubsystems();
 }
@@ -35,20 +37,29 @@ void Renderer::BeginFrame() const
 
 void Renderer::EndFrame() const
 {
-  render_queue_->Sort();
-  render_queue_->Execute();
-  render_queue_->Clear();
+    render_queue_->Sort();
+    render_queue_->Execute();
+    render_queue_->Clear();
+    EndMode2D();
+    RenderTarget::End(); 
 
-  EndMode2D();
+    shader::RenderShader& render_shader = shader::RenderShader::GetInstance();
 
-  RenderTarget::End();
+    
+    if (!render_shader.HasShaders())
+    {
+      render_target_->Draw(GetScreenWidth(), GetScreenHeight());
+    }
+    else
+    {
+        auto active_shaders = render_shader.GetSortedShaders();
+        
+        render_target_->RunPostProcessPipeline(active_shaders);
 
-  // const auto size = window_->GetVirtualSize();
-  const int screen_w = GetScreenWidth();
-  const int screen_h = GetScreenHeight();
-  render_target_->Draw(screen_w, screen_h);
+        render_target_->Draw(GetScreenWidth(), GetScreenHeight());
+    }
 
-  EndDrawing();
+    EndDrawing();
 }
 
 void Renderer::RenderFrame(const std::function<void()> &draw_world) const
@@ -96,9 +107,10 @@ void Renderer::InitializeSubsystems()
   animation_renderer_ = std::make_unique<animation::AnimationRenderer>(
     std::shared_ptr<TextureAtlas>(atlas_manager_.get(), [](TextureAtlas *) {}),
     std::shared_ptr<SpriteRenderer>(sprite_renderer_.get(), [](SpriteRenderer *) {}));
-
+  
   SetTextureFilter(render_target_->GetTexture().texture, config_.filter);
 
   SetVSync(config_.vsync);
+
 }
 }// namespace chroma::client::render

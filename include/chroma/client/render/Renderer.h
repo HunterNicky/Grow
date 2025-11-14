@@ -12,6 +12,7 @@
 #include <string>
 
 namespace chroma::client::render {
+  
 class Renderer
 {
 public:

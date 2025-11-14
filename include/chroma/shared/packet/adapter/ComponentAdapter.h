@@ -1,0 +1,46 @@
+#pragma once 
+
+#include "chroma/shared/core/GameObject.h"
+#include "chroma/shared/core/components/Component.h"
+#include "components_generated.h"
+
+namespace chroma::shared::packet::adapter {
+class ComponentAdapter
+{
+public:
+    static void ToComponent(const std::shared_ptr<core::GameObject> &game_object,
+      flatbuffers::FlatBufferBuilder &builder,
+      std::vector<flatbuffers::Offset<Game::Component>> &fb_components);
+    static std::shared_ptr<core::component::Component> FromComponent(const Game::Component &component);
+
+private:
+
+    //
+    // ============================================================
+    //  FLATBUFFER COMPONENT --> GAME OBJECT COMPONENT
+    // ============================================================
+    //
+
+    static void ComponentToSpeed(const Game::Component *component, const std::shared_ptr<core::GameObject> &game_object);
+    static void ComponentToTransform(const Game::Component *component, const std::shared_ptr<core::GameObject> &game_object);
+    static void ComponentToMovement(const Game::Component *component, const std::shared_ptr<core::GameObject> &game_object);
+    static void ComponentToColor(const Game::Component *component, const std::shared_ptr<core::GameObject> &game_object);
+    static void ComponentToHealth(const Game::Component *component, const std::shared_ptr<core::GameObject> &game_object);
+
+    //
+    // ============================================================
+    //  GAME OBJECT COMPONENT --> FLATBUFFER COMPONENT
+    // ============================================================
+    //
+    static void SpeedToComponent(const std::shared_ptr<core::component::Component> &component,
+      flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Component>> &fb_components);
+    static void TransformToComponent(const std::shared_ptr<core::component::Component> &component,
+        flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Component>> &fb_components);
+    static void MovementToComponent(const std::shared_ptr<core::component::Component> &component,
+        flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Component>> &fb_components);
+    static void ColorToComponent(const std::shared_ptr<core::component::Component> &component,
+        flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Component>> &fb_components);
+    static void HealthToComponent(const std::shared_ptr<core::component::Component> &component,
+        flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Component>> &fb_components);
+};
+} // namespace chroma::shared::packet::adapter

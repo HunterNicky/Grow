@@ -2,15 +2,15 @@
 
 #include <enet.h>
 
-#include "game_generated.h"
+#include "messages_generated.h"
 
 namespace chroma::server::network {
 
 class NetworkValidator
 {
 public:
-  static bool ValidatePeer(const ENetPeer *peer) { return peer != nullptr; }
-  static bool ValidateEnvelope(const Game::Envelope *env) { return env != nullptr; }
+  static bool ValidatePeer(const ENetPeer *peer);
+  static bool ValidateEnvelope(const Game::Envelope *env);
 };
 
 }// namespace chroma::server::network
