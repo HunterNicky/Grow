@@ -6,7 +6,6 @@
 #include "chroma/client/render/Window.h"
 #include "chroma/client/render/animation/AnimationRenderer.h"
 #include "chroma/client/render/shader/RenderShader.h"
-#include "chroma/client/render/shader/ShaderData.h"
 
 #include <functional>
 #include <memory>

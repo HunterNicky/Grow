@@ -11,7 +11,7 @@ public:
     static void ToComponent(const std::shared_ptr<core::GameObject> &game_object,
       flatbuffers::FlatBufferBuilder &builder,
       std::vector<flatbuffers::Offset<Game::Component>> &fb_components);
-    static std::shared_ptr<core::component::Component> FromComponent(const Game::Component &component);
+    static void FromComponent(const Game::Component &component, std::shared_ptr<core::GameObject> &game_objec);
 
 private:
 
@@ -20,13 +20,11 @@ private:
     //  FLATBUFFER COMPONENT --> GAME OBJECT COMPONENT
     // ============================================================
     //
-
-    static void ComponentToSpeed(const Game::Component *component, const std::shared_ptr<core::GameObject> &game_object);
-    static void ComponentToTransform(const Game::Component *component, const std::shared_ptr<core::GameObject> &game_object);
-    static void ComponentToMovement(const Game::Component *component, const std::shared_ptr<core::GameObject> &game_object);
-    static void ComponentToColor(const Game::Component *component, const std::shared_ptr<core::GameObject> &game_object);
-    static void ComponentToHealth(const Game::Component *component, const std::shared_ptr<core::GameObject> &game_object);
-
+    static void ComponentToSpeed(const Game::Component* component, const std::shared_ptr<core::GameObject>& game_object );
+    static void ComponentToTransform(const Game::Component* component, const std::shared_ptr<core::GameObject>& game_object );
+    static void ComponentToMovement(const Game::Component* component, const std::shared_ptr<core::GameObject>& game_object );
+    static void ComponentToColor(const Game::Component* component, const std::shared_ptr<core::GameObject>& game_object );
+    static void ComponentToHealth(const Game::Component* component, const std::shared_ptr<core::GameObject>& game_object);
     //
     // ============================================================
     //  GAME OBJECT COMPONENT --> FLATBUFFER COMPONENT

@@ -21,26 +21,26 @@ void ComponentAdapter::ToComponent(const std::shared_ptr<core::GameObject> &game
     HealthToComponent( game_object->GetComponent<core::component::Health>(), builder, fb_components);
 }
 
-std::shared_ptr<core::component::Component> ComponentAdapter::FromComponent(const Game::Component &component)
+void ComponentAdapter::FromComponent(const Game::Component &component, std::shared_ptr<core::GameObject> &game_object)
 {
     switch (component.type_type()) {
     case Game::ComponentUnion::Velocity:
-        return std::static_pointer_cast<core::component::Component>(
-            std::make_shared<core::component::Speed>());
+        ComponentToSpeed(&component, game_object);
+        break;
     case Game::ComponentUnion::Position:
-        return std::static_pointer_cast<core::component::Component>(
-            std::make_shared<core::component::Transform>());
+        ComponentToTransform(&component, game_object);
+        break;
     case Game::ComponentUnion::Movement:
-        return std::static_pointer_cast<core::component::Component>(
-            std::make_shared<core::component::Movement>());
+        ComponentToMovement(&component, game_object);
+        break;
     case Game::ComponentUnion::Color:
-        return std::static_pointer_cast<core::component::Component>(
-            std::make_shared<core::component::Coloring>());
+        ComponentToColor(&component, game_object);
+        break;
     case Game::ComponentUnion::Health:
-        return std::static_pointer_cast<core::component::Component>(
-            std::make_shared<core::component::Health>());
+        ComponentToHealth(&component, game_object);
+        break;
     default:
-        return nullptr;
+        return;
     }
 }
 
@@ -106,72 +106,77 @@ void ComponentAdapter::HealthToComponent(const std::shared_ptr<core::component::
     fb_components.push_back(fb_component);
 }
 
-void ComponentAdapter::ComponentToSpeed(const Game::Component *component,
-  const std::shared_ptr<core::GameObject> &game_object)
-{
-    const auto *fb_vel = component->type_as_Velocity();
-    if (fb_vel != nullptr) {
-        const auto *vel_vec = fb_vel->vel();
-        const auto speed = game_object->GetComponent<core::component::Speed>();
-        if (speed) {
-            speed->SetSpeed(Vector2{ vel_vec->x(), vel_vec->y() });
-            game_object->AttachComponent(speed);
-        }
-    }
-}
 
 void ComponentAdapter::ComponentToTransform(const Game::Component *component,
-  const std::shared_ptr<core::GameObject> &game_object)
+    const std::shared_ptr<core::GameObject> &game_object)
 {
     const auto *fb_pos = component->type_as_Position();
-    if (fb_pos != nullptr) {
-        const auto *pos_vec = fb_pos->pos();
-        const auto transform = game_object->GetComponent<core::component::Transform>();
-        if (transform) {
-            transform->SetPosition(Vector2{ pos_vec->x(), pos_vec->y() });
-            game_object->AttachComponent(transform);
-        }
-    }
+    if (fb_pos == nullptr) {return; }
+
+    const auto transform = game_object->GetComponent<core::component::Transform>();
+    if (!transform ){ return; }
+
+    const auto *pos_vec = fb_pos->pos();
+    transform->SetPosition(Vector2{ pos_vec->x(), pos_vec->y() });
 }
+
+
+void ComponentAdapter::ComponentToSpeed(const Game::Component *component,
+    const std::shared_ptr<core::GameObject> &game_object)
+{
+    const auto *fb_vel = component->type_as_Velocity();
+    if (fb_vel == nullptr) { return; }
+
+    const auto speed = game_object->GetComponent<core::component::Speed>();
+    if (!speed) { return; }
+
+    const auto *v = fb_vel->vel();
+    speed->SetSpeed(Vector2{ v->x(), v->y() });
+}
+
 
 void ComponentAdapter::ComponentToMovement(const Game::Component *component,
-  const std::shared_ptr<core::GameObject> &game_object)
+    const std::shared_ptr<core::GameObject> &game_object)
 {
     const auto *fb_mov = component->type_as_Movement();
-    if (fb_mov != nullptr) {
-        const auto *mov_vec = fb_mov->mov();
-        const auto movement = game_object->GetComponent<core::component::Movement>();
-        if (movement) {
-            movement->SetDirection(Vector2{ mov_vec->x(), mov_vec->y() });
-            game_object->AttachComponent(movement);
-        }
-    }
+    if (fb_mov == nullptr) { return; }
+
+    const auto movement = game_object->GetComponent<core::component::Movement>();
+    if (!movement) { return; }
+
+    const auto *v = fb_mov->mov();
+    movement->SetDirection(Vector2{ v->x(), v->y() });
 }
 
-void ComponentAdapter::ComponentToColor(const Game::Component *component, 
+void ComponentAdapter::ComponentToColor(const Game::Component *component,
     const std::shared_ptr<core::GameObject> &game_object)
 {
     const auto *fb_color = component->type_as_Color();
-    if (fb_color != nullptr) {
-        const auto color = game_object->GetComponent<core::component::Coloring>();
-        if (color) {
-            color->SetColoring(fb_color->r(), fb_color->g(), fb_color->b(), fb_color->a());
-            game_object->AttachComponent(color);
-        }
-    }
+    if (fb_color == nullptr) { return; }
+
+    const auto color = game_object->GetComponent<core::component::Coloring>();
+    if (!color) { return; }
+
+    color->SetColoring(
+        fb_color->r(),
+        fb_color->g(),
+        fb_color->b(),
+        fb_color->a()
+    );
 }
 
+
 void ComponentAdapter::ComponentToHealth(const Game::Component *component,
-  const std::shared_ptr<core::GameObject> &game_object)
+    const std::shared_ptr<core::GameObject> &game_object)
 {
     const auto *fb_health = component->type_as_Health();
-    if (fb_health != nullptr) {
-        const auto health = game_object->GetComponent<core::component::Health>();
-        if (health) {
-            health->SetCurrentHealth(fb_health->current_health());
-            health->SetMaxHealth(fb_health->max_health());
-            game_object->AttachComponent(health);
-        }
-    }
+    if (fb_health == nullptr) { return; }
+
+    const auto health = game_object->GetComponent<core::component::Health>();
+    if (!health) { return; }
+
+    health->SetCurrentHealth(fb_health->current_health());
+    health->SetMaxHealth(fb_health->max_health());
 }
+
 } // namespace chroma::shared::packet::adapter

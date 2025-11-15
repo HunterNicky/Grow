@@ -48,6 +48,7 @@ void InterpolateSystem::InterpolatePosition(const std::shared_ptr<shared::core::
   const auto target_pos = target_object->GetTransform()->GetPosition();
   const auto interpolated_pos = Vector2Lerp(past_pos, target_pos, alpha);
   out_object->GetTransform()->SetPosition(interpolated_pos);
+  std::cout << "posicao: " << interpolated_pos.x << " : " << interpolated_pos.y << "\n";
 }
 
 void InterpolateSystem::InterpolateHealth(const std::shared_ptr<shared::core::GameObject> &past_object,

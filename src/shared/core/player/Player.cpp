@@ -245,6 +245,7 @@ void Player::OnRender()
   const float rotation = transform->GetRotation();
   const bool flip_x = (last_facing_ == FacingDir::Side) && last_left_;
 
+  std::cout << "Render remote player pos: " << pos.x << ", " << pos.y << "\n";
   bridge->DrawAnimation(*anim, pos, scale, rotation, WHITE, flip_x, false, { 0.5F, 0.5F });
 
   if(health)

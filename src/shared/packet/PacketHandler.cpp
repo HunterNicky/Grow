@@ -77,9 +77,9 @@ void PacketHandler::UpdateGameObjectWithEntityState(const Game::EntityState *ent
       player->SetId(UUIDv4::UUID(entity_state->id()->str()));
 
       for (const auto &component : *entity_state->components()) {
-         if (component != nullptr) {
-           adapter::ComponentAdapter::FromComponent(*component);
-         }
+        if (component != nullptr) {
+          adapter::ComponentAdapter::FromComponent(*component, game_object);
+        }
       }
     }
     break;

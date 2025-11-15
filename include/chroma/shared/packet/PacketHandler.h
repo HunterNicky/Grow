@@ -41,7 +41,7 @@ public:
   static uint32_t SnapshotGetLastProcessedInputSeq(const Game::Snapshot *snapshot);
   static uint64_t SnapshotGetTimeLapse(const Game::Snapshot *snapshot);
   static void SnapshotToGameObjects(const Game::Snapshot *snapshot,
-    std::unordered_map<UUIDv4::UUID, std::shared_ptr<core::GameObject>> &game_objects);
+   std::unordered_map<UUIDv4::UUID, std::shared_ptr<core::GameObject>> &game_objects);
 
 
   //
