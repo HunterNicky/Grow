@@ -19,7 +19,6 @@ public:
   ~Player() override;
   void AnimationState(Vector2 dir, float magnitude);
 
-  void InitComponents();
   void OnUpdate(float delta_time) override;
   void OnFixedUpdate(float fixed_delta_time) override;
   void OnCollision(const collision::CollisionEvent &event) override;

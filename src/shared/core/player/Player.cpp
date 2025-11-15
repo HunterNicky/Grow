@@ -2,8 +2,6 @@
 
 #include "chroma/shared/audio/AudioBridge.h"
 #include "chroma/shared/core/GameObject.h"
-#include "chroma/shared/core/components/AudioListener.h"
-#include "chroma/shared/core/components/Camera.h"
 #include "chroma/shared/core/components/Health.h"
 #include "chroma/shared/core/components/Movement.h"
 #include "chroma/shared/core/components/Speed.h"
@@ -24,35 +22,6 @@
 
 namespace chroma::shared::core::player {
 Player::Player() { Type_ = GameObjectType::PLAYER; }
-
-void Player::InitComponents()
-{
-  const auto speed_component = std::make_shared<component::Speed>(50.0F);
-  const auto movement_component = std::make_shared<component::Movement>();
-  AttachComponent(speed_component);
-  AttachComponent(movement_component);
-  transform_->SetScale({ 1.0F, 1.0F });
-  AttachComponent(transform_);
-
-  const auto anim_component = std::make_shared<component::SpriteAnimation>();
-  AttachComponent(anim_component);
-
-  const auto cam_component = std::make_shared<component::CameraComponent>();
-  cam_component->SetMode(render::CameraMode::FollowSmooth);
-  cam_component->SetZoom(3.0F);
-  cam_component->SetSmoothness(2.0F);
-  cam_component->SetDeadzone({ .x = 64.0F, .y = 128.0F });
-  AttachComponent(cam_component);
-
-  const auto listener_component = std::make_shared<component::AudioListener>();
-  AttachComponent(listener_component);
-
-  const auto health_component = std::make_shared<component::Health>(100.0F);
-  health_component->SetCurrentHealth(1.F);
-  AttachComponent(health_component);
-  
-  SetupAnimation(anim_component);
-}
 
 void Player::SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &anim_component)
 {

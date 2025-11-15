@@ -4,6 +4,7 @@
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
 #include "chroma/client/render/shader/ShaderData.h"
 #include "chroma/shared/core/GameObject.h"
+#include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
@@ -11,6 +12,8 @@
 #include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/context/GameContext.h"
 #include "chroma/shared/core/components/Health.h"
+#include "chroma/shared/builder/GameObjectBuilder.h"
+#include "chroma/shared/render/RenderBridge.h"
 
 #include <cstdint>
 #include <memory>
@@ -28,11 +31,20 @@ GameState::GameState()
     game_objects_(std::make_shared<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>>()),
     network_mediator_(nullptr)
 {
-  auto player = std::make_shared<shared::core::player::Player>();
+  auto player = chroma::shared::builder::GameObjectBuilder<chroma::shared::core::player::Player>()
+        .AddTransform({0,0})
+        .AddSpeed(50.0F)
+        .AddMovement()
+        .AddAnimation()
+        .AddCamera(chroma::shared::render::CameraMode::FollowSmooth, 3.0F, 2.0F, {64,128})
+        .AddAudioListener()
+        .AddHealth(100.0F, 1.0F)
+        .NetRole(shared::core::NetRole::ROLE_AutonomousProxy)
+        .Build();
+
+
   SetPlayerId(player->GetId());
-  player->SetNetRole(shared::core::NetRole::ROLE_AutonomousProxy);
-  player->InitComponents();
-  player_id_ = player->GetId();
+  player->SetupAnimation(player->GetComponent<shared::core::component::SpriteAnimation>());
   game_objects_->emplace(player->GetId(), player);
 
   shader::ShaderData shader_info;
@@ -74,7 +86,7 @@ void GameState::OnUpdate(float delta_time)
   if (player) { 
     shared::context::GameContext::GetInstance().SetPlayerHealth(player->GetComponent<shared::core::component::Health>()->GetCurrentHealth());
   }
-  
+
 }
 
 void GameState::SetGameObjects(

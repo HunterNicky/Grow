@@ -9,7 +9,8 @@
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/packet/events/InputEventMessage.h"
 #include "chroma/shared/packet/events/SoundEventMessage.h"
-#include "game_generated.h"
+#include "entities_generated.h"
+#include "events_generated.h"
 
 namespace chroma::shared::packet {
 

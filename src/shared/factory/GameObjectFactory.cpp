@@ -2,6 +2,8 @@
 
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/player/Player.h"
+#include "chroma/shared/builder/GameObjectBuilder.h"
+
 #include "entities_generated.h"
 
 #include <memory>
@@ -25,11 +27,20 @@ namespace {
         [](const Game::EntityState *entity_state, const bool is_local_player) -> std::shared_ptr<core::GameObject> {
           if (entity_state == nullptr || entity_state->id() == nullptr) { return nullptr; }
           const UUIDv4::UUID entity_id(entity_state->id()->str());
-          auto player = std::make_shared<core::player::Player>();
-          player->SetNetRole(
-            is_local_player ? core::NetRole::ROLE_AutonomousProxy : core::NetRole::ROLE_SimulatedProxy);
-          player->InitComponents();
-          player->SetId(entity_id);
+           
+          auto player = chroma::shared::builder::GameObjectBuilder<chroma::shared::core::player::Player>()
+            .AddTransform({0,0})
+            .Id(entity_id)
+            .AddSpeed(50.0F)
+            .AddMovement()
+            .AddAnimation()
+            .AddCamera(chroma::shared::render::CameraMode::FollowSmooth, 3.0F, 2.0F, {64,128})
+            .AddAudioListener()
+            .AddHealth(100.0F, 1.0F)
+            .NetRole(is_local_player ? core::NetRole::ROLE_AutonomousProxy : core::NetRole::ROLE_SimulatedProxy)
+            .Build();
+
+          player->SetupAnimation(player->GetComponent<shared::core::component::SpriteAnimation>());
           return player;
         });
     }

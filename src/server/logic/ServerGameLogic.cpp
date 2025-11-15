@@ -5,6 +5,7 @@
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/packet/PacketHandler.h"
 #include "chroma/shared/packet/events/InputEventMessage.h"
+#include "chroma/shared/builder/GameObjectBuilder.h"
 #include "entities_generated.h"
 
 #include <flatbuffers/buffer.h>
@@ -40,9 +41,20 @@ void ServerGameLogic::OnReceivedInputMessage(const std::shared_ptr<shared::packe
 
 std::shared_ptr<shared::core::player::Player> ServerGameLogic::CreatePlayer()
 {
-  auto player = std::make_shared<shared::core::player::Player>();
-  player->SetNetRole(shared::core::NetRole::ROLE_Authority);
-  player->InitComponents();
+    auto player = chroma::shared::builder::GameObjectBuilder<chroma::shared::core::player::Player>()
+        .AddTransform({0,0})
+        .AddSpeed(50.0F)
+        .AddMovement()
+        .AddAnimation()
+        .AddCamera(chroma::shared::render::CameraMode::FollowSmooth, 3.0F, 2.0F, {64,128})
+        .AddAudioListener()
+        .AddHealth(100.0F, 1.0F)
+        .NetRole(shared::core::NetRole::ROLE_Authority)
+        .Build();
+
+
+  player->SetupAnimation(player->GetComponent<shared::core::component::SpriteAnimation>());
+
   game_objects_.emplace(player->GetId(), player);
   return player;
 }

@@ -1,6 +1,7 @@
 #include "chroma/client/render/shader/RenderShader.h"
 
 #include <raylib.h>
+#include <algorithm>
 #include <string>
 #include <iostream>
 
@@ -50,11 +51,12 @@ std::vector<ShaderData*> RenderShader::GetSortedShaders()
 {
     std::vector<ShaderData*> sorted_shaders;
     
+    sorted_shaders.reserve(shaders_.size());
     for (auto& [name, shader_data] : shaders_) {
         sorted_shaders.push_back(&shader_data);
     }
 
-    std::sort(sorted_shaders.begin(), sorted_shaders.end(),
+    std::ranges::sort(sorted_shaders,
     [](ShaderData* a, ShaderData* b) {
         return a->GetPriority() < b->GetPriority();
     });
