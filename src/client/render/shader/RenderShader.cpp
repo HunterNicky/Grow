@@ -1,4 +1,5 @@
 #include "chroma/client/render/shader/RenderShader.h"
+#include "chroma/client/render/shader/ShaderPass.h"
 
 #include <raylib.h>
 #include <string>
@@ -11,7 +12,7 @@ RenderShader& RenderShader::GetInstance()
     return render_shader;
 }
 
-void RenderShader::AddShader(ShaderData&& data, std::string& name)
+void RenderShader::AddShader(ShaderPass&& data, std::string& name)
 {
     shaders_[name] = std::move(data);
 }
@@ -28,7 +29,7 @@ RenderTexture2D RenderShader::ApplyShaders(RenderTexture2D& target_texture)
 
     for (auto& pair : shaders_)
     {
-        shader::ShaderData* shader_data = &pair.second;
+        shader::ShaderPass* shader_data = &pair.second;
 
         BeginTextureMode(intermediate_texture_);
         ClearBackground(BLANK);

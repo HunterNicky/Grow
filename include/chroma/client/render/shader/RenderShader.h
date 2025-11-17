@@ -1,6 +1,6 @@
 #pragma once 
 
-#include "chroma/client/render/shader/ShaderData.h"
+#include "chroma/client/render/shader/ShaderPass.h"
 #include <raylib.h>
 
 namespace chroma::client::render::shader {
@@ -15,7 +15,7 @@ public:
     RenderShader(RenderShader&&) noexcept = default;
     RenderShader& operator=(RenderShader&&) noexcept = default;
     
-    void AddShader(ShaderData&& data, std::string& name);
+    void AddShader(ShaderPass&& data, std::string& name);
     void RemoveShader(const std::string& name);
     
     void Initialize(int width, int height);
@@ -26,7 +26,7 @@ public:
 
 private:
     RenderShader() = default;
-    std::unordered_map<std::string, ShaderData> shaders_;
+    std::unordered_map<std::string, ShaderPass> shaders_;
     RenderTexture2D intermediate_texture_ {};
 };
 

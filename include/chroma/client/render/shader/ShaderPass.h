@@ -12,38 +12,22 @@
 
 namespace chroma::client::render::shader {
 
-class ShaderData {
+class ShaderPass {
 
 public:
-    explicit ShaderData() = default;
-    ShaderData(std::string  vertex_shader_path, std::string fragment_shader_path)
+    explicit ShaderPass() = default;
+    ShaderPass(std::string  vertex_shader_path, std::string fragment_shader_path)
         : vs_path_(std::move(vertex_shader_path)), fs_path_(std::move(fragment_shader_path))
     {}
 
-    ~ShaderData() = default;
-    ShaderData(const ShaderData&) = delete;
-    ShaderData& operator=(const ShaderData&) = delete;
+    ~ShaderPass() = default;
+    ShaderPass(const ShaderPass&) = delete;
+    ShaderPass& operator=(const ShaderPass&) = delete;
 
-    ShaderData(ShaderData&&) noexcept = default;
-    ShaderData& operator=(ShaderData&&) noexcept = default;
+    ShaderPass(ShaderPass&&) noexcept = default;
+    ShaderPass& operator=(ShaderPass&&) noexcept = default;
 
-    void LoadShader()
-    {
-        shader_ = ::LoadShader(vs_path_.c_str(), fs_path_.c_str());
-
-        if (shader_.id == 0) {
-            throw std::runtime_error("Failed to load shader: " + fs_path_);
-        }
-    }
     
-    void Unload()
-    {
-        if (shader_.id != 0) {
-            ::UnloadShader(shader_);
-            shader_.id = 0;
-        }
-    }
-
     [[nodiscard]] const ::Shader& GetShader() const {
         return shader_;
     }
@@ -66,7 +50,7 @@ public:
     [[nodiscard]] int GetPriority() const {
         return priority_;
     }
-
+    
     // ------------------------------------------------------------------
     // Enviar todos os uniforms ao shader, ou seja carregar todos os atributos que serão usados no shader
     // ------------------------------------------------------------------
@@ -79,7 +63,7 @@ public:
 
     void Setup() {
         LoadShader();
-
+        
         for (auto& pair : values_) {
             const std::string& name = pair.first;
             int loc = GetLocation(name);
@@ -94,6 +78,24 @@ public:
 
 
 private:
+    
+    void LoadShader()
+    {
+        shader_ = ::LoadShader(vs_path_.c_str(), fs_path_.c_str());
+
+        if (shader_.id == 0) {
+            throw std::runtime_error("Failed to load shader: " + fs_path_);
+        }
+    }
+    
+    void Unload()
+    {
+        if (shader_.id != 0) {
+            ::UnloadShader(shader_);
+            shader_.id = 0;
+        }
+    }
+
     ::Shader shader_{};
     std::string vs_path_;
     std::string fs_path_;

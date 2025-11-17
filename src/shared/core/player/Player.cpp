@@ -177,6 +177,9 @@ void Player::HandleEvent(const event::Event &event)
     if (input_state_.IsKeyPressed(KEY_S)) { direction.y += 1.0F; }
     if (input_state_.IsKeyPressed(KEY_A)) { direction.x -= 1.0F; }
     if (input_state_.IsKeyPressed(KEY_D)) { direction.x += 1.0F; }
+    
+    running_ = input_state_.IsKeyPressed(KEY_LEFT_SHIFT);
+
     movement->SetDirection(direction);
    
     break;

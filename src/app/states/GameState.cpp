@@ -2,7 +2,6 @@
 
 #include "chroma/app/states/State.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
-#include "chroma/client/render/shader/ShaderData.h"
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/player/Player.h"
@@ -21,8 +20,6 @@
 #include <unordered_map>
 #include <utility>
 #include <uuid_v4.h>
-
-using namespace chroma::client::render;
 
 namespace chroma::app::states {
 
@@ -46,8 +43,6 @@ GameState::GameState()
   SetPlayerId(player->GetId());
   player->SetupAnimation(player->GetComponent<shared::core::component::SpriteAnimation>());
   game_objects_->emplace(player->GetId(), player);
-
-  shader::ShaderData shader_info;
 }
 
 GameState::GameState(std::shared_ptr<GameNetworkMediator> network_mediator)

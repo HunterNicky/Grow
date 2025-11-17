@@ -24,7 +24,7 @@
 #include "chroma/shared/events/EventCatcher.h"
 #include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/render/RenderBridge.h"
-#include "chroma/client/render/shader/ShaderData.h"
+#include "chroma/client/render/shader/ShaderPass.h"
 #include "chroma/client/render/shader/IShaderValue.h"
 #include "chroma/shared/context/GameContext.h"
 #include "chroma/client/render/shader/RenderShader.h"
@@ -82,7 +82,7 @@ void Application::Run()
 
   auto last_time = static_cast<float>(GetTime());
 
-  shader::ShaderData shader_info = shader::ShaderData("resources/shaders/base.vs", "assets/shaders/health.fs");
+  shader::ShaderPass shader_info = shader::ShaderPass("resources/shaders/base.vs", "assets/shaders/health.fs");
   shader_info.SetPriority(1);
 
   shader_info.SetUniform("health", shader::UniformType::FLOAT, shared::context::GameContext::GetInstance().GetPlayerHealth());
