@@ -7,7 +7,6 @@
 #include <unordered_map>
 #include <string>
 #include <memory>
-#include <iostream>
 #include <stdexcept>
 
 namespace chroma::client::render::shader {
@@ -56,7 +55,8 @@ public:
         int loc = GetLocation(name);
 
         if (loc < 0) {
-            std::cerr << "Warning: Uniform '" << name << "' not found.\n";
+            // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg)
+            TraceLog(LOG_WARNING, "Warning: Uniform '%s' not found.", name.c_str());
             return;
         }
 

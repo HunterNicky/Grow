@@ -19,88 +19,46 @@
 #include <raylib.h>
 #include <raymath.h>
 #include <string>
+#include <nlohmann/json.hpp>
+#include <fstream>
 
 namespace chroma::shared::core::player {
 Player::Player() { Type_ = GameObjectType::PLAYER; }
 
 void Player::SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &anim_component)
 {
-  const std::string filepath = "assets/sprites/player/randi-1.png";
+    std::ifstream file("assets/sprites/player/randi.json");
+    nlohmann::json j;
+    file >> j;
 
-  component::SpriteAnimationDesc idle_down;
-  idle_down.name = "idle_down";
-  idle_down.loop = false;
-  idle_down.frames = {
-    { .sprite_id = filepath, .duration_ticks = 60, .subregion = { .x = 1, .y = 1, .width = 16, .height = 32 } }
-  };
-  anim_component->LoadAnimation("idle_down", idle_down);
+    const std::string sprite_sheet_path = "assets/sprites/player/" + j["sprite_sheet"].get<std::string>();
 
-  component::SpriteAnimationDesc idle_up;
-  idle_up.name = "idle_up";
-  idle_up.loop = false;
-  idle_up.frames = {
-    { .sprite_id = filepath, .duration_ticks = 60, .subregion = { .x = 18, .y = 1, .width = 16, .height = 32 } }
-  };
-  anim_component->LoadAnimation("idle_up", idle_up);
-  
-  component::SpriteAnimationDesc punch_side;
-  punch_side.name = "punch_side";
-  punch_side.loop = false;
-  punch_side.frames = {
-    { .sprite_id = filepath, .duration_ticks = 60, .subregion = { .x = 526, .y = 132, .width = 22, .height = 29 } },
-    { .sprite_id = filepath, .duration_ticks = 60, .subregion = { .x = 548, .y = 132, .width = 24, .height = 29 } },
-    { .sprite_id = filepath, .duration_ticks = 60, .subregion = { .x = 572, .y = 132, .width = 25, .height = 29 } }
-  };
-  anim_component->LoadAnimation("punch_side", punch_side);
-  
-  component::SpriteAnimationDesc idle_side;
-  idle_side.name = "idle_side";
-  idle_side.loop = false;
-  idle_side.frames = {
-    { .sprite_id = filepath, .duration_ticks = 60, .subregion = { .x = 35, .y = 1, .width = 15, .height = 32 } }
-  };
-  anim_component->LoadAnimation("idle_side", idle_side);
-  
-  component::SpriteAnimationDesc walk_down;
-  walk_down.name = "walk_down";
-  walk_down.loop = true;
-  walk_down.frames = {
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 51, .y = 1, .width = 18, .height = 30 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 70, .y = 1, .width = 19, .height = 32 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 90, .y = 1, .width = 19, .height = 32 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 110, .y = 1, .width = 18, .height = 31 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 129, .y = 1, .width = 19, .height = 32 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 149, .y = 1, .width = 19, .height = 32 } }
-  };
-  anim_component->LoadAnimation("walk_down", walk_down);
+    auto &animations = j["animations"];
 
-  component::SpriteAnimationDesc walk_up;
-  walk_up.name = "walk_up";
-  walk_up.loop = true;
-  walk_up.frames = {
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 169, .y = 1, .width = 16, .height = 32 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 186, .y = 1, .width = 18, .height = 32 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 205, .y = 1, .width = 18, .height = 32 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 224, .y = 1, .width = 16, .height = 32 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 241, .y = 1, .width = 18, .height = 32 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 260, .y = 1, .width = 18, .height = 32 } }
-  };
-  anim_component->LoadAnimation("walk_up", walk_up);
+    for (auto &[anim_name, anim_data] : animations.items()) {
 
-  component::SpriteAnimationDesc walk_side;
-  walk_side.name = "walk_side";
-  walk_side.loop = true;
-  walk_side.frames = {
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 279, .y = 1, .width = 20, .height = 32 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 300, .y = 1, .width = 18, .height = 32 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 319, .y = 1, .width = 17, .height = 32 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 337, .y = 1, .width = 23, .height = 29 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 361, .y = 1, .width = 16, .height = 32 } },
-    { .sprite_id = filepath, .duration_ticks = 180, .subregion = { .x = 378, .y = 1, .width = 18, .height = 32 } }
-  };
-  anim_component->LoadAnimation("walk_side", walk_side);
+        component::SpriteAnimationDesc desc;
+        desc.name = anim_name;
+        desc.loop = anim_data["loop"].get<bool>();
 
-  anim_component->Play("idle_down", false);
+        for (auto &frame : anim_data["frames"]) {
+            component::SpriteAnimFrame f;
+
+            f.sprite_id = sprite_sheet_path;
+            f.duration_ticks = frame["duration_ticks"].get<int>();
+
+            f.subregion.x = frame["x"].get<float>();
+            f.subregion.y = frame["y"].get<float>();
+            f.subregion.width = frame["width"].get<float>();
+            f.subregion.height = frame["height"].get<float>();
+
+            desc.frames.push_back(f);
+        }
+
+        anim_component->LoadAnimation(anim_name, desc);
+    }
+
+    anim_component->Play("idle_down", false);
 }
 
 Player::~Player() = default;
@@ -124,6 +82,23 @@ void Player::AnimationState(const Vector2 dir, const float magnitude)
         anim->Play("idle_side", false);
         break;
       }
+
+      if(attacking_)
+      {
+          switch (last_facing_) {
+          case FacingDir::Up:
+              anim->Play("punch_up", false);
+              break;
+          case FacingDir::Down:
+              anim->Play("punch_down", false);
+              break;
+          case FacingDir::Side:
+              anim->Play("punch_side", false);
+              break;
+          }
+          return;
+      }
+      
     } else {
       if (std::fabs(dir.x) > std::fabs(dir.y)) {
         last_facing_ = FacingDir::Side;
@@ -214,7 +189,6 @@ void Player::OnRender()
   const float rotation = transform->GetRotation();
   const bool flip_x = (last_facing_ == FacingDir::Side) && last_left_;
 
-  std::cout << "Render remote player pos: " << pos.x << ", " << pos.y << "\n";
   bridge->DrawAnimation(*anim, pos, scale, rotation, WHITE, flip_x, false, { 0.5F, 0.5F });
 
   if(health)

@@ -3,7 +3,6 @@
 #include <raylib.h>
 #include <algorithm>
 #include <string>
-#include <iostream>
 
 namespace chroma::client::render::shader {
 
@@ -16,7 +15,8 @@ RenderShader& RenderShader::GetInstance()
 void RenderShader::AddShader(ShaderData&& data, std::string& name)
 {
     if (data.GetShader().id == 0) {
-        std::cerr << "Shader '" << name << "' falhou ao carregar. Ignorando." << "\n";
+        // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg)
+        TraceLog(LOG_WARNING, "Shader '%s' failed to load. Ignoring.", name.c_str());
         return;
     }
     shaders_[name] = std::move(data);

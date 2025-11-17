@@ -28,19 +28,19 @@ namespace {
           if (entity_state == nullptr || entity_state->id() == nullptr) { return nullptr; }
           const UUIDv4::UUID entity_id(entity_state->id()->str());
            
-          auto player = chroma::shared::builder::GameObjectBuilder<chroma::shared::core::player::Player>()
+          auto player = builder::GameObjectBuilder<core::player::Player>()
             .AddTransform({0,0})
             .Id(entity_id)
             .AddSpeed(50.0F)
             .AddMovement()
             .AddAnimation()
-            .AddCamera(chroma::shared::render::CameraMode::FollowSmooth, 3.0F, 2.0F, {64,128})
+            .AddCamera(render::CameraMode::FollowSmooth, 3.0F, 2.0F, {64,128})
             .AddAudioListener()
             .AddHealth(100.0F, 1.0F)
             .NetRole(is_local_player ? core::NetRole::ROLE_AutonomousProxy : core::NetRole::ROLE_SimulatedProxy)
             .Build();
 
-          player->SetupAnimation(player->GetComponent<shared::core::component::SpriteAnimation>());
+          player->SetupAnimation(player->GetComponent<core::component::SpriteAnimation>());
           return player;
         });
     }
