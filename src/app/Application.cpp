@@ -72,8 +72,6 @@ void Application::Run()
   mediator->SetGameState(game_state);
   mediator->SetNetworkState(network_state);
 
-  // auto game_state = std::make_shared<states::GameState>();
-
   network_layer->PushState(network_state);
   game_layer->PushState(game_state);
 
@@ -84,8 +82,7 @@ void Application::Run()
 
   auto last_time = static_cast<float>(GetTime());
 
-  shader::ShaderData shader_info;
-  shader_info.LoadShader(std::string{}, "assets/shaders/health.fs");
+  shader::ShaderData shader_info = shader::ShaderData("resources/shaders/base.vs", "assets/shaders/health.fs");
   shader_info.SetPriority(1);
 
   shader_info.SetUniform("health", shader::UniformType::FLOAT, shared::context::GameContext::GetInstance().GetPlayerHealth());
@@ -95,6 +92,7 @@ void Application::Run()
   auto& render_shader = shader::RenderShader::GetInstance();
   std::string shader_name = "health_shader";
   render_shader.AddShader(std::move(shader_info), shader_name);
+  render_shader.SetupShaders();
 
   while (!renderer_->ShouldClose()) {
     const auto current_time = static_cast<float>(GetTime());

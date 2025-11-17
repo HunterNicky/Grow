@@ -2,7 +2,6 @@
 
 #include <raylib.h>
 #include <memory>
-#include <iostream>
 
 #include "chroma/client/render/shader/IShaderValue.h"
 
@@ -23,7 +22,7 @@ public:
     ShaderValue(ShaderValue&&) noexcept = default;
     ShaderValue& operator=(ShaderValue&&) noexcept = default;
 
-    void SetLocation(int location) {
+    void SetLocation(int location) override {
         location_ = location;
     }
 
@@ -31,7 +30,7 @@ public:
         return location_;
     }
 
-    void SetType(UniformType type) {
+    void SetType(UniformType type) override{
         type_ = type;
     }
 

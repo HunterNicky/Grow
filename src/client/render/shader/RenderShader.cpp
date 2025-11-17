@@ -1,7 +1,6 @@
 #include "chroma/client/render/shader/RenderShader.h"
 
 #include <raylib.h>
-#include <algorithm>
 #include <string>
 
 namespace chroma::client::render::shader {
@@ -14,11 +13,6 @@ RenderShader& RenderShader::GetInstance()
 
 void RenderShader::AddShader(ShaderData&& data, std::string& name)
 {
-    if (data.GetShader().id == 0) {
-        // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg)
-        TraceLog(LOG_WARNING, "Shader '%s' failed to load. Ignoring.", name.c_str());
-        return;
-    }
     shaders_[name] = std::move(data);
 }
 
@@ -28,38 +22,46 @@ void RenderShader::RemoveShader(const std::string& name)
     shaders_.erase(name);
 }
 
-void RenderShader::BeginRenderUniqueShader(const std::string& name)
+RenderTexture2D RenderShader::ApplyShaders(RenderTexture2D& target_texture)
 {
-    auto it = shaders_.find(name);
-    if (it != shaders_.end()) {
-        BeginShaderMode(it->second.GetShader());
-        it->second.UploadAll();
+    Texture2D source_texture =  target_texture.texture;
+
+    for (auto& pair : shaders_)
+    {
+        shader::ShaderData* shader_data = &pair.second;
+
+        BeginTextureMode(intermediate_texture_);
+        ClearBackground(BLANK);
+
+        BeginShaderMode(shader_data->GetShader());
+        shader_data->UploadAll();
+        DrawTexture(source_texture, 0, 0, WHITE);
+        EndShaderMode();
+
+        EndTextureMode();
+
+        source_texture = intermediate_texture_.texture;
     }
-}
-
-void RenderShader::EndRenderUniqueShader() 
-{
-    EndShaderMode();
-}
-
-bool RenderShader::HasShaders() const
-{
-    return !shaders_.empty();
-}
-
-std::vector<ShaderData*> RenderShader::GetSortedShaders()
-{
-    std::vector<ShaderData*> sorted_shaders;
     
-    sorted_shaders.reserve(shaders_.size());
-    for (auto& [name, shader_data] : shaders_) {
-        sorted_shaders.push_back(&shader_data);
-    }
+    BeginTextureMode(target_texture);
+    ClearBackground(BLANK);
+    DrawTexture(source_texture, 0, 0, WHITE);
+    EndTextureMode();
 
-    std::ranges::sort(sorted_shaders,
-    [](ShaderData* a, ShaderData* b) {
-        return a->GetPriority() < b->GetPriority();
-    });
-    return sorted_shaders;
+    return target_texture;
 }
+
+void RenderShader::SetupShaders()
+{
+    for (auto& pair : shaders_)
+    {
+        pair.second.Setup();
+    }
+}
+
+void RenderShader::Initialize(int width, int height)
+{
+    intermediate_texture_ = LoadRenderTexture(width, height);
+}
+
 } // namespace chroma::client::render::shader

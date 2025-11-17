@@ -31,6 +31,10 @@
         [[nodiscard]] virtual int GetLocation() const = 0;
         [[nodiscard]] virtual UniformType GetType() const = 0;
         virtual void SetValue(const ::Shader& shader) const = 0;
+
+        virtual void SetLocation(int location) = 0;
+        virtual void SetType(UniformType type) = 0;
+        
     };
 
     } // chroma::client::render::shader

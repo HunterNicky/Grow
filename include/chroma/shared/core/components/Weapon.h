@@ -26,17 +26,9 @@ namespace chroma::shared::core::component {
         [[nodiscard]]float GetRange() const;
         void SetRange(float range);
 
-        [[nodiscard]]bool IsEquipped() const;
-        void SetEquipped(bool equipped);
-
-        [[nodiscard]]bool IsAttacking() const;
-        void SetAttacking(bool attacking);
-
     private:
         WeaponType type_;
         int32_t damage_;
         float range_;
-        bool is_equipped_;
-        bool is_attacking_;
     };
-} // namespace chroma::shared::core::components
+} // namespace chroma::shared::core::component

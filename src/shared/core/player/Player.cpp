@@ -13,50 +13,21 @@
 #include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/events/SoundEvent.h"
 #include "chroma/shared/render/RenderBridge.h"
+#include "chroma/shared/render/SpriteLoader.h"
 
 #include <cmath>
 #include <memory>
 #include <raylib.h>
 #include <raymath.h>
 #include <string>
-#include <nlohmann/json.hpp>
-#include <fstream>
+
 
 namespace chroma::shared::core::player {
 Player::Player() { Type_ = GameObjectType::PLAYER; }
 
 void Player::SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &anim_component)
 {
-    std::ifstream file("assets/sprites/player/randi.json");
-    nlohmann::json j;
-    file >> j;
-
-    const std::string sprite_sheet_path = "assets/sprites/player/" + j["sprite_sheet"].get<std::string>();
-
-    auto &animations = j["animations"];
-
-    for (auto &[anim_name, anim_data] : animations.items()) {
-
-        component::SpriteAnimationDesc desc;
-        desc.name = anim_name;
-        desc.loop = anim_data["loop"].get<bool>();
-
-        for (auto &frame : anim_data["frames"]) {
-            component::SpriteAnimFrame f;
-
-            f.sprite_id = sprite_sheet_path;
-            f.duration_ticks = frame["duration_ticks"].get<int>();
-
-            f.subregion.x = frame["x"].get<float>();
-            f.subregion.y = frame["y"].get<float>();
-            f.subregion.width = frame["width"].get<float>();
-            f.subregion.height = frame["height"].get<float>();
-
-            desc.frames.push_back(f);
-        }
-
-        anim_component->LoadAnimation(anim_name, desc);
-    }
+    render::SpriteLoader::LoadSpriteAnimationFromFile(anim_component, "assets/sprites/player/randi.json");
 
     anim_component->Play("idle_down", false);
 }
@@ -82,23 +53,6 @@ void Player::AnimationState(const Vector2 dir, const float magnitude)
         anim->Play("idle_side", false);
         break;
       }
-
-      if(attacking_)
-      {
-          switch (last_facing_) {
-          case FacingDir::Up:
-              anim->Play("punch_up", false);
-              break;
-          case FacingDir::Down:
-              anim->Play("punch_down", false);
-              break;
-          case FacingDir::Side:
-              anim->Play("punch_side", false);
-              break;
-          }
-          return;
-      }
-      
     } else {
       if (std::fabs(dir.x) > std::fabs(dir.y)) {
         last_facing_ = FacingDir::Side;
@@ -223,8 +177,6 @@ void Player::HandleEvent(const event::Event &event)
     if (input_state_.IsKeyPressed(KEY_S)) { direction.y += 1.0F; }
     if (input_state_.IsKeyPressed(KEY_A)) { direction.x -= 1.0F; }
     if (input_state_.IsKeyPressed(KEY_D)) { direction.x += 1.0F; }
-    if(input_state_.IsKeyPressed(KEY_L))  { attacking_ = true; }
-    if(!input_state_.IsKeyPressed(KEY_L)) { attacking_ = false; }
     movement->SetDirection(direction);
    
     break;

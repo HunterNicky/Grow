@@ -2,7 +2,7 @@
 
 namespace chroma::shared::core::component {
 Weapon::Weapon(WeaponType type, int32_t damage, float range)
-    : type_(type), damage_(damage), range_(range), is_equipped_(false), is_attacking_(false) {}
+    : type_(type), damage_(damage), range_(range){}
 
 WeaponType Weapon::GetType() const {
     return type_;
@@ -26,22 +26,6 @@ float Weapon::GetRange() const {
 
 void Weapon::SetRange(float range) {
     range_ = range;
-}
-
-bool Weapon::IsEquipped() const {
-    return is_equipped_;
-}
-
-void Weapon::SetEquipped(bool equipped) {
-    is_equipped_ = equipped;
-}
-
-bool Weapon::IsAttacking() const {
-    return is_attacking_;
-}
-
-void Weapon::SetAttacking(bool attacking) {
-    is_attacking_ = attacking;
 }
 
 } // namespace chroma::shared::core::component

@@ -44,19 +44,10 @@ void Renderer::EndFrame() const
 
     shader::RenderShader& render_shader = shader::RenderShader::GetInstance();
 
-    
-    if (!render_shader.HasShaders())
-    {
-      render_target_->Draw(GetScreenWidth(), GetScreenHeight());
-    }
-    else
-    {
-        auto active_shaders = render_shader.GetSortedShaders();
-        
-        render_target_->RunPostProcessPipeline(active_shaders);
+    RenderTexture2D target_texture = render_target_->GetTexture();
+    auto final_texture = render_shader.ApplyShaders(target_texture);
 
-        render_target_->Draw(GetScreenWidth(), GetScreenHeight());
-    }
+    render_target_->Draw(final_texture.texture, GetScreenWidth(), GetScreenHeight());
 
     EndDrawing();
 }
@@ -107,6 +98,8 @@ void Renderer::InitializeSubsystems()
     std::shared_ptr<TextureAtlas>(atlas_manager_.get(), [](TextureAtlas *) {}),
     std::shared_ptr<SpriteRenderer>(sprite_renderer_.get(), [](SpriteRenderer *) {}));
   
+  shader::RenderShader::GetInstance().Initialize(vw, vh);
+
   SetTextureFilter(render_target_->GetTexture().texture, config_.filter);
 
   SetVSync(config_.vsync);
