@@ -20,11 +20,12 @@ private:
     //  FLATBUFFER COMPONENT --> GAME OBJECT COMPONENT
     // ============================================================
     //
-    static void ComponentToSpeed(const Game::Component* component, const std::shared_ptr<core::GameObject>& game_object );
-    static void ComponentToTransform(const Game::Component* component, const std::shared_ptr<core::GameObject>& game_object );
-    static void ComponentToMovement(const Game::Component* component, const std::shared_ptr<core::GameObject>& game_object );
-    static void ComponentToColor(const Game::Component* component, const std::shared_ptr<core::GameObject>& game_object );
+    static void ComponentToSpeed(const Game::Component* component, const std::shared_ptr<core::GameObject>& game_object);
+    static void ComponentToTransform(const Game::Component* component, const std::shared_ptr<core::GameObject>& game_object);
+    static void ComponentToMovement(const Game::Component* component, const std::shared_ptr<core::GameObject>& game_object);
+    static void ComponentToColor(const Game::Component* component, const std::shared_ptr<core::GameObject>& game_object);
     static void ComponentToHealth(const Game::Component* component, const std::shared_ptr<core::GameObject>& game_object);
+    static void ComponentToRun(const Game::Component* component, const std::shared_ptr<core::GameObject>& game_object);
     //
     // ============================================================
     //  GAME OBJECT COMPONENT --> FLATBUFFER COMPONENT
@@ -39,6 +40,8 @@ private:
     static void ColorToComponent(const std::shared_ptr<core::component::Component> &component,
         flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Component>> &fb_components);
     static void HealthToComponent(const std::shared_ptr<core::component::Component> &component,
+        flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Component>> &fb_components);
+    static void RunToComponent(const std::shared_ptr<core::component::Component> &component,
         flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Component>> &fb_components);
 };
 } // namespace chroma::shared::packet::adapter

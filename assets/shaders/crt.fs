@@ -15,6 +15,7 @@ const float VIGNETTE = 0.8;
 const float SCANLINE_STRENGTH = 0.75; 
 const float SCANLINE_WIDTH = 3.0;     
 const float ABERRATION = 0.003; 
+    
 vec2 barrelDistortion(vec2 uv, float strength) {
     vec2 centerUv = (uv - 0.5) * 2.0; 
     

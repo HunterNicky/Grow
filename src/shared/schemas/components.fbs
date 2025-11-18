@@ -8,8 +8,9 @@ table Velocity { vel:Vec2; }
 table Movement { mov:Vec2; }
 table Health { current_health: float; max_health: float; }
 table Facing { angle:float; }
+table Run { running:bool; factor_speed:float; }
 
-union ComponentUnion { Position, Scale, Velocity, Movement, Health, Facing, Color }
+union ComponentUnion { Position, Scale, Velocity, Movement, Health, Facing, Color, Run }
 
 table Component {
   type:ComponentUnion;

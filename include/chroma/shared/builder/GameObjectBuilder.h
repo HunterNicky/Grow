@@ -9,6 +9,7 @@
 #include "chroma/shared/core/components/Movement.h"
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/components/AudioListener.h"
+#include "chroma/shared/core/components/Run.h"
 
 #include <memory>
 #include <raylib.h>
@@ -132,6 +133,16 @@ public:
         coloring->SetColoring(color.r, color.g, color.b, color.a);
 
         obj_->AttachComponent(coloring);
+        return *this;
+    }
+
+    GameObjectBuilder& AddRun(bool is_running, float speed_factor = 1.5F)
+    {
+        auto run = std::make_shared<core::component::Run>();
+        run->SetRunning(is_running);
+        run->SetSpeedFactor(speed_factor);
+
+        obj_->AttachComponent(run);
         return *this;
     }
 

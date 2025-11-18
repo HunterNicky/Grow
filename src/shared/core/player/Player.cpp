@@ -14,6 +14,7 @@
 #include "chroma/shared/events/SoundEvent.h"
 #include "chroma/shared/render/RenderBridge.h"
 #include "chroma/shared/render/SpriteLoader.h"
+#include "chroma/shared/core/components/Run.h"
 
 #include <cmath>
 #include <memory>
@@ -55,7 +56,14 @@ void Player::AnimationState(const Vector2 dir, const float magnitude)
       }
     } else {
 
-      std::string mode = running_ ? "running_" : "walk_";
+      bool run = false;
+
+      const auto run_comp = GetComponent<component::Run>();
+      if(run_comp)
+      {
+          run = run_comp->IsRunning();
+      }
+      std::string mode = run ? "running_" : "walk_";
 
       if (std::fabs(dir.x) > std::fabs(dir.y)) {
         last_facing_ = FacingDir::Side;
@@ -83,6 +91,9 @@ void Player::OnUpdate(float delta_time)
   const auto health = GetComponent<core::component::Health>();
   if (!health) { return; }
 
+  const auto run_comp = GetComponent<component::Run>();
+  if(!run_comp) { return; }
+
   const bool is_authority = HasAuthority();
   const bool is_autonomous = IsAutonomousProxy();
   const bool should_simulate = (is_authority || is_autonomous);
@@ -96,8 +107,10 @@ void Player::OnUpdate(float delta_time)
 
     if (should_simulate) {
       Vector2 pos = transform->GetPosition();
-      pos.x += dir.x * speed->GetSpeed().x * delta_time;
-      pos.y += dir.y * speed->GetSpeed().y * delta_time;
+
+      pos.x += dir.x * speed->GetSpeed().x * run_comp->GetSpeedFactor() * delta_time;
+      pos.y += dir.y * speed->GetSpeed().y * run_comp->GetSpeedFactor() * delta_time;
+
       transform->SetPosition(pos);
     }
     
@@ -115,8 +128,10 @@ void Player::OnUpdate(float delta_time)
     }
     was_moving_ = true;
   }
-  
-  health->Heal(10.F * delta_time);
+  if(is_authority)
+  {
+    health->Heal(10.F * delta_time);
+  }
 
   AnimationState(dir, magnitude);
 
@@ -176,12 +191,12 @@ void Player::HandleEvent(const event::Event &event)
    
     Vector2 direction{ 0.0F, 0.0F };
    
-    running_ = input_state_.IsKeyPressed(KEY_K);
+    GetComponent<component::Run>()->SetRunning(input_state_.IsKeyPressed(KEY_K));
 
-    if (input_state_.IsKeyPressed(KEY_W)) { direction.y -= running_ ? 1.1F : 1.0F; }
-    if (input_state_.IsKeyPressed(KEY_S)) { direction.y += running_ ? 1.1F : 1.0F; }
-    if (input_state_.IsKeyPressed(KEY_A)) { direction.x -= running_ ? 1.1F : 1.0F; }
-    if (input_state_.IsKeyPressed(KEY_D)) { direction.x += running_ ? 1.1F : 1.0F; }
+    if (input_state_.IsKeyPressed(KEY_W)) { direction.y -= 1.0F; }
+    if (input_state_.IsKeyPressed(KEY_S)) { direction.y += 1.0F; }
+    if (input_state_.IsKeyPressed(KEY_A)) { direction.x -= 1.0F; }
+    if (input_state_.IsKeyPressed(KEY_D)) { direction.x += 1.0F; }
     
 
     movement->SetDirection(direction);
@@ -209,7 +224,10 @@ void Player::UpdateAnimationFromDirection(const Vector2 dir)
   const auto anim = GetComponent<component::SpriteAnimation>();
   if (!anim) { return; }
 
-  std::string mode = running_ ? "run_" : "walk_";
+  const auto run_comp = GetComponent<component::Run>();
+  if(!run_comp) { return; }
+
+  std::string mode = run_comp->IsRunning() ? "running_" : "walk_";
 
   const float magnitude = Vector2Length(dir);
   if (magnitude <= 0.0F) {

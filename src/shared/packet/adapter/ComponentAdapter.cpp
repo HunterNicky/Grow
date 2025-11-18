@@ -6,6 +6,7 @@
 #include "chroma/shared/core/components/Movement.h"
 #include "chroma/shared/core/components/Coloring.h"
 #include "chroma/shared/core/components/Health.h"
+#include "chroma/shared/core/components/Run.h"
 #include <components_generated.h>
 #include <memory>
 
@@ -106,6 +107,18 @@ void ComponentAdapter::HealthToComponent(const std::shared_ptr<core::component::
     fb_components.push_back(fb_component);
 }
 
+void ComponentAdapter::ComponentToRun(const Game::Component *component,
+    const std::shared_ptr<core::GameObject> &game_object)
+{
+    const auto *fb_run = component->type_as_Run();
+    if (fb_run == nullptr) { return; }
+
+    const auto run = game_object->GetComponent<core::component::Run>();
+    if (!run) { return; }
+
+    run->SetRunning(fb_run->running());
+    run->SetSpeedFactor(fb_run->factor_speed());
+}
 
 void ComponentAdapter::ComponentToTransform(const Game::Component *component,
     const std::shared_ptr<core::GameObject> &game_object)
@@ -177,6 +190,18 @@ void ComponentAdapter::ComponentToHealth(const Game::Component *component,
 
     health->SetCurrentHealth(fb_health->current_health());
     health->SetMaxHealth(fb_health->max_health());
+}
+
+void ComponentAdapter::RunToComponent(const std::shared_ptr<core::component::Component> &component,
+    flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Component>> &fb_components)
+{
+    if (!component) { return; }
+    const auto run = std::static_pointer_cast<core::component::Run>(component);
+    const auto fb_run = Game::CreateRun(builder,
+        run->IsRunning(),
+        run->GetSpeedFactor());
+    const auto fb_component = Game::CreateComponent(builder, Game::ComponentUnion::Run, fb_run.Union());
+    fb_components.push_back(fb_component);
 }
 
 } // namespace chroma::shared::packet::adapter

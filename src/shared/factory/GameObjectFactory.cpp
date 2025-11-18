@@ -37,6 +37,7 @@ namespace {
             .AddCamera(render::CameraMode::FollowSmooth, 3.0F, 2.0F, {64,128})
             .AddAudioListener()
             .AddHealth(100.0F, 1.0F)
+            .AddRun(false, 1.5F)
             .NetRole(is_local_player ? core::NetRole::ROLE_AutonomousProxy : core::NetRole::ROLE_SimulatedProxy)
             .Build();
 

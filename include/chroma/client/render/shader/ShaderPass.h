@@ -22,32 +22,7 @@ public:
     ShaderPass& operator=(ShaderPass&& other) = delete;
 
     ShaderPass(std::string vs_path, std::string fs_path)
-    : RenderPass(vs_path, fs_path), vs_path_(std::move(vs_path)), fs_path_(std::move(fs_path)) {}
-
-
-    void Setup() override {
-        LoadShader();
-        
-        for (auto& pair : values_) {
-            int loc = ::GetShaderLocation(shader_, pair.first.c_str());
-            if (loc >= 0) {
-                pair.second->SetLocation(loc);
-            }
-        }
-    }
-
-    void Execute(RenderTexture2D& src, RenderTexture2D& dst) override {
-        BeginTextureMode(dst);
-            ClearBackground(BLANK); 
-            
-            BeginShaderMode(shader_);
-                UploadAll(); 
-                DrawTextureRec(src.texture, 
-                               (Rectangle){0, 0, (float)src.texture.width, (float)-src.texture.height}, 
-                               (Vector2){0, 0}, WHITE);
-            EndShaderMode();
-        EndTextureMode();
-    }
+    : RenderPass(std::move(vs_path), std::move(fs_path)) {}
     
     template<typename T>
     void SetUniform(const std::string& name, UniformType type, std::shared_ptr<T> value) {
@@ -60,8 +35,7 @@ public:
         }
     }
 
-private:
-    void LoadShader() {
+     void LoadShader() {
         shader_ = ::LoadShader(vs_path_.c_str(), fs_path_.c_str());
         if (shader_.id == 0) 
         {
@@ -77,9 +51,8 @@ private:
         }
     }
 
+protected:
     ::Shader shader_{};
-    std::string vs_path_;
-    std::string fs_path_;
     std::unordered_map<std::string, std::unique_ptr<IShaderValue>> values_;
 };
 } // namespace chroma::client::render::shader
