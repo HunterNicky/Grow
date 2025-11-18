@@ -2,6 +2,11 @@
 
 namespace chroma::shared::context {
 
+GameContext::GameContext()
+    : player_health_(std::make_shared<float>(100.0F)),
+      player_max_health_(std::make_shared<float>(100.0F)),
+      delta_time_(std::make_shared<float>(0.0F)) {}
+
 GameContext& GameContext::GetInstance() {
     static GameContext instance; 
     return instance;

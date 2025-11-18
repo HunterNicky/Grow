@@ -255,6 +255,147 @@
                     "duration_ticks": 180
                 }
             ]
+        },
+        "running_down": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 397,
+                    "y": 1,
+                    "width": 20,
+                    "height": 31,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 418,
+                    "y": 1,
+                    "width": 19,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 438,
+                    "y": 1,
+                    "width": 19,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 458,
+                    "y": 1,
+                    "width": 20,
+                    "height": 31,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 479,
+                    "y": 1,
+                    "width": 19,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 499,
+                    "y": 1,
+                    "width": 19,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 519,
+                    "y": 1,
+                    "width": 18,
+                    "height": 30,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "running_up": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 538,
+                    "y": 1,
+                    "width": 18,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 557,
+                    "y": 1,
+                    "width": 18,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 576,
+                    "y": 1,
+                    "width": 18,
+                    "height": 30,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 595,
+                    "y": 1,
+                    "width": 18,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 614,
+                    "y": 1,
+                    "width": 18,
+                    "height": 32,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "running_side": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 633,
+                    "y": 1,
+                    "width": 28,
+                    "height": 24,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 662,
+                    "y": 1,
+                    "width": 17,
+                    "height": 30,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 680,
+                    "y": 1,
+                    "width": 16,
+                    "height": 30,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 697,
+                    "y": 1,
+                    "width": 24,
+                    "height": 26,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 722,
+                    "y": 1,
+                    "width": 16,
+                    "height": 30,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 739,
+                    "y": 1,
+                    "width": 17,
+                    "height": 30,
+                    "duration_ticks": 180
+                }
+            ]
         }
     }
 }

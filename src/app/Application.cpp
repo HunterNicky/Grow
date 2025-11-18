@@ -24,10 +24,7 @@
 #include "chroma/shared/events/EventCatcher.h"
 #include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/render/RenderBridge.h"
-#include "chroma/client/render/shader/ShaderPass.h"
-#include "chroma/client/render/shader/IShaderValue.h"
 #include "chroma/shared/context/GameContext.h"
-#include "chroma/client/render/shader/RenderShader.h"
 
 using namespace chroma::client::render;
 
@@ -81,18 +78,6 @@ void Application::Run()
   event_catcher_ = std::make_shared<shared::event::EventCatcher>();
 
   auto last_time = static_cast<float>(GetTime());
-
-  shader::ShaderPass shader_info = shader::ShaderPass("resources/shaders/base.vs", "assets/shaders/health.fs");
-  shader_info.SetPriority(1);
-
-  shader_info.SetUniform("health", shader::UniformType::FLOAT, shared::context::GameContext::GetInstance().GetPlayerHealth());
-  shader_info.SetUniform("max_health", shader::UniformType::FLOAT, shared::context::GameContext::GetInstance().GetPlayerMaxHealth());
-  shader_info.SetUniform("time", shader::UniformType::FLOAT, shared::context::GameContext::GetInstance().GetDeltaTime());
-
-  auto& render_shader = shader::RenderShader::GetInstance();
-  std::string shader_name = "health_shader";
-  render_shader.AddShader(std::move(shader_info), shader_name);
-  render_shader.SetupShaders();
 
   while (!renderer_->ShouldClose()) {
     const auto current_time = static_cast<float>(GetTime());

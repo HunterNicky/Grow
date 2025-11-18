@@ -54,16 +54,19 @@ void Player::AnimationState(const Vector2 dir, const float magnitude)
         break;
       }
     } else {
+
+      std::string mode = running_ ? "running_" : "walk_";
+
       if (std::fabs(dir.x) > std::fabs(dir.y)) {
         last_facing_ = FacingDir::Side;
         last_left_ = (dir.x < 0.0F);
-        anim->Play("walk_side", false);
+        anim->Play(mode + "side", false);
       } else if (dir.y < 0.0F) {
         last_facing_ = FacingDir::Up;
-        anim->Play("walk_up", false);
+        anim->Play(mode + "up", false);
       } else {
         last_facing_ = FacingDir::Down;
-        anim->Play("walk_down", false);
+        anim->Play(mode + "down", false);
       }
     }
   }
@@ -173,12 +176,13 @@ void Player::HandleEvent(const event::Event &event)
    
     Vector2 direction{ 0.0F, 0.0F };
    
-    if (input_state_.IsKeyPressed(KEY_W)) { direction.y -= 1.0F; }
-    if (input_state_.IsKeyPressed(KEY_S)) { direction.y += 1.0F; }
-    if (input_state_.IsKeyPressed(KEY_A)) { direction.x -= 1.0F; }
-    if (input_state_.IsKeyPressed(KEY_D)) { direction.x += 1.0F; }
+    running_ = input_state_.IsKeyPressed(KEY_K);
+
+    if (input_state_.IsKeyPressed(KEY_W)) { direction.y -= running_ ? 1.1F : 1.0F; }
+    if (input_state_.IsKeyPressed(KEY_S)) { direction.y += running_ ? 1.1F : 1.0F; }
+    if (input_state_.IsKeyPressed(KEY_A)) { direction.x -= running_ ? 1.1F : 1.0F; }
+    if (input_state_.IsKeyPressed(KEY_D)) { direction.x += running_ ? 1.1F : 1.0F; }
     
-    running_ = input_state_.IsKeyPressed(KEY_LEFT_SHIFT);
 
     movement->SetDirection(direction);
    
@@ -205,6 +209,8 @@ void Player::UpdateAnimationFromDirection(const Vector2 dir)
   const auto anim = GetComponent<component::SpriteAnimation>();
   if (!anim) { return; }
 
+  std::string mode = running_ ? "run_" : "walk_";
+
   const float magnitude = Vector2Length(dir);
   if (magnitude <= 0.0F) {
     switch (last_facing_) {
@@ -222,14 +228,15 @@ void Player::UpdateAnimationFromDirection(const Vector2 dir)
     if (std::fabs(dir.x) > std::fabs(dir.y)) {
       last_facing_ = FacingDir::Side;
       last_left_ = (dir.x < 0.0F);
-      anim->Play("walk_side", false);
+      anim->Play((mode + "_down"), false);
     } else if (dir.y < 0.0F) {
-      last_facing_ = FacingDir::Up;
-      anim->Play("walk_up", false);
+        last_facing_ = FacingDir::Up;
+        anim->Play(mode + "up", false);
     } else {
-      last_facing_ = FacingDir::Down;
-      anim->Play("walk_down", false);
+        last_facing_ = FacingDir::Down;
+        anim->Play(mode + "side", false);
     }
+
   }
 }
 

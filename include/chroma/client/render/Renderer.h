@@ -6,6 +6,7 @@
 #include "chroma/client/render/TextureAtlas.h"
 #include "chroma/client/render/Window.h"
 #include "chroma/client/render/animation/AnimationRenderer.h"
+#include "chroma/client/render/shader/RenderPipeline.h"
 
 #include <functional>
 #include <memory>
@@ -59,6 +60,7 @@ private:
   std::unique_ptr<TextureAtlas> atlas_manager_;
   std::unique_ptr<SpriteRenderer> sprite_renderer_;
   std::unique_ptr<animation::AnimationRenderer> animation_renderer_;
+  std::unique_ptr<shader::RenderPipeline> render_pipeline_;
 
   void InitializeSubsystems();
 };

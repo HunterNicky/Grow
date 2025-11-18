@@ -23,11 +23,11 @@ public:
     std::shared_ptr<float> GetDeltaTime();
 
 private:
-    GameContext() = default;
+    GameContext();
 
-    std::shared_ptr<float> player_health_ = std::make_shared<float>(100.0F);
-    std::shared_ptr<float> player_max_health_ = std::make_shared<float>(100.0F);
-    std::shared_ptr<float> delta_time_ = std::make_shared<float>(0.0F);
+    std::shared_ptr<float> player_health_;
+    std::shared_ptr<float> player_max_health_;
+    std::shared_ptr<float> delta_time_;
 };
 
 } // namespace chroma::shared::context

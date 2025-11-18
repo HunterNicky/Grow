@@ -5,7 +5,9 @@
 #include "chroma/client/render/TextureAtlas.h"
 #include "chroma/client/render/Window.h"
 #include "chroma/client/render/animation/AnimationRenderer.h"
-#include "chroma/client/render/shader/RenderShader.h"
+#include "chroma/client/render/shader/RenderPipeline.h"
+#include "chroma/client/render/shader/shaders/CrtPass.h"
+#include "chroma/client/render/shader/shaders/HealthPass.h"
 
 #include <functional>
 #include <memory>
@@ -41,13 +43,12 @@ void Renderer::EndFrame() const
     render_queue_->Clear();
     EndMode2D();
     RenderTarget::End(); 
+    
+    RenderTexture2D scene_rt = render_target_->GetTexture();
 
-    shader::RenderShader& render_shader = shader::RenderShader::GetInstance();
+    auto final_tex = render_pipeline_->Execute(scene_rt);
 
-    RenderTexture2D target_texture = render_target_->GetTexture();
-    auto final_texture = render_shader.ApplyShaders(target_texture);
-
-    render_target_->Draw(final_texture.texture, GetScreenWidth(), GetScreenHeight());
+    render_target_->Draw(final_tex.texture, GetScreenWidth(), GetScreenHeight());
 
     EndDrawing();
 }
@@ -98,10 +99,16 @@ void Renderer::InitializeSubsystems()
     std::shared_ptr<TextureAtlas>(atlas_manager_.get(), [](TextureAtlas *) {}),
     std::shared_ptr<SpriteRenderer>(sprite_renderer_.get(), [](SpriteRenderer *) {}));
   
-  shader::RenderShader::GetInstance().Initialize(vw, vh);
+  render_pipeline_ = std::make_unique<shader::RenderPipeline>();
+  render_pipeline_->Initialize(vw, vh);
+  
+  auto health_pass = std::make_unique<shader::shaders::HealthPass>();
+  auto crt_pass = std::make_unique<shader::shaders::CrtPass>();
+  render_pipeline_->AddPass(std::move(health_pass));
+  render_pipeline_->AddPass(std::move(crt_pass));
+  render_pipeline_->Setup();
 
   SetTextureFilter(render_target_->GetTexture().texture, config_.filter);
-
   SetVSync(config_.vsync);
 
 }

@@ -47,16 +47,15 @@ public:
     }
 
     void SetValue(const ::Shader& shader) const override {
-        auto ptr = data_.lock();
-        if (!ptr) {return;}
-        
-        SetShaderValue(shader, location_, ptr.get(), static_cast<int>(type_));
+        if (!data_) {return;}
+
+        SetShaderValue(shader, location_, data_.get(), static_cast<int>(type_));
     }
 
 private:
     int location_ = -1;
     UniformType type_ = UniformType::FLOAT;
-    std::weak_ptr<T> data_;
+    std::shared_ptr<T> data_;
 };
 
 } // namespace chroma::client::render::shader
