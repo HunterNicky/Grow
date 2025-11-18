@@ -6,7 +6,8 @@ namespace chroma::shared::core::component {
 
 class Run : public Component {
 public:
-    Run() = default;
+    Run();
+    Run(bool is_running, float speed_factor);
     ~Run() override = default;
 
     Run(const Run&) = delete;

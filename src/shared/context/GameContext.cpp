@@ -3,37 +3,27 @@
 namespace chroma::shared::context {
 
 GameContext::GameContext()
-    : player_health_(std::make_shared<float>(100.0F)),
-      player_max_health_(std::make_shared<float>(100.0F)),
-      delta_time_(std::make_shared<float>(0.0F)) {}
+    : delta_time_(std::make_shared<float>(0.0F)) {}
 
 GameContext& GameContext::GetInstance() {
     static GameContext instance; 
     return instance;
 }
 
-void GameContext::SetPlayerHealth(float health) {
-    *player_health_ = health;
-}
-
-std::shared_ptr<float> GameContext::GetPlayerHealth() {
-    return player_health_;
-}
-
 void GameContext::SetDeltaTime(float delta_time) {
     *delta_time_ = delta_time;
 }
-
-std::shared_ptr<float> GameContext::GetDeltaTime() {
+    
+std::shared_ptr<float> GameContext::GetDeltaTime() const {
     return delta_time_;
 }
 
-std::shared_ptr<float> GameContext::GetPlayerMaxHealth() {
-    return player_max_health_;
+void GameContext::SetLocalPlayer(std::shared_ptr<core::GameObject> p) {
+    local_player_ = std::move(p);
 }
 
-void GameContext::SetPlayerMaxHealth(float max_health) {
-    *player_max_health_ = max_health;
+std::shared_ptr<core::GameObject> GameContext::GetLocalPlayer() const {
+    return local_player_;
 }
 
 } // namespace chroma::shared::context

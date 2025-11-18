@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include "chroma/shared/core/GameObject.h"
+
 namespace chroma::shared::context {
 
 class GameContext {
@@ -13,21 +15,17 @@ public:
     GameContext& operator=(const GameContext&) = delete;
     GameContext(GameContext&&) = delete;
     GameContext& operator=(GameContext&&) = delete;
+    
+    void SetLocalPlayer(std::shared_ptr<core::GameObject> p);
+    [[nodiscard]]std::shared_ptr<core::GameObject> GetLocalPlayer() const;
 
-    void SetPlayerHealth(float health);
-    void SetPlayerMaxHealth(float max_health);
     void SetDeltaTime(float delta_time);
-
-    std::shared_ptr<float> GetPlayerHealth();
-    std::shared_ptr<float> GetPlayerMaxHealth();
-    std::shared_ptr<float> GetDeltaTime();
+    [[nodiscard]] std::shared_ptr<float> GetDeltaTime() const;
 
 private:
     GameContext();
 
-    std::shared_ptr<float> player_health_;
-    std::shared_ptr<float> player_max_health_;
-    std::shared_ptr<float> delta_time_;
+    std::shared_ptr<core::GameObject> local_player_;
+     std::shared_ptr<float> delta_time_;
 };
-
 } // namespace chroma::shared::context

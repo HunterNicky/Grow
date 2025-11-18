@@ -2,6 +2,7 @@
 
 #include "chroma/shared/core/components/Component.h"
 
+#include <memory>
 #include <raylib.h>
 
 namespace chroma::shared::core::component {
@@ -21,8 +22,8 @@ public:
     void TakeDamage(float amount);
     void Heal(float amount);
     
-    [[nodiscard]] float GetCurrentHealth() const;
-    [[nodiscard]] float GetMaxHealth() const;
+    [[nodiscard]] std::shared_ptr<float> GetCurrentHealth() const;
+    [[nodiscard]] std::shared_ptr<float> GetMaxHealth() const;
 
     void SetMaxHealth(float max_health);
     void SetCurrentHealth(float current_health);
@@ -30,8 +31,8 @@ public:
     void DrawHealth(Vector2 position, Vector2 size) const;
 
 private:
-    float current_health_;
-    float max_health_;
+    std::shared_ptr<float> current_health_;
+    std::shared_ptr<float> max_health_;
 };
 
 } // namespace chroma::shared::core::component

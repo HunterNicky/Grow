@@ -101,8 +101,8 @@ void ComponentAdapter::HealthToComponent(const std::shared_ptr<core::component::
     if (!component) { return; }
     const auto health = std::static_pointer_cast<core::component::Health>(component);
     const auto fb_health = Game::CreateHealth(builder,
-        health->GetCurrentHealth(),
-        health->GetMaxHealth());
+        *health->GetCurrentHealth(),
+        *health->GetMaxHealth());
     const auto fb_component = Game::CreateComponent(builder, Game::ComponentUnion::Health, fb_health.Union());
     fb_components.push_back(fb_component);
 }

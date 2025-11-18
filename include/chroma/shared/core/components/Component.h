@@ -21,6 +21,7 @@ enum class ComponentType : uint8_t {
   AUDIO_LISTENER = 7,
   COLOR = 8,
   HEALTH = 9,
+  RUN = 10,
 };
 
 class Component

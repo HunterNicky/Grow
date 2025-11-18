@@ -60,8 +60,8 @@ void InterpolateSystem::InterpolateHealth(const std::shared_ptr<shared::core::Ga
   auto out_health = out_object->GetComponent<shared::core::component::Health>();
 
   if (past_health && target_health && out_health) {
-    float past_value = past_health->GetCurrentHealth();
-    float target_value = target_health->GetCurrentHealth();
+    float past_value = *past_health->GetCurrentHealth();
+    float target_value = *target_health->GetCurrentHealth();
     float interpolated_value = past_value + ((target_value - past_value) * alpha);
     out_health->SetCurrentHealth(interpolated_value);
   }

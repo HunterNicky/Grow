@@ -10,7 +10,6 @@
 #include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/context/GameContext.h"
-#include "chroma/shared/core/components/Health.h"
 #include "chroma/shared/builder/GameObjectBuilder.h"
 #include "chroma/shared/render/RenderBridge.h"
 
@@ -76,13 +75,6 @@ void GameState::OnUpdate(float delta_time)
   for (const auto &[uuid, obj] : *game_objects_) {
     if (obj && obj->IsActive()) { obj->OnUpdate(delta_time); }
   }
-
-  auto player = GetPlayer();
-
-  if (player) { 
-    shared::context::GameContext::GetInstance().SetPlayerHealth(player->GetComponent<shared::core::component::Health>()->GetCurrentHealth());
-  }
-
 }
 
 void GameState::SetGameObjects(
@@ -90,11 +82,6 @@ void GameState::SetGameObjects(
 {
   game_objects_ =
     std::make_shared<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>>(game_objects);
-  
-  auto player = GetPlayer();
-  if (player) {
-    shared::context::GameContext::GetInstance().SetPlayerMaxHealth(player->GetComponent<shared::core::component::Health>()->GetMaxHealth());
-  }
 }
 
 std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>> &
@@ -116,7 +103,16 @@ void GameState::OnEvent(shared::event::Event &event)
   if (network_mediator_) { network_mediator_->AddInputEvent(event); }
 }
 
-void GameState::SetPlayerId(const UUIDv4::UUID &player_id) { player_id_ = player_id; }
+void GameState::SetPlayerId(const UUIDv4::UUID &player_id) {
+   player_id_ = player_id; 
+
+   auto player = GetPlayer();
+
+   if(player)
+   {
+       shared::context::GameContext::GetInstance().SetLocalPlayer(player);
+   }
+}
 
 void GameState::SetEventDispatcher()
 {

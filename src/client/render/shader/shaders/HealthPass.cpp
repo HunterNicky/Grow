@@ -1,14 +1,29 @@
 #include "chroma/client/render/shader/shaders/HealthPass.h"
 
 #include "chroma/shared/context/GameContext.h"
+#include "chroma/shared/core/components/Health.h"
 
 namespace chroma::client::render::shader::shaders {
     
     HealthPass::HealthPass() 
         : ShaderPass("resources/shaders/base.vs", "assets/shaders/health.fs") 
     {
-        SetUniform("health", shader::UniformType::FLOAT, shared::context::GameContext::GetInstance().GetPlayerHealth());
-        SetUniform("max_health", shader::UniformType::FLOAT, shared::context::GameContext::GetInstance().GetPlayerMaxHealth());
+        auto player = shared::context::GameContext::GetInstance().GetLocalPlayer();
+        if(!player) {
+            // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg)
+            TraceLog(LOG_WARNING, "HealthPass: No local player found in GameContext.");
+            return;
+        }
+
+        auto health = player->GetComponent<shared::core::component::Health>();
+        if(!health) {
+            // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg)
+            TraceLog(LOG_WARNING, "HealthPass: Local player has no Health component.");
+            return;
+        }
+        
+        SetUniform("health", shader::UniformType::FLOAT, health->GetCurrentHealth());
+        SetUniform("max_health", shader::UniformType::FLOAT, health->GetMaxHealth());
         SetUniform("time", shader::UniformType::FLOAT, shared::context::GameContext::GetInstance().GetDeltaTime());
     }
 
