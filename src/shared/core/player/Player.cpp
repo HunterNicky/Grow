@@ -246,13 +246,13 @@ void Player::UpdateAnimationFromDirection(const Vector2 dir)
     if (std::fabs(dir.x) > std::fabs(dir.y)) {
       last_facing_ = FacingDir::Side;
       last_left_ = (dir.x < 0.0F);
-      anim->Play((mode + "_down"), false);
+      anim->Play((mode + "side"), false);
     } else if (dir.y < 0.0F) {
         last_facing_ = FacingDir::Up;
         anim->Play(mode + "up", false);
     } else {
         last_facing_ = FacingDir::Down;
-        anim->Play(mode + "side", false);
+        anim->Play(mode + "down", false);
     }
 
   }
