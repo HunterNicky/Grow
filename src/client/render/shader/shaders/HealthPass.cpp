@@ -21,10 +21,9 @@ namespace chroma::client::render::shader::shaders {
             TraceLog(LOG_WARNING, "HealthPass: Local player has no Health component.");
             return;
         }
-        
-        SetUniform("health", shader::UniformType::FLOAT, health->GetCurrentHealth());
-        SetUniform("max_health", shader::UniformType::FLOAT, health->GetMaxHealth());
-        SetUniform("time", shader::UniformType::FLOAT, shared::context::GameContext::GetInstance().GetDeltaTime());
+        SetUniform("health", UniformType::FLOAT, health->GetCurrentHealth());
+        SetUniform("max_health", UniformType::FLOAT, health->GetMaxHealth());
+        SetUniform("time", UniformType::FLOAT, shared::context::GameContext::GetInstance().GetDeltaTime());
     }
 
     void HealthPass::Setup() {

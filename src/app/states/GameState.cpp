@@ -12,6 +12,7 @@
 #include "chroma/shared/context/GameContext.h"
 #include "chroma/shared/builder/GameObjectBuilder.h"
 #include "chroma/shared/render/RenderBridge.h"
+#include "chroma/client/render/shader/shaders/HealthPass.h"
 
 #include <cstdint>
 #include <memory>
@@ -38,7 +39,6 @@ GameState::GameState()
         .AddRun(false, 1.5F)
         .NetRole(shared::core::NetRole::ROLE_AutonomousProxy)
         .Build();
-
 
   SetPlayerId(player->GetId());
   player->SetupAnimation(player->GetComponent<shared::core::component::SpriteAnimation>());
@@ -111,6 +111,12 @@ void GameState::SetPlayerId(const UUIDv4::UUID &player_id) {
    if(player)
    {
        shared::context::GameContext::GetInstance().SetLocalPlayer(player);
+      if(first_snapshot_received_) 
+      {
+          auto health_pass = std::make_unique<client::render::shader::shaders::HealthPass>();
+          render_mediator_->AddShaderFront(std::move(health_pass));
+          first_snapshot_received_ = false;
+      }
    }
 }
 
@@ -128,5 +134,10 @@ std::shared_ptr<shared::core::player::Player> GameState::GetPlayer() const
 }
 
 UUIDv4::UUID GameState::GetPlayerId() const { return player_id_; }
+
+void GameState::SetRenderMediator(std::shared_ptr<mediator::RenderMediator> mediator)
+{
+  render_mediator_ = std::move(mediator);
+}
 
 }// namespace chroma::app::states

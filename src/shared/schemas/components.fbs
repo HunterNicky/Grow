@@ -1,17 +1,28 @@
-include "common.fbs";
+    include "common.fbs";
 
-namespace Game;
+    namespace Game;
 
-table Position { pos:Vec2; }
-table Scale { scl:Vec2; }
-table Velocity { vel:Vec2; }
-table Movement { mov:Vec2; }
-table Health { current_health: float; max_health: float; }
-table Facing { angle:float; }
-table Run { running:bool; factor_speed:float; }
+    enum WeaponType : uint8 {
+      FIST = 0,
+      SWORD = 1,
+      BOW = 2,
+      AXE = 3,
+      SPEAR = 4
+    }
 
-union ComponentUnion { Position, Scale, Velocity, Movement, Health, Facing, Color, Run }
+    table Position { pos:Vec2; }
+    table Scale { scl:Vec2; }
+    table Velocity { vel:Vec2; }
+    table Movement { mov:Vec2; }
+    table Health { current_health: float; max_health: float; }
+    table Facing { angle:float; }
+    table Run { running:bool; factor_speed:float; }
+    table Weapon {weapon_type: WeaponType; damage: int32; range: float; weight: float; cooldown:float; }
+    table Item { name: string; description: string; weight: float; }
+    table Inventory {capacity: uint8; weapons: [Weapon]; itens: [Item]; current_weapon: Weapon; current_item: Item; }
 
-table Component {
-  type:ComponentUnion;
-}
+    union ComponentUnion { Position, Scale, Velocity, Movement, Health, Facing, Color, Run, Inventory }
+
+    table Component {
+      type:ComponentUnion;
+    }

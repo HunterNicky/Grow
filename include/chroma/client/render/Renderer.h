@@ -7,6 +7,7 @@
 #include "chroma/client/render/Window.h"
 #include "chroma/client/render/animation/AnimationRenderer.h"
 #include "chroma/client/render/shader/RenderPipeline.h"
+#include "chroma/client/render/shader/RenderPass.h"
 
 #include <functional>
 #include <memory>
@@ -43,6 +44,9 @@ public:
     Window::Close();
   }
 
+  void AddShaderPassFront(std::unique_ptr<shader::RenderPass> pass);
+  void AddShaderPassBack(std::unique_ptr<shader::RenderPass> pass);
+
   [[nodiscard]] Camera &GetCamera() const { return *camera_; }
   [[nodiscard]] RenderQueue &GetQueue() const { return *render_queue_; }
   [[nodiscard]] TextureAtlas &GetAtlasManager() const { return *atlas_manager_; }
@@ -50,6 +54,7 @@ public:
   [[nodiscard]] animation::AnimationRenderer &GetAnimationRenderer() const { return *animation_renderer_; }
 
 private:
+
   std::unique_ptr<Window> window_;
   RenderConfig config_;
   Color clear_color_;

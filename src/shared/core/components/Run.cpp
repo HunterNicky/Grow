@@ -2,13 +2,13 @@
 
 namespace chroma::shared::core::component {
 
-Run::Run(bool is_running, float factor_speed)
-    : is_running_(is_running), factor_speed_(factor_speed)
+Run::Run(bool is_running, float speed_factor)
+    : is_running_(is_running), factor_speed_(speed_factor)
 {
     type_ = ComponentType::RUN;
 }
 
-Run::Run() : is_running_(false), factor_speed_(1.5F)
+Run::Run()
 {
     type_ = ComponentType::RUN;
 }

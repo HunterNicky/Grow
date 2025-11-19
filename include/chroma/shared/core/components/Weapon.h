@@ -15,10 +15,10 @@ namespace chroma::shared::core::component {
 
     class Weapon : public Component {
     public:
-        Weapon(WeaponType type, int32_t damage, float range);
+        Weapon(WeaponType type, int32_t damage, float range, float weight = 1.0F, float cooldown = 1.0F);
 
-        [[nodiscard]]WeaponType GetType() const;
-        void SetType(WeaponType type);
+        [[nodiscard]]WeaponType GetWeaponType() const;
+        void SetWeaponType(WeaponType type);
 
         [[nodiscard]]int32_t GetDamage() const;
         void SetDamage(int32_t damage);
@@ -26,9 +26,17 @@ namespace chroma::shared::core::component {
         [[nodiscard]]float GetRange() const;
         void SetRange(float range);
 
+        [[nodiscard]]float GetWeight() const;
+        void SetWeight(float weight);
+
+        [[nodiscard]]float GetCooldown() const;
+        void SetCooldown(float cooldown);
+
     private:
-        WeaponType type_;
+        WeaponType weapon_type_;
         int32_t damage_;
         float range_;
+        float weight_;
+        float cooldown_;
     };
 } // namespace chroma::shared::core::component

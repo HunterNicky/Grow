@@ -7,7 +7,6 @@
 #include "chroma/client/render/animation/AnimationRenderer.h"
 #include "chroma/client/render/shader/RenderPipeline.h"
 #include "chroma/client/render/shader/shaders/CrtPass.h"
-#include "chroma/client/render/shader/shaders/HealthPass.h"
 
 #include <functional>
 #include <memory>
@@ -102,14 +101,29 @@ void Renderer::InitializeSubsystems()
   render_pipeline_ = std::make_unique<shader::RenderPipeline>();
   render_pipeline_->Initialize(vw, vh);
   
-  auto health_pass = std::make_unique<shader::shaders::HealthPass>();
   auto crt_pass = std::make_unique<shader::shaders::CrtPass>();
-  render_pipeline_->AddPass(std::move(health_pass));
-  render_pipeline_->AddPass(std::move(crt_pass));
+  render_pipeline_->AddPassBack(std::move(crt_pass));
   render_pipeline_->Setup();
 
   SetTextureFilter(render_target_->GetTexture().texture, config_.filter);
   SetVSync(config_.vsync);
 
 }
+
+void Renderer::AddShaderPassFront(std::unique_ptr<shader::RenderPass> pass)
+{
+    if(render_pipeline_) {
+        render_pipeline_->AddPassFront(std::move(pass));
+    }
+    render_pipeline_->Setup();
+}
+
+void Renderer::AddShaderPassBack(std::unique_ptr<shader::RenderPass> pass)
+{
+    if(render_pipeline_) {
+        render_pipeline_->AddPassBack(std::move(pass));
+    }
+    render_pipeline_->Setup();
+}
+
 }// namespace chroma::client::render

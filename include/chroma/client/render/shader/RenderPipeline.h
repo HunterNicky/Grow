@@ -18,7 +18,8 @@ public:
     
     void Initialize(int width, int height);
 
-    void AddPass(std::unique_ptr<RenderPass> pass);
+    void AddPassFront(std::unique_ptr<RenderPass> pass);
+    void AddPassBack(std::unique_ptr<RenderPass> pass);
 
     void Setup();
 

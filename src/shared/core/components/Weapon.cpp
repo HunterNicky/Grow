@@ -1,15 +1,19 @@
 #include "chroma/shared/core/components/Weapon.h"
 
 namespace chroma::shared::core::component {
-Weapon::Weapon(WeaponType type, int32_t damage, float range)
-    : type_(type), damage_(damage), range_(range){}
 
-WeaponType Weapon::GetType() const {
-    return type_;
+Weapon::Weapon(WeaponType type, int32_t damage, float range, float weight, float cooldown)
+    : weapon_type_(type), damage_(damage), range_(range), weight_(weight), cooldown_(cooldown) 
+    {
+        type_ = ComponentType::WEAPON;
+    }
+
+WeaponType Weapon::GetWeaponType() const {
+    return weapon_type_;
 }
 
-void Weapon::SetType(WeaponType type) {
-    type_ = type;
+void Weapon::SetWeaponType(WeaponType type) {
+    weapon_type_ = type;
 }
 
 int32_t Weapon::GetDamage() const {
@@ -26,6 +30,22 @@ float Weapon::GetRange() const {
 
 void Weapon::SetRange(float range) {
     range_ = range;
+}
+
+float Weapon::GetWeight() const {
+    return weight_;
+}
+
+void Weapon::SetWeight(float weight) {
+    weight_ = weight;
+}
+
+float Weapon::GetCooldown() const {
+    return cooldown_;
+}
+
+void Weapon::SetCooldown(float cooldown) {
+    cooldown_ = cooldown;
 }
 
 } // namespace chroma::shared::core::component

@@ -13,7 +13,11 @@ namespace chroma::client::render::shader {
         pong_ = LoadRenderTexture(width, height);
     }
 
-    void RenderPipeline::AddPass(std::unique_ptr<RenderPass> pass) {
+    void RenderPipeline::AddPassFront(std::unique_ptr<RenderPass> pass) {
+        passes_.insert(passes_.begin(), std::move(pass));
+    }
+
+    void RenderPipeline::AddPassBack(std::unique_ptr<RenderPass> pass) {
         passes_.push_back(std::move(pass));
     }
 
