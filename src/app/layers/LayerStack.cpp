@@ -3,11 +3,14 @@
 #include <string>
 #include <utility>
 
+#include "chroma/app/commands/CommandQueue.h"
 #include "chroma/app/layers/Layer.h"
 #include "chroma/app/layers/LayerStack.h"
 #include "chroma/shared/events/Event.h"
 
 namespace chroma::app::layer {
+LayerStack::LayerStack() : command_queue_(std::make_unique<command::CommandQueue>()) {}
+
 void LayerStack::PushLayer(std::unique_ptr<Layer> layer) { layers_.emplace_back(std::move(layer)); }
 
 void LayerStack::PopLayer()
@@ -24,6 +27,7 @@ void LayerStack::PopOverlay()
 
 void LayerStack::UpdateLayers(const float delta_time) const
 {
+  command_queue_->Process();
   for (const auto &layer : layers_) {
     if (layer->IsActive()) { layer->OnUpdate(delta_time); }
   }
@@ -34,6 +38,7 @@ void LayerStack::UpdateLayers(const float delta_time) const
 
 void LayerStack::UpdateFixedLayers(const float fixed_delta_time) const
 {
+  command_queue_->Process();
   for (const auto &layer : layers_) {
     if (layer->IsActive()) { layer->OnFixedUpdate(fixed_delta_time); }
   }

@@ -2,6 +2,7 @@
 #include <string>
 #include <utility>
 
+#include "chroma/app/commands/CommandQueue.h"
 #include "chroma/app/layers/Layer.h"
 #include "chroma/app/states/State.h"
 #include "chroma/app/states/StateMachine.h"
@@ -9,14 +10,19 @@
 
 namespace chroma::app::layer {
 Layer::Layer(std::string name)
-  : name_(std::move(name)), active_(true), state_machine_(std::make_unique<states::StateMachine>())
+  : name_(std::move(name)), active_(true), state_machine_(std::make_unique<states::StateMachine>()),
+    command_queue_(std::make_unique<command::CommandQueue>())
 {}
 
 void Layer::OnAttach() {}
 
 void Layer::OnDetach() {}
 
-void Layer::OnUpdate(const float delta_time) { state_machine_->OnUpdate(delta_time); }
+void Layer::OnUpdate(const float delta_time)
+{
+  command_queue_->Process();
+  state_machine_->OnUpdate(delta_time);
+}
 
 void Layer::OnFixedUpdate(const float fixed_delta_time) { state_machine_->OnFixedUpdate(fixed_delta_time); }
 

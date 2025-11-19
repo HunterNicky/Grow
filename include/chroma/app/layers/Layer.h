@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 
+#include "chroma/app/commands/CommandQueue.h"
 #include "chroma/app/states/State.h"
 #include "chroma/app/states/StateMachine.h"
 #include "chroma/shared/events/Event.h"
@@ -42,5 +43,6 @@ protected:
   bool active_;
 
   std::unique_ptr<states::StateMachine> state_machine_;
+  std::unique_ptr<app::command::CommandQueue> command_queue_;
 };
 }// namespace chroma::app::layer

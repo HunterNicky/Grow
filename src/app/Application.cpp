@@ -8,11 +8,11 @@
 #include "chroma/app/Application.h"
 #include "chroma/app/layers/Layer.h"
 #include "chroma/app/layers/LayerStack.h"
-#include "chroma/app/layers/game/GameLayer.h"
-#include "chroma/app/layers/network/NetworkLayer.h"
-#include "chroma/app/states/GameState.h"
-#include "chroma/app/states/mediator/GameNetworkMediator.h"
-#include "chroma/app/states/network/NetworkState.h"
+//#include "chroma/app/layers/game/GameLayer.h"
+//#include "chroma/app/layers/network/NetworkLayer.h"
+//#include "chroma/app/states/GameState.h"
+//#include "chroma/app/states/mediator/GameNetworkMediator.h"
+//#include "chroma/app/states/network/NetworkState.h"
 #include "chroma/client/audio/AudioBridgeImpl.h"
 #include "chroma/client/audio/AudioEngine.h"
 #include "chroma/client/render/RenderBridgeImpl.h"
@@ -24,6 +24,10 @@
 #include "chroma/shared/events/EventCatcher.h"
 #include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/render/RenderBridge.h"
+
+#include "chroma/client/ui/UIManager.h"
+#include "chroma/client/ui/UIManagerBus.h"
+#include "chroma/app/layers/game/MainMenuLayer.h"
 
 namespace chroma::app {
 
@@ -52,8 +56,10 @@ void Application::Run()
   {
     auto event_dispatcher = std::make_unique<shared::event::EventDispatcher>();
     shared::event::EventBus::SetDispatcher(event_dispatcher);
+    auto ui_manager = std::make_unique<client::ui::UIManager>();
+    client::ui::UIManagerBus::SetUIManager(ui_manager); 
   }
-
+  /*
   auto game_layer = std::make_unique<layer::game::GameLayer>();
   auto network_layer = std::make_unique<layer::network::NetworkLayer>();
 
@@ -73,6 +79,10 @@ void Application::Run()
 
   PushLayer(std::move(network_layer));
   PushLayer(std::move(game_layer));
+  */
+
+  auto menu_layer = std::make_unique<layer::game::MainMenuLayer>("MainMenu");
+  PushLayer(std::move(menu_layer));
 
   event_catcher_ = std::make_shared<shared::event::EventCatcher>();
 
@@ -88,8 +98,16 @@ void Application::Run()
     if (const auto ab = shared::audio::GetAudioBridge()) { ab->Update(); }
 
     layer_stack_->UpdateLayers(delta_time_);
+    client::ui::UIManagerBus::GetUIManager()->OnUpdate(delta_time_);
 
-    renderer_->RenderFrame([&] { layer_stack_->RenderLayers(); });
+    //renderer_->RenderFrame([&] { layer_stack_->RenderLayers(); ui_manager_->OnRender(); });
+    ClearBackground(RAYWHITE);
+
+    BeginDrawing();
+    ClearBackground(BLACK);
+
+    client::ui::UIManagerBus::GetUIManager()->OnRender();
+    EndDrawing();
   }
   renderer_->Close();
 }

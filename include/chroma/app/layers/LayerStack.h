@@ -5,12 +5,13 @@
 #include <vector>
 
 #include "chroma/app/layers/Layer.h"
+#include  "chroma/app/commands/CommandQueue.h"
 
 namespace chroma::app::layer {
 class LayerStack
 {
 public:
-  LayerStack() = default;
+  LayerStack();
 
   void PushLayer(std::unique_ptr<Layer> layer);
   void PopLayer();
@@ -28,5 +29,6 @@ public:
 private:
   std::vector<std::unique_ptr<Layer>> layers_;
   std::vector<std::unique_ptr<Layer>> overlays_;
+  std::unique_ptr<app::command::CommandQueue> command_queue_;
 };
 }// namespace chroma::app::layer

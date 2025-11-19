@@ -7,7 +7,20 @@ namespace chroma::shared::event {
 class Event
 {
 public:
-  enum Type : uint8_t { None = 0, KeyEvent = 1, MouseClickEvent = 2, MouseEvent = 3, SoundEvent = 4 };
+  enum Type : uint8_t {
+    None = 0,
+    KeyEvent = 1,
+    MouseClickEvent = 2,
+    MouseEvent = 3,
+    SoundEvent = 4,
+    ButtonClickEvent = 5,
+    PanelOpenEvent = 6,
+    PanelCloseEvent = 7,
+    PushStateEvent = 8,
+    PopStateEvent = 9,
+    PopLayerEvent = 10,
+    PushLayerEvent = 11,
+  };
 
   Event() = default;
   Event(const Event &) = default;

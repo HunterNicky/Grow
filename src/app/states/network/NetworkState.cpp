@@ -149,24 +149,40 @@ bool NetworkState::ConnectToServer(const std::string &host, const enet_uint16 po
     auto fut = ready.get_future();
 
     std::thread thread_server([&ready]() {
-      const auto server = std::make_shared<server::core::GameServer>();
-      ready.set_value(server->IsRunning());
-      server->Run();
+      try {
+        const auto server = std::make_shared<server::core::GameServer>();
+        ready.set_value(server->IsRunning());
+        server->Run();
+      } catch (const std::future_error &) {
+        (void)0;
+      } catch (...) {
+        try {
+          ready.set_value(false);
+        } catch (...) {
+          (void)0;
+        }
+      }
     });
     thread_server.detach();
 
-    if (fut.wait_for(std::chrono::seconds(2)) == std::future_status::ready && fut.get()) {
-      if (!TryConnect(host, port)) {
-        connected_ = false;
-        return false;
+    if (fut.wait_for(std::chrono::seconds(2)) == std::future_status::ready) {
+      if (fut.get()) {
+        if (!TryConnect(host, port)) {
+          connected_ = false;
+          return false;
+        }
+        connected_ = true;
+        return true;
       }
     }
+
+    connected_ = false;
+    return false;
   }
 
   connected_ = true;
   return true;
 }
-
 
 void NetworkState::ProcessEvent()
 {
@@ -214,7 +230,7 @@ void NetworkState::OnEvent(shared::event::Event &event)
 
 void NetworkState::SetEventDispatcher()
 {
-  shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::KeyEvent>(
+  key_sub_ = shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::KeyEvent>(
     [this](shared::event::Event &event) { this->OnEvent(event); });
 }
 

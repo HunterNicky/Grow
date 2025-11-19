@@ -1,0 +1,44 @@
+#pragma once
+
+#include <raylib.h>
+#include <string>
+#include <utility>
+
+#include "chroma/client/ui/UIContext.h"
+#include "chroma/client/ui/widgets/Widget.h"
+
+namespace chroma::client::ui::widget {
+
+class SliderWidget : public Widget
+{
+public:
+  SliderWidget(const std::string &id,
+    Rectangle bounds,
+    std::string label,
+    float min_value,
+    float max_value,
+    float initial_value);
+
+  ~SliderWidget() override = default;
+
+  void OnUpdate(const float delta_time, const UIContext &context) override;
+  void OnRender() override;
+
+  float GetValue() const { return value_; }
+
+private:
+  float value_;
+  float min_value_;
+  float max_value_;
+  bool is_dragging_ = false;
+
+  std::string label_;
+
+  const float bar_thickness_ = 4.0F;
+  const float handle_radius_ = 10.0F;
+
+  float GetHandleX() const;
+  bool IsMouseOverHandle(Vector2 mouse_pos) const;
+};
+
+}// namespace chroma::client::ui::widget

@@ -32,7 +32,7 @@ GameServer::GameServer()
     shared::event::EventBus::SetDispatcher(dispatcher);
   }
 
-  shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::SoundEvent>([this](shared::event::Event &ev) {
+  sound_sub_ = shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::SoundEvent>([this](shared::event::Event &ev) {
     if (!network_.IsReady()) { return; }
 
     auto &sound_ev = dynamic_cast<shared::event::SoundEvent &>(ev);

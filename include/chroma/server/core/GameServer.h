@@ -9,6 +9,7 @@
 #include "chroma/server/logic/ServerEventSystem.h"
 #include "chroma/server/logic/ServerGameLogic.h"
 #include "chroma/server/network/ServerNetwork.h"
+#include "chroma/shared/events/Subscription.h"
 
 namespace chroma::server::core {
 
@@ -44,6 +45,8 @@ private:
   std::chrono::steady_clock::time_point start_time_{};
   std::chrono::steady_clock::time_point last_frame_time_{};
   std::chrono::steady_clock::time_point last_snapshot_time_{};
+
+  shared::event::Subscription sound_sub_;
 };
 
 }// namespace chroma::server::core

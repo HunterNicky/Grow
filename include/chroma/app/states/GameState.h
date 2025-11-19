@@ -5,6 +5,7 @@
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/events/EventDispatcher.h"
+#include "chroma/shared/events/Subscription.h"
 
 #include <memory>
 #include <unordered_map>
@@ -45,5 +46,7 @@ private:
   std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>> game_objects_;
   std::shared_ptr<GameNetworkMediator> network_mediator_;
   UUIDv4::UUID player_id_;
+
+  shared::event::Subscription key_sub_;
 };
 }// namespace chroma::app::states
