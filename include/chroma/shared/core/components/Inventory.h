@@ -12,6 +12,7 @@ namespace chroma::shared::core::component {
 class Inventory : public Component {
 public:
     explicit Inventory(int capacity);
+    explicit Inventory();
     ~Inventory() override = default;
 
     Inventory(const Inventory&) = delete;

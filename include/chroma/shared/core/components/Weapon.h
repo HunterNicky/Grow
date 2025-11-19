@@ -32,8 +32,14 @@ namespace chroma::shared::core::component {
         [[nodiscard]]float GetCooldown() const;
         void SetCooldown(float cooldown);
 
+        [[nodiscard]]const std::string& GetSpritePath() const;
+        void SetSpritePath(const std::string& sprite_path);
+        
+        static std::string WeaponTypeToPrefix(WeaponType type);
+
     private:
         WeaponType weapon_type_;
+        std::string sprite_path_;
         int32_t damage_;
         float range_;
         float weight_;

@@ -4,6 +4,7 @@
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/InputState.h"
+#include "chroma/shared/core/components/Weapon.h"
 
 enum class FacingDir : uint8_t { Up = 0, Down = 1, Side = 2 };
 
@@ -29,6 +30,8 @@ public:
 
   static void SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &anim_component);
   std::shared_ptr<GameObject> Clone() override;
+
+  void SetCurrentWeapon(const std::shared_ptr<component::Weapon>& weapon);
 
 private:
   events::InputState input_state_;

@@ -7,6 +7,9 @@
 #include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/components/Transform.h"
+#include "chroma/shared/core/components/Inventory.h"
+#include "chroma/shared/core/components/Weapon.h"
+
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/InputState.h"
@@ -28,7 +31,7 @@ Player::Player() { Type_ = GameObjectType::PLAYER; }
 
 void Player::SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &anim_component)
 {
-    render::SpriteLoader::LoadSpriteAnimationFromFile(anim_component, "assets/sprites/player/randi.json");
+    render::SpriteLoader::LoadSpriteAnimationFromFile(anim_component, "assets/sprites/player/weapons/randi-spear.json");
 
     anim_component->Play("idle_down", false);
 }
@@ -166,7 +169,7 @@ void Player::OnRender()
   if(health)
   {
       Vector2 pos_h;
-      pos_h.y = pos.y - 21.F;
+      pos_h.y = pos.y - 30.F;
       pos_h.x = pos.x - 15.F;
       Vector2 size = {.x =30.F, .y = 4.F};
       health->DrawHealth(pos_h, size);
@@ -256,6 +259,23 @@ void Player::UpdateAnimationFromDirection(const Vector2 dir)
     }
 
   }
+}
+
+void Player::SetCurrentWeapon(const std::shared_ptr<component::Weapon>& weapon)
+{
+    if(!weapon) { return; }
+
+    const auto anim = GetComponent<component::SpriteAnimation>();
+    if (!anim) { return; }
+
+    const auto inventory = GetComponent<component::Inventory>();
+    if(!inventory) { return; }
+
+    if(!inventory->AddInventory(weapon)) { return; }
+
+    inventory->SetCurrentWeapon(weapon);
+
+    render::SpriteLoader::LoadSpriteAnimationFromFile(anim, weapon->GetSpritePath());
 }
 
 std::shared_ptr<GameObject> Player::Clone() { return std::make_shared<Player>(*this); }

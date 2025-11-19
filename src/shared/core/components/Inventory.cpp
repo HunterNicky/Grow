@@ -11,6 +11,12 @@ Inventory::Inventory(int capacity)
     type_ = ComponentType::INVENTORY;
     }
 
+Inventory::Inventory()
+: capacity_(0)
+{
+type_ = ComponentType::INVENTORY;
+}
+
 bool Inventory::AddInventory(const std::shared_ptr<Component>& item) {
     if (static_cast<int>(items_.size() + weapons_.size()) >= capacity_) {
         return false;

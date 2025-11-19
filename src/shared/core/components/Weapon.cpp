@@ -1,4 +1,5 @@
 #include "chroma/shared/core/components/Weapon.h"
+#include <string>
 
 namespace chroma::shared::core::component {
 
@@ -46,6 +47,18 @@ float Weapon::GetCooldown() const {
 
 void Weapon::SetCooldown(float cooldown) {
     cooldown_ = cooldown;
+}
+
+std::string Weapon::WeaponTypeToPrefix(WeaponType type)
+{
+    switch(type) {
+        case WeaponType::FIST:  return "fist";
+        case WeaponType::SWORD: return "sword";
+        case WeaponType::BOW:   return "bow";
+        case WeaponType::AXE:   return "axe";
+        case WeaponType::SPEAR: return "spear";
+        default: return "unknown";
+    }
 }
 
 } // namespace chroma::shared::core::component
