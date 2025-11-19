@@ -3,7 +3,7 @@
 #include "chroma/client/ui/widgets/Widget.h"
 
 #include <algorithm>
-#include <iomanip>
+#include <cmath>
 #include <iostream>
 #include <raylib.h>
 #include <sstream>
@@ -15,9 +15,9 @@ namespace chroma::client::ui::widget {
 SliderWidget::SliderWidget(const std::string &id,
   Rectangle bounds,
   std::string label,
-  float min_value,
-  float max_value,
-  float initial_value)
+  int min_value,
+  int max_value,
+  int initial_value)
   : Widget(id, bounds), min_value_(min_value), max_value_(max_value), label_(std::move(label))
 {
   value_ = std::clamp(initial_value, min_value_, max_value_);
@@ -25,7 +25,7 @@ SliderWidget::SliderWidget(const std::string &id,
 
 float SliderWidget::GetHandleX() const
 {
-  const float normalized_value = (value_ - min_value_) / (max_value_ - min_value_);
+  const float normalized_value = (static_cast<float>(value_) - static_cast<float>(min_value_)) / (static_cast<float>(max_value_) - static_cast<float>(min_value_));
   return bounds_.x + (normalized_value * bounds_.width);
 }
 
@@ -53,7 +53,10 @@ void SliderWidget::OnUpdate(const float delta_time, const UIContext &context)
     new_x = std::clamp(new_x, bounds_.x, bounds_.x + bounds_.width);
 
     const float normalized_value = (new_x - bounds_.x) / bounds_.width;
-    const float new_value = min_value_ + (normalized_value * (max_value_ - min_value_));
+    const float range = static_cast<float>(max_value_) - static_cast<float>(min_value_);
+    const float new_float_value = static_cast<float>(min_value_) + (normalized_value * range);
+
+    const int new_value = static_cast<int>(std::round(new_float_value));
 
     value_ = std::clamp(new_value, min_value_, max_value_);
   }
@@ -64,7 +67,7 @@ void SliderWidget::OnRender()
   const float center_y = bounds_.y + (bounds_.height / 2.0F);
   const float handle_x = GetHandleX();
 
-  DrawText(label_.c_str(), (int)bounds_.x, (int)bounds_.y - 25, 20, DARKGRAY);
+  DrawText(label_.c_str(), (int)bounds_.x, (int)bounds_.y - 25, 20, WHITE);
 
   DrawLineEx({ bounds_.x, center_y }, { bounds_.x + bounds_.width, center_y }, bar_thickness_, LIGHTGRAY);
 
@@ -74,10 +77,10 @@ void SliderWidget::OnRender()
   DrawCircleLines(static_cast<int>(handle_x), static_cast<int>(center_y), handle_radius_, BLACK);
 
   std::ostringstream oss;
-  oss << std::fixed << std::setprecision(2) << value_;
+  oss << value_;
   const std::string value_text = oss.str();
 
-  DrawText(value_text.c_str(), (int)(bounds_.x + bounds_.width + 15.0F), (int)(center_y - 10.0F), 20, BLACK);
+  DrawText(value_text.c_str(), (int)(bounds_.x + bounds_.width + 15.0F), (int)(center_y - 10.0F), 20, WHITE);
 }
 
 }// namespace chroma::client::ui::widget

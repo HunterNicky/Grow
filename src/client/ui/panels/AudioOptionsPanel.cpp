@@ -23,15 +23,15 @@ void AudioOptionsPanel::CreateWidgets()
     Rectangle{ bounds_.x + 50, bounds_.y + 80, slider_width, slider_height },
     "General",
     0.0F,
-    1.0F,
-    0.75F);
+    100.0F,
+    0.0F);
 
   auto music_volume_slider = std::make_unique<client::ui::widget::SliderWidget>("MusicVolume",
     Rectangle{ bounds_.x + 50, bounds_.y + 140, slider_width, slider_height },
     "Music",
     0.0F,
-    1.0F,
-    0.50F);
+    100.0F,
+    0.0F);
 
   auto back_button = std::make_unique<client::ui::widget::Button>(
     "AudioBack", Rectangle{ bounds_.x + 50, bounds_.y + 200, slider_width, 50.0F }, "Back");

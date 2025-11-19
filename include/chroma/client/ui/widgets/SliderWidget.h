@@ -15,21 +15,21 @@ public:
   SliderWidget(const std::string &id,
     Rectangle bounds,
     std::string label,
-    float min_value,
-    float max_value,
-    float initial_value);
+    int min_value,
+    int max_value,
+    int initial_value);
 
   ~SliderWidget() override = default;
 
   void OnUpdate(const float delta_time, const UIContext &context) override;
   void OnRender() override;
 
-  float GetValue() const { return value_; }
+  int GetValue() const { return value_; }
 
 private:
-  float value_;
-  float min_value_;
-  float max_value_;
+  int value_;
+  int min_value_;
+  int max_value_;
   bool is_dragging_ = false;
 
   std::string label_;
