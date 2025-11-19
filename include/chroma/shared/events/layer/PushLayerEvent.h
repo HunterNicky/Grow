@@ -11,7 +11,7 @@ class PushLayerEvent : public Event
 public:
   explicit PushLayerEvent(std::string layer_id);
 
-  [[nodiscard]] std::string &GetLayerId();
+  [[nodiscard]] const std::string &GetLayerId() const;
   [[nodiscard]] std::shared_ptr<Event> Clone() const override;
   [[nodiscard]] static Type GetStaticType();
 

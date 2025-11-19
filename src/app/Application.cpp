@@ -58,28 +58,9 @@ void Application::Run()
     shared::event::EventBus::SetDispatcher(event_dispatcher);
     auto ui_manager = std::make_unique<client::ui::UIManager>();
     client::ui::UIManagerBus::SetUIManager(ui_manager); 
+    layer_stack_->SetEventPushLayer();
+    layer_stack_->SetEventPopLayer();
   }
-  /*
-  auto game_layer = std::make_unique<layer::game::GameLayer>();
-  auto network_layer = std::make_unique<layer::network::NetworkLayer>();
-
-  auto mediator = std::make_shared<states::GameNetworkMediator>();
-  const auto game_state = std::make_shared<states::GameState>(mediator);
-  game_state->SetEventDispatcher();
-  const auto network_state = std::make_shared<states::NetworkState>(mediator);
-  network_state->SetEventDispatcher();
-
-  mediator->SetGameState(game_state);
-  mediator->SetNetworkState(network_state);
-
-  // auto game_state = std::make_shared<states::GameState>();
-
-  network_layer->PushState(network_state);
-  game_layer->PushState(game_state);
-
-  PushLayer(std::move(network_layer));
-  PushLayer(std::move(game_layer));
-  */
 
   auto menu_layer = std::make_unique<layer::game::MainMenuLayer>("MainMenu");
   PushLayer(std::move(menu_layer));
@@ -100,14 +81,13 @@ void Application::Run()
     layer_stack_->UpdateLayers(delta_time_);
     client::ui::UIManagerBus::GetUIManager()->OnUpdate(delta_time_);
 
-    //renderer_->RenderFrame([&] { layer_stack_->RenderLayers(); ui_manager_->OnRender(); });
-    ClearBackground(RAYWHITE);
+    renderer_->RenderFrame([&] {
+      layer_stack_->RenderLayers();
+      client::ui::UIManagerBus::GetUIManager()->OnRender();
+    });
 
-    BeginDrawing();
-    ClearBackground(BLACK);
-
-    client::ui::UIManagerBus::GetUIManager()->OnRender();
-    EndDrawing();
+    // BeginDrawing();
+    // EndDrawing();
   }
   renderer_->Close();
 }

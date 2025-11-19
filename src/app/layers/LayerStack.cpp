@@ -4,12 +4,22 @@
 #include <utility>
 
 #include "chroma/app/commands/CommandQueue.h"
-#include "chroma/app/layers/Layer.h"
+#include "chroma/app/layers/game/GameLayer.h"
+#include "chroma/shared/events/layer/PushLayerEvent.h"
+#include "chroma/shared/events/layer/PopLayerEvent.h"
+#include "chroma/shared/events/EventBus.h"
+#include "chroma/app/states/GameState.h"
+#include "chroma/app/states/mediator/GameNetworkMediator.h"
+#include "chroma/app/states/network/NetworkState.h"
+#include "chroma/app/layers/network/NetworkLayer.h"
 #include "chroma/app/layers/LayerStack.h"
+#include "chroma/app/layers/Layer.h"
 #include "chroma/shared/events/Event.h"
 
 namespace chroma::app::layer {
-LayerStack::LayerStack() : command_queue_(std::make_unique<command::CommandQueue>()) {}
+LayerStack::LayerStack() : command_queue_(std::make_unique<command::CommandQueue>()) 
+{
+}
 
 void LayerStack::PushLayer(std::unique_ptr<Layer> layer) { layers_.emplace_back(std::move(layer)); }
 
@@ -81,4 +91,57 @@ Layer *LayerStack::GetLayer(const std::string &name) const
 
   return nullptr;
 }
+
+void LayerStack::SetEventPushLayer()
+{
+    push_layer_subscription_ = shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::layer::PushLayerEvent>(
+    [this](shared::event::layer::PushLayerEvent &event) { this->PushLayerEvent(event); });
+}
+
+void LayerStack::SetEventPopLayer()
+{
+    pop_layer_subscription_ = shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::layer::PopLayerEvent>(
+    [this](shared::event::layer::PopLayerEvent &event) { this->PopLayerEvent(event); });
+}
+
+void LayerStack::PushLayerEvent(const shared::event::layer::PushLayerEvent &event)
+{
+   if(event.GetLayerId() == "SinglePlayerGameLayer")
+   {
+      auto game_state = std::make_shared<states::GameState>();
+      auto game_layer = std::make_unique<layer::game::GameLayer>();
+      game_layer->PushState(game_state);
+      if (!layers_.empty()) {
+          layers_.pop_back();
+      }
+      PushLayer(std::move(game_layer));
+   } else if(event.GetLayerId() == "MultiPlayerGameLayer")
+   {
+      auto game_layer = std::make_unique<layer::game::GameLayer>();
+      auto network_layer = std::make_unique<layer::network::NetworkLayer>();
+
+      auto mediator = std::make_shared<states::GameNetworkMediator>();
+      const auto game_state = std::make_shared<states::GameState>(mediator);
+      game_state->SetEventDispatcher();
+      const auto network_state = std::make_shared<states::NetworkState>(mediator);
+      network_state->SetEventDispatcher();
+
+      mediator->SetGameState(game_state);
+      mediator->SetNetworkState(network_state);
+
+      network_layer->PushState(network_state);
+      game_layer->PushState(game_state);
+
+      PushLayer(std::move(network_layer));
+      PushLayer(std::move(game_layer));
+
+   }
+}
+
+void LayerStack::PopLayerEvent(const shared::event::layer::PopLayerEvent &event)
+{
+  (event);
+   PopLayer();
+}
+
 }// namespace chroma::app::layer

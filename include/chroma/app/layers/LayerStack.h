@@ -5,6 +5,9 @@
 #include <vector>
 
 #include "chroma/app/layers/Layer.h"
+#include "chroma/shared/events/Subscription.h"
+#include "chroma/shared/events/layer/PushLayerEvent.h"
+#include "chroma/shared/events/layer/PopLayerEvent.h"
 #include  "chroma/app/commands/CommandQueue.h"
 
 namespace chroma::app::layer {
@@ -26,7 +29,15 @@ public:
 
   [[nodiscard]] Layer *GetLayer(const std::string &name) const;
 
+    void SetEventPushLayer();
+    void SetEventPopLayer();
+    void PushLayerEvent(const shared::event::layer::PushLayerEvent &event);
+    void PopLayerEvent(const shared::event::layer::PopLayerEvent &event);
+
 private:
+
+  shared::event::Subscription push_layer_subscription_;
+  shared::event::Subscription pop_layer_subscription_;
   std::vector<std::unique_ptr<Layer>> layers_;
   std::vector<std::unique_ptr<Layer>> overlays_;
   std::unique_ptr<app::command::CommandQueue> command_queue_;

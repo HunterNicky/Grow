@@ -26,16 +26,17 @@ GameState::GameState()
   SetPlayerId(player->GetId());
   player->SetNetRole(shared::core::NetRole::ROLE_AutonomousProxy);
   player->InitComponents();
-  player_id_ = player->GetId();
   game_objects_->emplace(player->GetId(), player);
+  SetEventDispatcher();
 }
 
 GameState::GameState(std::shared_ptr<GameNetworkMediator> network_mediator)
-  : State("GameState"),
-    game_objects_(std::make_shared<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>>()),
-    network_mediator_(std::move(network_mediator))
+: State("GameState"),
+game_objects_(std::make_shared<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>>()),
+network_mediator_(std::move(network_mediator))
 {
   network_mediator_->SetGameObjects(game_objects_);
+  SetEventDispatcher();
 }
 
 

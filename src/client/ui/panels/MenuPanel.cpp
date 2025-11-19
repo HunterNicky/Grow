@@ -15,25 +15,40 @@ MenuPanel::MenuPanel(Rectangle bounds) : Panel("Menu", bounds) { CreateWidgets()
 
 void MenuPanel::CreateWidgets()
 {
-  auto play_button = std::make_unique<client::ui::widget::Button>(
-    "Play", Rectangle{ bounds_.x + 50, bounds_.y + 80, 200, 50 }, "Play");
+  float default_width = 200;
+  float default_height = 50;
+  float padding = 20;
+  float start_x = bounds_.x + 50;
+  float start_y = bounds_.y + 80;
 
+
+  auto singleplayer_button = std::make_unique<client::ui::widget::Button>(
+    "Play_Singleplayer", Rectangle{ start_x, start_y, default_width, default_height }, "Play SinglePlayer");
+  start_y += default_height + padding;
+  auto multiplayer_button = std::make_unique<client::ui::widget::Button>(
+    "Play_Multiplayer", Rectangle{ start_x, start_y, default_width, default_height }, "Play Multiplayer");
+
+  start_y += default_height + padding;
   auto options_button = std::make_unique<client::ui::widget::Button>(
-    "Options", Rectangle{ bounds_.x + 50, bounds_.y + 160, 200, 50 }, "Options");
+    "Options", Rectangle{ start_x, start_y, default_width, default_height }, "Options");
 
+  start_y += default_height + padding;  
   auto exit_button = std::make_unique<client::ui::widget::Button>(
-    "Exit", Rectangle{ bounds_.x + 50, bounds_.y + 240, 200, 50 }, "Exit");
+    "Exit", Rectangle{ start_x, start_y, default_width, default_height }, "Exit");
+  start_y += default_height + padding;
 
   auto on_click_callback = [this](const std::string &button_id) {
     shared::event::ui::ButtonClickEvent event(shared::event::Event::Type::ButtonClickEvent, button_id);
     shared::event::EventBus::Dispatch(event);
   };
 
-  play_button->setOnClick(on_click_callback);
+  singleplayer_button->setOnClick(on_click_callback);
+  multiplayer_button->setOnClick(on_click_callback);
   options_button->setOnClick(on_click_callback);
   exit_button->setOnClick(on_click_callback);
 
-  AddWidget(std::move(play_button));
+  AddWidget(std::move(singleplayer_button));
+  AddWidget(std::move(multiplayer_button));
   AddWidget(std::move(options_button));
   AddWidget(std::move(exit_button));
 }

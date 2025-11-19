@@ -11,6 +11,7 @@
 #include "chroma/shared/events/ui/ButtonClickEvent.h"
 #include "chroma/shared/events/ui/PanelCloseEvent.h"
 #include "chroma/shared/events/ui/PanelOpenEvent.h"
+#include "chroma/shared/events/layer/PushLayerEvent.h"
 
 namespace chroma::app::layer::state::menu {
 MainMenuState::MainMenuState() : State("Menu")
@@ -35,8 +36,14 @@ void MainMenuState::OnRender() {}
 void MainMenuState::OnEvent(shared::event::Event &event)
 {
   auto btn_event = dynamic_cast<shared::event::ui::ButtonClickEvent &>(event);
-  if (btn_event.GetId() == "Play") {
-    std::cout << "MainMenuState recebeu evento para Play" << '\n';
+  if (btn_event.GetId() == "Play_Singleplayer") {
+    std::cout << "MainMenuState recebeu evento para Play_Singleplayer" << '\n';
+    shared::event::layer::PushLayerEvent push_layer_event("SinglePlayerGameLayer");
+    shared::event::EventBus::Dispatch(push_layer_event);
+  } else if (btn_event.GetId() == "Play_Multiplayer") {
+    std::cout << "MainMenuState recebeu evento para Play_Multiplayer" << '\n';
+    shared::event::layer::PushLayerEvent push_layer_event("MultiPlayerGameLayer");
+    shared::event::EventBus::Dispatch(push_layer_event);
   } else if (btn_event.GetId() == "Options") {
     shared::event::state::PopStateEvent pop_event;
     shared::event::EventBus::Dispatch(pop_event);
