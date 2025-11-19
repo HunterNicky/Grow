@@ -33,7 +33,7 @@ void Player::SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &a
 {
     render::SpriteLoader::LoadSpriteAnimationFromFile(anim_component, "assets/sprites/player/weapons/randi-spear.json");
 
-    anim_component->Play("idle_down", false);
+    anim_component->Play("spear_idle_down", false);
 }
 
 Player::~Player() = default;
@@ -48,13 +48,13 @@ void Player::AnimationState(const Vector2 dir, const float magnitude)
       }
       switch (last_facing_) {
       case FacingDir::Up:
-      anim->Play("idle_up", false);
+      anim->Play("spear_idle_up", false);
         break;
       case FacingDir::Down:
-        anim->Play("idle_down", false);
+        anim->Play("spear_idle_down", false);
         break;
         case FacingDir::Side:
-        anim->Play("idle_side", false);
+        anim->Play("spear_idle_side", false);
         break;
       }
     } else {
@@ -66,7 +66,7 @@ void Player::AnimationState(const Vector2 dir, const float magnitude)
       {
           run = run_comp->IsRunning();
       }
-      std::string mode = run ? "running_" : "walk_";
+      std::string mode = run ? "spear_running_" : "spear_walk_";
 
       if (std::fabs(dir.x) > std::fabs(dir.y)) {
         last_facing_ = FacingDir::Side;
@@ -230,19 +230,19 @@ void Player::UpdateAnimationFromDirection(const Vector2 dir)
   const auto run_comp = GetComponent<component::Run>();
   if(!run_comp) { return; }
 
-  std::string mode = run_comp->IsRunning() ? "running_" : "walk_";
+  std::string mode = run_comp->IsRunning() ? "spear_running_" : "spear_walk_";
 
   const float magnitude = Vector2Length(dir);
   if (magnitude <= 0.0F) {
     switch (last_facing_) {
     case FacingDir::Up:
-      anim->Play("idle_up", false);
+      anim->Play("spear_idle_up", false);
       break;
     case FacingDir::Down:
-      anim->Play("idle_down", false);
+      anim->Play("spear_idle_down", false);
       break;
     case FacingDir::Side:
-      anim->Play("idle_side", false);
+      anim->Play("spear_idle_side", false);
       break;
     }
   } else {
