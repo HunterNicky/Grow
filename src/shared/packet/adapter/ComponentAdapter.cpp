@@ -20,6 +20,7 @@ void ComponentAdapter::ToComponent(const std::shared_ptr<core::GameObject> &game
     MovementToComponent(game_object->GetComponent<core::component::Movement>(), builder, fb_components);
     ColorToComponent(game_object->GetComponent<core::component::Coloring>(), builder, fb_components);   
     HealthToComponent( game_object->GetComponent<core::component::Health>(), builder, fb_components);
+    RunToComponent(game_object->GetComponent<core::component::Run>(), builder, fb_components);
 }
 
 void ComponentAdapter::FromComponent(const Game::Component &component, std::shared_ptr<core::GameObject> &game_object)
@@ -39,6 +40,9 @@ void ComponentAdapter::FromComponent(const Game::Component &component, std::shar
         break;
     case Game::ComponentUnion::Health:
         ComponentToHealth(&component, game_object);
+        break;
+    case Game::ComponentUnion::Run:
+        ComponentToRun(&component, game_object);
         break;
     default:
         return;
