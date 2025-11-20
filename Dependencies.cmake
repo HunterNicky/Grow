@@ -108,4 +108,27 @@ function(chroma_setup_dependencies)
     "ENET_SHARED OFF"
   )
 
+    CPMAddPackage(
+    NAME nlohmann_json
+    GITHUB_REPOSITORY nlohmann/json
+    GIT_TAG v3.12.0
+    OPTIONS
+    "JSON_BuildTests OFF"
+  )
+
+  if (NOT TARGET nlohmann_json_silenced)
+    add_library(nlohmann_json_silenced INTERFACE)
+
+    if (MSVC)
+      target_compile_options(nlohmann_json_silenced INTERFACE /w)
+    elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+      target_compile_options(nlohmann_json_silenced INTERFACE -w)
+    endif ()
+
+    target_link_libraries(nlohmann_json_silenced INTERFACE nlohmann_json)
+    target_include_directories(nlohmann_json_silenced SYSTEM INTERFACE
+      "${nlohmann_json_SOURCE_DIR}/include"
+    )
+  endif ()
+  
 endfunction()

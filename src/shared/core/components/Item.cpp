@@ -1,10 +1,13 @@
 #include "chroma/shared/core/components/Item.h"
 
 namespace chroma::shared::core::component {
-Item::Item(std::string name)
-    : name_(std::move(name)), weight_(0.0F) {
+
+Item::Item(std::string name, std::string description, float weight)
+    :  name_(std::move(name)), description_(std::move(description)), weight_(weight) 
+{
     type_ = ComponentType::ITEM;
 }
+
 std::string Item::GetName() const {
     return name_;
 }

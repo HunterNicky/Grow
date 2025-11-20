@@ -38,6 +38,7 @@ GameState::GameState()
         .AddHealth(100.0F, 1.0F)
         .AddRun(false, 1.5F)
         .NetRole(shared::core::NetRole::ROLE_AutonomousProxy)
+        .AddInventory(10 )
         .Build();
 
   SetPlayerId(player->GetId());

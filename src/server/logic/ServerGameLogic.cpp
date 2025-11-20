@@ -50,6 +50,7 @@ std::shared_ptr<shared::core::player::Player> ServerGameLogic::CreatePlayer()
         .AddAudioListener()
         .AddHealth(100.0F, 1.0F)
         .AddRun(false, 1.5F)
+        .AddInventory(10)
         .NetRole(shared::core::NetRole::ROLE_Authority)
         .Build();
 

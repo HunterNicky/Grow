@@ -37,6 +37,7 @@ void ComponentAdapter::ToComponent(const std::shared_ptr<core::GameObject> &game
     ColorToComponent(game_object->GetComponent<core::component::Coloring>(), builder, fb_components);   
     HealthToComponent( game_object->GetComponent<core::component::Health>(), builder, fb_components);
     RunToComponent(game_object->GetComponent<core::component::Run>(), builder, fb_components);
+    InventoryToComponent(game_object->GetComponent<core::component::Inventory>(), builder, fb_components);
 }
 
 void ComponentAdapter::FromComponent(const Game::Component &component, std::shared_ptr<core::GameObject> &game_object)
@@ -59,6 +60,9 @@ void ComponentAdapter::FromComponent(const Game::Component &component, std::shar
         break;
     case Game::ComponentUnion::Run:
         ComponentToRun(&component, game_object);
+        break;
+    case Game::ComponentUnion::Inventory:
+        ComponentToInventory(&component, game_object);
         break;
     default:
         return;
@@ -212,6 +216,62 @@ void ComponentAdapter::ComponentToHealth(const Game::Component *component,
     health->SetMaxHealth(fb_health->max_health());
 }
 
+void ComponentAdapter::ComponentToInventory(const Game::Component *component,
+    const std::shared_ptr<core::GameObject> &game_object)
+{
+    const auto *fb_inventory = component->type_as_Inventory();
+    if (fb_inventory == nullptr) { return; }
+
+    const auto inventory = game_object->GetComponent<core::component::Inventory>();
+    if (!inventory) { return; }
+
+    inventory->SetCapacity(fb_inventory->capacity());
+
+    const auto* fb_weapons = fb_inventory->weapons();
+    if (fb_weapons != nullptr) {
+        for (const auto& fb_weapon : *fb_weapons) {
+            ComponentToWeapon(fb_weapon, inventory);
+        }
+    }
+
+    const auto* fb_items = fb_inventory->itens();
+    if (fb_items != nullptr) {
+        for (const auto& fb_item : *fb_items) {
+            ComponentToItem(fb_item, inventory);
+        }
+    }
+}
+
+void ComponentAdapter::ComponentToWeapon(const Game::Weapon* weapon,
+    const std::shared_ptr<core::component::Inventory>& inventory)
+{
+    if (weapon == nullptr) { return; }
+
+    const auto w = std::make_shared<core::component::Weapon>(
+        static_cast<core::component::WeaponType>(weapon->weapon_type()),
+        weapon->damage(),
+        weapon->range(),
+        weapon->weight(),
+        weapon->cooldown()
+    );
+
+    inventory->AddInventory(w);
+}
+
+void ComponentAdapter::ComponentToItem(const Game::Item* item,
+  const std::shared_ptr<core::component::Inventory>& inventory)
+{
+    if (item == nullptr) { return; }
+
+    const auto it = std::make_shared<core::component::Item>(
+        item->name()->str(),
+        item->description()->str(),
+        item->weight()
+    );
+
+    inventory->AddInventory(it);
+}
+
 void ComponentAdapter::RunToComponent(const std::shared_ptr<core::component::Component> &component,
     flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Component>> &fb_components)
 {
@@ -237,13 +297,19 @@ void ComponentAdapter::InventoryToComponent(
         WeaponToComponent(weapon, builder, weapons_offsets);
     }
 
+    std::vector<flatbuffers::Offset<Game::Item>> items_offsets;
+    for (const auto& item : inventory->GetItems()) {
+        ItemToComponent(item, builder, items_offsets);
+    }
+    auto fb_items_vec = builder.CreateVector(items_offsets);
+
     auto fb_weapons_vec = builder.CreateVector(weapons_offsets);
 
     auto fb_inventory = Game::CreateInventory(
         builder,
         inventory->GetCapacity(),
-        fb_weapons_vec
-        // quando colocar items e outros campos, entrarão aqui
+        fb_weapons_vec,
+        fb_items_vec
     );
 
     auto fb_component = Game::CreateComponent(
@@ -277,20 +343,18 @@ void ComponentAdapter::WeaponToComponent(
 
 
 void ComponentAdapter::ItemToComponent(const std::shared_ptr<core::component::Item>& item,
-  flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Item>> &fb_item)
+  flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Item>> &fb_items)
 {
-      if (!weapon) { return; }
+    if (!item) { return; }
 
-    auto fb_weapon = Game::CreateWeapon(
+    auto fb_item = Game::CreateItem(
         builder,
-        ConvertWeaponType(weapon->GetWeaponType()),
-        weapon->GetDamage(),
-        weapon->GetRange(),
-        weapon->GetWeight(),
-        weapon->GetCooldown()
+         builder.CreateString(item->GetName()),
+        builder.CreateString(item->GetDescription()),
+        item->GetWeight()
     );
 
-    fb_weapons.push_back(fb_weapon);
+    fb_items.push_back(fb_item);
 }
 
 } // namespace chroma::shared::packet::adapter

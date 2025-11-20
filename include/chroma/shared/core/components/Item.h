@@ -6,7 +6,7 @@ namespace chroma::shared::core::component {
 
 class Item : public Component {
 public:
-    explicit Item(std::string name);
+    explicit Item(std::string name, std::string description, float weight);
     ~Item() override = default;
 
     Item(const Item&) = delete;

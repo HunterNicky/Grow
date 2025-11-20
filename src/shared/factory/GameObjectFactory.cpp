@@ -39,6 +39,7 @@ namespace {
             .AddHealth(100.0F, 1.0F)
             .AddRun(false, 1.5F)
             .NetRole(is_local_player ? core::NetRole::ROLE_AutonomousProxy : core::NetRole::ROLE_SimulatedProxy)
+            .AddInventory(10)
             .Build();
 
           player->SetupAnimation(player->GetComponent<core::component::SpriteAnimation>());

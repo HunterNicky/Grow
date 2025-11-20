@@ -149,9 +149,10 @@ public:
 
     GameObjectBuilder& AddInventory(int capacity)
     {
-        auto inventory = std::shared_ptr<core::component::Inventory>();
+        auto inventory = std::make_shared<core::component::Inventory>();
         inventory->SetCapacity(capacity);
         obj_->AttachComponent(inventory);
+        return *this;   
     }
 
     std::shared_ptr<T> Build()
