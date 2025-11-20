@@ -3,6 +3,7 @@
 #include "chroma/shared/core/components/Component.h"
 #include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/core/components/Transform.h"
+#include "chroma/shared/core/components/Inventory.h"
 #include "chroma/shared/core/components/Movement.h"
 #include "chroma/shared/core/components/Coloring.h"
 #include "chroma/shared/core/components/Health.h"
@@ -11,6 +12,21 @@
 #include <memory>
 
 namespace chroma::shared::packet::adapter {
+
+static Game::WeaponType ConvertWeaponType(core::component::WeaponType t)
+{
+    switch (t)
+    {
+    case core::component::WeaponType::FIST:  return Game::WeaponType::FIST;
+    case core::component::WeaponType::SWORD: return Game::WeaponType::SWORD;
+    case core::component::WeaponType::BOW:   return Game::WeaponType::BOW;
+    case core::component::WeaponType::AXE:   return Game::WeaponType::AXE;
+    case core::component::WeaponType::SPEAR: return Game::WeaponType::SPEAR;
+    default:
+        return Game::WeaponType::FIST;
+    }
+}
+
 void ComponentAdapter::ToComponent(const std::shared_ptr<core::GameObject> &game_object,
   flatbuffers::FlatBufferBuilder &builder,
   std::vector<flatbuffers::Offset<Game::Component>> &fb_components)
@@ -206,6 +222,75 @@ void ComponentAdapter::RunToComponent(const std::shared_ptr<core::component::Com
         run->GetSpeedFactor());
     const auto fb_component = Game::CreateComponent(builder, Game::ComponentUnion::Run, fb_run.Union());
     fb_components.push_back(fb_component);
+}
+
+void ComponentAdapter::InventoryToComponent(
+    const std::shared_ptr<core::component::Component> &component,
+    flatbuffers::FlatBufferBuilder &builder,
+    std::vector<flatbuffers::Offset<Game::Component>> &fb_components)
+{
+    if (!component) { return; }
+    const auto inventory = std::static_pointer_cast<core::component::Inventory>(component);
+
+    std::vector<flatbuffers::Offset<Game::Weapon>> weapons_offsets;
+    for (const auto& weapon : inventory->GetWeapons()) {
+        WeaponToComponent(weapon, builder, weapons_offsets);
+    }
+
+    auto fb_weapons_vec = builder.CreateVector(weapons_offsets);
+
+    auto fb_inventory = Game::CreateInventory(
+        builder,
+        inventory->GetCapacity(),
+        fb_weapons_vec
+        // quando colocar items e outros campos, entrarão aqui
+    );
+
+    auto fb_component = Game::CreateComponent(
+        builder,
+        Game::ComponentUnion::Inventory,
+        fb_inventory.Union()
+    );
+
+    fb_components.push_back(fb_component);
+}
+
+
+void ComponentAdapter::WeaponToComponent(
+    const std::shared_ptr<core::component::Weapon>& weapon,
+    flatbuffers::FlatBufferBuilder &builder,
+    std::vector<flatbuffers::Offset<Game::Weapon>> &fb_weapons)
+{    
+    if (!weapon) { return; }
+
+    auto fb_weapon = Game::CreateWeapon(
+        builder,
+        ConvertWeaponType(weapon->GetWeaponType()),
+        weapon->GetDamage(),
+        weapon->GetRange(),
+        weapon->GetWeight(),
+        weapon->GetCooldown()
+    );
+
+    fb_weapons.push_back(fb_weapon);
+}
+
+
+void ComponentAdapter::ItemToComponent(const std::shared_ptr<core::component::Item>& item,
+  flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Item>> &fb_item)
+{
+      if (!weapon) { return; }
+
+    auto fb_weapon = Game::CreateWeapon(
+        builder,
+        ConvertWeaponType(weapon->GetWeaponType()),
+        weapon->GetDamage(),
+        weapon->GetRange(),
+        weapon->GetWeight(),
+        weapon->GetCooldown()
+    );
+
+    fb_weapons.push_back(fb_weapon);
 }
 
 } // namespace chroma::shared::packet::adapter

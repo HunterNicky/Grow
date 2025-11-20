@@ -20,7 +20,8 @@ public:
     Inventory(Inventory&&) noexcept = default;
     Inventory& operator=(Inventory&&) noexcept = default;
 
-    [[nodiscard]] int GetCapacity() const { return capacity_; }
+    [[nodiscard]] int GetCapacity() const;
+    void SetCapacity(int capacity);
 
     bool AddInventory(const std::shared_ptr<Component>& item);
     bool RemoveInventory(const std::shared_ptr<Component>& item);

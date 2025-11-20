@@ -85,4 +85,13 @@ const std::shared_ptr<Weapon>& Inventory::GetCurrentWeapon() const {
     return current_weapon_;
 }
 
+int Inventory::GetCapacity() const {
+    return capacity_;
+}
+
+void Inventory::SetCapacity(int capacity)
+{
+    capacity_ = capacity;
+}
+
 } // namespace chroma::shared::core::component

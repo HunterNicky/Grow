@@ -10,6 +10,7 @@
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/components/AudioListener.h"
 #include "chroma/shared/core/components/Run.h"
+#include "chroma/shared/core/components/Inventory.h"
 
 #include <memory>
 #include <raylib.h>
@@ -144,6 +145,13 @@ public:
 
         obj_->AttachComponent(run);
         return *this;
+    }
+
+    GameObjectBuilder& AddInventory(int capacity)
+    {
+        auto inventory = std::shared_ptr<core::component::Inventory>();
+        inventory->SetCapacity(capacity);
+        obj_->AttachComponent(inventory);
     }
 
     std::shared_ptr<T> Build()

@@ -2,6 +2,7 @@
 
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/Component.h"
+#include "chroma/shared/core/components/Inventory.h"
 #include "components_generated.h"
 
 namespace chroma::shared::packet::adapter {
@@ -27,7 +28,19 @@ private:
     static void ComponentToHealth(const Game::Component* component, const std::shared_ptr<core::GameObject>& game_object);
     static void ComponentToRun(const Game::Component* component, const std::shared_ptr<core::GameObject>& game_object);
     static void ComponentToInventory(const Game::Component* component, const std::shared_ptr<core::GameObject>& game_object);
-    
+
+    //
+    // ===========================================================
+    // FLATBUFFER COMPONENT --> GAME OBJECT COMPONENT HELPERS
+    // ===========================================================
+    //
+    static void ComponentToWeapon(const Game::Component* component, const std::shared_ptr<core::component::Inventory>& inventory);
+    static void ComponentToItem(const Game::Component* component, const std::shared_ptr<core::component::Inventory>& inventory);
+    static void WeaponToComponent(const std::shared_ptr<core::component::Weapon>& weapon,
+      flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Weapon>> &fb_weapon);
+    static void ItemToComponent(const std::shared_ptr<core::component::Item>& item,
+      flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Item>> &fb_item);
+   
     //
     // ============================================================
     //  GAME OBJECT COMPONENT --> FLATBUFFER COMPONENT
@@ -47,6 +60,6 @@ private:
         flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Component>> &fb_components);
     static void InventoryToComponent( const std::shared_ptr<core::component::Component> &component,
     flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Component>> &fb_components);
-
+    
 };
 } // namespace chroma::shared::packet::adapter
