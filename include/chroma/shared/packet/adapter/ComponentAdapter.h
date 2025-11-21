@@ -28,6 +28,7 @@ private:
     static void ComponentToHealth(const Game::Component* component, const std::shared_ptr<core::GameObject>& game_object);
     static void ComponentToRun(const Game::Component* component, const std::shared_ptr<core::GameObject>& game_object);
     static void ComponentToInventory(const Game::Component* component, const std::shared_ptr<core::GameObject>& game_object);
+    static void ComponentToAttack(const Game::Component* component, const std::shared_ptr<core::GameObject>& game_object);
 
     //
     // ===========================================================
@@ -56,6 +57,8 @@ private:
     static void RunToComponent(const std::shared_ptr<core::component::Component> &component,
         flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Component>> &fb_components);
     static void InventoryToComponent( const std::shared_ptr<core::component::Component> &component,
+    flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Component>> &fb_components);
+    static void AttackToComponent( const std::shared_ptr<core::component::Component> &component,
     flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Component>> &fb_components);
     
 };

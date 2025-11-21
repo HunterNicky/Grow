@@ -10,6 +10,7 @@
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/components/AudioListener.h"
 #include "chroma/shared/core/components/Run.h"
+#include "chroma/shared/core/components/Attack.h"
 #include "chroma/shared/core/components/Inventory.h"
 
 #include <memory>
@@ -152,6 +153,13 @@ public:
         auto inventory = std::make_shared<core::component::Inventory>();
         inventory->SetCapacity(capacity);
         obj_->AttachComponent(inventory);
+        return *this;   
+    }
+
+    GameObjectBuilder& AddAttack(bool is_attacking)
+    {
+        auto attack = std::make_shared<core::component::Attack>(is_attacking);
+        obj_->AttachComponent(attack);
         return *this;   
     }
 

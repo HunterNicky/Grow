@@ -10,6 +10,7 @@
 #include "chroma/shared/core/components/Coloring.h"
 #include "chroma/shared/core/components/Health.h"
 #include "chroma/shared/core/components/Run.h"
+#include "chroma/shared/core/components/Attack.h"
 #include "chroma/shared/core/components/Weapon.h"
 #include "chroma/shared/factory/WeaponFactory.h"
 #include <components_generated.h>
@@ -28,6 +29,7 @@ void ComponentAdapter::ToComponent(const std::shared_ptr<core::GameObject> &game
     HealthToComponent( game_object->GetComponent<core::component::Health>(), builder, fb_components);
     RunToComponent(game_object->GetComponent<core::component::Run>(), builder, fb_components);
     InventoryToComponent(game_object->GetComponent<core::component::Inventory>(), builder, fb_components);
+    AttackToComponent(game_object->GetComponent<core::component::Attack>(), builder, fb_components);
 }
 
 void ComponentAdapter::FromComponent(const Game::Component &component, std::shared_ptr<core::GameObject> &game_object)
@@ -53,6 +55,9 @@ void ComponentAdapter::FromComponent(const Game::Component &component, std::shar
         break;
     case Game::ComponentUnion::Inventory:
         ComponentToInventory(&component, game_object);
+        break;
+    case Game::ComponentUnion::Attack:
+        ComponentToAttack(&component, game_object);
         break;
     default:
         return;
@@ -300,6 +305,17 @@ void ComponentAdapter::ComponentToItem(const Game::Item* item,
     inventory->AddInventory(it);
 }
 
+void ComponentAdapter::AttackToComponent(const std::shared_ptr<core::component::Component> &component,
+    flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Component>> &fb_components)
+{
+    if (!component) { return; }
+    const auto attack = std::static_pointer_cast<core::component::Attack>(component);
+    const auto fb_attack = Game::CreateAttack(builder,
+        attack->IsAttacking());
+    const auto fb_component = Game::CreateComponent(builder, Game::ComponentUnion::Attack, fb_attack.Union());
+    fb_components.push_back(fb_component);
+}
+
 void ComponentAdapter::RunToComponent(const std::shared_ptr<core::component::Component> &component,
     flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Component>> &fb_components)
 {
@@ -375,6 +391,22 @@ void ComponentAdapter::ItemToComponent(const std::shared_ptr<core::component::It
     );
 
     fb_items.push_back(fb_item);
+}
+
+void ComponentAdapter::ComponentToAttack(const Game::Component *component,
+    const std::shared_ptr<core::GameObject> &game_object)
+{
+    const auto *fb_attack = component->type_as_Attack();
+    if (fb_attack == nullptr) { return; }
+
+    auto attack = game_object->GetComponent<core::component::Attack>();
+    if (!attack) {
+        auto new_attack = std::make_shared<core::component::Attack>(false);
+        game_object->AttachComponent(new_attack);
+        attack = new_attack;
+    }
+
+    attack->SetAttacking(fb_attack->attack());
 }
 
 } // namespace chroma::shared::packet::adapter

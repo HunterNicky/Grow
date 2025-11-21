@@ -25,6 +25,7 @@ enum class ComponentType : uint8_t {
   ITEM = 11,
   INVENTORY = 12,
   WEAPON = 13,
+  ATTACK = 14,
 };
 
 class Component
