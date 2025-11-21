@@ -15,12 +15,11 @@ MenuPanel::MenuPanel(Rectangle bounds) : Panel("Menu", bounds) { CreateWidgets()
 
 void MenuPanel::CreateWidgets()
 {
-  float default_width = 200;
-  float default_height = 50;
-  float padding = 20;
-  float start_x = bounds_.x + 50;
+  const float default_width = 200;
+  const float default_height = 50;
+  const float padding = 20;
+  const float start_x = bounds_.x + 50;
   float start_y = bounds_.y + 80;
-
 
   auto singleplayer_button = std::make_unique<client::ui::widget::Button>(
     "Play_Singleplayer", Rectangle{ start_x, start_y, default_width, default_height }, "Play SinglePlayer");
@@ -35,8 +34,7 @@ void MenuPanel::CreateWidgets()
   start_y += default_height + padding;  
   auto exit_button = std::make_unique<client::ui::widget::Button>(
     "Exit", Rectangle{ start_x, start_y, default_width, default_height }, "Exit");
-  start_y += default_height + padding;
-
+  
   auto on_click_callback = [this](const std::string &button_id) {
     shared::event::ui::ButtonClickEvent event(shared::event::Event::Type::ButtonClickEvent, button_id);
     shared::event::EventBus::Dispatch(event);

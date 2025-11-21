@@ -7,6 +7,8 @@
 #include "chroma/client/render/Renderer.h"
 #include "chroma/shared/events/EventCatcher.h"
 #include "chroma/shared/events/EventDispatcher.h"
+#include "chroma/shared/events/Subscription.h"
+#include "chroma/shared/events/Event.h"
 
 namespace chroma::app {
 class Application
@@ -30,6 +32,8 @@ public:
 
   static void DispatchEvent(shared::event::Event &event);
 
+  void OnEvent(shared::event::Event &event);
+
 private:
   std::unique_ptr<layer::LayerStack> layer_stack_;
   std::shared_ptr<shared::event::EventCatcher> event_catcher_;
@@ -37,5 +41,7 @@ private:
   float delta_time_;
   std::unique_ptr<client::render::Renderer> renderer_;
   std::unique_ptr<client::audio::AudioEngine> audio_;
+
+  shared::event::Subscription layer_subscription_;
 };
 }// namespace chroma::app

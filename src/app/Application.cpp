@@ -8,11 +8,11 @@
 #include "chroma/app/Application.h"
 #include "chroma/app/layers/Layer.h"
 #include "chroma/app/layers/LayerStack.h"
-//#include "chroma/app/layers/game/GameLayer.h"
-//#include "chroma/app/layers/network/NetworkLayer.h"
-//#include "chroma/app/states/GameState.h"
-//#include "chroma/app/states/mediator/GameNetworkMediator.h"
-//#include "chroma/app/states/network/NetworkState.h"
+// #include "chroma/app/layers/game/GameLayer.h"
+// #include "chroma/app/layers/network/NetworkLayer.h"
+// #include "chroma/app/states/GameState.h"
+// #include "chroma/app/states/mediator/GameNetworkMediator.h"
+// #include "chroma/app/states/network/NetworkState.h"
 #include "chroma/client/audio/AudioBridgeImpl.h"
 #include "chroma/client/audio/AudioEngine.h"
 #include "chroma/client/render/RenderBridgeImpl.h"
@@ -25,9 +25,11 @@
 #include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/render/RenderBridge.h"
 
+#include "chroma/app/layers/game/MainMenuLayer.h"
 #include "chroma/client/ui/UIManager.h"
 #include "chroma/client/ui/UIManagerBus.h"
-#include "chroma/app/layers/game/MainMenuLayer.h"
+
+#include "chroma/shared/events/layer/LayerEvent.h"
 
 namespace chroma::app {
 
@@ -57,9 +59,9 @@ void Application::Run()
     auto event_dispatcher = std::make_unique<shared::event::EventDispatcher>();
     shared::event::EventBus::SetDispatcher(event_dispatcher);
     auto ui_manager = std::make_unique<client::ui::UIManager>();
-    client::ui::UIManagerBus::SetUIManager(ui_manager); 
-    layer_stack_->SetEventPushLayer();
-    layer_stack_->SetEventPopLayer();
+    client::ui::UIManagerBus::SetUIManager(ui_manager);
+    layer_subscription_ = shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::layer::LayerEvent>(
+      [this](shared::event::Event &event) { this->OnEvent(event); });
   }
 
   auto menu_layer = std::make_unique<layer::game::MainMenuLayer>("MainMenu");
@@ -110,5 +112,10 @@ void Application::PopOverlay() const { layer_stack_->PopOverlay(); }
 void Application::DispatchEvent(shared::event::Event &event)
 {
   shared::event::EventBus::GetDispatcher()->Dispatch(event);
+}
+
+void Application::OnEvent(shared::event::Event &event)
+{
+  if (event.GetType() == shared::event::Event::Type::LayerEvent) { layer_stack_->HandleEvent(event); }
 }
 }// namespace chroma::app

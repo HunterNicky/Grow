@@ -4,11 +4,10 @@
 #include <string>
 #include <vector>
 
+#include "chroma/app/commands/CommandQueue.h"
 #include "chroma/app/layers/Layer.h"
-#include "chroma/shared/events/Subscription.h"
-#include "chroma/shared/events/layer/PushLayerEvent.h"
-#include "chroma/shared/events/layer/PopLayerEvent.h"
-#include  "chroma/app/commands/CommandQueue.h"
+#include "chroma/shared/events/layer/LayerEvent.h"
+#include "chroma/app/layers/LayerIdentifiers.h"
 
 namespace chroma::app::layer {
 class LayerStack
@@ -25,19 +24,12 @@ public:
   void UpdateLayers(float delta_time) const;
   void UpdateFixedLayers(float fixed_delta_time) const;
   void RenderLayers() const;
-  void HandleEvent(shared::event::Event &event) const;
+  void HandleEvent(shared::event::Event &event);
+  void PushLayerEvent(const LayerID layer_id);
 
   [[nodiscard]] Layer *GetLayer(const std::string &name) const;
 
-    void SetEventPushLayer();
-    void SetEventPopLayer();
-    void PushLayerEvent(const shared::event::layer::PushLayerEvent &event);
-    void PopLayerEvent(const shared::event::layer::PopLayerEvent &event);
-
 private:
-
-  shared::event::Subscription push_layer_subscription_;
-  shared::event::Subscription pop_layer_subscription_;
   std::vector<std::unique_ptr<Layer>> layers_;
   std::vector<std::unique_ptr<Layer>> overlays_;
   std::unique_ptr<app::command::CommandQueue> command_queue_;

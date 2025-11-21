@@ -6,7 +6,7 @@
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/Subscription.h"
 
-namespace chroma::app::layer::state::menu {
+namespace chroma::app::states::menu {
 class OptionsMenuState : public states::State
 {
 public:

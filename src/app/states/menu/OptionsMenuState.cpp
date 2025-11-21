@@ -2,17 +2,17 @@
 #include <string>
 
 #include "chroma/app/states/State.h"
+#include "chroma/app/states/StateIdentifiers.h"
 #include "chroma/app/states/menu/OptionsMenuState.h"
 #include "chroma/client/ui/panels/OptionsMenuPanel.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
-#include "chroma/shared/events/state/PopStateEvent.h"
-#include "chroma/shared/events/state/PushStateEvent.h"
+#include "chroma/shared/events/state/StateEvent.h"
 #include "chroma/shared/events/ui/ButtonClickEvent.h"
 #include "chroma/shared/events/ui/PanelCloseEvent.h"
 #include "chroma/shared/events/ui/PanelOpenEvent.h"
 
-namespace chroma::app::layer::state::menu {
+namespace chroma::app::states::menu {
 OptionsMenuState::OptionsMenuState() : State("OptionsMenu")
 {
   shared::event::ui::PanelOpenEvent panel_open_ev("Options");
@@ -47,9 +47,9 @@ void OptionsMenuState::OnEvent(shared::event::Event &event)
     shared::event::ui::PanelOpenEvent panel_open_event("AudioOptions");
     shared::event::EventBus::Dispatch(panel_open_event);
   } else if (btn_event.GetId() == "Back") {
-    shared::event::state::PopStateEvent pop_event;
+    shared::event::state::StateEvent pop_event(shared::event::state::Action::Pop);
     shared::event::EventBus::Dispatch(pop_event);
-    shared::event::state::PushStateEvent push_event("Menu");
+    shared::event::state::StateEvent push_event(shared::event::state::Action::Push, StateID::MainMenuState);
     shared::event::EventBus::Dispatch(push_event);
   } else if (btn_event.GetId() == "VideoBack") {
     shared::event::ui::PanelCloseEvent panel_close_event("VideoOptions");
@@ -63,4 +63,4 @@ void OptionsMenuState::OnEvent(shared::event::Event &event)
     shared::event::EventBus::Dispatch(panel_open_event);
   }
 }
-}// namespace chroma::app::layer::state::menu
+}// namespace chroma::app::states::menu

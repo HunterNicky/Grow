@@ -2,18 +2,19 @@
 #include <string>
 
 #include "chroma/app/states/State.h"
+#include "chroma/app/states/StateIdentifiers.h"
 #include "chroma/app/states/menu/MainMenuState.h"
 #include "chroma/client/ui/panels/MenuPanel.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
-#include "chroma/shared/events/state/PopStateEvent.h"
-#include "chroma/shared/events/state/PushStateEvent.h"
+#include "chroma/shared/events/layer/LayerEvent.h"
+#include "chroma/shared/events/state/StateEvent.h"
 #include "chroma/shared/events/ui/ButtonClickEvent.h"
 #include "chroma/shared/events/ui/PanelCloseEvent.h"
 #include "chroma/shared/events/ui/PanelOpenEvent.h"
-#include "chroma/shared/events/layer/PushLayerEvent.h"
+#include "chroma/app/layers/LayerIdentifiers.h"
 
-namespace chroma::app::layer::state::menu {
+namespace chroma::app::states::menu {
 MainMenuState::MainMenuState() : State("Menu")
 {
   shared::event::ui::PanelOpenEvent panel_open_ev("Menu");
@@ -37,17 +38,15 @@ void MainMenuState::OnEvent(shared::event::Event &event)
 {
   auto btn_event = dynamic_cast<shared::event::ui::ButtonClickEvent &>(event);
   if (btn_event.GetId() == "Play_Singleplayer") {
-    std::cout << "MainMenuState recebeu evento para Play_Singleplayer" << '\n';
-    shared::event::layer::PushLayerEvent push_layer_event("SinglePlayerGameLayer");
+    shared::event::layer::LayerEvent push_layer_event(shared::event::layer::Action::Push, layer::LayerID::GameLayer);
     shared::event::EventBus::Dispatch(push_layer_event);
   } else if (btn_event.GetId() == "Play_Multiplayer") {
-    std::cout << "MainMenuState recebeu evento para Play_Multiplayer" << '\n';
-    shared::event::layer::PushLayerEvent push_layer_event("MultiPlayerGameLayer");
+    shared::event::layer::LayerEvent push_layer_event(shared::event::layer::Action::Push, layer::LayerID::NetworkLayer);
     shared::event::EventBus::Dispatch(push_layer_event);
   } else if (btn_event.GetId() == "Options") {
-    shared::event::state::PopStateEvent pop_event;
+    shared::event::state::StateEvent pop_event(shared::event::state::Action::Pop);
     shared::event::EventBus::Dispatch(pop_event);
-    shared::event::state::PushStateEvent push_event("Options");
+    shared::event::state::StateEvent push_event(shared::event::state::Action::Push, StateID::OptionsMenuState);
     shared::event::EventBus::Dispatch(push_event);
   } else if (btn_event.GetId() == "Exit") {
     std::cout << "MainMenuState recebeu evento para Exit" << '\n';
