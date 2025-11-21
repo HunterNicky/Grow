@@ -19,7 +19,11 @@
 namespace chroma::app::layer {
 LayerStack::LayerStack() : command_queue_(std::make_unique<command::CommandQueue>()) {}
 
-void LayerStack::PushLayer(std::unique_ptr<Layer> layer) { layers_.emplace_back(std::move(layer)); }
+void LayerStack::PushLayer(std::unique_ptr<Layer> layer)
+{
+  layer->OnAttach();
+  layers_.emplace_back(std::move(layer));
+}
 
 void LayerStack::PopLayer()
 {

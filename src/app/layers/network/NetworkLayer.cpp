@@ -12,4 +12,6 @@ void NetworkLayer::OnUpdate(float delta_time)
 
   state_machine_->OnUpdate(delta_time);
 }
+
+void NetworkLayer::RegisterStates() {}
 }// namespace chroma::app::layer::network

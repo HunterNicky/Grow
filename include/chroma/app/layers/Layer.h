@@ -6,8 +6,11 @@
 
 #include "chroma/app/commands/CommandQueue.h"
 #include "chroma/app/states/State.h"
+#include "chroma/app/states/StateFactory.h"
 #include "chroma/app/states/StateMachine.h"
 #include "chroma/shared/events/Event.h"
+#include "chroma/shared/events/Subscription.h"
+#include "chroma/shared/events/state/StateEvent.h"
 
 namespace chroma::app::layer {
 class Layer
@@ -29,6 +32,8 @@ public:
 
   virtual void OnEvent(shared::event::Event &event);
 
+  void OnStateEvent(shared::event::state::StateEvent &state_event);
+
   [[nodiscard]] const std::string &GetName() const;
   [[nodiscard]] bool IsActive() const;
   void SetActive(bool active);
@@ -38,11 +43,15 @@ public:
 
   [[nodiscard]] std::shared_ptr<states::State> GetCurrentState();
 
+  virtual void RegisterStates() = 0;
+
 protected:
   std::string name_;
   bool active_;
 
   std::unique_ptr<states::StateMachine> state_machine_;
+  states::StateFactory state_factory_;
   std::unique_ptr<app::command::CommandQueue> command_queue_;
+  shared::event::Subscription state_sub_;
 };
 }// namespace chroma::app::layer

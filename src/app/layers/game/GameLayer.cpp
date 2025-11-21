@@ -25,4 +25,6 @@ void GameLayer::OnRender()
   if (current_state) { current_state->OnRender(); }
 }
 
+void GameLayer::RegisterStates() {}
+
 }// namespace chroma::app::layer::game
