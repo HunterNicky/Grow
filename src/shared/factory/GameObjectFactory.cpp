@@ -28,18 +28,12 @@ namespace {
           if (entity_state == nullptr || entity_state->id() == nullptr) { return nullptr; }
           const UUIDv4::UUID entity_id(entity_state->id()->str());
            
-          auto player = builder::GameObjectBuilder<core::player::Player>()
-            .AddTransform({0,0})
+           auto player = builder::GameObjectBuilder<core::player::Player>()
             .Id(entity_id)
-            .AddSpeed(50.0F)
-            .AddMovement()
             .AddAnimation()
             .AddCamera(render::CameraMode::FollowSmooth, 3.0F, 2.0F, {64,128})
             .AddAudioListener()
-            .AddHealth(100.0F, 1.0F)
-            .AddRun(false, 1.5F)
             .NetRole(is_local_player ? core::NetRole::ROLE_AutonomousProxy : core::NetRole::ROLE_SimulatedProxy)
-            .AddInventory(10)
             .Build();
 
           player->SetupAnimation(player->GetComponent<core::component::SpriteAnimation>());

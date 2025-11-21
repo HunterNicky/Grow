@@ -21,10 +21,10 @@ void SpriteLoader::LoadSpriteAnimationFromFile(
 
     const std::string base_path = GetBasePath(file_path);
     const std::string sprite_sheet_path = base_path + j["sprite_sheet"].get<std::string>();
-
+    
     auto& animations = j["animations"];
 
-    for (auto& [anim_name, anim_data] : animations.items()) {
+    for (const auto& [anim_name, anim_data] : animations.items()) {
 
         core::component::SpriteAnimationDesc desc;
         desc.name = anim_name;

@@ -15,8 +15,12 @@ void SpriteAnimation::LoadAnimation(const std::string &name, const SpriteAnimati
 
 void SpriteAnimation::Play(const std::string &name, const bool restart)
 {
-  if (!restart && current_animation_ == name) { return; }
-  if (!animations_.contains(name)) { return; }
+  if (!restart && current_animation_ == name) {
+    return;
+  }
+  if (!animations_.contains(name)) { 
+    return;
+  }
   current_animation_ = name;
   paused_ = false;
 }

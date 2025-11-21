@@ -1,6 +1,8 @@
 #include "chroma/server/logic/ServerGameLogic.h"
 
 #include "chroma/shared/core/GameObject.h"
+#include "chroma/shared/core/components/Spear.h"
+#include "chroma/shared/core/components/Whip.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/packet/PacketHandler.h"
@@ -41,19 +43,25 @@ void ServerGameLogic::OnReceivedInputMessage(const std::shared_ptr<shared::packe
 
 std::shared_ptr<shared::core::player::Player> ServerGameLogic::CreatePlayer()
 {
-    auto player = chroma::shared::builder::GameObjectBuilder<chroma::shared::core::player::Player>()
-        .AddTransform({0,0})
-        .AddSpeed(50.0F)
-        .AddMovement()
-        .AddAnimation()
-        .AddCamera(chroma::shared::render::CameraMode::FollowSmooth, 3.0F, 2.0F, {64,128})
-        .AddAudioListener()
-        .AddHealth(100.0F, 1.0F)
-        .AddRun(false, 1.5F)
-        .AddInventory(10)
-        .NetRole(shared::core::NetRole::ROLE_Authority)
-        .Build();
+  auto player = chroma::shared::builder::GameObjectBuilder<chroma::shared::core::player::Player>()
+    .AddTransform({0,0})
+    .AddSpeed(50.0F)
+    .AddMovement()
+    .AddAnimation()
+    .AddCamera(chroma::shared::render::CameraMode::FollowSmooth, 3.0F, 2.0F, {64,128})
+    .AddAudioListener()
+    .AddHealth(100.0F, 1.0F)
+    .AddRun(false, 1.5F)
+    .AddInventory(10)
+    .NetRole(shared::core::NetRole::ROLE_Authority)
+    .Build();
 
+  auto whip = std::make_shared<chroma::shared::core::component::Whip>();
+  auto spear = std::make_shared<chroma::shared::core::component::Spear>();
+
+  player->GetComponent<shared::core::component::Inventory>()->AddInventory(spear);
+  player->GetComponent<shared::core::component::Inventory>()->AddInventory(whip);
+  player->SetCurrentWeapon(whip);
 
   player->SetupAnimation(player->GetComponent<shared::core::component::SpriteAnimation>());
 

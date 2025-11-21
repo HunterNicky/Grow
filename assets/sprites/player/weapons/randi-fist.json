@@ -1,7 +1,7 @@
 {
-    "sprite_sheet": "randi-1.png",
+    "sprite_sheet": "randi-fist.png",
     "animations": {
-        "idle_down": {
+        "fist_idle_down": {
             "loop": false,
             "frames": [
                 {
@@ -13,7 +13,7 @@
                 }
             ]
         },
-        "idle_up": {
+        "fist_idle_up": {
             "loop": false,
             "frames": [
                 {
@@ -25,7 +25,7 @@
                 }
             ]
         },
-        "idle_side": {
+        "fist_idle_side": {
             "loop": false,
             "frames": [
                 {
@@ -37,7 +37,7 @@
                 }
             ]
         },
-        "walk_down": {
+        "fist_walk_down": {
             "loop": true,
             "frames": [
                 {
@@ -84,7 +84,7 @@
                 }
             ]
         },
-        "walk_up": {
+        "fist_walk_up": {
             "loop": true,
             "frames": [
                 {
@@ -131,7 +131,7 @@
                 }
             ]
         },
-        "walk_side": {
+        "fist_walk_side": {
             "loop": true,
             "frames": [
                 {
@@ -178,7 +178,7 @@
                 }
             ]
         },
-        "punch_down": {
+        "fist_attack_down": {
             "loop": true,
             "frames": [
                 {
@@ -204,7 +204,7 @@
                 }
             ]
         },
-        "punch_up": {
+        "fist_attack_up": {
             "loop": true,
             "frames": [
                 {
@@ -230,7 +230,7 @@
                 }
             ]
         },
-        "punch_side": {
+        "fist_attack_side": {
             "loop": true,
             "frames": [
                 {
@@ -256,7 +256,7 @@
                 }
             ]
         },
-        "running_down": {
+        "fist_running_down": {
             "loop": true,
             "frames": [
                 {
@@ -310,7 +310,7 @@
                 }
             ]
         },
-        "running_up": {
+        "fist_running_up": {
             "loop": true,
             "frames": [
                 {
@@ -350,7 +350,7 @@
                 }
             ]
         },
-        "running_side": {
+        "fist_running_side": {
             "loop": true,
             "frames": [
                 {

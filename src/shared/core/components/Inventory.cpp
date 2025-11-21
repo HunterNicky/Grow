@@ -94,4 +94,68 @@ void Inventory::SetCapacity(int capacity)
     capacity_ = capacity;
 }
 
+const std::shared_ptr<Weapon>& Inventory::GetWeaponByWeaponType(WeaponType type) const {
+    for (const auto& weapon : weapons_) {
+        if (weapon->GetWeaponType() == type) {
+            return weapon;
+        }
+    }
+    static const std::shared_ptr<Weapon> null_weapon = nullptr;
+    return null_weapon;
+}
+
+const std::shared_ptr<Weapon>& Inventory::ChangeToNextWeapon() {
+    if (weapons_.empty()) {
+        current_weapon_ = nullptr;
+        return current_weapon_;
+    }
+
+    if (!current_weapon_) {
+        current_weapon_ = weapons_.front();
+        return current_weapon_;
+    }
+
+    auto it = std::ranges::find(weapons_, current_weapon_);
+
+    if(it == weapons_.end()) {
+        current_weapon_ = weapons_.front();
+        return current_weapon_;
+    }
+
+    ++it;
+    if(it == weapons_.end()) {
+        it = weapons_.begin();
+    }
+
+    current_weapon_ = *it;
+    return current_weapon_;
+}
+
+const std::shared_ptr<Weapon>& Inventory::ChangeToPreviousWeapon() {
+    if (weapons_.empty()) {
+        current_weapon_ = nullptr;
+        return current_weapon_;
+    }
+
+    if (!current_weapon_) {
+        current_weapon_ = weapons_.back();
+        return current_weapon_;
+    }
+
+    auto it = std::ranges::find(weapons_, current_weapon_);
+
+    if(it == weapons_.end()) {
+        current_weapon_ = weapons_.back();
+        return current_weapon_;
+    }
+
+    if(it == weapons_.begin()) {
+        it = weapons_.end();
+    }
+    --it;
+
+    current_weapon_ = *it;
+    return current_weapon_;
+}
+
 } // namespace chroma::shared::core::component

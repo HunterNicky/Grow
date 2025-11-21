@@ -8,6 +8,7 @@
 #include "chroma/shared/packet/adapter/ComponentAdapter.h"
 #include "chroma/shared/packet/events/InputEventMessage.h"
 #include "chroma/shared/packet/events/SoundEventMessage.h"
+#include "chroma/shared/core/components/Inventory.h"
 #include "common_generated.h"
 #include "components_generated.h"
 #include "entities_generated.h"
@@ -81,6 +82,13 @@ void PacketHandler::UpdateGameObjectWithEntityState(const Game::EntityState *ent
           adapter::ComponentAdapter::FromComponent(*component, game_object);
         }
       }
+      
+      auto inventory = player->GetComponent<core::component::Inventory>();
+      if(inventory && inventory->GetCurrentWeapon())
+      {
+        player->SetCurrentWeapon(inventory->GetCurrentWeapon());
+      }
+
     }
     break;
   }

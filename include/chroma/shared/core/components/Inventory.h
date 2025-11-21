@@ -35,6 +35,11 @@ public:
     [[nodiscard]] const std::shared_ptr<Item>& GetCurrentItem() const;
     [[nodiscard]] const std::shared_ptr<Weapon>& GetCurrentWeapon() const;
 
+    [[nodiscard]] const std::shared_ptr<Weapon>& GetWeaponByWeaponType(WeaponType type) const;
+
+    const std::shared_ptr<Weapon>& ChangeToNextWeapon();
+    const std::shared_ptr<Weapon>& ChangeToPreviousWeapon();
+
 private:
     int capacity_;
     std::vector<std::shared_ptr<Item>> items_;

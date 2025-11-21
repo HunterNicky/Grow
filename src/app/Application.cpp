@@ -103,8 +103,9 @@ void Application::Run()
 }
 
 void Application::Initialize() {
-  shared::render::GetRenderBridge()->LoadSprite("assets/sprites/player/randi-1.png");
+  shared::render::GetRenderBridge()->LoadSprite("assets/sprites/player/weapons/randi-fist.png");
   shared::render::GetRenderBridge()->LoadSprite("assets/sprites/player/weapons/randi-spear.png");
+  shared::render::GetRenderBridge()->LoadSprite("assets/sprites/player/weapons/randi-whip.png");
 }
 
 void Application::Shutdown() {}

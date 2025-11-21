@@ -34,10 +34,7 @@ private:
     // FLATBUFFER COMPONENT --> GAME OBJECT COMPONENT HELPERS
     // ===========================================================
     //
-    static void ComponentToWeapon(const Game::Weapon* weapon, const std::shared_ptr<core::component::Inventory>& inventory);
     static void ComponentToItem(const Game::Item* item, const std::shared_ptr<core::component::Inventory>& inventory);
-    static void WeaponToComponent(const std::shared_ptr<core::component::Weapon>& weapon,
-      flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Weapon>> &fb_weapon);
     static void ItemToComponent(const std::shared_ptr<core::component::Item>& item,
       flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Item>> &fb_items);
    

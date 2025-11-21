@@ -7,7 +7,8 @@
       SWORD = 1,
       BOW = 2,
       AXE = 3,
-      SPEAR = 4
+      SPEAR = 4,
+      WHIP = 5
     }
 
     table Position { pos:Vec2; }
@@ -17,7 +18,7 @@
     table Health { current_health: float; max_health: float; }
     table Facing { angle:float; }
     table Run { running:bool; factor_speed:float; }
-    table Weapon {weapon_type: WeaponType; damage: int32; range: float; weight: float; cooldown:float; }
+    table Weapon {weapon_type: WeaponType; damage: int32; range: float; weight: float; cooldown:float; last_attack_time: float; }
     table Item { name: string; description: string; weight: float; }
     table Inventory {capacity: uint8; weapons: [Weapon]; itens: [Item]; current_weapon: Weapon; current_item: Item; }
 

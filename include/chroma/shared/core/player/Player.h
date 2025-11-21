@@ -26,8 +26,6 @@ public:
   void OnRender() override;
   void HandleEvent(const event::Event &event) override;
 
-  void UpdateAnimationFromDirection(Vector2 dir);
-
   static void SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &anim_component);
   std::shared_ptr<GameObject> Clone() override;
 
