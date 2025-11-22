@@ -3,8 +3,8 @@
 #include "chroma/shared/core/components/Weapon.h"
 
 namespace chroma::shared::core::component {
-class Whip : public Weapon {
+class Javelin : public Weapon {
 public:
-    Whip();
+    Javelin();
 };
 } // namespace chroma::shared::core::component

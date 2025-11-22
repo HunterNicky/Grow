@@ -3,3 +3,17 @@ namespace Game;
 table Vec2 { x:float; y:float; }
 
 table Color { r:int8; g:int8; b:int8; a:int8; }
+
+enum WeaponType : uint8 {
+FIST = 0,
+SWORD = 1,
+BOW = 2,
+AXE = 3,
+SPEAR = 4,
+JAVELIN = 5
+}
+
+enum TypeProjectile : uint8 {
+ARROW = 0,
+JAVELIN = 1,
+}

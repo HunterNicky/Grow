@@ -2,8 +2,9 @@
 
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/Spear.h"
-#include "chroma/shared/core/components/Whip.h"
+#include "chroma/shared/core/components/Javelin.h"
 #include "chroma/shared/core/player/Player.h"
+#include "chroma/shared/core/projectile/Projectile.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/packet/PacketHandler.h"
 #include "chroma/shared/packet/events/InputEventMessage.h"
@@ -53,15 +54,16 @@ std::shared_ptr<shared::core::player::Player> ServerGameLogic::CreatePlayer()
     .AddHealth(100.0F, 1.0F)
     .AddRun(false, 1.5F)
     .AddInventory(10)
-    .NetRole(shared::core::NetRole::ROLE_Authority)
+    .AddAttack(false)
+    .NetRole(shared::core::NetRole::AUTHORITY)
     .Build();
 
-  auto whip = std::make_shared<chroma::shared::core::component::Whip>();
+  auto javelin = std::make_shared<chroma::shared::core::component::Javelin>();
   auto spear = std::make_shared<chroma::shared::core::component::Spear>();
 
   player->GetComponent<shared::core::component::Inventory>()->AddInventory(spear);
-  player->GetComponent<shared::core::component::Inventory>()->AddInventory(whip);
-  player->SetCurrentWeapon(whip);
+  player->GetComponent<shared::core::component::Inventory>()->AddInventory(javelin);
+  player->SetCurrentWeapon(javelin);
 
   player->SetupAnimation(player->GetComponent<shared::core::component::SpriteAnimation>());
 
@@ -82,6 +84,26 @@ std::vector<flatbuffers::Offset<Game::EntityState>> ServerGameLogic::GetEntities
   flatbuffers::FlatBufferBuilder &builder) const
 {
   return shared::packet::PacketHandler::GameObjectsToFlatBufferEntities(builder, game_objects_);
+}
+
+void ServerGameLogic::OnReceivedProjectileMessage(const std::shared_ptr<shared::packet::ProjectileMessage> &projectile_message)
+{
+    auto event = projectile_message->GetProjectileEvent();
+    if (!event) {
+        return;
+    }
+
+    auto projectile = chroma::shared::builder::GameObjectBuilder<chroma::shared::core::projectile::Projectile>()
+    .Id(event->GetProjectileId())
+    .AddTransform(event->GetPosition())
+    .AddMovement(event->GetDirection())
+    .AddSpeed(event->GetSpeed())
+    .AddAnimation()
+    .AddProjectileType(event->GetProjectileType())
+    .NetRole(shared::core::NetRole::AUTHORITY)
+    .Build();
+    
+    game_objects_.emplace(projectile->GetId(), projectile);
 }
 
 }// namespace chroma::server::logic

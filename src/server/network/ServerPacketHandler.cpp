@@ -8,6 +8,11 @@ std::shared_ptr<shared::packet::InputMessage> ServerPacketHandler::EventToInputM
     return shared::packet::PacketHandler::EventToInputMessage(evt);
 }
 
+std::shared_ptr<shared::packet::ProjectileMessage> ServerPacketHandler::EventToProjectileMessage(const Game::Event *evt)
+{
+    return shared::packet::PacketHandler::EventToProjectileMessage(evt);
+}
+
 std::vector<flatbuffers::Offset<Game::EntityState>> ServerPacketHandler::GameObjectsToFlatBufferEntities(
 flatbuffers::FlatBufferBuilder &builder,
 const std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>> &objects)

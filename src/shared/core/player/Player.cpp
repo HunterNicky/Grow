@@ -2,8 +2,10 @@
 
 #include "chroma/shared/audio/AudioBridge.h"
 #include "chroma/shared/core/GameObject.h"
+#include "chroma/shared/core/components/Attack.h"
 #include "chroma/shared/core/components/Health.h"
 #include "chroma/shared/core/components/Movement.h"
+#include "chroma/shared/core/components/ProjectileType.h"
 #include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/components/Transform.h"
@@ -14,10 +16,13 @@
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/InputState.h"
 #include "chroma/shared/events/KeyEvent.h"
+#include "chroma/shared/events/ProjectileEvent.h"
 #include "chroma/shared/events/SoundEvent.h"
 #include "chroma/shared/render/RenderBridge.h"
 #include "chroma/shared/render/SpriteLoader.h"
 #include "chroma/shared/core/components/Run.h"
+#include "chroma/shared/utils/UUID.h"
+
 
 #include <cmath>
 #include <memory>
@@ -33,7 +38,7 @@ void Player::SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &a
 {
     render::SpriteLoader::LoadSpriteAnimationFromFile(anim_component, "assets/sprites/player/weapons/randi-fist.json");
     render::SpriteLoader::LoadSpriteAnimationFromFile(anim_component, "assets/sprites/player/weapons/randi-spear.json");
-    render::SpriteLoader::LoadSpriteAnimationFromFile(anim_component, "assets/sprites/player/weapons/randi-whip.json");
+    render::SpriteLoader::LoadSpriteAnimationFromFile(anim_component, "assets/sprites/player/weapons/randi-javelin.json");
 
     anim_component->Play("fist_idle_down", false);
 }
@@ -43,7 +48,8 @@ Player::~Player() = default;
 void Player::AnimationState(const Vector2 dir, const float magnitude)
 {
   std::string mode = "fist_";
-
+  
+  const auto attack_comp = GetComponent<component::Attack>();
   auto inventory = GetComponent<component::Inventory>();
   if(inventory)
   {
@@ -60,6 +66,12 @@ void Player::AnimationState(const Vector2 dir, const float magnitude)
         step_timer_ = 0.0F;
         was_moving_ = false;
       }
+      
+      if(attack_comp && attack_comp->IsAttacking()) {
+        AnimateAttack(mode, last_facing_);
+        return;
+      }
+      
       switch (last_facing_) {
       case FacingDir::Up:
         anim->Play( mode + "idle_up", false);
@@ -76,26 +88,48 @@ void Player::AnimationState(const Vector2 dir, const float magnitude)
       bool run = false;
 
       const auto run_comp = GetComponent<component::Run>();
-      if(run_comp)
-      {
-          run = run_comp->IsRunning();
-      }
+      if(run_comp) { run = run_comp->IsRunning(); }
       
       std::string state = run ? "running_" : "walk_";
-      if (std::fabs(dir.x) > std::fabs(dir.y)) {
-        last_facing_ = FacingDir::Side;
-        last_left_ = (dir.x < 0.0F);
-        anim->Play(mode + state + "side", false);
-      } else if (dir.y < 0.0F) {
-        last_facing_ = FacingDir::Up;
-        anim->Play(mode + state + "up", false);
-      } else {
-        last_facing_ = FacingDir::Down;
-        anim->Play(mode + state + "down", false);
-      }
+      AnimateMove(mode, state, dir);
     }
   }
 }
+
+void Player::AnimateAttack(const std::string &mode, FacingDir facing_dir)
+{
+  if (const auto anim = GetComponent<component::SpriteAnimation>()) {
+    switch (facing_dir) {
+    case FacingDir::Up:
+      anim->Play( mode + "attack_up", false);
+      break;
+    case FacingDir::Down:
+      anim->Play( mode + "attack_down", false);
+      break;
+    case FacingDir::Side:
+      anim->Play( mode + "attack_side", false);
+      break;
+    }
+  }
+}
+
+void Player::AnimateMove(const std::string& mode, const std::string& state, Vector2 dir)
+{
+    if (const auto anim = GetComponent<component::SpriteAnimation>()) {
+        if (std::fabs(dir.x) > std::fabs(dir.y)) {
+            last_facing_ = FacingDir::Side;
+            last_left_ = (dir.x < 0.0F);
+            anim->Play(mode + state + "side", false);
+        } else if (dir.y < 0.0F) {
+            last_facing_ = FacingDir::Up;
+            anim->Play(mode + state + "up", false);
+        } else {
+            last_facing_ = FacingDir::Down;
+            anim->Play(mode + state + "down", false);
+        }
+    }
+}
+
 void Player::OnUpdate(float delta_time)
 {
   const auto transform = GetComponent<component::Transform>();
@@ -160,6 +194,7 @@ void Player::OnUpdate(float delta_time)
     health->Heal(10.F * delta_time);
   }
 
+  UpdateAttack(delta_time);
   AnimationState(dir, magnitude);
 
   for (const auto &[fst, snd] : components_) { snd->Update(delta_time); }
@@ -189,16 +224,6 @@ void Player::OnRender()
   const bool flip_x = (last_facing_ == FacingDir::Side) && last_left_;
 
   auto inventory = GetComponent<component::Inventory>();
-  
-  if(inventory)
-  {
-      auto weapon = inventory->GetCurrentWeapon();
-      if(weapon)
-      {
-          weapon->SetPosition(pos);
-          weapon->Render();
-      }
-  }
 
   bridge->DrawAnimation(*anim, pos, scale, rotation, WHITE, flip_x, false, { 0.5F, 0.5F });
 
@@ -218,43 +243,29 @@ void Player::HandleEvent(const event::Event &event)
   case event::Event::KeyEvent: {
     
     const auto &key_event = dynamic_cast<const event::KeyEvent &>(event);
+
     const auto movement = GetComponent<component::Movement>();
-   
     if (!movement) { return; }
    
+    const auto attack = GetComponent<component::Attack>();
+    if (!attack) { return; }
+
     input_state_.SetKeyState(key_event.GetKey(), key_event.IsPressed());
    
     Vector2 direction{ 0.0F, 0.0F };
-   
+
+    HandleDirectionInput(direction);
     GetComponent<component::Run>()->SetRunning(input_state_.IsKeyPressed(KEY_K));
-
-    if (input_state_.IsKeyPressed(KEY_W)) { direction.y -= 1.0F; }
-    if (input_state_.IsKeyPressed(KEY_S)) { direction.y += 1.0F; }
-    if (input_state_.IsKeyPressed(KEY_A)) { direction.x -= 1.0F; }
-    if (input_state_.IsKeyPressed(KEY_D)) { direction.x += 1.0F; }
-    
-
-    if(input_state_.IsKeyPressed(KEY_J))
-    {
-        auto inventory = GetComponent<component::Inventory>();
-        if(inventory)
-        {
-            const auto weapon = inventory->ChangeToPreviousWeapon();
-            SetCurrentWeapon(weapon);
-        }
-    }
-    else if(input_state_.IsKeyPressed(KEY_L))
-    {
-        auto inventory = GetComponent<component::Inventory>();
-        if(inventory)
-        {
-            const auto weapon = inventory->ChangeToNextWeapon();
-            SetCurrentWeapon(weapon);
-        }
-    }
-
     movement->SetDirection(direction);
-   
+
+    if(input_state_.IsKeyPressed(KEY_J) || input_state_.IsKeyPressed(KEY_L))
+    {
+      HandleWeaponInput();
+    }
+
+    attack->SetAttacking(input_state_.IsKeyPressed(KEY_I));
+
+
     break;
   }
   case event::Event::SoundEvent: {
@@ -271,6 +282,83 @@ void Player::HandleEvent(const event::Event &event)
   default:
     break;
   }
+}
+void Player::UpdateAttack(float delta_time)
+{
+    auto attack = GetComponent<component::Attack>();
+    if(!attack) { return; }
+
+    auto inventory = GetComponent<component::Inventory>();
+    if(!inventory) { return; }
+
+    auto current_weapon = inventory->GetCurrentWeapon();
+    if(!current_weapon) { return; }
+
+    current_weapon->SetLastAttackTime(current_weapon->GetLastAttackTime() + delta_time);
+
+    if(attack->IsAttacking())
+    {
+        float cooldown = current_weapon->GetCooldown();
+        float elapsed = current_weapon->GetLastAttackTime();
+        if(elapsed >= cooldown)
+        {
+            HandleThrowInput(current_weapon);
+            current_weapon->SetLastAttackTime(0.0F);
+        }
+    }
+}
+
+
+void Player::HandleThrowInput(const std::shared_ptr<component::Weapon>& weapon)
+{
+  auto transform = GetComponent<component::Transform>();
+  if(!transform) { return; }
+
+  Vector2 direction{ 0.0F, 0.0F };
+  
+  if(FacingDir::Up == last_facing_)
+  {
+    direction.y = -1.0F;
+  }
+  else if(FacingDir::Down == last_facing_)
+  {
+    direction.y = 1.0F;
+  }
+  else if(FacingDir::Side == last_facing_)
+  {
+    direction.x = last_left_ ? -1.0F : 1.0F;
+  }
+
+  if(weapon->GetWeaponType() == component::WeaponType::JAVELIN)
+  {
+    auto projectile_event = std::make_shared<event::ProjectileEvent>(core::component::TypeProjectile::JAVELIN, direction, 50.0F);
+    projectile_event->SetProjectileId(utils::UUID::Generate());
+    projectile_event->SetPosition(transform->GetPosition());
+    event::EventBus::Dispatch(*projectile_event);
+  }
+}
+
+void Player::HandleDirectionInput(Vector2 &direction)
+{
+  if (input_state_.IsKeyPressed(KEY_W)) { direction.y -= 1.0F; }
+  if (input_state_.IsKeyPressed(KEY_S)) { direction.y += 1.0F; }
+  if (input_state_.IsKeyPressed(KEY_A)) { direction.x -= 1.0F; }
+  if (input_state_.IsKeyPressed(KEY_D)) { direction.x += 1.0F; }
+}
+
+void Player::HandleWeaponInput()
+{
+    auto inventory = GetComponent<component::Inventory>();
+    if(!inventory) { return; }
+
+    std::shared_ptr<component::Weapon> weapon(nullptr);
+
+    if(input_state_.IsKeyPressed(KEY_J)) {
+        weapon = inventory->ChangeToPreviousWeapon();
+    } else {
+      weapon = inventory->ChangeToNextWeapon();
+    }
+    SetCurrentWeapon(weapon);
 }
 
 void Player::SetCurrentWeapon(const std::shared_ptr<component::Weapon>& weapon)

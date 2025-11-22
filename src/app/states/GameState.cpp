@@ -5,12 +5,14 @@
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/player/Player.h"
+#include "chroma/shared/core/projectile/Projectile.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/context/GameContext.h"
 #include "chroma/shared/builder/GameObjectBuilder.h"
+#include "chroma/shared/events/ProjectileEvent.h"
 #include "chroma/shared/render/RenderBridge.h"
 #include "chroma/client/render/shader/shaders/HealthPass.h"
 
@@ -37,7 +39,7 @@ GameState::GameState()
         .AddAudioListener()
         .AddHealth(100.0F, 1.0F)
         .AddRun(false, 1.5F)
-        .NetRole(shared::core::NetRole::ROLE_AutonomousProxy)
+        .NetRole(shared::core::NetRole::AUTONOMOUS)
         .AddInventory(10 )
         .Build();
 
@@ -73,8 +75,15 @@ void GameState::OnUpdate(float delta_time)
 
   if (network_mediator_) { network_mediator_->UpdateInterpolation(static_cast<uint64_t>(delta_time * 1000)); }
 
+  std::cout << "-----------------------------------------------\n";
+
   for (const auto &[uuid, obj] : *game_objects_) {
     if (obj && obj->IsActive()) { obj->OnUpdate(delta_time); }
+
+    std::cout << "[GameState] Atualizando objeto: "
+              << uuid
+              << " | Tipo = " << static_cast<int>(obj->GetTag())
+              << "\n";
   }
 }
 
@@ -101,6 +110,7 @@ void GameState::OnEvent(shared::event::Event &event)
     player->HandleEvent(event);
   }
 
+
   if (network_mediator_) { network_mediator_->AddInputEvent(event); }
 }
 
@@ -125,6 +135,28 @@ void GameState::SetEventDispatcher()
 {
   shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::KeyEvent>(
     [this](shared::event::Event &event) { this->OnEvent(event); });
+
+  shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::ProjectileEvent>(
+    [this](shared::event::Event &event) { this->HandleProjectileEvent(event); });
+}
+
+void GameState::HandleProjectileEvent(shared::event::Event &event)
+{
+    auto& projectile_event = dynamic_cast<shared::event::ProjectileEvent&>(event);
+
+    auto projectile = shared::builder::GameObjectBuilder<shared::core::projectile::Projectile>()
+        .Id(projectile_event.GetProjectileId())
+        .AddTransform(projectile_event.GetPosition())
+        .AddMovement(projectile_event.GetDirection())
+        .AddSpeed(projectile_event.GetSpeed())
+        .AddAnimation()
+        .AddProjectileType(projectile_event.GetProjectileType())
+        .NetRole(shared::core::NetRole::SIMULATED)
+        .Build();
+
+    projectile->InitAnimation();
+
+    game_objects_->emplace(projectile_event.GetProjectileId(), projectile);
 }
 
 std::shared_ptr<shared::core::player::Player> GameState::GetPlayer() const

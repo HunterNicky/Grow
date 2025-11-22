@@ -29,7 +29,7 @@ private:
     static void ComponentToRun(const Game::Component* component, const std::shared_ptr<core::GameObject>& game_object);
     static void ComponentToInventory(const Game::Component* component, const std::shared_ptr<core::GameObject>& game_object);
     static void ComponentToAttack(const Game::Component* component, const std::shared_ptr<core::GameObject>& game_object);
-
+    static void ComponentToProjectileType(const Game::Component* component, const std::shared_ptr<core::GameObject>& game_object);
     //
     // ===========================================================
     // FLATBUFFER COMPONENT --> GAME OBJECT COMPONENT HELPERS
@@ -60,6 +60,7 @@ private:
     flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Component>> &fb_components);
     static void AttackToComponent( const std::shared_ptr<core::component::Component> &component,
     flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Component>> &fb_components);
-    
+    static void ProjectileTypeToComponent( const std::shared_ptr<core::component::Component> &component,
+    flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Component>> &fb_components);
 };
 } // namespace chroma::shared::packet::adapter

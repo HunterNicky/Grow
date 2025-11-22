@@ -42,12 +42,11 @@ GameObjectType GameObject::GetTag() const { return Type_; }
 
 NetRole GameObject::GetNetRole() const { return net_role_; }
 
-bool GameObject::HasAuthority() const { return net_role_ == NetRole::ROLE_Authority; }
+bool GameObject::HasAuthority() const { return net_role_ == NetRole::AUTHORITY; }
 
-bool GameObject::IsAutonomousProxy() const { return net_role_ == NetRole::ROLE_AutonomousProxy; }
+bool GameObject::IsAutonomousProxy() const { return net_role_ == NetRole::AUTONOMOUS; }
 
-bool GameObject::IsSimulatedProxy() const { return net_role_ == NetRole::ROLE_SimulatedProxy; }
-
+bool GameObject::IsSimulatedProxy() const { return net_role_ == NetRole::SIMULATED; }
 void GameObject::AttachComponent(const std::shared_ptr<component::Component> &component)
 {
   if (component == nullptr) { return; }

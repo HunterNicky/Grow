@@ -64,7 +64,7 @@ std::string Weapon::WeaponTypeToPrefix(WeaponType type)
         case WeaponType::BOW:   return "bow";
         case WeaponType::AXE:   return "axe";
         case WeaponType::SPEAR: return "spear";
-        case WeaponType::WHIP:  return "whip";
+        case WeaponType::JAVELIN:  return "javelin";
         default: return "unknown";
     }
 }

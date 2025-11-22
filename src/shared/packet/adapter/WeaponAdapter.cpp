@@ -13,7 +13,7 @@ static Game::WeaponType ConvertWeaponType(core::component::WeaponType t)
     case core::component::WeaponType::BOW:   return Game::WeaponType::BOW;
     case core::component::WeaponType::AXE:   return Game::WeaponType::AXE;
     case core::component::WeaponType::SPEAR: return Game::WeaponType::SPEAR;
-    case core::component::WeaponType::WHIP:  return Game::WeaponType::WHIP;
+    case core::component::WeaponType::JAVELIN:  return Game::WeaponType::JAVELIN;
     default:
         return Game::WeaponType::FIST;
     }
@@ -29,8 +29,8 @@ void WeaponAdapter::ToComponent( const std::shared_ptr<core::component::Weapon>&
     case core::component::WeaponType::SPEAR:
         SpearToWeaponComponent(weapon, builder, fb_weapons);
         break;
-    case core::component::WeaponType::WHIP:
-        WhipToWeaponComponent(weapon, builder, fb_weapons);
+    case core::component::WeaponType::JAVELIN:
+        JavelinToWeaponComponent(weapon, builder, fb_weapons);
         break;
     default:
         break;
@@ -44,8 +44,8 @@ void WeaponAdapter::FromComponent( const Game::Weapon &fb_weapon, std::shared_pt
     case Game::WeaponType::SPEAR:
         WeaponComponentToSpear(fb_weapon, weapon);
         break;
-    case Game::WeaponType::WHIP:
-        WeaponComponentToWhip(fb_weapon, weapon);
+    case Game::WeaponType::JAVELIN:
+        WeaponComponentToJavelin(fb_weapon, weapon);
         break;
     default:
         break;
@@ -79,7 +79,7 @@ void WeaponAdapter::SpearToWeaponComponent( const std::shared_ptr<core::componen
     fb_weapons.push_back(fb_weapon);
 }
 
-void WeaponAdapter::WeaponComponentToWhip( const Game::Weapon &fb_weapon, std::shared_ptr<core::component::Weapon>& weapon)
+void WeaponAdapter::WeaponComponentToJavelin( const Game::Weapon &fb_weapon, std::shared_ptr<core::component::Weapon>& weapon)
 {
     weapon->SetDamage(fb_weapon.damage());
     weapon->SetRange(fb_weapon.range());
@@ -88,7 +88,7 @@ void WeaponAdapter::WeaponComponentToWhip( const Game::Weapon &fb_weapon, std::s
     weapon->SetLastAttackTime(fb_weapon.last_attack_time());
 }
 
-void WeaponAdapter::WhipToWeaponComponent( const std::shared_ptr<core::component::Weapon>& weapon,
+void WeaponAdapter::JavelinToWeaponComponent( const std::shared_ptr<core::component::Weapon>& weapon,
     flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Weapon>> &fb_weapons )
 {
     if (!weapon) { return; }

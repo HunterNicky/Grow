@@ -2,17 +2,18 @@
 
 #include "chroma/shared/packet/adapter/WeaponAdapter.h"
 
-#include "chroma/shared/core/components/Component.h"
+#include "chroma/shared/core/components/ProjectileType.h"
 #include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/core/components/Transform.h"
 #include "chroma/shared/core/components/Inventory.h"
+#include "chroma/shared/core/components/Component.h"
 #include "chroma/shared/core/components/Movement.h"
 #include "chroma/shared/core/components/Coloring.h"
 #include "chroma/shared/core/components/Health.h"
-#include "chroma/shared/core/components/Run.h"
 #include "chroma/shared/core/components/Attack.h"
 #include "chroma/shared/core/components/Weapon.h"
 #include "chroma/shared/factory/WeaponFactory.h"
+#include "chroma/shared/core/components/Run.h"
 #include <components_generated.h>
 #include <memory>
 
@@ -30,6 +31,7 @@ void ComponentAdapter::ToComponent(const std::shared_ptr<core::GameObject> &game
     RunToComponent(game_object->GetComponent<core::component::Run>(), builder, fb_components);
     InventoryToComponent(game_object->GetComponent<core::component::Inventory>(), builder, fb_components);
     AttackToComponent(game_object->GetComponent<core::component::Attack>(), builder, fb_components);
+    ProjectileTypeToComponent(game_object->GetComponent<core::component::ProjectileType>(), builder, fb_components);
 }
 
 void ComponentAdapter::FromComponent(const Game::Component &component, std::shared_ptr<core::GameObject> &game_object)
@@ -58,6 +60,9 @@ void ComponentAdapter::FromComponent(const Game::Component &component, std::shar
         break;
     case Game::ComponentUnion::Attack:
         ComponentToAttack(&component, game_object);
+        break;
+    case Game::ComponentUnion::ProjectileType:
+        ComponentToProjectileType(&component, game_object);
         break;
     default:
         return;
@@ -407,6 +412,33 @@ void ComponentAdapter::ComponentToAttack(const Game::Component *component,
     }
 
     attack->SetAttacking(fb_attack->attack());
+}
+
+void ComponentAdapter::ComponentToProjectileType(const Game::Component *component,
+    const std::shared_ptr<core::GameObject> &game_object)
+{
+    const auto *fb_proj_type = component->type_as_ProjectileType();
+    if (fb_proj_type == nullptr) { return; }
+
+    auto projectile_type = game_object->GetComponent<core::component::ProjectileType>();
+    if (!projectile_type) {
+        auto new_proj_type = std::make_shared<core::component::ProjectileType>();
+        game_object->AttachComponent(new_proj_type);
+        projectile_type = new_proj_type;
+    }
+
+    projectile_type->SetProjectileType(static_cast<core::component::TypeProjectile>(fb_proj_type->proj_type_()));
+}
+
+void ComponentAdapter::ProjectileTypeToComponent(const std::shared_ptr<core::component::Component> &component,
+    flatbuffers::FlatBufferBuilder &builder, std::vector<flatbuffers::Offset<Game::Component>> &fb_components)
+{
+    if (!component) { return; }
+    const auto projectile_type = std::static_pointer_cast<core::component::ProjectileType>(component);
+    const auto fb_proj_type = Game::CreateProjectileType(builder,
+        static_cast<Game::TypeProjectile>(projectile_type->GetProjectileType()));
+    const auto fb_component = Game::CreateComponent(builder, Game::ComponentUnion::ProjectileType, fb_proj_type.Union());
+    fb_components.push_back(fb_component);
 }
 
 } // namespace chroma::shared::packet::adapter

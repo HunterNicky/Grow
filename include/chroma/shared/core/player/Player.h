@@ -19,12 +19,19 @@ public:
   Player &operator=(Player &&) = delete;
   ~Player() override;
   void AnimationState(Vector2 dir, float magnitude);
+  void AnimateAttack(const std::string& mode, FacingDir facing_dir);
+  void AnimateMove(const std::string& mode, const std::string& state, Vector2 dir);
 
   void OnUpdate(float delta_time) override;
   void OnFixedUpdate(float fixed_delta_time) override;
   void OnCollision(const collision::CollisionEvent &event) override;
   void OnRender() override;
+  
   void HandleEvent(const event::Event &event) override;
+  void HandleDirectionInput(Vector2 &direction);
+  void HandleWeaponInput();
+  void UpdateAttack(float delta_time);
+  void HandleThrowInput(const std::shared_ptr<component::Weapon>& weapon);
 
   static void SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &anim_component);
   std::shared_ptr<GameObject> Clone() override;

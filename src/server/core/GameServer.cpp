@@ -158,7 +158,7 @@ void GameServer::BroadcastGameObjectState(const uint64_t server_time_ms)
 
     auto game_state = shared::packet::PacketHandler::GameObjectsToFlatBuffer(
       builder, game_entities, session.GetPlayerId(), server_time_ms, session.GetLastProcessedInput());
-
+    
     network_.Send(peer, game_state.data(), game_state.size(), true);
   }
 

@@ -30,12 +30,12 @@ private:
         std::vector<flatbuffers::Offset<Game::Weapon>> &fb_weapons
     );
 
-    static void WeaponComponentToWhip(
+    static void WeaponComponentToJavelin(
         const Game::Weapon &fb_weapon,
         std::shared_ptr<core::component::Weapon>& weapon
     );
 
-    static void WhipToWeaponComponent(
+    static void JavelinToWeaponComponent(
         const std::shared_ptr<core::component::Weapon>& weapon,
         flatbuffers::FlatBufferBuilder &builder,
         std::vector<flatbuffers::Offset<Game::Weapon>> &fb_weapons

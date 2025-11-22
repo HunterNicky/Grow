@@ -2,6 +2,7 @@
 
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/player/Player.h"
+#include "chroma/shared/core/projectile/Projectile.h"
 #include "chroma/shared/builder/GameObjectBuilder.h"
 
 #include "entities_generated.h"
@@ -33,11 +34,26 @@ namespace {
             .AddAnimation()
             .AddCamera(render::CameraMode::FollowSmooth, 3.0F, 2.0F, {64,128})
             .AddAudioListener()
-            .NetRole(is_local_player ? core::NetRole::ROLE_AutonomousProxy : core::NetRole::ROLE_SimulatedProxy)
+            .NetRole(is_local_player ? core::NetRole::AUTONOMOUS : core::NetRole::SIMULATED)
             .Build();
 
           player->SetupAnimation(player->GetComponent<core::component::SpriteAnimation>());
           return player;
+        });
+    }
+    if (!reg.contains(Game::GameObjectType::Projectile)) {
+      reg.emplace(Game::GameObjectType::Projectile,
+        [](const Game::EntityState *entity_state, const bool /*is_local_player*/) -> std::shared_ptr<core::GameObject> {
+          if (entity_state == nullptr || entity_state->id() == nullptr) { return nullptr; }
+          const UUIDv4::UUID entity_id(entity_state->id()->str());
+
+          auto projectile = builder::GameObjectBuilder<core::projectile::Projectile>()
+            .Id(entity_id)
+            .AddAnimation()
+            .NetRole(core::NetRole::SIMULATED)
+            .Build();
+
+          return projectile;
         });
     }
   }

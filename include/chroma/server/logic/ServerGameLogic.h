@@ -11,7 +11,8 @@
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/packet/events/InputEventMessage.h"
-#include "game_generated.h"
+#include "chroma/shared/packet/events/ProjectileMessage.h"
+#include "entities_generated.h"
 
 namespace chroma::server::logic {
 
@@ -35,6 +36,7 @@ public:
 
   void OnReceivedInputMessage(const std::shared_ptr<shared::packet::InputMessage> &input_message,
     const UUIDv4::UUID &player_id);
+  void OnReceivedProjectileMessage(const std::shared_ptr<shared::packet::ProjectileMessage> &projectile_message);
   void HandleInput(const shared::event::Event &event, const UUIDv4::UUID &player_id);
 
   [[nodiscard]] const std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>> &

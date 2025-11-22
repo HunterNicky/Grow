@@ -12,7 +12,7 @@ namespace chroma::shared::core::component {
         BOW = 2,
         AXE = 3,
         SPEAR = 4,
-        WHIP = 5
+        JAVELIN = 5
     };
 
     class Weapon : public Component {

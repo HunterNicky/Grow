@@ -11,6 +11,7 @@
 #include "chroma/shared/core/components/AudioListener.h"
 #include "chroma/shared/core/components/Run.h"
 #include "chroma/shared/core/components/Attack.h"
+#include "chroma/shared/core/components/ProjectileType.h"
 #include "chroma/shared/core/components/Inventory.h"
 
 #include <memory>
@@ -84,9 +85,10 @@ public:
         return *this;
     }
 
-    GameObjectBuilder& AddMovement()
+    GameObjectBuilder& AddMovement(Vector2 direction = {0.0F, 0.0F})
     {
         auto movement = std::make_shared<core::component::Movement>();
+        movement->SetDirection(direction);
         obj_->AttachComponent(movement);
         return *this;
     }
@@ -160,6 +162,14 @@ public:
     {
         auto attack = std::make_shared<core::component::Attack>(is_attacking);
         obj_->AttachComponent(attack);
+        return *this;   
+    }
+
+    GameObjectBuilder& AddProjectileType(core::component::TypeProjectile projectile_type)
+    {
+        auto proj_type = std::make_shared<core::component::ProjectileType>();
+        proj_type->SetProjectileType(projectile_type);
+        obj_->AttachComponent(proj_type);
         return *this;   
     }
 

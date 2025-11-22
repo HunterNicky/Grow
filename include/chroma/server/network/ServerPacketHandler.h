@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "chroma/shared/packet/events/InputEventMessage.h"
+#include "chroma/shared/packet/events/ProjectileMessage.h"
 #include "chroma//shared/core/GameObject.h"
 
 #include "entities_generated.h"
@@ -19,6 +20,7 @@ class ServerPacketHandler
 {
 public:
   static std::shared_ptr<shared::packet::InputMessage> EventToInputMessage(const Game::Event *evt);
+  static std::shared_ptr<shared::packet::ProjectileMessage> EventToProjectileMessage(const Game::Event *evt);
 
   static std::vector<flatbuffers::Offset<Game::EntityState>> GameObjectsToFlatBufferEntities(
     flatbuffers::FlatBufferBuilder &builder,

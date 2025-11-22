@@ -15,6 +15,15 @@ table SoundEvent {
   source_id:string; // UUID string do GameObject emissor
 }
 
+table ProjectileEvent {
+  projectile_id: string;
+  type: TypeProjectile;
+  position: Vec2;
+  direction: Vec2;
+  speed: float;
+}
+
+
 table KeyEvent {
   key:uint8;
   is_pressed:bool;
@@ -27,7 +36,13 @@ table MouseEvent {
   mouse_position:Vec2;
 }
 
-union InputEvent { KeyEvent, MouseEvent }
+union InputEvent { KeyEvent, MouseEvent, ProjectileEvent }
+
+table ProjectileEventMessage {
+  seq: uint32;
+  dt: float;
+  event: ProjectileEvent;
+}
 
 table SoundEventMessage {
   seq:uint32;
@@ -42,6 +57,6 @@ table InputEventMessage {
   event:InputEvent;
 }
 
-union EventUnion { InputEventMessage, SoundEventMessage }
+union EventUnion { InputEventMessage, SoundEventMessage, ProjectileEventMessage }
 
 table Event { event:EventUnion; }
