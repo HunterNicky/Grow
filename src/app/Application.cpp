@@ -85,11 +85,8 @@ void Application::Run()
 
     renderer_->RenderFrame([&] {
       layer_stack_->RenderLayers();
-      client::ui::UIManagerBus::GetUIManager()->OnRender();
     });
 
-    // BeginDrawing();
-    // EndDrawing();
   }
   renderer_->Close();
 }

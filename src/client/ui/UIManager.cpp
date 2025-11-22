@@ -6,6 +6,7 @@
 
 #include "chroma/app/commands/CommandQueue.h"
 #include "chroma/app/commands/FunctionalCommand.h"
+#include "chroma/client/render/Window.h"
 #include "chroma/client/ui/UIContext.h"
 #include "chroma/client/ui/UIManager.h"
 #include "chroma/client/ui/panels/Panel.h"
@@ -45,7 +46,8 @@ void UIManager::OnPanelEvent(shared::event::ui::PanelEvent &panel_event)
 
 void UIManager::DoOpenPanel(const panel::PanelID panel_id)
 {
-  const Vector2 screen_size = { 1280.0F, 720.F };
+  render::RenderConfig config;
+  const Vector2 screen_size = {static_cast<float>(config.virtual_width), static_cast<float>(config.virtual_height)};
   const Vector2 panel_size = { 300.0F, 400.F };
 
   auto panel = panel_factory_.Create(panel_id, screen_size, panel_size);

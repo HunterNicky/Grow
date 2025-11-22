@@ -5,6 +5,7 @@
 #include "chroma/client/render/TextureAtlas.h"
 #include "chroma/client/render/Window.h"
 #include "chroma/client/render/animation/AnimationRenderer.h"
+#include "chroma/client/ui/UIManagerBus.h"
 
 #include <functional>
 #include <memory>
@@ -41,6 +42,7 @@ void Renderer::EndFrame() const
 
   EndMode2D();
 
+  ui::UIManagerBus::GetUIManager()->OnRender();
   RenderTarget::End();
 
   // const auto size = window_->GetVirtualSize();
@@ -88,7 +90,7 @@ void Renderer::InitializeSubsystems()
 
   render_target_ = std::make_unique<RenderTarget>(vw, vh);
 
-  camera_ = std::make_unique<Camera>(0.0F, 0.0F, vw, vh);
+  camera_ = std::make_unique<Camera>(static_cast<float>(vh) / 2.0F, static_cast<float>(vw) / 2.0F, vw, vh);
   render_queue_ = std::make_unique<RenderQueue>();
   atlas_manager_ = std::make_unique<TextureAtlas>();
   sprite_renderer_ =

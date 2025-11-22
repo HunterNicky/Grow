@@ -17,7 +17,7 @@ void Panel::OnUpdate(const float delta_time, const UIContext &context)
 
 void Panel::OnRender()
 {
-  DrawRectangleRec(bounds_, { 0, 0, 0, 0 });
+  DrawRectangleRec(bounds_, { 255, 0, 0, 255 });
   for (auto &widget : widgets_) { widget->OnRender(); }
 }
 
