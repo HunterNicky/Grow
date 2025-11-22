@@ -1,15 +1,14 @@
 #include <memory>
 #include <raylib.h>
 #include <utility>
-#include <string>
-#include <string_view>
 
 #include "chroma/client/ui/UIContext.h"
 #include "chroma/client/ui/panels/Panel.h"
 #include "chroma/client/ui/widgets/Widget.h"
+#include "chroma/client/ui/panels/PanelIdentifiers.h"
 
 namespace chroma::client::ui::panel {
-Panel::Panel(std::string id, Rectangle bounds) : bounds_(bounds), id_(std::move(id)), is_active_(true), is_visible_(true) {}
+Panel::Panel(const PanelID panel_id, Rectangle bounds) : bounds_(bounds), id_(panel_id), is_active_(true), is_visible_(true) {}
 
 void Panel::OnUpdate(const float delta_time, const UIContext &context)
 {
@@ -47,7 +46,7 @@ bool Panel::GetIsVisible() const
   return is_visible_;
 }
 
-std::string_view Panel::GetID() const
+PanelID Panel::GetID() const
 {
   return id_;
 }

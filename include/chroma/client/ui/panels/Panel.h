@@ -2,18 +2,18 @@
 
 #include <memory>
 #include <raylib.h>
-#include <vector>
 #include <string>
-#include <string_view>
+#include <vector>
 
 #include "chroma/client/ui/UIContext.h"
+#include "chroma/client/ui/panels/PanelIdentifiers.h"
 #include "chroma/client/ui/widgets/Widget.h"
 
 namespace chroma::client::ui::panel {
 class Panel
 {
 public:
-  explicit Panel(std::string id, Rectangle bounds);
+  explicit Panel(const PanelID panel_id, Rectangle bounds);
   virtual ~Panel() = default;
   void OnUpdate(const float delta_time, const UIContext &context);
   void OnRender();
@@ -22,13 +22,13 @@ public:
   void SetIsVisible(const bool is_visible);
   [[nodiscard]] bool GetIsActive() const;
   [[nodiscard]] bool GetIsVisible() const;
-  [[nodiscard]] std::string_view GetID() const;
+  [[nodiscard]] PanelID GetID() const;
 
 protected:
   Rectangle bounds_;
 
 private:
-  std::string id_;
+  PanelID id_;
   std::vector<std::unique_ptr<widget::Widget>> widgets_;
   bool is_active_;
   bool is_visible_;

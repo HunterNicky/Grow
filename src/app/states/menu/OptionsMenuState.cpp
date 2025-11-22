@@ -1,21 +1,18 @@
-#include <iostream>
-#include <string>
-
-#include "chroma/app/states/State.h"
-#include "chroma/app/states/StateIdentifiers.h"
 #include "chroma/app/states/menu/OptionsMenuState.h"
-#include "chroma/client/ui/panels/OptionsMenuPanel.h"
+#include "chroma/app/states/StateIdentifiers.h"
+#include "chroma/app/states/State.h"
+#include "chroma/client/ui/panels/PanelIdentifiers.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/state/StateEvent.h"
 #include "chroma/shared/events/ui/ButtonClickEvent.h"
-#include "chroma/shared/events/ui/PanelCloseEvent.h"
-#include "chroma/shared/events/ui/PanelOpenEvent.h"
+#include "chroma/shared/events/ui/PanelEvent.h"
 
 namespace chroma::app::states::menu {
 OptionsMenuState::OptionsMenuState() : State("OptionsMenu")
 {
-  shared::event::ui::PanelOpenEvent panel_open_ev("Options");
+  shared::event::ui::PanelEvent panel_open_ev(
+    shared::event::ui::Action::Open, client::ui::panel::PanelID::OptionsMenuPanel);
   shared::event::EventBus::Dispatch(panel_open_ev);
 
   button_click_sub_ = shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::ui::ButtonClickEvent>(
@@ -24,7 +21,8 @@ OptionsMenuState::OptionsMenuState() : State("OptionsMenu")
 
 OptionsMenuState::~OptionsMenuState()
 {
-  shared::event::ui::PanelCloseEvent panel_event("Options");
+  shared::event::ui::PanelEvent panel_event(
+    shared::event::ui::Action::Close, client::ui::panel::PanelID::OptionsMenuPanel);
   shared::event::EventBus::Dispatch(panel_event);
 }
 
@@ -36,15 +34,14 @@ void OptionsMenuState::OnEvent(shared::event::Event &event)
 {
   auto btn_event = dynamic_cast<shared::event::ui::ButtonClickEvent &>(event);
   if (btn_event.GetId() == "Video") {
-    shared::event::ui::PanelCloseEvent panel_close_event("Options");
+    shared::event::ui::PanelEvent panel_close_event(shared::event::ui::Action::Close, client::ui::panel::PanelID::OptionsMenuPanel);
     shared::event::EventBus::Dispatch(panel_close_event);
-    shared::event::ui::PanelOpenEvent panel_open_event("VideoOptions");
+    shared::event::ui::PanelEvent panel_open_event(shared::event::ui::Action::Open, client::ui::panel::PanelID::VideoOptionsPanel);
     shared::event::EventBus::Dispatch(panel_open_event);
   } else if (btn_event.GetId() == "Audio") {
-    std::cout << "OptionsMenuState recebeu evento para Audio" << '\n';
-    shared::event::ui::PanelCloseEvent panel_close_event("Options");
+    shared::event::ui::PanelEvent panel_close_event(shared::event::ui::Action::Close, client::ui::panel::PanelID::OptionsMenuPanel);
     shared::event::EventBus::Dispatch(panel_close_event);
-    shared::event::ui::PanelOpenEvent panel_open_event("AudioOptions");
+    shared::event::ui::PanelEvent panel_open_event(shared::event::ui::Action::Open, client::ui::panel::PanelID::AudioOptionsPanel);
     shared::event::EventBus::Dispatch(panel_open_event);
   } else if (btn_event.GetId() == "Back") {
     shared::event::state::StateEvent pop_event(shared::event::state::Action::Pop);
@@ -52,14 +49,14 @@ void OptionsMenuState::OnEvent(shared::event::Event &event)
     shared::event::state::StateEvent push_event(shared::event::state::Action::Push, StateID::MainMenuState);
     shared::event::EventBus::Dispatch(push_event);
   } else if (btn_event.GetId() == "VideoBack") {
-    shared::event::ui::PanelCloseEvent panel_close_event("VideoOptions");
+    shared::event::ui::PanelEvent panel_close_event(shared::event::ui::Action::Close, client::ui::panel::PanelID::VideoOptionsPanel);
     shared::event::EventBus::Dispatch(panel_close_event);
-    shared::event::ui::PanelOpenEvent panel_open_event("Options");
+    shared::event::ui::PanelEvent panel_open_event(shared::event::ui::Action::Open, client::ui::panel::PanelID::OptionsMenuPanel);
     shared::event::EventBus::Dispatch(panel_open_event);
   } else if (btn_event.GetId() == "AudioBack") {
-    shared::event::ui::PanelCloseEvent panel_close_event("AudioOptions");
+    shared::event::ui::PanelEvent panel_close_event(shared::event::ui::Action::Close, client::ui::panel::PanelID::AudioOptionsPanel);
     shared::event::EventBus::Dispatch(panel_close_event);
-    shared::event::ui::PanelOpenEvent panel_open_event("Options");
+    shared::event::ui::PanelEvent panel_open_event(shared::event::ui::Action::Open, client::ui::panel::PanelID::OptionsMenuPanel);
     shared::event::EventBus::Dispatch(panel_open_event);
   }
 }

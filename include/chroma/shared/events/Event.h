@@ -16,10 +16,9 @@ public:
     ButtonClickEvent = 5,
     PanelOpenEvent = 6,
     PanelCloseEvent = 7,
-    PopLayerEvent = 8,
-    PushLayerEvent = 9,
     StateEvent = 10,
     LayerEvent,
+    PanelEvent,
   };
 
   Event() = default;

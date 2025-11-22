@@ -1,6 +1,3 @@
-#include <memory>
-#include <string>
-
 #include "chroma/app/states/State.h"
 #include "chroma/client/ui/UIManager.h"
 #include "chroma/shared/events/Event.h"

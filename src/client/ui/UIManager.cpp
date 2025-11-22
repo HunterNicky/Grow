@@ -1,74 +1,58 @@
+#include <iostream>
 #include <memory>
 #include <raylib.h>
 #include <string>
-#include <utility>
 #include <vector>
 
 #include "chroma/app/commands/CommandQueue.h"
 #include "chroma/app/commands/FunctionalCommand.h"
 #include "chroma/client/ui/UIContext.h"
 #include "chroma/client/ui/UIManager.h"
-#include "chroma/client/ui/panels/MenuPanel.h"
-#include "chroma/client/ui/panels/OptionsMenuPanel.h"
-#include "chroma/client/ui/panels/VideoOptionsPanel.h"
 #include "chroma/client/ui/panels/Panel.h"
+#include "chroma/client/ui/panels/PanelBuilder.h"
+#include "chroma/client/ui/panels/PanelFactory.h"
+#include "chroma/client/ui/panels/PanelIdentifiers.h"
+#include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
-#include "chroma/shared/events/ui/PanelCloseEvent.h"
-#include "chroma/shared/events/ui/PanelOpenEvent.h"
-#include "chroma/client/ui/panels/AudioOptionsPanel.h"
+#include "chroma/shared/events/ui/ButtonClickEvent.h"
+#include "chroma/shared/events/ui/PanelEvent.h"
 
 namespace chroma::client::ui {
 
 UIManager::UIManager() : command_queue_(std::make_unique<app::command::CommandQueue>())
 {
-  panel_open_sub_ = shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::ui::PanelOpenEvent>(
-    [this](shared::event::ui::PanelOpenEvent &event) { this->OnOpenPanel(event); });
+  RegisterPanels();
 
-  panel_close_sub_ = shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::ui::PanelCloseEvent>(
-    [this](shared::event::ui::PanelCloseEvent &event) { this->OnClosePanel(event); });
+  panel_sub_ = shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::ui::PanelEvent>(
+    [this](shared::event::ui::PanelEvent &event) { this->OnPanelEvent(event); });
 }
 
-void UIManager::OnOpenPanel(shared::event::ui::PanelOpenEvent &event)
+void UIManager::OnPanelEvent(shared::event::ui::PanelEvent &panel_event)
 {
-  auto action = [this, panel_id = std::move(event.GetId())]() { this->DoOpenPanel(panel_id); };
-
-  command_queue_->Push(std::make_unique<app::command::FunctionalCommand>(action));
+  switch (panel_event.GetAction()) {
+  case shared::event::ui::Action::Close: {
+    auto action = [this, panel_id = panel_event.GetPanelId()]() { this->DoClosePanel(panel_id); };
+    command_queue_->Push(std::make_unique<app::command::FunctionalCommand>(action));
+    break;
+  }
+  case shared::event::ui::Action::Open: {
+    auto action = [this, panel_id = panel_event.GetPanelId()]() { this->DoOpenPanel(panel_id); };
+    command_queue_->Push(std::make_unique<app::command::FunctionalCommand>(action));
+    break;
+  }
+  }
 }
 
-void UIManager::DoOpenPanel(const std::string &panel_id)
+void UIManager::DoOpenPanel(const panel::PanelID panel_id)
 {
-  const float panel_width = 300.0F;
-  const float panel_height = 400.0F;
-  const float screen_width = 1280.0F;
-  const float screen_height = 720.0F;
+  const Vector2 screen_size = { 1280.0F, 720.F };
+  const Vector2 panel_size = { 300.0F, 400.F };
 
-  const Rectangle panel_bounds = {
-    (screen_width - panel_width) / 2.0F, (screen_height - panel_height) / 2.0F, panel_width, panel_height
-  };
-
-  if (panel_id == "Menu") {
-    auto menu_panel = std::make_shared<panel::MenuPanel>(panel_bounds);
-    panel_stack_.push_back(menu_panel);
-  } else if (panel_id == "Options") {
-    auto options_panel = std::make_shared<panel::OptionsMenuPanel>(panel_bounds);
-    panel_stack_.push_back(options_panel);
-  } else if (panel_id == "VideoOptions") {
-    auto video_options_panel = std::make_shared<panel::VideoOptionsPanel>(panel_bounds);
-    panel_stack_.push_back(video_options_panel);
-  } else if (panel_id == "AudioOptions") {
-    auto audio_options_panel = std::make_shared<panel::AudioOptionsPanel>(panel_bounds);
-    panel_stack_.push_back(audio_options_panel);
-  } 
+  auto panel = panel_factory_.Create(panel_id, screen_size, panel_size);
+  if (panel) { panel_stack_.push_back(panel); }
 }
 
-void UIManager::OnClosePanel(shared::event::ui::PanelCloseEvent &event)
-{
-  auto action = [this, panel_id = std::move(event.GetId())]() { this->DoClosePanel(panel_id); };
-
-  command_queue_->Push(std::make_unique<app::command::FunctionalCommand>(action));
-}
-
-void UIManager::DoClosePanel(const std::string &panel_id)
+void UIManager::DoClosePanel(const panel::PanelID panel_id)
 {
   std::erase_if(panel_stack_, [panel_id](auto &panel) { return panel->GetID() == panel_id; });
 }
@@ -90,4 +74,83 @@ void UIManager::OnRender() const
     if (panel->GetIsVisible()) { panel->OnRender(); }
   }
 }
+
+Rectangle UIManager::GetCenteredRect(Vector2 parent_size, float width, float height)
+{
+  return { (parent_size.x - width) / 2.0F, (parent_size.y - height) / 2.0F, width, height };
+}
+
+void UIManager::RegisterPanels()
+{
+  panel_factory_.Register(panel::PanelID::MainMenuPanel, [this](Vector2 screen_size, Vector2 panel_size) {
+    const Rectangle bounds = this->GetCenteredRect(screen_size, panel_size.x, panel_size.y);
+    auto on_click_callback = [this](const std::string &button_id) {
+      shared::event::ui::ButtonClickEvent event(shared::event::Event::Type::ButtonClickEvent, button_id);
+      shared::event::EventBus::Dispatch(event);
+    };
+
+    return panel::PanelBuilder::Create(panel::PanelID::MainMenuPanel, bounds)
+      .AddButton("Play_Singleplayer", "Play SinglePlayer", on_click_callback)
+      .AddButton("Play_Multiplayer", "Play Multiplayer", on_click_callback)
+      .AddButton("Options", "Options", on_click_callback)
+      .AddButton("Exit", "Exit", on_click_callback)
+      .Build();
+  });
+
+  panel_factory_.Register(panel::PanelID::OptionsMenuPanel, [this](Vector2 screen_size, Vector2 panel_size) {
+    const Rectangle bounds = this->GetCenteredRect(screen_size, panel_size.x, panel_size.y);
+    auto on_click_callback = [this](const std::string &button_id) {
+      shared::event::ui::ButtonClickEvent event(shared::event::Event::Type::ButtonClickEvent, button_id);
+      shared::event::EventBus::Dispatch(event);
+    };
+
+    return panel::PanelBuilder::Create(panel::PanelID::OptionsMenuPanel, bounds)
+      .AddButton("Video", "Video", on_click_callback)
+      .AddButton("Audio", "Audio", on_click_callback)
+      .AddButton("Back", "Back", on_click_callback)
+      .Build();
+  });
+
+  panel_factory_.Register(panel::PanelID::AudioOptionsPanel, [this](Vector2 screen_size, Vector2 panel_size) {
+    const Rectangle bounds = this->GetCenteredRect(screen_size, panel_size.x, panel_size.y);
+    auto on_click_callback = [this](const std::string &button_id) {
+      shared::event::ui::ButtonClickEvent event(shared::event::Event::Type::ButtonClickEvent, button_id);
+      shared::event::EventBus::Dispatch(event);
+    };
+
+    return panel::PanelBuilder::Create(panel::PanelID::AudioOptionsPanel, bounds)
+      .AddSlider("GeneralVolume", "General", 0.0F, 100.0F, 0.0F)
+      .AddSlider("MusicVolume", "Music", 0.0F, 100.0F, 0.0F)
+      .AddSlider("SFXVolume", "SFX", 0.0F, 100.0F, 0.0F)
+      .AddButton("AudioBack", "Back", on_click_callback)
+      .Build();
+  });
+
+  panel_factory_.Register(panel::PanelID::VideoOptionsPanel, [this](Vector2 screen_size, Vector2 panel_size) {
+    const Rectangle bounds = this->GetCenteredRect(screen_size, panel_size.x, panel_size.y);
+    auto on_click_callback = [this](const std::string &button_id) {
+      shared::event::ui::ButtonClickEvent event(shared::event::Event::Type::ButtonClickEvent, button_id);
+      shared::event::EventBus::Dispatch(event);
+    };
+
+    return panel::PanelBuilder::Create(panel::PanelID::VideoOptionsPanel, bounds)
+      .AddToggle("Bloom",
+        "Bloom",
+        true,
+        [](bool is_on) {
+          (void)is_on;
+          std::cout << "bloom toggle\n";
+        })
+      .AddToggle("Scanlines",
+        "Scanlines",
+        true,
+        [](bool is_on) {
+          (void)is_on;
+          std::cout << "Scanlines toggle\n";
+        })
+      .AddButton("VideoBack", "Back", on_click_callback)
+      .Build();
+  });
+}
+
 }// namespace chroma::client::ui

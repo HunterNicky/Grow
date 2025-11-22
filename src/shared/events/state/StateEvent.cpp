@@ -5,8 +5,11 @@
 #include <memory>
 
 namespace chroma::shared::event::state {
-StateEvent::StateEvent(const Action action) : Event(Type::StateEvent), action_(action), state_id_(app::states::StateID::None) {}
-StateEvent::StateEvent(const Action action, const app::states::StateID state_id) : Event(Type::StateEvent), action_(action), state_id_(state_id)
+StateEvent::StateEvent(const Action action)
+  : Event(Type::StateEvent), action_(action), state_id_(app::states::StateID::None)
+{}
+StateEvent::StateEvent(const Action action, const app::states::StateID state_id)
+  : Event(Type::StateEvent), action_(action), state_id_(state_id)
 {}
 
 app::states::StateID &StateEvent::GetStateId() { return state_id_; }

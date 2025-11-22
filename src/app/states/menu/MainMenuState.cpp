@@ -1,23 +1,22 @@
 #include <iostream>
-#include <string>
 
+#include "chroma/app/layers/LayerIdentifiers.h"
 #include "chroma/app/states/State.h"
 #include "chroma/app/states/StateIdentifiers.h"
 #include "chroma/app/states/menu/MainMenuState.h"
-#include "chroma/client/ui/panels/MenuPanel.h"
+#include "chroma/client/ui/panels/PanelIdentifiers.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/layer/LayerEvent.h"
 #include "chroma/shared/events/state/StateEvent.h"
 #include "chroma/shared/events/ui/ButtonClickEvent.h"
-#include "chroma/shared/events/ui/PanelCloseEvent.h"
-#include "chroma/shared/events/ui/PanelOpenEvent.h"
-#include "chroma/app/layers/LayerIdentifiers.h"
+#include "chroma/shared/events/ui/PanelEvent.h"
 
 namespace chroma::app::states::menu {
 MainMenuState::MainMenuState() : State("Menu")
 {
-  shared::event::ui::PanelOpenEvent panel_open_ev("Menu");
+  shared::event::ui::PanelEvent panel_open_ev(
+    shared::event::ui::Action::Open, client::ui::panel::PanelID::MainMenuPanel);
   shared::event::EventBus::Dispatch(panel_open_ev);
 
   button_click_sub_ = shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::ui::ButtonClickEvent>(
@@ -26,7 +25,8 @@ MainMenuState::MainMenuState() : State("Menu")
 
 MainMenuState::~MainMenuState()
 {
-  shared::event::ui::PanelCloseEvent panel_event("Menu");
+  shared::event::ui::PanelEvent panel_event(
+    shared::event::ui::Action::Close, client::ui::panel::PanelID::MainMenuPanel);
   shared::event::EventBus::Dispatch(panel_event);
 }
 
@@ -52,4 +52,4 @@ void MainMenuState::OnEvent(shared::event::Event &event)
     std::cout << "MainMenuState recebeu evento para Exit" << '\n';
   }
 }
-}// namespace chroma::app::layer::state::menu
+}// namespace chroma::app::states::menu
