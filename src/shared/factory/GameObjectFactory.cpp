@@ -3,6 +3,7 @@
 #include "chroma/shared/builder/GameObjectBuilder.h"
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components//SpriteAnimation.h"
+#include "chroma/shared/core/GameObjectManager.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/core/projectile/Projectile.h"
 #include "chroma/shared/render/RenderBridge.h"
@@ -28,7 +29,9 @@ namespace {
     auto &reg = Registry();
     if (!reg.contains(Game::GameObjectType::Player)) {
       reg.emplace(Game::GameObjectType::Player,
-        [](const Game::EntityState *entity_state, const bool is_local_player) -> std::shared_ptr<core::GameObject> {
+        [](const std::shared_ptr<core::GameObjectManager> &manager,
+          const Game::EntityState *entity_state,
+          const bool is_local_player) -> std::shared_ptr<core::GameObject> {
           if (entity_state == nullptr || entity_state->id() == nullptr) { return nullptr; }
           const UUIDv4::UUID entity_id(entity_state->id()->str());
 
@@ -62,7 +65,8 @@ namespace {
   }
 }// namespace
 
-std::shared_ptr<core::GameObject> GameObjectFactory::Create(const Game::EntityState *entity_state,
+std::shared_ptr<core::GameObject> GameObjectFactory::Create(const std::shared_ptr<core::GameObjectManager> &manager,
+  const Game::EntityState *entity_state,
   const bool is_local_player)
 {
   if (entity_state == nullptr || entity_state->id() == nullptr) { return nullptr; }
@@ -70,7 +74,10 @@ std::shared_ptr<core::GameObject> GameObjectFactory::Create(const Game::EntitySt
   const auto &reg = Registry();
   const auto it = reg.find(entity_state->type());
   if (it == reg.end()) { return nullptr; }
-  return it->second(entity_state, is_local_player);
+
+  auto obj = it->second(manager, entity_state, is_local_player);
+
+  return obj;
 }
 
 void GameObjectFactory::Register(const Game::GameObjectType type, Creator creator)

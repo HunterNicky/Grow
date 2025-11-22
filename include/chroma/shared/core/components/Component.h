@@ -10,7 +10,8 @@ enum class NetRole : uint8_t;
 }// namespace chroma::shared::core
 
 namespace chroma::shared::core::component {
-enum class ComponentType : uint8_t {
+enum class ComponentType : uint8_t
+{
   NONE = 0,
   TRANSFORM = 1,
   SPEED = 2,
@@ -27,6 +28,7 @@ enum class ComponentType : uint8_t {
   WEAPON = 13,
   ATTACK = 14,
   PROJECTILE_TYPE = 15,
+  COLLIDER_BOX = 9,
 };
 
 class Component

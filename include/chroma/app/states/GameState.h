@@ -2,6 +2,7 @@
 
 #include "chroma/app/states/State.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
+#include "chroma/shared/collision/CollisionManager.h"
 #include "chroma/app/states/mediator/RenderMediator.h"
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/player/Player.h"
@@ -21,8 +22,8 @@ public:
   GameState();
   ~GameState() override;
 
-  GameState(const GameState &) = default;
-  GameState &operator=(const GameState &) = default;
+  GameState(const GameState &) = delete;
+  GameState &operator=(const GameState &) = delete;
   GameState(GameState &&) noexcept = delete;
   GameState &operator=(GameState &&) noexcept = delete;
 
@@ -36,15 +37,11 @@ public:
   void SetRenderMediator(std::shared_ptr<mediator::RenderMediator> mediator);
   void SetPlayerId(const UUIDv4::UUID &player_id);
   void SetEventDispatcher();
-  void SetGameObjects(const std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>> &game_objects);
 
   [[nodiscard]] UUIDv4::UUID GetPlayerId() const;
-  [[nodiscard]] std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>> &
-    GetGameObjects();
   [[nodiscard]] std::shared_ptr<shared::core::player::Player> GetPlayer() const;
 
 private:
-  std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>> game_objects_;
   std::shared_ptr<GameNetworkMediator> network_mediator_;
   std::shared_ptr<mediator::RenderMediator> render_mediator_;
   UUIDv4::UUID player_id_;

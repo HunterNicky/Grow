@@ -1,5 +1,6 @@
 #include "chroma/app/states/network/InterpolateSystem.h"
 #include "chroma/shared/core/GameObject.h"
+#include "chroma/shared/core/GameObjectManager.h"
 #include "chroma/shared/core/components/Health.h"
 
 #include <algorithm>
@@ -12,9 +13,9 @@
 namespace chroma::app::states::network {
 
 
-void InterpolateSystem::Interpolate(
+void InterpolateSystem::OnPacketReceived(
   const std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>> &new_snapshot,
-  uint64_t delta_time)
+  const uint64_t delta_time)
 {
   if (past_game_objects_.empty()) {
     past_game_objects_ = new_snapshot;
@@ -24,7 +25,7 @@ void InterpolateSystem::Interpolate(
     return;
   }
 
-  if (!new_snapshot.empty() && new_snapshot != target_game_objects_) {
+  if (!new_snapshot.empty()) {
     past_game_objects_ = target_game_objects_;
     target_game_objects_ = new_snapshot;
     interp_elapsed_ = 0;
@@ -38,8 +39,8 @@ void InterpolateSystem::Interpolate(
 
 void InterpolateSystem::InterpolatePosition(const std::shared_ptr<shared::core::GameObject> &past_object,
   const std::shared_ptr<shared::core::GameObject> &target_object,
-  std::shared_ptr<shared::core::GameObject> &out_object,
-  float alpha) const
+  const std::shared_ptr<shared::core::GameObject> &out_object,
+  const float alpha) const
 {
   if (out_object->GetId() == player_id_) { return; }
 
@@ -70,9 +71,10 @@ uint64_t InterpolateSystem::GetTimeLastSnapshot() const { return time_last_snaps
 
 void InterpolateSystem::SetSnapshotInterval(uint64_t interval) { snapshot_interval_ = interval; }
 
-void InterpolateSystem::Update(uint64_t delta_time)
+void InterpolateSystem::Update(const std::shared_ptr<shared::core::GameObjectManager> &manager,
+  const uint64_t delta_time)
 {
-  if (!game_objects_ || past_game_objects_.empty() || target_game_objects_.empty()) { return; }
+  if (past_game_objects_.empty() || target_game_objects_.empty()) { return; }
 
   interp_elapsed_ += delta_time;
   float alpha = static_cast<float>(interp_elapsed_) / static_cast<float>(snapshot_interval_);
@@ -84,26 +86,23 @@ void InterpolateSystem::Update(uint64_t delta_time)
     if (id == player_id_) { continue; }
 
     auto past_it = past_game_objects_.find(id);
-    if (past_it != past_game_objects_.end() && past_it->second) {
-      auto interpolated = target_obj->Clone();
-      if (!interpolated) { continue; }
-      interpolated->SetNetRole(target_obj->GetNetRole());
-      InterpolatePosition(past_it->second, target_obj, interpolated, alpha);
-      InterpolateHealth(past_it->second, target_obj, interpolated, alpha);
-      (*game_objects_)[id] = interpolated;
+    std::shared_ptr<shared::core::GameObject> past_obj = nullptr;
+    if (past_it != past_game_objects_.end()) { past_obj = past_it->second; }
+
+    if (!past_obj) { past_obj = target_obj; }
+
+    if (manager->Exists(id)) {
+      auto live_obj = manager->Get(id);
+      if (live_obj) { InterpolatePosition(past_obj, target_obj, live_obj, alpha); }
     } else {
       const auto clone = target_obj->Clone();
-      if (!clone) { continue; }
-      clone->SetNetRole(target_obj->GetNetRole());
-      (*game_objects_)[id] = clone;
+      if (clone) {
+        clone->SetNetRole(target_obj->GetNetRole());
+        InterpolatePosition(past_obj, target_obj, clone, alpha);
+        manager->Register(clone);
+      }
     }
   }
-}
-
-void InterpolateSystem::SetGameObjects(
-  const std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>> &objects)
-{
-  game_objects_ = objects;
 }
 
 void InterpolateSystem::SetPlayerId(const UUIDv4::UUID &player_id) { player_id_ = player_id; }

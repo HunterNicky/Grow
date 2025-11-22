@@ -7,11 +7,13 @@
 #include <vector>
 
 #include "chroma/shared/core/GameObject.h"
+#include "chroma/shared/core/GameObjectManager.h"
 #include "chroma/shared/packet/events/InputEventMessage.h"
 #include "chroma/shared/packet/events/ProjectileMessage.h"
 #include "chroma/shared/packet/events/SoundEventMessage.h"
 #include "entities_generated.h"
 #include "events_generated.h"
+
 
 namespace chroma::shared::packet {
 
@@ -29,8 +31,7 @@ public:
     uint64_t time_lapse = 0,
     uint32_t last_processed_input = 0);
   static std::vector<flatbuffers::Offset<Game::EntityState>> GameObjectsToFlatBufferEntities(
-    flatbuffers::FlatBufferBuilder &builder,
-    const std::unordered_map<UUIDv4::UUID, std::shared_ptr<core::GameObject>> &objects);
+    flatbuffers::FlatBufferBuilder &builder);
   static std::vector<uint8_t> InputMessageToFlatBuffer(const std::shared_ptr<InputMessage> &input_message);
   static std::vector<uint8_t> SoundEventMessageToFlatBuffer(const std::shared_ptr<SoundEventMessage> &sound_message);
   static std::vector<uint8_t> ProjectileMessageToFlatBuffer(
@@ -43,8 +44,9 @@ public:
   static UUIDv4::UUID SnapshotGetUUID(const Game::Snapshot *snapshot);
   static uint32_t SnapshotGetLastProcessedInputSeq(const Game::Snapshot *snapshot);
   static uint64_t SnapshotGetTimeLapse(const Game::Snapshot *snapshot);
-  static void SnapshotToGameObjects(const Game::Snapshot *snapshot,
-    std::unordered_map<UUIDv4::UUID, std::shared_ptr<core::GameObject>> &game_objects);
+  static std::unordered_map<UUIDv4::UUID, std::shared_ptr<core::GameObject>> SnapshotToGameObjects(
+    const std::shared_ptr<core::GameObjectManager> &manager,
+    const Game::Snapshot *snapshot);
 
 
   //

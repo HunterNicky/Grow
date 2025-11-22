@@ -1,5 +1,8 @@
 #include "chroma/shared/packet/PacketHandler.h"
+#include "chroma/shared/context/GameContext.h"
+#include "chroma/shared/context/GameContextManager.h"
 #include "chroma/shared/core/GameObject.h"
+#include "chroma/shared/core/GameObjectManager.h"
 #include "chroma/shared/core/components/Inventory.h"
 #include "chroma/shared/core/components/ProjectileType.h"
 #include "chroma/shared/core/components/SpriteAnimation.h"
@@ -54,8 +57,7 @@ std::vector<uint8_t> PacketHandler::GameObjectsToFlatBuffer(flatbuffers::FlatBuf
 }
 
 std::vector<flatbuffers::Offset<Game::EntityState>> PacketHandler::GameObjectsToFlatBufferEntities(
-  flatbuffers::FlatBufferBuilder &builder,
-  const std::unordered_map<UUIDv4::UUID, std::shared_ptr<core::GameObject>> &objects)
+  flatbuffers::FlatBufferBuilder &builder)
 {
   std::vector<flatbuffers::Offset<Game::EntityState>> fb_entities;
 
@@ -65,12 +67,12 @@ std::vector<flatbuffers::Offset<Game::EntityState>> PacketHandler::GameObjectsTo
     std::vector<flatbuffers::Offset<Game::Component>> components;
     adapter::ComponentAdapter::ToComponent(object, builder, components);
 
-    const auto fb_id = builder.CreateString(object->GetId().str());
-    const auto fb_type = static_cast<Game::GameObjectType>(object->GetTag());
-    const auto fb_components = builder.CreateVector(components);
-    auto fb_entity = Game::CreateEntityState(builder, fb_id, fb_type, fb_components);
-    fb_entities.push_back(fb_entity);
-  }
+      const auto fb_id = builder.CreateString(object->GetId().str());
+      const auto fb_type = static_cast<Game::GameObjectType>(object->GetTag());
+      const auto fb_components = builder.CreateVector(components);
+      auto fb_entity = Game::CreateEntityState(builder, fb_id, fb_type, fb_components);
+      fb_entities.push_back(fb_entity);
+    });
 
   return fb_entities;
 }
@@ -199,11 +201,19 @@ uint64_t PacketHandler::SnapshotGetTimeLapse(const Game::Snapshot *snapshot)
   if (snapshot == nullptr) { return 0; }
   return snapshot->server_time();
 }
-
-void PacketHandler::SnapshotToGameObjects(const Game::Snapshot *snapshot,
-  std::unordered_map<UUIDv4::UUID, std::shared_ptr<core::GameObject>> &game_objects)
+std::unordered_map<UUIDv4::UUID, std::shared_ptr<core::GameObject>> PacketHandler::SnapshotToGameObjects(
+  const std::shared_ptr<core::GameObjectManager> &manager,
+  const Game::Snapshot *snapshot)
 {
-  if (snapshot == nullptr || snapshot->entities() == nullptr) { return; }
+  std::unordered_map<UUIDv4::UUID, std::shared_ptr<core::GameObject>> next_game_objects;
+
+  if (snapshot == nullptr || snapshot->entities() == nullptr) { return next_game_objects; }
+
+  auto current_clones = manager->CloneObjectsMap();
+
+  for (auto &[id, obj] : current_clones) {
+    next_game_objects[id] = std::move(obj);
+  }
 
   const std::string local_player_id_str =
     snapshot->player_id() != nullptr ? snapshot->player_id()->str() : std::string{};
@@ -215,11 +225,13 @@ void PacketHandler::SnapshotToGameObjects(const Game::Snapshot *snapshot,
     const bool is_local_player = (entity_state->id()->str() == local_player_id_str);
 
     std::shared_ptr<core::GameObject> game_object;
-    if (const auto it = game_objects.find(entity_id); it != game_objects.end()) {
-      game_object = it->second;
+    if (next_game_objects.contains(entity_id)) {
+      game_object = next_game_objects[entity_id];
     } else {
-      game_object = factory::GameObjectFactory::Create(entity_state, is_local_player);
-      if (game_object) { game_objects.emplace(entity_id, game_object); }
+      game_object = factory::GameObjectFactory::Create(manager, entity_state, is_local_player);
+      if (game_object) {
+        next_game_objects[entity_id] = game_object;
+      }
     }
 
     if (!game_object) { continue; }
@@ -232,6 +244,8 @@ void PacketHandler::SnapshotToGameObjects(const Game::Snapshot *snapshot,
 
     UpdateGameObjectWithEntityState(entity_state, game_object);
   }
+
+  return next_game_objects;
 }
 
 std::shared_ptr<InputMessage> PacketHandler::EventToInputMessage(const Game::Event *evt)

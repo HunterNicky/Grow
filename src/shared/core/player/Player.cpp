@@ -1,10 +1,14 @@
 #include "chroma/shared/core/player/Player.h"
 
 #include "chroma/shared/audio/AudioBridge.h"
+#include "chroma/shared/collision/CollisionManager.h"
+#include "chroma/shared/context/GameContext.h"
+#include "chroma/shared/context/GameContextManager.h"
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/Attack.h"
 #include "chroma/shared/core/components/Health.h"
 #include "chroma/shared/core/components/Inventory.h"
+#include "chroma/shared/core/components/ColliderBox.h"
 #include "chroma/shared/core/components/Movement.h"
 #include "chroma/shared/core/components/ProjectileType.h"
 #include "chroma/shared/core/components/Speed.h"
@@ -126,6 +130,7 @@ void Player::AnimateMove(const std::string &mode, const std::string &state, Vect
   }
 }
 
+
 void Player::OnUpdate(float delta_time)
 {
   const auto transform = GetComponent<component::Transform>();
@@ -222,10 +227,15 @@ void Player::OnRender()
     const Vector2 size = { .x = 30.F, .y = 4.F };
     health->DrawHealth(pos_h, size);
   }
+
+  const auto collider = GetComponent<component::ColliderBox>();
+  if (collider) { collider->Render(); }
 }
 
-void Player::HandleEvent(const event::Event &event)
+void Player::HandleEvent(event::Event &event)
 {
+  if (event.IsHandled()) { return; }
+
   switch (event.GetType()) {
   case event::Event::KeyEvent: {
 
@@ -253,13 +263,14 @@ void Player::HandleEvent(const event::Event &event)
     break;
   }
   case event::Event::SoundEvent: {
-    const auto &sound_event = dynamic_cast<const event::SoundEvent &>(event);
+    auto &sound_event = dynamic_cast<event::SoundEvent &>(event);
     if (const auto ab = audio::GetAudioBridge()) {
       ab->PlaySoundAt(sound_event.GetSoundName(),
         GetComponent<component::Transform>()->GetPosition().x,
         GetComponent<component::Transform>()->GetPosition().y,
         sound_event.GetVolume(),
         sound_event.GetPitch());
+      sound_event.SetHandled(true);
     }
     break;
   }

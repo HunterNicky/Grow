@@ -27,7 +27,7 @@ public:
   void OnCollision(const collision::CollisionEvent &event) override;
   void OnRender() override;
 
-  void HandleEvent(const event::Event &event) override;
+  void HandleEvent(event::Event &event) override;
   void HandleDirectionInput(Vector2 &direction);
   void HandleWeaponInput();
   void UpdateAttack(float delta_time);

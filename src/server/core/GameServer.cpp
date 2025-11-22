@@ -12,6 +12,7 @@
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/events/SoundEvent.h"
+#include "chroma/shared/context/GameContextManager.h"
 #include "chroma/shared/packet/PacketHandler.h"
 #include "chroma/shared/packet/events/SoundEventMessage.h"
 #include "entities_generated.h"
@@ -26,7 +27,8 @@ GameServer::GameServer()
   if (!InitServer(config_.port, config_.max_clients)) { return; }
   is_running_ = true;
 
-  // Subscribe to server-side sound events and broadcast to clients
+  GCM::Instance().CreateContext(GameContextType::Server);
+
   if (shared::event::EventBus::GetDispatcher() == nullptr) {
     auto dispatcher = std::make_unique<shared::event::EventDispatcher>();
     shared::event::EventBus::SetDispatcher(dispatcher);
