@@ -15,6 +15,8 @@
 #include "chroma/app/states/network/NetworkState.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/layer/LayerEvent.h"
+#include "chroma/shared/events/ui/PanelEvent.h"
+#include "chroma/shared/events/EventBus.h"
 
 namespace chroma::app::layer {
 LayerStack::LayerStack() : command_queue_(std::make_unique<command::CommandQueue>()) {}
@@ -106,6 +108,10 @@ void LayerStack::PushLayerEvent(const LayerID layer_id)
     auto game_state = std::make_shared<states::GameState>();
     auto game_layer = std::make_unique<layer::game::GameLayer>();
     game_layer->PushState(game_state);
+
+    shared::event::ui::PanelEvent bg_main( shared::event::ui::Action::Close, client::ui::panel::PanelID::MainBackgroundPanel);
+    shared::event::EventBus::Dispatch(bg_main);
+
     if (!layers_.empty()) { layers_.pop_back(); }
     PushLayer(std::move(game_layer));
     break;
@@ -125,6 +131,9 @@ void LayerStack::PushLayerEvent(const LayerID layer_id)
 
     network_layer->PushState(network_state);
     game_layer->PushState(game_state);
+
+    shared::event::ui::PanelEvent bg_main( shared::event::ui::Action::Close, client::ui::panel::PanelID::MainBackgroundPanel);
+    shared::event::EventBus::Dispatch(bg_main);
 
     if (!layers_.empty()) { layers_.pop_back(); }
     PushLayer(std::move(network_layer));

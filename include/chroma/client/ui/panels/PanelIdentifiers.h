@@ -7,5 +7,6 @@ namespace chroma::client::ui::panel {
     OptionsMenuPanel,
     AudioOptionsPanel,
     VideoOptionsPanel,
+    MainBackgroundPanel
   };
 }

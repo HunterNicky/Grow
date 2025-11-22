@@ -16,7 +16,7 @@ Window::Window(const int width, const int height, const char *title)
   monitor_size_ = { .width = GetMonitorWidth(monitor), .height = GetMonitorHeight(monitor) };
   windowed_pos_ = GetWindowPosition();
 
-  // FixMouseScale();
+  FixMouseScale();
 }
 
 Window::~Window()
@@ -28,7 +28,7 @@ void Window::Update()
 {
   if (IsWindowResized()) {
     actual_window_size_ = { .width = GetScreenWidth(), .height = GetScreenHeight() };
-    // FixMouseScale();
+    FixMouseScale();
 
     if (display_mode_ == DisplayMode::Windowed) { windowed_size_ = actual_window_size_; }
   }
@@ -62,7 +62,7 @@ void Window::SetDisplayMode(const DisplayMode mode)
 void Window::SetVirtualResolution(const int width, const int height)
 {
   virtual_size_ = { .width = width, .height = height };
-  // FixMouseScale();
+  FixMouseScale();
 }
 
 void Window::SetMinimumSize(const int width, const int height) { SetWindowMinSize(width, height); }
@@ -85,7 +85,7 @@ void Window::FullScreen()
     ToggleFullscreen();
 
     actual_window_size_ = monitor_size_;
-    // FixMouseScale();
+    FixMouseScale();
   }
 }
 
@@ -118,7 +118,7 @@ void Window::Resize(const int width, const int height)
 {
   actual_window_size_ = { .width = width, .height = height };
   SetWindowSize(width, height);
-  // FixMouseScale();
+  FixMouseScale();
 }
 
 void Window::FixMouseScale() const

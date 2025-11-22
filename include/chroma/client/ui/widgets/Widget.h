@@ -15,6 +15,9 @@ public:
   virtual void OnUpdate(const float delta_time, const UIContext &context) = 0;
   virtual void OnRender() = 0;
 
+  void SetBounds(const Rectangle &bounds);
+  [[nodiscard]] Rectangle GetBounds() const;
+
 protected:
   std::string id_;
   Rectangle bounds_;

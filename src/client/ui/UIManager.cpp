@@ -48,7 +48,7 @@ void UIManager::DoOpenPanel(const panel::PanelID panel_id)
 {
   render::RenderConfig config;
   const Vector2 screen_size = {static_cast<float>(config.virtual_width), static_cast<float>(config.virtual_height)};
-  const Vector2 panel_size = { 300.0F, 400.F };
+  Vector2 panel_size = { static_cast<float>(config.virtual_width), static_cast<float>(config.virtual_height) };
 
   auto panel = panel_factory_.Create(panel_id, screen_size, panel_size);
   if (panel) { panel_stack_.push_back(panel); }
@@ -86,6 +86,7 @@ void UIManager::RegisterPanels()
 {
   panel_factory_.Register(panel::PanelID::MainMenuPanel, [this](Vector2 screen_size, Vector2 panel_size) {
     const Rectangle bounds = this->GetCenteredRect(screen_size, panel_size.x, panel_size.y);
+    (void) panel_size;
     auto on_click_callback = [this](const std::string &button_id) {
       shared::event::ui::ButtonClickEvent event(shared::event::Event::Type::ButtonClickEvent, button_id);
       shared::event::EventBus::Dispatch(event);
@@ -96,6 +97,19 @@ void UIManager::RegisterPanels()
       .AddButton("Play_Multiplayer", "Play Multiplayer", on_click_callback)
       .AddButton("Options", "Options", on_click_callback)
       .AddButton("Exit", "Exit", on_click_callback)
+      .CenterPanel()
+      .Build();
+  });
+
+  panel_factory_.Register(panel::PanelID::MainBackgroundPanel, [this](Vector2 screen_size, Vector2 panel_size) {
+    const Rectangle bounds = this->GetCenteredRect(screen_size, panel_size.x, panel_size.y);
+    auto on_click_callback = [this](const std::string &button_id) {
+      shared::event::ui::ButtonClickEvent event(shared::event::Event::Type::ButtonClickEvent, button_id);
+      shared::event::EventBus::Dispatch(event);
+    };
+
+    return panel::PanelBuilder::Create(panel::PanelID::MainBackgroundPanel, bounds)
+      .AddBackgroundTexture("assets/backgrounds/main.png")
       .Build();
   });
 
@@ -110,6 +124,7 @@ void UIManager::RegisterPanels()
       .AddButton("Video", "Video", on_click_callback)
       .AddButton("Audio", "Audio", on_click_callback)
       .AddButton("Back", "Back", on_click_callback)
+      .CenterPanel()
       .Build();
   });
 
@@ -125,6 +140,7 @@ void UIManager::RegisterPanels()
       .AddSlider("MusicVolume", "Music", 0.0F, 100.0F, 0.0F)
       .AddSlider("SFXVolume", "SFX", 0.0F, 100.0F, 0.0F)
       .AddButton("AudioBack", "Back", on_click_callback)
+      .CenterPanel()
       .Build();
   });
 
@@ -151,6 +167,7 @@ void UIManager::RegisterPanels()
           std::cout << "Scanlines toggle\n";
         })
       .AddButton("VideoBack", "Back", on_click_callback)
+      .CenterPanel()
       .Build();
   });
 }

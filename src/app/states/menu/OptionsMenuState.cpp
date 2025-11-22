@@ -17,6 +17,7 @@ OptionsMenuState::OptionsMenuState() : State("OptionsMenu")
 
   button_click_sub_ = shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::ui::ButtonClickEvent>(
     [this](shared::event::Event &event) { this->OnEvent(event); });
+  
 }
 
 OptionsMenuState::~OptionsMenuState()
@@ -28,7 +29,9 @@ OptionsMenuState::~OptionsMenuState()
 
 void OptionsMenuState::OnUpdate(const float delta_time) { (void)delta_time; }
 
-void OptionsMenuState::OnRender() {}
+void OptionsMenuState::OnRender()
+{
+}
 
 void OptionsMenuState::OnEvent(shared::event::Event &event)
 {

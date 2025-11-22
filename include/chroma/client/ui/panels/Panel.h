@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <raylib.h>
-#include <string>
 #include <vector>
 
 #include "chroma/client/ui/UIContext.h"
@@ -14,7 +13,13 @@ class Panel
 {
 public:
   explicit Panel(const PanelID panel_id, Rectangle bounds);
-  virtual ~Panel() = default;
+  ~Panel();
+
+  Panel(const Panel &) = delete;
+  Panel &operator=(const Panel &) = delete;
+  Panel(Panel &&) = delete;
+  Panel &operator=(Panel &&) = delete;
+
   void OnUpdate(const float delta_time, const UIContext &context);
   void OnRender();
   void AddWidget(std::unique_ptr<widget::Widget> widget);
@@ -24,6 +29,9 @@ public:
   [[nodiscard]] bool GetIsVisible() const;
   [[nodiscard]] PanelID GetID() const;
 
+  void SetBackgroundTexture(const Texture2D &texture);
+  void CenterWidgets(float spacing);
+
 protected:
   Rectangle bounds_;
 
@@ -32,5 +40,6 @@ private:
   std::vector<std::unique_ptr<widget::Widget>> widgets_;
   bool is_active_;
   bool is_visible_;
+  Texture2D background_texture_;
 };
 }// namespace chroma::client::ui::panel

@@ -28,7 +28,7 @@ void Button::OnRender()
   Color highlight_color = { .r = 210, .g = 210, .b = 210, .a = 255 };
   const Color shadow_color = { 80, 80, 80, 255 };
   const Color inner_border_color = BLACK;
-  const int font_size = 20;
+  const int font_size = 28;
 
   if (is_hovered_) { highlight_color = { .r = 210, .g = 210, .b = 210, .a = 100 }; }
 

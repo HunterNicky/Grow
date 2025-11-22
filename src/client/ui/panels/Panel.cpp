@@ -8,7 +8,17 @@
 #include "chroma/client/ui/panels/PanelIdentifiers.h"
 
 namespace chroma::client::ui::panel {
-Panel::Panel(const PanelID panel_id, Rectangle bounds) : bounds_(bounds), id_(panel_id), is_active_(true), is_visible_(true) {}
+Panel::Panel(const PanelID panel_id, Rectangle bounds) : bounds_(bounds), 
+ id_(panel_id), is_active_(true), is_visible_(true), background_texture_()
+ {
+ }
+
+Panel::~Panel()
+{
+  if (background_texture_.id != 0) {
+    UnloadTexture(background_texture_);
+  }
+}
 
 void Panel::OnUpdate(const float delta_time, const UIContext &context)
 {
@@ -17,9 +27,36 @@ void Panel::OnUpdate(const float delta_time, const UIContext &context)
 
 void Panel::OnRender()
 {
-  DrawRectangleRec(bounds_, { 255, 0, 0, 255 });
+  DrawTexture(background_texture_, static_cast<int>(bounds_.x), static_cast<int>(bounds_.y), WHITE);
   for (auto &widget : widgets_) { widget->OnRender(); }
 }
+
+void Panel::CenterWidgets(float spacing)
+{
+    if (widgets_.empty()) { return; }
+
+    float total_height = 0.0F;
+    for (auto &w : widgets_) {
+        total_height += w->GetBounds().height;
+    }
+
+    total_height += spacing * static_cast<float>(widgets_.size() - 1);
+
+    float start_y = bounds_.y + ((bounds_.height - total_height) / 2.0F);
+
+    for (auto &w : widgets_) {
+        Rectangle b = w->GetBounds();
+
+        b.x = bounds_.x + ((bounds_.width - b.width) / 2.0F);
+
+        b.y = start_y;
+
+        w->SetBounds(b);
+
+        start_y += b.height + spacing;
+    }
+}
+
 
 void Panel::AddWidget(std::unique_ptr<widget::Widget> widget)
 {
@@ -50,4 +87,12 @@ PanelID Panel::GetID() const
 {
   return id_;
 }
+
+void Panel::SetBackgroundTexture(const Texture2D &texture)
+{
+  background_texture_ = texture;
+  background_texture_.width = static_cast<int>(bounds_.width);
+  background_texture_.height = static_cast<int>(bounds_.height);
+}
+
 }// namespace chroma::client::ui::panel

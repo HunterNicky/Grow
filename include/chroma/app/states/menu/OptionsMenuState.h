@@ -9,9 +9,9 @@ public:
   explicit OptionsMenuState();
   ~OptionsMenuState() override;
 
-  virtual void OnUpdate(const float delta_time) override;
-  virtual void OnRender() override;
-  virtual void OnEvent(shared::event::Event &event) override;
+  void OnUpdate(const float delta_time) override;
+  void OnRender() override;
+  void OnEvent(shared::event::Event &event) override;
 
 private:
   shared::event::Subscription button_click_sub_;
