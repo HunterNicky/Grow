@@ -1,5 +1,7 @@
 #include "chroma/shared/core/components/ProjectileType.h"
 
+#include "chroma/shared/core/components/Component.h"
+
 namespace chroma::shared::core::component {
 ProjectileType::ProjectileType(TypeProjectile projectile_type) : projectile_type_(projectile_type)
 {

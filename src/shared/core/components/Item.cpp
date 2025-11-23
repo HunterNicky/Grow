@@ -2,7 +2,6 @@
 #include "chroma/shared/core/components/Component.h"
 
 #include <string>
-#include <memory>
 #include <utility>
 
 namespace chroma::shared::core::component {

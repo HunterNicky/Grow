@@ -291,8 +291,6 @@ std::vector<uint8_t> PacketHandler::ProjectileMessageToFlatBuffer(
 
   const auto fb_id = builder.CreateString(evt->GetProjectileId().str());
 
-  std::cout << "Serializing Projectile Event for ID: " << evt->GetProjectileId().str() << std::endl;
-
   const auto fb_dir = Game::CreateVec2(builder, evt->GetDirection().x, evt->GetDirection().y);
 
   const auto fb_position = Game::CreateVec2(builder, evt->GetPosition().x, evt->GetPosition().y);
@@ -329,8 +327,6 @@ std::shared_ptr<ProjectileMessage> PacketHandler::EventToProjectileMessage(const
   if (fb_proj_event != nullptr) {
 
     const UUIDv4::UUID projectile_id = UUIDv4::UUID::fromStrFactory(fb_proj_event->projectile_id()->str());
-
-    std::cout << "Deserializing Projectile Event for ID: " << projectile_id.str() << std::endl;
 
     const Vector2 direction{ fb_proj_event->direction()->x(), fb_proj_event->direction()->y() };
 

@@ -1,4 +1,5 @@
 #include "chroma/shared/core/components/Run.h"
+#include "chroma/shared/core/components/Component.h"
 
 namespace chroma::shared::core::component {
 

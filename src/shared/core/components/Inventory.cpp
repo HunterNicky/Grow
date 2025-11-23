@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <vector>
 #include <memory>
 
 #include "chroma/shared/core/components/Inventory.h"
