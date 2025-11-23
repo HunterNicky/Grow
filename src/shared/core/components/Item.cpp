@@ -12,13 +12,13 @@ Item::Item(std::string name, std::string description, float weight)
   type_ = ComponentType::ITEM;
 }
 
-const std::string& Item::GetName() const { return name_; }
+const std::string &Item::GetName() const { return name_; }
 
 void Item::SetName(const std::string &name) { name_ = name; }
 
 void Item::SetDescription(const std::string &description) { description_ = description; }
 
-const std::string& Item::GetDescription() const { return description_; }
+const std::string &Item::GetDescription() const { return description_; }
 
 float Item::GetWeight() const { return weight_; }
 
