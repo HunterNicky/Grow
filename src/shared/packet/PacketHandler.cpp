@@ -83,7 +83,7 @@
       const auto player = std::static_pointer_cast<core::player::Player>(game_object);
       if (player) {
         
-        const UUIDv4::UUID player_id = UUIDv4::UUID::fromStrFactory(entity_state->id()->str());
+        const UUIDv4::UUID player_id = UUIDv4::UUID(entity_state->id()->str());
 
         player->SetId(player_id);
 
@@ -204,7 +204,7 @@
   UUIDv4::UUID PacketHandler::SnapshotGetUUID(const Game::Snapshot *snapshot)
   {
     if (snapshot == nullptr || snapshot->player_id() == nullptr) { return UUIDv4::UUID{}; }
-    return UUIDv4::UUID(snapshot->player_id()->str());
+    return UUIDv4::UUID::fromStrFactory(snapshot->player_id()->str());
   }
 
   uint32_t PacketHandler::SnapshotGetLastProcessedInputSeq(const Game::Snapshot *snapshot)

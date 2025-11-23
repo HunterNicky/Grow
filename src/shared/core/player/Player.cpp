@@ -184,7 +184,6 @@ void Player::OnUpdate(float delta_time)
           event::SoundEvent("step", 0.6F, 0.95F + (static_cast<float>(GetRandomValue(0, 10)) / 100.0F));
         sound_event.SetEmitterId(GetId().str());
         event::EventBus::Dispatch(sound_event);
-        
       }
     }
     was_moving_ = true;
@@ -283,6 +282,7 @@ void Player::HandleEvent(const event::Event &event)
     break;
   }
 }
+
 void Player::UpdateAttack(float delta_time)
 {
     auto attack = GetComponent<component::Attack>();
