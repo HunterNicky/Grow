@@ -95,7 +95,7 @@ void PacketHandler::UpdateGameObjectWithEntityState(const Game::EntityState *ent
   }
   case Game::GameObjectType::Projectile: {
     const auto projectile = std::static_pointer_cast<core::projectile::Projectile>(game_object);
-    
+
     if (!projectile) { break; }
 
     auto sprite_anim = projectile->GetComponent<core::component::SpriteAnimation>();
