@@ -1,10 +1,10 @@
 #include "chroma/shared/packet/adapter/WeaponAdapter.h"
 #include "chroma/shared/core/components/Weapon.h"
 
+#include <common_generated.h>
+#include <components_generated.h>
 #include <flatbuffers/flatbuffer_builder.h>
 #include <flatbuffers/vector.h>
-#include <components_generated.h>
-#include <common_generated.h>
 #include <memory>
 #include <vector>
 
