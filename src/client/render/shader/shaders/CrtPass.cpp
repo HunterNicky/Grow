@@ -22,7 +22,11 @@ void CrtPass::Execute(RenderTexture2D &src, RenderTexture2D &dst)
   BeginShaderMode(shader_);
   UploadAll();
   DrawTextureRec(
-    src.texture, (Rectangle){ 0, 0, (float)src.texture.width, (float)-src.texture.height }, (Vector2){ 0, 0 }, WHITE);
+      src.texture,
+      Rectangle{ 0, 0, static_cast<float>(src.texture.width), static_cast<float>(-src.texture.height) },
+      Vector2{ 0, 0 },
+      WHITE
+  );
   EndShaderMode();
   EndTextureMode();
 }

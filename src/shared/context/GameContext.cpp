@@ -1,4 +1,8 @@
 #include "chroma/shared/context/GameContext.h"
+#include "chroma/shared/core/GameObject.h"
+
+#include <memory>
+#include <utility>
 
 namespace chroma::shared::context {
 

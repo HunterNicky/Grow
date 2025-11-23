@@ -13,7 +13,7 @@ public:
   void SetAttacking(bool attacking);
 
 private:
-  bool is_attacking_ = false;
+  bool is_attacking_{false};
 };
 
 }// namespace chroma::shared::core::component
