@@ -19,8 +19,8 @@
 #include <common_generated.h>
 #include <components_generated.h>
 #include <cstdint>
-#include <flatbuffers/flatbuffer_builder.h>
 #include <flatbuffers/buffer.h>
+#include <flatbuffers/flatbuffer_builder.h>
 #include <memory>
 #include <raylib.h>
 #include <vector>
