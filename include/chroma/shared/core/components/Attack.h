@@ -7,7 +7,7 @@ class Attack : public Component
 {
 public:
   Attack();
-  Attack(bool is_attacking);
+  explicit Attack(bool is_attacking);
 
   bool IsAttacking() const;
   void SetAttacking(bool attacking);
