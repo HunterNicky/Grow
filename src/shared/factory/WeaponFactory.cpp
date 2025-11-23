@@ -1,8 +1,8 @@
 #include "chroma/shared/factory/WeaponFactory.h"
 
+#include "chroma/shared/core/components/Fist.h"
 #include "chroma/shared/core/components/Javelin.h"
 #include "chroma/shared/core/components/Spear.h"
-#include "chroma/shared/core/components/Fist.h"
 
 namespace chroma::shared::factory {
 std::shared_ptr<core::component::Weapon> WeaponFactory::CreateWeaponByType(core::component::WeaponType type)
