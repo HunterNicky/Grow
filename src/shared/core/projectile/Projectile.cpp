@@ -1,5 +1,6 @@
 #include "chroma/shared/core/projectile/Projectile.h"
 
+#include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/Movement.h"
 #include "chroma/shared/core/components/ProjectileType.h"
 #include "chroma/shared/core/components/Speed.h"
