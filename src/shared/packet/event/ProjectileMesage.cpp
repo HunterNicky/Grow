@@ -1,4 +1,8 @@
 #include "chroma/shared/packet/events/ProjectileMessage.h"
+#include "chroma/shared/events/ProjectileEvent.h"
+
+#include <cstdint>
+#include <memory>
 
 namespace chroma::shared::packet {
 ProjectileMessage::ProjectileMessage(uint32_t sequence, float delta_time) : seq_(sequence), dt_(delta_time) {}

@@ -1,13 +1,14 @@
 #include "chroma/shared/render/SpriteLoader.h"
 
 #include <fstream>
+#include <string>
 #include <nlohmann/json.hpp>
 
 namespace chroma::shared::render {
 
 std::string SpriteLoader::GetBasePath(const std::string &path)
 {
-  size_t slash = path.find_last_of("/\\");
+  const size_t slash = path.find_last_of("/\\");
   if (slash == std::string::npos) { return ""; }
   return path.substr(0, slash + 1);
 }

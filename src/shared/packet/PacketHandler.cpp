@@ -3,6 +3,8 @@
 #include "chroma/shared/core/components/Inventory.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/core/projectile/Projectile.h"
+#include "chroma/shared/core/components/ProjectileType.h"
+#include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/events/MouseEvent.h"

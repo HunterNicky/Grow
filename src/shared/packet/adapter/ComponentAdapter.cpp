@@ -20,7 +20,7 @@
 #include <components_generated.h>
 #include <cstdint>
 #include <flatbuffers/flatbuffer_builder.h>
-#include <flatbuffers/vector.h>
+#include <flatbuffers/buffer.h>
 #include <memory>
 #include <raylib.h>
 #include <vector>

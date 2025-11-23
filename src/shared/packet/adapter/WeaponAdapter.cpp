@@ -4,7 +4,7 @@
 #include <common_generated.h>
 #include <components_generated.h>
 #include <flatbuffers/flatbuffer_builder.h>
-#include <flatbuffers/vector.h>
+#include <flatbuffers/buffer.h>
 #include <memory>
 #include <vector>
 
