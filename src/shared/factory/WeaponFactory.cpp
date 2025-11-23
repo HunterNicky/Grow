@@ -2,6 +2,7 @@
 
 #include "chroma/shared/core/components/Javelin.h"
 #include "chroma/shared/core/components/Spear.h"
+#include "chroma/shared/core/components/Fist.h"
 
 namespace chroma::shared::factory {
 std::shared_ptr<core::component::Weapon> WeaponFactory::CreateWeaponByType(core::component::WeaponType type)
@@ -21,6 +22,7 @@ std::shared_ptr<core::component::Weapon> WeaponFactory::CreateWeaponByType(core:
   case core::component::WeaponType::JAVELIN:
     return std::make_shared<core::component::Javelin>();
   case core::component::WeaponType::FIST:
+    return std::make_shared<core::component::Fist>();
   default:
     return std::make_shared<core::component::Weapon>();
   }

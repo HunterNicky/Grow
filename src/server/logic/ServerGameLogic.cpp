@@ -4,6 +4,7 @@
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/Javelin.h"
 #include "chroma/shared/core/components/Spear.h"
+#include "chroma/shared/core/components/Fist.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/core/projectile/Projectile.h"
 #include "chroma/shared/events/Event.h"
@@ -60,9 +61,11 @@ std::shared_ptr<shared::core::player::Player> ServerGameLogic::CreatePlayer()
 
   auto javelin = std::make_shared<chroma::shared::core::component::Javelin>();
   auto spear = std::make_shared<chroma::shared::core::component::Spear>();
+  auto fist = std::make_shared<chroma::shared::core::component::Fist>();
 
   player->GetComponent<shared::core::component::Inventory>()->AddInventory(spear);
   player->GetComponent<shared::core::component::Inventory>()->AddInventory(javelin);
+  player->GetComponent<shared::core::component::Inventory>()->AddInventory(fist);
   player->SetCurrentWeapon(javelin);
 
   player->SetupAnimation(player->GetComponent<shared::core::component::SpriteAnimation>());

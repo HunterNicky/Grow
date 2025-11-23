@@ -15,10 +15,10 @@ public:
   Item(Item &&) noexcept = default;
   Item &operator=(Item &&) noexcept = default;
 
-  [[nodiscard]] std::string GetName() const;
+  [[nodiscard]] const std::string& GetName() const;
   void SetName(const std::string &name);
 
-  [[nodiscard]] std::string GetDescription() const;
+  [[nodiscard]] const std::string& GetDescription() const;
   void SetDescription(const std::string &description);
 
   [[nodiscard]] float GetWeight() const;

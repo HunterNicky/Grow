@@ -80,12 +80,20 @@ void Inventory::SetCapacity(int capacity) { capacity_ = capacity; }
 
 const std::shared_ptr<Weapon> &Inventory::GetWeaponByWeaponType(WeaponType type) const
 {
-  for (const auto &weapon : weapons_) {
-    if (weapon->GetWeaponType() == type) { return weapon; }
-  }
+  auto it = std::ranges::find_if(
+    weapons_,
+    [type](const std::shared_ptr<Weapon> &w) {
+      return w->GetWeaponType() == type;
+    }
+  );
+
+  if (it != weapons_.end()) { return *it; }
+
   static const std::shared_ptr<Weapon> null_weapon = nullptr;
   return null_weapon;
 }
+
+
 
 const std::shared_ptr<Weapon> &Inventory::ChangeToNextWeapon()
 {

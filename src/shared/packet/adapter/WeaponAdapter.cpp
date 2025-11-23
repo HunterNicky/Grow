@@ -37,6 +37,9 @@ void WeaponAdapter::ToComponent(const std::shared_ptr<core::component::Weapon> &
   case core::component::WeaponType::JAVELIN:
     JavelinToWeaponComponent(weapon, builder, fb_weapons);
     break;
+  case core::component::WeaponType::FIST:
+    FistToWeaponComponent(weapon, builder, fb_weapons);
+    break;
   default:
     break;
   }
@@ -50,6 +53,9 @@ void WeaponAdapter::FromComponent(const Game::Weapon &fb_weapon, std::shared_ptr
     break;
   case Game::WeaponType::JAVELIN:
     WeaponComponentToJavelin(fb_weapon, weapon);
+    break;
+  case Game::WeaponType::FIST:
+    WeaponComponentToFist(fb_weapon, weapon);
     break;
   default:
     break;
@@ -110,4 +116,30 @@ void WeaponAdapter::JavelinToWeaponComponent(const std::shared_ptr<core::compone
   fb_weapons.push_back(fb_weapon);
 }
 
+void WeaponAdapter::WeaponComponentToFist(const Game::Weapon &fb_weapon,
+  std::shared_ptr<core::component::Weapon> &weapon)
+{
+  weapon->SetDamage(fb_weapon.damage());
+  weapon->SetRange(fb_weapon.range());
+  weapon->SetWeight(fb_weapon.weight());
+  weapon->SetCooldown(fb_weapon.cooldown());
+  weapon->SetLastAttackTime(fb_weapon.last_attack_time());
+}
+
+void WeaponAdapter::FistToWeaponComponent(const std::shared_ptr<core::component::Weapon> &weapon,
+  flatbuffers::FlatBufferBuilder &builder,
+  std::vector<flatbuffers::Offset<Game::Weapon>> &fb_weapons)
+{
+  if (!weapon) { return; }
+
+  auto fb_weapon = Game::CreateWeapon(builder,
+    ConvertWeaponType(weapon->GetWeaponType()),
+    weapon->GetDamage(),
+    weapon->GetRange(),
+    weapon->GetWeight(),
+    weapon->GetCooldown(),
+    weapon->GetLastAttackTime());
+
+  fb_weapons.push_back(fb_weapon);
+}
 }// namespace chroma::shared::packet::adapter
