@@ -20,7 +20,7 @@ void ServerEventSystem::ProcessGameEvent(const ENetEvent &event,
   case Game::EventUnion::InputEventMessage: {
     const auto input_message = network::ServerPacketHandler::EventToInputMessage(evt);
     if (input_message) {
-      if (auto *session = sessions.GetSession(event.peer)) {
+      if (const auto *session = sessions.GetSession(event.peer)) {
         game_logic.OnReceivedInputMessage(input_message, session->GetPlayerId());
         sessions.UpdateLastProcessedInput(event.peer, input_message->GetSeq());
       }
@@ -29,6 +29,11 @@ void ServerEventSystem::ProcessGameEvent(const ENetEvent &event,
   }
   case Game::EventUnion::SoundEventMessage: {
     // No-op for now
+    break;
+  }
+  case Game::EventUnion::ProjectileEventMessage: {
+    const auto projectile_message = network::ServerPacketHandler::EventToProjectileMessage(evt);
+    if (projectile_message) { game_logic.OnReceivedProjectileMessage(projectile_message); }
     break;
   }
   default:

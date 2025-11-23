@@ -1,14 +1,18 @@
 #include "chroma/shared/packet/PacketHandler.h"
 #include "chroma/shared/core/GameObject.h"
-#include "chroma/shared/core/components/Coloring.h"
-#include "chroma/shared/core/components/Movement.h"
-#include "chroma/shared/core/components/Speed.h"
+#include "chroma/shared/core/components/Inventory.h"
+#include "chroma/shared/core/components/ProjectileType.h"
+#include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/player/Player.h"
+#include "chroma/shared/core/projectile/Projectile.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/events/MouseEvent.h"
+#include "chroma/shared/events/ProjectileEvent.h"
 #include "chroma/shared/factory/GameObjectFactory.h"
+#include "chroma/shared/packet/adapter/ComponentAdapter.h"
 #include "chroma/shared/packet/events/InputEventMessage.h"
+#include "chroma/shared/packet/events/ProjectileMessage.h"
 #include "chroma/shared/packet/events/SoundEventMessage.h"
 #include "common_generated.h"
 #include "components_generated.h"
@@ -25,6 +29,8 @@
 #include <unordered_map>
 #include <uuid_v4.h>
 #include <vector>
+
+#define UUID_SYSTEM_GENERATOR
 
 namespace chroma::shared::packet {
 
@@ -56,48 +62,8 @@ std::vector<flatbuffers::Offset<Game::EntityState>> PacketHandler::GameObjectsTo
   for (const auto &[uuid, object] : objects) {
     if (!object || !object->HasAuthority()) { continue; }
 
-    auto pos = object->GetComponent<core::component::Transform>();
-    auto vel = object->GetComponent<core::component::Speed>();
-    auto mov = object->GetComponent<core::component::Movement>();
-    auto color = object->GetComponent<core::component::Coloring>();
-
     std::vector<flatbuffers::Offset<Game::Component>> components;
-
-    if (pos) {
-      const auto vec2 = Game::CreateVec2(builder, pos->GetPosition().x, pos->GetPosition().y);
-      auto fb_pos = Game::CreatePosition(builder, vec2);
-      components.push_back(Game::CreateComponent(builder, Game::ComponentUnion::Position, fb_pos.Union()));
-    }
-
-    if (vel) {
-      const auto vec2 = Game::CreateVec2(builder, vel->GetSpeed().x, vel->GetSpeed().y);
-      auto fb_vel = Game::CreateVelocity(builder, vec2);
-      components.push_back(Game::CreateComponent(builder, Game::ComponentUnion::Velocity, fb_vel.Union()));
-    }
-
-    if (color) {
-      auto fb_color = Game::CreateColor(builder,
-        static_cast<int8_t>(color->GetRed()),
-        static_cast<int8_t>(color->GetGreen()),
-        static_cast<int8_t>(color->GetBlue()),
-        static_cast<int8_t>(color->GetAlpha()));
-      components.push_back(Game::CreateComponent(builder, Game::ComponentUnion::Color, fb_color.Union()));
-    }
-
-    if (color) {
-      auto fb_color = Game::CreateColor(builder,
-        static_cast<int8_t>(color->GetRed()),
-        static_cast<int8_t>(color->GetGreen()),
-        static_cast<int8_t>(color->GetBlue()),
-        static_cast<int8_t>(color->GetAlpha()));
-      components.push_back(Game::CreateComponent(builder, Game::ComponentUnion::Color, fb_color.Union()));
-    }
-
-    if (mov) {
-      const auto vec2 = Game::CreateVec2(builder, mov->GetDirection().x, mov->GetDirection().y);
-      auto fb_mov = Game::CreateMovement(builder, vec2);
-      components.push_back(Game::CreateComponent(builder, Game::ComponentUnion::Movement, fb_mov.Union()));
-    }
+    adapter::ComponentAdapter::ToComponent(object, builder, components);
 
     const auto fb_id = builder.CreateString(object->GetId().str());
     const auto fb_type = static_cast<Game::GameObjectType>(object->GetTag());
@@ -109,101 +75,40 @@ std::vector<flatbuffers::Offset<Game::EntityState>> PacketHandler::GameObjectsTo
   return fb_entities;
 }
 
+
 void PacketHandler::UpdateGameObjectWithEntityState(const Game::EntityState *entity_state,
   std::shared_ptr<core::GameObject> &game_object)
 {
+  if (entity_state == nullptr || game_object == nullptr) { return; }
+  game_object->SetId(UUIDv4::UUID::fromStrFactory(entity_state->id()->str()));
+
+  for (const auto &component : *entity_state->components()) {
+    if (component == nullptr) { continue; }
+    adapter::ComponentAdapter::FromComponent(*component, game_object);
+  }
+
   switch (entity_state->type()) {
   case Game::GameObjectType::Player: {
     const auto player = std::static_pointer_cast<core::player::Player>(game_object);
-    if (player) {
-      player->SetId(UUIDv4::UUID(entity_state->id()->str()));
+    if (!player) { break; }
 
-      for (const auto &component : *entity_state->components()) {
-        switch (component->type_type()) {
-        case Game::ComponentUnion::Position: {
-          ComponentToTransform(component, game_object);
-          break;
-        }
-        case Game::ComponentUnion::Velocity: {
-          ComponentToSpeed(component, game_object);
-          break;
-        }
+    auto inventory = player->GetComponent<core::component::Inventory>();
+    if (inventory && inventory->GetCurrentWeapon()) { player->SetCurrentWeapon(inventory->GetCurrentWeapon()); }
+    break;
+  }
+  case Game::GameObjectType::Projectile: {
+    const auto projectile = std::static_pointer_cast<core::projectile::Projectile>(game_object);
 
-        case Game::ComponentUnion::Movement: {
-          ComponentToMovement(component, game_object);
-          const auto movement = game_object->GetComponent<core::component::Movement>();
-          player->UpdateAnimationFromDirection(movement->GetDirection());
-          break;
-        }
+    if (!projectile) { break; }
 
-        case Game::ComponentUnion::Color: {
-          ComponentToColor(component, game_object);
-          break;
-        }
+    auto sprite_anim = projectile->GetComponent<core::component::SpriteAnimation>();
+    if (sprite_anim == nullptr) { break; }
 
-        default:
-          break;
-        }
-      }
-    }
+    if (sprite_anim->GetAnimations().empty()) { projectile->InitAnimation(); }
     break;
   }
   default:
     break;
-  }
-}
-
-void PacketHandler::ComponentToSpeed(const Game::Component *component,
-  const std::shared_ptr<core::GameObject> &game_object)
-{
-  const auto *fb_vel = component->type_as_Velocity();
-  if (fb_vel != nullptr) {
-    const auto *vel_vec = fb_vel->vel();
-    const auto speed = game_object->GetComponent<core::component::Speed>();
-    if (speed) {
-      speed->SetSpeed(Vector2{ vel_vec->x(), vel_vec->y() });
-      game_object->AttachComponent(speed);
-    }
-  }
-}
-
-void PacketHandler::ComponentToColor(const Game::Component *component, std::shared_ptr<core::GameObject> &game_object)
-{
-  const auto *fb_color = component->type_as_Color();
-  if (fb_color != nullptr) {
-    const auto color = game_object->GetComponent<core::component::Coloring>();
-    if (color) {
-      color->SetColoring(fb_color->r(), fb_color->g(), fb_color->b(), fb_color->a());
-      game_object->AttachComponent(color);
-    }
-  }
-}
-
-void PacketHandler::ComponentToMovement(const Game::Component *component,
-  const std::shared_ptr<core::GameObject> &game_object)
-{
-  const auto *fb_mov = component->type_as_Movement();
-  if (fb_mov != nullptr) {
-    const auto *mov_vec = fb_mov->mov();
-    const auto movement = game_object->GetComponent<core::component::Movement>();
-    if (movement) {
-      movement->SetDirection(Vector2{ mov_vec->x(), mov_vec->y() });
-      game_object->AttachComponent(movement);
-    }
-  }
-}
-
-void PacketHandler::ComponentToTransform(const Game::Component *component,
-  const std::shared_ptr<core::GameObject> &game_object)
-{
-  const auto *fb_pos = component->type_as_Position();
-  if (fb_pos != nullptr) {
-    const auto *pos_vec = fb_pos->pos();
-    const auto transform = game_object->GetComponent<core::component::Transform>();
-    if (transform) {
-      transform->SetPosition(Vector2{ pos_vec->x(), pos_vec->y() });
-      game_object->AttachComponent(transform);
-    }
   }
 }
 
@@ -280,7 +185,7 @@ std::vector<uint8_t> PacketHandler::SoundEventMessageToFlatBuffer(
 UUIDv4::UUID PacketHandler::SnapshotGetUUID(const Game::Snapshot *snapshot)
 {
   if (snapshot == nullptr || snapshot->player_id() == nullptr) { return UUIDv4::UUID{}; }
-  return UUIDv4::UUID(snapshot->player_id()->str());
+  return UUIDv4::UUID::fromStrFactory(snapshot->player_id()->str());
 }
 
 uint32_t PacketHandler::SnapshotGetLastProcessedInputSeq(const Game::Snapshot *snapshot)
@@ -306,7 +211,7 @@ void PacketHandler::SnapshotToGameObjects(const Game::Snapshot *snapshot,
   for (const auto &entity_state : *snapshot->entities()) {
     if (entity_state == nullptr || entity_state->id() == nullptr) { continue; }
 
-    const UUIDv4::UUID entity_id(entity_state->id()->str());
+    const UUIDv4::UUID entity_id = UUIDv4::UUID::fromStrFactory(entity_state->id()->str());
     const bool is_local_player = (entity_state->id()->str() == local_player_id_str);
 
     std::shared_ptr<core::GameObject> game_object;
@@ -321,7 +226,7 @@ void PacketHandler::SnapshotToGameObjects(const Game::Snapshot *snapshot,
 
     if (entity_state->type() == Game::GameObjectType::Player) {
       if (const auto player = std::dynamic_pointer_cast<core::player::Player>(game_object)) {
-        player->SetNetRole(is_local_player ? core::NetRole::ROLE_AutonomousProxy : core::NetRole::ROLE_SimulatedProxy);
+        player->SetNetRole(is_local_player ? core::NetRole::AUTONOMOUS : core::NetRole::SIMULATED);
       }
     }
 
@@ -368,4 +273,67 @@ std::shared_ptr<InputMessage> PacketHandler::EventToInputMessage(const Game::Eve
   return input_message;
 }
 
+std::vector<uint8_t> PacketHandler::ProjectileMessageToFlatBuffer(
+  const std::shared_ptr<ProjectileMessage> &projectile_message)
+{
+  if (!projectile_message) { return {}; }
+
+  auto &evt = projectile_message->GetProjectileEvent();
+  if (!evt) { return {}; }
+
+  flatbuffers::FlatBufferBuilder builder(256);
+
+  const auto fb_id = builder.CreateString(evt->GetProjectileId().str());
+
+  const auto fb_dir = Game::CreateVec2(builder, evt->GetDirection().x, evt->GetDirection().y);
+
+  const auto fb_position = Game::CreateVec2(builder, evt->GetPosition().x, evt->GetPosition().y);
+
+  const auto fb_proj_event = Game::CreateProjectileEvent(
+    builder, fb_id, static_cast<Game::TypeProjectile>(evt->GetProjectileType()), fb_position, fb_dir, evt->GetSpeed());
+
+  const auto fb_proj_msg = Game::CreateProjectileEventMessage(
+    builder, projectile_message->GetSeq(), projectile_message->GetDeltaTime(), fb_proj_event);
+
+  const auto fb_event = Game::CreateEvent(builder, Game::EventUnion::ProjectileEventMessage, fb_proj_msg.Union());
+
+  const auto fb_envelope = Game::CreateEnvelope(builder, Game::MsgType::Event, Game::MsgUnion::Event, fb_event.Union());
+
+  builder.Finish(fb_envelope);
+
+  auto buf = builder.Release();
+  return { buf.begin(), buf.end() };
+}
+
+std::shared_ptr<ProjectileMessage> PacketHandler::EventToProjectileMessage(const Game::Event *evt)
+{
+  if (evt == nullptr) { return nullptr; }
+  if (evt->event_type() != Game::EventUnion::ProjectileEventMessage) { return nullptr; }
+
+  const auto *proj_msg = evt->event_as<Game::ProjectileEventMessage>();
+  if (proj_msg == nullptr) { return nullptr; }
+
+  std::shared_ptr<ProjectileMessage> projectile_message = std::make_unique<ProjectileMessage>();
+  projectile_message->SetSeq(proj_msg->seq());
+  projectile_message->SetDeltaTime(proj_msg->dt());
+
+  const auto *fb_proj_event = proj_msg->event();
+  if (fb_proj_event != nullptr) {
+
+    const UUIDv4::UUID projectile_id = UUIDv4::UUID::fromStrFactory(fb_proj_event->projectile_id()->str());
+
+    const Vector2 direction{ fb_proj_event->direction()->x(), fb_proj_event->direction()->y() };
+
+    const Vector2 position{ fb_proj_event->position()->x(), fb_proj_event->position()->y() };
+
+    auto projectile_event = std::make_shared<event::ProjectileEvent>(
+      static_cast<core::component::TypeProjectile>(fb_proj_event->type()), direction, fb_proj_event->speed());
+    projectile_event->SetProjectileId(projectile_id);
+    projectile_event->SetPosition(position);
+
+    projectile_message->GetProjectileEvent() = projectile_event;
+  }
+
+  return projectile_message;
+}
 }// namespace chroma::shared::packet

@@ -31,6 +31,12 @@ void RenderTarget::Draw(const int screen_width, const int screen_height)
   DrawTexturePro(target_.texture, source_rec_, dest_rec_, { 0.0F, 0.0F }, 0.0F, WHITE);
 }
 
+void RenderTarget::Draw(const Texture2D &texture, const int screen_width, const int screen_height)
+{
+  CalculateLetterbox(screen_width, screen_height);
+  DrawTexturePro(texture, source_rec_, dest_rec_, { 0.0F, 0.0F }, 0.0F, WHITE);
+}
+
 void RenderTarget::CalculateLetterbox(const int screen_width, const int screen_height)
 {
   if (screen_width <= 0 || screen_height <= 0 || width_ <= 0 || height_ <= 0) { return; }
@@ -49,4 +55,5 @@ void RenderTarget::CalculateLetterbox(const int screen_width, const int screen_h
   source_rec_ = { .x = 0.0F, .y = 0.0F, .width = vw, .height = -vh };
   dest_rec_ = { .x = dx, .y = dy, .width = dw, .height = dh };
 }
+
 }// namespace chroma::client::render

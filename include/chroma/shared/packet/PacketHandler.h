@@ -8,8 +8,10 @@
 
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/packet/events/InputEventMessage.h"
+#include "chroma/shared/packet/events/ProjectileMessage.h"
 #include "chroma/shared/packet/events/SoundEventMessage.h"
-#include "game_generated.h"
+#include "entities_generated.h"
+#include "events_generated.h"
 
 namespace chroma::shared::packet {
 
@@ -31,7 +33,8 @@ public:
     const std::unordered_map<UUIDv4::UUID, std::shared_ptr<core::GameObject>> &objects);
   static std::vector<uint8_t> InputMessageToFlatBuffer(const std::shared_ptr<InputMessage> &input_message);
   static std::vector<uint8_t> SoundEventMessageToFlatBuffer(const std::shared_ptr<SoundEventMessage> &sound_message);
-
+  static std::vector<uint8_t> ProjectileMessageToFlatBuffer(
+    const std::shared_ptr<ProjectileMessage> &projectile_message);
   //
   // ============================================================
   //  SNAPSHOT
@@ -50,16 +53,11 @@ public:
   // ============================================================
   //
   static std::shared_ptr<InputMessage> EventToInputMessage(const Game::Event *evt);
+  static std::shared_ptr<ProjectileMessage> EventToProjectileMessage(const Game::Event *evt);
 
 private:
   static void UpdateGameObjectWithEntityState(const Game::EntityState *entity_state,
     std::shared_ptr<core::GameObject> &game_object);
-  static void ComponentToSpeed(const Game::Component *component, const std::shared_ptr<core::GameObject> &game_object);
-  static void ComponentToTransform(const Game::Component *component,
-    const std::shared_ptr<core::GameObject> &game_object);
-  static void ComponentToMovement(const Game::Component *component,
-    const std::shared_ptr<core::GameObject> &game_object);
-  static void ComponentToColor(const Game::Component *component, std::shared_ptr<core::GameObject> &game_object);
 };
 
 }// namespace chroma::shared::packet

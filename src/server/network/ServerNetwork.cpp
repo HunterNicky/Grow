@@ -24,7 +24,7 @@ bool ServerNetwork::InitServer(const int port, const int max_clients)
   }
 
   host_ = std::shared_ptr<ENetHost>(host, [](ENetHost *h) {
-    if (h) { enet_host_destroy(h); }
+    if (h != nullptr) { enet_host_destroy(h); }
   });
 
   return true;

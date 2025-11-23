@@ -6,12 +6,15 @@
 #include "chroma/client/render/TextureAtlas.h"
 #include "chroma/client/render/Window.h"
 #include "chroma/client/render/animation/AnimationRenderer.h"
+#include "chroma/client/render/shader/RenderPass.h"
+#include "chroma/client/render/shader/RenderPipeline.h"
 
 #include <functional>
 #include <memory>
 #include <string>
 
 namespace chroma::client::render {
+
 class Renderer
 {
 public:
@@ -41,6 +44,9 @@ public:
     Window::Close();
   }
 
+  void AddShaderPassFront(std::unique_ptr<shader::RenderPass> pass) const;
+  void AddShaderPassBack(std::unique_ptr<shader::RenderPass> pass) const;
+
   [[nodiscard]] Camera &GetCamera() const { return *camera_; }
   [[nodiscard]] RenderQueue &GetQueue() const { return *render_queue_; }
   [[nodiscard]] TextureAtlas &GetAtlasManager() const { return *atlas_manager_; }
@@ -58,6 +64,7 @@ private:
   std::unique_ptr<TextureAtlas> atlas_manager_;
   std::unique_ptr<SpriteRenderer> sprite_renderer_;
   std::unique_ptr<animation::AnimationRenderer> animation_renderer_;
+  std::unique_ptr<shader::RenderPipeline> render_pipeline_;
 
   void InitializeSubsystems();
 };

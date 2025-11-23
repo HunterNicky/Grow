@@ -1,10 +1,19 @@
 #include "chroma/server/logic/ServerGameLogic.h"
 
+#include "chroma/shared/builder/GameObjectBuilder.h"
 #include "chroma/shared/core/GameObject.h"
+#include "chroma/shared/core/components/Fist.h"
+#include "chroma/shared/core/components/Inventory.h"
+#include "chroma/shared/core/components/Javelin.h"
+#include "chroma/shared/core/components/Spear.h"
+#include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/player/Player.h"
+#include "chroma/shared/core/projectile/Projectile.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/packet/PacketHandler.h"
 #include "chroma/shared/packet/events/InputEventMessage.h"
+#include "chroma/shared/packet/events/ProjectileMessage.h"
+#include "chroma/shared/render/RenderBridge.h"
 #include "entities_generated.h"
 
 #include <flatbuffers/buffer.h>
@@ -40,9 +49,31 @@ void ServerGameLogic::OnReceivedInputMessage(const std::shared_ptr<shared::packe
 
 std::shared_ptr<shared::core::player::Player> ServerGameLogic::CreatePlayer()
 {
-  auto player = std::make_shared<shared::core::player::Player>();
-  player->SetNetRole(shared::core::NetRole::ROLE_Authority);
-  player->InitComponents();
+  auto player = chroma::shared::builder::GameObjectBuilder<shared::core::player::Player>()
+                  .AddTransform({ 0, 0 })
+                  .AddSpeed(50.0F)
+                  .AddMovement()
+                  .AddAnimation()
+                  .AddCamera(shared::render::CameraMode::FollowSmooth, 3.0F, 2.0F, { 64, 128 })
+                  .AddAudioListener()
+                  .AddHealth(100.0F, 1.0F)
+                  .AddRun(false, 1.5F)
+                  .AddInventory(10)
+                  .AddAttack(false)
+                  .NetRole(shared::core::NetRole::AUTHORITY)
+                  .Build();
+
+  auto javelin = std::make_shared<shared::core::component::Javelin>();
+  auto spear = std::make_shared<shared::core::component::Spear>();
+  auto fist = std::make_shared<shared::core::component::Fist>();
+
+  player->GetComponent<shared::core::component::Inventory>()->AddInventory(spear);
+  player->GetComponent<shared::core::component::Inventory>()->AddInventory(javelin);
+  player->GetComponent<shared::core::component::Inventory>()->AddInventory(fist);
+  player->SetCurrentWeapon(javelin);
+
+  player->SetupAnimation(player->GetComponent<shared::core::component::SpriteAnimation>());
+
   game_objects_.emplace(player->GetId(), player);
   return player;
 }
@@ -60,6 +91,25 @@ std::vector<flatbuffers::Offset<Game::EntityState>> ServerGameLogic::GetEntities
   flatbuffers::FlatBufferBuilder &builder) const
 {
   return shared::packet::PacketHandler::GameObjectsToFlatBufferEntities(builder, game_objects_);
+}
+
+void ServerGameLogic::OnReceivedProjectileMessage(
+  const std::shared_ptr<shared::packet::ProjectileMessage> &projectile_message)
+{
+  auto event = projectile_message->GetProjectileEvent();
+  if (!event) { return; }
+
+  auto projectile = chroma::shared::builder::GameObjectBuilder<shared::core::projectile::Projectile>()
+                      .Id(event->GetProjectileId())
+                      .AddTransform(event->GetPosition())
+                      .AddMovement(event->GetDirection())
+                      .AddSpeed(event->GetSpeed())
+                      .AddAnimation()
+                      .AddProjectileType(event->GetProjectileType())
+                      .NetRole(shared::core::NetRole::AUTHORITY)
+                      .Build();
+
+  game_objects_.emplace(projectile->GetId(), projectile);
 }
 
 }// namespace chroma::server::logic

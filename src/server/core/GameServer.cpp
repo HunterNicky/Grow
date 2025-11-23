@@ -32,28 +32,29 @@ GameServer::GameServer()
     shared::event::EventBus::SetDispatcher(dispatcher);
   }
 
-  shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::SoundEvent>([this](shared::event::Event &ev) {
-    if (!network_.IsReady()) { return; }
+  shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::SoundEvent>(
+    [this](const shared::event::Event &ev) {
+      if (!network_.IsReady()) { return; }
 
-    auto &sound_ev = dynamic_cast<shared::event::SoundEvent &>(ev);
+      const auto &sound_ev = dynamic_cast<const shared::event::SoundEvent &>(ev);
 
-    auto sound_msg = std::make_shared<shared::packet::SoundEventMessage>();
-    sound_msg->SetSeq(0);
-    sound_msg->SetDeltaTime(0.0F);
-    sound_msg->SetSoundId(sound_ev.GetSoundName());
-    sound_msg->SetVolume(sound_ev.GetVolume());
-    sound_msg->SetPitch(sound_ev.GetPitch());
-    sound_msg->SetSourceId(sound_ev.GetEmitterId());
+      const auto sound_msg = std::make_shared<shared::packet::SoundEventMessage>();
+      sound_msg->SetSeq(0);
+      sound_msg->SetDeltaTime(0.0F);
+      sound_msg->SetSoundId(sound_ev.GetSoundName());
+      sound_msg->SetVolume(sound_ev.GetVolume());
+      sound_msg->SetPitch(sound_ev.GetPitch());
+      sound_msg->SetSourceId(sound_ev.GetEmitterId());
 
-    const auto buf = shared::packet::PacketHandler::SoundEventMessageToFlatBuffer(sound_msg);
-    if (buf.empty()) { return; }
+      const auto buf = shared::packet::PacketHandler::SoundEventMessageToFlatBuffer(sound_msg);
+      if (buf.empty()) { return; }
 
-    for (const auto &[peer, session] : sessions_.GetAll()) {
-      (void)session;
-      network_.Send(peer, buf.data(), buf.size(), true);
-    }
-    network_.Flush();
-  });
+      for (const auto &[peer, session] : sessions_.GetAll()) {
+        (void)session;
+        network_.Send(peer, buf.data(), buf.size(), true);
+      }
+      network_.Flush();
+    });
 }
 
 bool GameServer::InitServer(const int port, const int max_clients) { return network_.InitServer(port, max_clients); }
@@ -147,7 +148,7 @@ void GameServer::DisconnectClient(const ENetEvent &event)
   sessions_.RemoveSession(event.peer);
 }
 
-void GameServer::BroadcastGameObjectState(const uint64_t server_time_ms)
+void GameServer::BroadcastGameObjectState(const uint64_t server_time_ms) const
 {
   if (!network_.IsReady()) { return; }
 

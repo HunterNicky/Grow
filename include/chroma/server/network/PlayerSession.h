@@ -9,15 +9,15 @@ class PlayerSession
 {
 public:
   PlayerSession() = default;
-  PlayerSession(ENetPeer *peer, const UUIDv4::UUID &player_id) : peer_(peer), player_id_(player_id) {}
+  PlayerSession(ENetPeer *peer, const UUIDv4::UUID &player_id);
 
-  [[nodiscard]] ENetPeer *GetPeer() const { return peer_; }
-  [[nodiscard]] const UUIDv4::UUID &GetPlayerId() const { return player_id_; }
-  [[nodiscard]] uint32_t GetLastProcessedInput() const { return last_processed_input_; }
+  [[nodiscard]] ENetPeer *GetPeer() const;
+  [[nodiscard]] const UUIDv4::UUID &GetPlayerId() const;
+  [[nodiscard]] uint32_t GetLastProcessedInput() const;
 
-  void SetPeer(ENetPeer *peer) { peer_ = peer; }
-  void SetPlayerId(const UUIDv4::UUID &id) { player_id_ = id; }
-  void SetLastProcessedInput(const uint32_t seq) { last_processed_input_ = seq; }
+  void SetPeer(ENetPeer *peer);
+  void SetPlayerId(const UUIDv4::UUID &id);
+  void SetLastProcessedInput(const uint32_t seq);
 
 private:
   ENetPeer *peer_ = nullptr;

@@ -8,6 +8,7 @@
 #include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/packet/PacketHandler.h"
 #include "chroma/shared/packet/events/InputEventMessage.h"
+#include "chroma/shared/packet/events/ProjectileMessage.h"
 #include "entities_generated.h"
 #include "events_generated.h"
 #include "game_generated.h"
@@ -202,6 +203,18 @@ void NetworkState::OnEvent(shared::event::Event &event)
     if (buf.empty()) { return; }
     break;
   }
+  case shared::event::Event::Type::ProjectileEvent: {
+    const auto projectile_event = dynamic_cast<shared::event::ProjectileEvent &>(event);
+    const auto projectile_message = std::make_shared<shared::packet::ProjectileMessage>();
+
+    projectile_message->SetSeq(game_mediator_->GetSeqCounter());
+    projectile_message->SetDeltaTime(delta_time_);
+    projectile_message->GetProjectileEvent() = std::make_shared<shared::event::ProjectileEvent>(projectile_event);
+
+    buf = shared::packet::PacketHandler::ProjectileMessageToFlatBuffer(projectile_message);
+    if (buf.empty()) { return; }
+    break;
+  }
   default: {
     break;
   }
@@ -215,6 +228,9 @@ void NetworkState::OnEvent(shared::event::Event &event)
 void NetworkState::SetEventDispatcher()
 {
   shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::KeyEvent>(
+    [this](shared::event::Event &event) { this->OnEvent(event); });
+
+  shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::ProjectileEvent>(
     [this](shared::event::Event &event) { this->OnEvent(event); });
 }
 

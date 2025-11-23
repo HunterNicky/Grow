@@ -12,6 +12,7 @@
 #include "chroma/app/layers/network/NetworkLayer.h"
 #include "chroma/app/states/GameState.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
+#include "chroma/app/states/mediator/RenderMediator.h"
 #include "chroma/app/states/network/NetworkState.h"
 #include "chroma/client/audio/AudioBridgeImpl.h"
 #include "chroma/client/audio/AudioEngine.h"
@@ -19,11 +20,14 @@
 #include "chroma/client/render/Renderer.h"
 #include "chroma/client/render/Window.h"
 #include "chroma/shared/audio/AudioBridge.h"
+#include "chroma/shared/context/GameContext.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/EventCatcher.h"
 #include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/render/RenderBridge.h"
+
+using namespace chroma::client::render;
 
 namespace chroma::app {
 
@@ -35,13 +39,14 @@ Application::Application()
     }()),
     audio_(std::make_unique<client::audio::AudioEngine>())
 {
+
   const auto bridge = std::make_shared<client::render::RenderBridgeImpl>(renderer_.get());
   shared::render::SetRenderBridge(bridge);
 
   const auto audio_bridge = std::make_shared<client::audio::AudioBridgeImpl>(audio_.get());
   shared::audio::SetAudioBridge(audio_bridge);
 
-  audio_bridge->LoadSound("step", "assets/sfx/step.wav");
+  audio_bridge->LoadSound("step", "assets/sfx/step2.wav");
   audio_bridge->LoadMusic("bgm", "assets/music/06.mp3");
   audio_bridge->PlayMusic("bgm", true, 0.4F);
 }
@@ -54,19 +59,20 @@ void Application::Run()
     shared::event::EventBus::SetDispatcher(event_dispatcher);
   }
 
+  auto render_mediator = std::make_shared<states::mediator::RenderMediator>(renderer_);
+
   auto game_layer = std::make_unique<layer::game::GameLayer>();
   auto network_layer = std::make_unique<layer::network::NetworkLayer>();
 
   auto mediator = std::make_shared<states::GameNetworkMediator>();
   const auto game_state = std::make_shared<states::GameState>(mediator);
   game_state->SetEventDispatcher();
+  game_state->SetRenderMediator(render_mediator);
   const auto network_state = std::make_shared<states::NetworkState>(mediator);
   network_state->SetEventDispatcher();
 
   mediator->SetGameState(game_state);
   mediator->SetNetworkState(network_state);
-
-  // auto game_state = std::make_shared<states::GameState>();
 
   network_layer->PushState(network_state);
   game_layer->PushState(game_state);
@@ -83,6 +89,8 @@ void Application::Run()
     delta_time_ = current_time - last_time;
     last_time = current_time;
 
+    shared::context::GameContext::GetInstance().SetDeltaTime(delta_time_);
+
     event_catcher_->CatchEvent();
 
     if (const auto ab = shared::audio::GetAudioBridge()) { ab->Update(); }
@@ -94,7 +102,13 @@ void Application::Run()
   renderer_->Close();
 }
 
-void Application::Initialize() { shared::render::GetRenderBridge()->LoadSprite("assets/sprites/player/randi-1.png"); }
+void Application::Initialize()
+{
+  shared::render::GetRenderBridge()->LoadSprite("assets/sprites/player/weapons/randi-fist.png");
+  shared::render::GetRenderBridge()->LoadSprite("assets/sprites/player/weapons/randi-spear.png");
+  shared::render::GetRenderBridge()->LoadSprite("assets/sprites/player/weapons/randi-javelin.png");
+  shared::render::GetRenderBridge()->LoadSprite("assets/sprites/player/projectile/javelin-projectile.png");
+}
 
 void Application::Shutdown() {}
 

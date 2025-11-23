@@ -12,6 +12,7 @@ public:
   void Begin() const;
   static void End();
   void Draw(int screen_width, int screen_height);
+  void Draw(const Texture2D &texture, int screen_width, int screen_height);
 
   [[nodiscard]] int GetWidth() const { return width_; }
   [[nodiscard]] int GetHeight() const { return height_; }

@@ -20,6 +20,13 @@ enum class ComponentType : uint8_t {
   CAMERA = 6,
   AUDIO_LISTENER = 7,
   COLOR = 8,
+  HEALTH = 9,
+  RUN = 10,
+  ITEM = 11,
+  INVENTORY = 12,
+  WEAPON = 13,
+  ATTACK = 14,
+  PROJECTILE_TYPE = 15,
 };
 
 class Component

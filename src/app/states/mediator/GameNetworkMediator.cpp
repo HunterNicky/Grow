@@ -127,6 +127,7 @@ void GameNetworkMediator::SetNetworkState(const std::shared_ptr<NetworkState> &n
 
 void GameNetworkMediator::AddInputEvent(const shared::event::Event &event) const
 {
+  if (event.GetType() == shared::event::Event::SoundEvent) { return; }
   if (predictive_sync_system_) { predictive_sync_system_->AddInputEventHistory(event); }
 }
 

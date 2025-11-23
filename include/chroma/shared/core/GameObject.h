@@ -29,10 +29,10 @@ enum class GameObjectType : uint8_t {
 };
 
 enum class NetRole : uint8_t {
-  ROLE_None = 0,
-  ROLE_Authority = 1,
-  ROLE_AutonomousProxy = 2,
-  ROLE_SimulatedProxy = 3,
+  NONE = 0,
+  AUTHORITY = 1,
+  AUTONOMOUS = 2,
+  SIMULATED = 3,
 };
 
 class GameObject : public std::enable_shared_from_this<GameObject>
@@ -90,7 +90,7 @@ protected:
   UUIDv4::UUID id_;
   uint32_t layer_;
   GameObjectType Type_;
-  NetRole net_role_{ NetRole::ROLE_None };
+  NetRole net_role_{ NetRole::NONE };
 
   std::map<component::ComponentType, std::shared_ptr<component::Component>> components_;
   std::shared_ptr<component::Transform> transform_;

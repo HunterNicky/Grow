@@ -1,0 +1,401 @@
+{
+    "sprite_sheet": "randi-fist.png",
+    "animations": {
+        "fist_idle_down": {
+            "loop": false,
+            "frames": [
+                {
+                    "x": 1,
+                    "y": 1,
+                    "width": 16,
+                    "height": 32,
+                    "duration_ticks": 60
+                }
+            ]
+        },
+        "fist_idle_up": {
+            "loop": false,
+            "frames": [
+                {
+                    "x": 18,
+                    "y": 1,
+                    "width": 16,
+                    "height": 32,
+                    "duration_ticks": 60
+                }
+            ]
+        },
+        "fist_idle_side": {
+            "loop": false,
+            "frames": [
+                {
+                    "x": 35,
+                    "y": 1,
+                    "width": 15,
+                    "height": 32,
+                    "duration_ticks": 60
+                }
+            ]
+        },
+        "fist_walk_down": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 51,
+                    "y": 1,
+                    "width": 18,
+                    "height": 30,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 70,
+                    "y": 1,
+                    "width": 19,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 90,
+                    "y": 1,
+                    "width": 19,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 110,
+                    "y": 1,
+                    "width": 18,
+                    "height": 31,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 129,
+                    "y": 1,
+                    "width": 19,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 149,
+                    "y": 1,
+                    "width": 19,
+                    "height": 32,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "fist_walk_up": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 169,
+                    "y": 1,
+                    "width": 16,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 186,
+                    "y": 1,
+                    "width": 18,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 205,
+                    "y": 1,
+                    "width": 18,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 224,
+                    "y": 1,
+                    "width": 16,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 241,
+                    "y": 1,
+                    "width": 18,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 260,
+                    "y": 1,
+                    "width": 18,
+                    "height": 32,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "fist_walk_side": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 279,
+                    "y": 1,
+                    "width": 20,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 300,
+                    "y": 1,
+                    "width": 18,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 319,
+                    "y": 1,
+                    "width": 17,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 337,
+                    "y": 1,
+                    "width": 23,
+                    "height": 29,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 361,
+                    "y": 1,
+                    "width": 16,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 378,
+                    "y": 1,
+                    "width": 18,
+                    "height": 32,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "fist_attack_down": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 400,
+                    "y": 133,
+                    "width": 21,
+                    "height": 24,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 422,
+                    "y": 133,
+                    "width": 20,
+                    "height": 24,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 443,
+                    "y": 133,
+                    "width": 23,
+                    "height": 24,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "fist_attack_up": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 467,
+                    "y": 133,
+                    "width": 18,
+                    "height": 29,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 486,
+                    "y": 133,
+                    "width": 18,
+                    "height": 24,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 505,
+                    "y": 133,
+                    "width": 21,
+                    "height": 28,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "fist_attack_side": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 527,
+                    "y": 133,
+                    "width": 21,
+                    "height": 28,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 549,
+                    "y": 133,
+                    "width": 23,
+                    "height": 23,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 573,
+                    "y": 133,
+                    "width": 24,
+                    "height": 28,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "fist_running_down": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 397,
+                    "y": 1,
+                    "width": 20,
+                    "height": 31,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 418,
+                    "y": 1,
+                    "width": 19,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 438,
+                    "y": 1,
+                    "width": 19,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 458,
+                    "y": 1,
+                    "width": 20,
+                    "height": 31,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 479,
+                    "y": 1,
+                    "width": 19,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 499,
+                    "y": 1,
+                    "width": 19,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 519,
+                    "y": 1,
+                    "width": 18,
+                    "height": 30,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "fist_running_up": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 538,
+                    "y": 1,
+                    "width": 18,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 557,
+                    "y": 1,
+                    "width": 18,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 576,
+                    "y": 1,
+                    "width": 18,
+                    "height": 30,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 595,
+                    "y": 1,
+                    "width": 18,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 614,
+                    "y": 1,
+                    "width": 18,
+                    "height": 32,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "fist_running_side": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 633,
+                    "y": 1,
+                    "width": 28,
+                    "height": 24,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 662,
+                    "y": 1,
+                    "width": 17,
+                    "height": 30,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 680,
+                    "y": 1,
+                    "width": 16,
+                    "height": 30,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 697,
+                    "y": 1,
+                    "width": 24,
+                    "height": 26,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 722,
+                    "y": 1,
+                    "width": 16,
+                    "height": 30,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 739,
+                    "y": 1,
+                    "width": 17,
+                    "height": 30,
+                    "duration_ticks": 180
+                }
+            ]
+        }
+    }
+}

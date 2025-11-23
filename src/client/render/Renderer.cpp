@@ -5,6 +5,9 @@
 #include "chroma/client/render/TextureAtlas.h"
 #include "chroma/client/render/Window.h"
 #include "chroma/client/render/animation/AnimationRenderer.h"
+#include "chroma/client/render/shader/RenderPass.h"
+#include "chroma/client/render/shader/RenderPipeline.h"
+#include "chroma/client/render/shader/shaders/CrtPass.h"
 
 #include <functional>
 #include <memory>
@@ -15,7 +18,7 @@
 namespace chroma::client::render {
 
 Renderer::Renderer(std::unique_ptr<Window> window, const RenderConfig &config)
-  : window_(std::move(window)), config_(config), clear_color_(BLACK)
+  : window_(std::move(window)), config_(config), clear_color_(WHITE)
 {
   InitializeSubsystems();
 }
@@ -38,15 +41,14 @@ void Renderer::EndFrame() const
   render_queue_->Sort();
   render_queue_->Execute();
   render_queue_->Clear();
-
   EndMode2D();
-
   RenderTarget::End();
 
-  // const auto size = window_->GetVirtualSize();
-  const int screen_w = GetScreenWidth();
-  const int screen_h = GetScreenHeight();
-  render_target_->Draw(screen_w, screen_h);
+  RenderTexture2D scene_rt = render_target_->GetTexture();
+
+  auto final_tex = render_pipeline_->Execute(scene_rt);
+
+  render_target_->Draw(final_tex.texture, GetScreenWidth(), GetScreenHeight());
 
   EndDrawing();
 }
@@ -97,8 +99,29 @@ void Renderer::InitializeSubsystems()
     std::shared_ptr<TextureAtlas>(atlas_manager_.get(), [](TextureAtlas *) {}),
     std::shared_ptr<SpriteRenderer>(sprite_renderer_.get(), [](SpriteRenderer *) {}));
 
-  SetTextureFilter(render_target_->GetTexture().texture, config_.filter);
+  render_pipeline_ = std::make_unique<shader::RenderPipeline>();
+  render_pipeline_->Initialize(vw, vh);
 
+  auto crt_pass = std::make_unique<shader::shaders::CrtPass>();
+  render_pipeline_->AddPassBack(std::move(crt_pass));
+  render_pipeline_->Setup();
+
+  SetTextureFilter(render_target_->GetTexture().texture, config_.filter);
   SetVSync(config_.vsync);
 }
+
+void Renderer::AddShaderPassFront(std::unique_ptr<shader::RenderPass> pass) const
+{
+  if (render_pipeline_ == nullptr) { return; }
+  render_pipeline_->AddPassFront(std::move(pass));
+  render_pipeline_->Setup();
+}
+
+void Renderer::AddShaderPassBack(std::unique_ptr<shader::RenderPass> pass) const
+{
+  if (render_pipeline_ == nullptr) { return; }
+  render_pipeline_->AddPassBack(std::move(pass));
+  render_pipeline_->Setup();
+}
+
 }// namespace chroma::client::render

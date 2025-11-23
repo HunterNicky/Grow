@@ -6,7 +6,6 @@
 #include "chroma/client/audio/AudioEngine.h"
 #include "chroma/client/render/Renderer.h"
 #include "chroma/shared/events/EventCatcher.h"
-#include "chroma/shared/events/EventDispatcher.h"
 
 namespace chroma::app {
 class Application
@@ -35,7 +34,7 @@ private:
   std::shared_ptr<shared::event::EventCatcher> event_catcher_;
 
   float delta_time_;
-  std::unique_ptr<client::render::Renderer> renderer_;
+  std::shared_ptr<client::render::Renderer> renderer_;
   std::unique_ptr<client::audio::AudioEngine> audio_;
 };
 }// namespace chroma::app
