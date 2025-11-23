@@ -6,9 +6,9 @@
 #include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/components/Transform.h"
+#include "chroma/shared/events/Event.h"
 #include "chroma/shared/render/RenderBridge.h"
 #include "chroma/shared/render/SpriteLoader.h"
-#include "chroma/shared/events/Event.h"
 
 #include <memory>
 #include <raylib.h>
