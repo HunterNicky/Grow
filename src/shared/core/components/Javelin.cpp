@@ -1,6 +1,6 @@
 #include "chroma/shared/core/components/Javelin.h"
-#include "chroma/shared/core/components/Weapon.h"
 #include "chroma/shared/core/components/Component.h"
+#include "chroma/shared/core/components/Weapon.h"
 
 #include <raylib.h>
 
