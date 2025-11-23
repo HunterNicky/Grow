@@ -20,8 +20,8 @@ Weapon::Weapon(WeaponType type,
   float cooldown,
   float last_attack_time,
   Vector2 position)
-  : position_(position), size_{ 16.0F, 16.0F }, weapon_type_(type), damage_(damage), range_(range),
-    weight_(weight), cooldown_(cooldown), last_attack_time_(last_attack_time)
+  : position_(position), size_{ 16.0F, 16.0F }, weapon_type_(type), damage_(damage), range_(range), weight_(weight),
+    cooldown_(cooldown), last_attack_time_(last_attack_time)
 {
   type_ = ComponentType::WEAPON;
 }
