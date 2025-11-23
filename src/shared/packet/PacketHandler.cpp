@@ -13,6 +13,7 @@
 #include "chroma/shared/packet/events/InputEventMessage.h"
 #include "chroma/shared/packet/events/ProjectileMessage.h"
 #include "chroma/shared/packet/events/SoundEventMessage.h"
+#include "chroma/shared/events/ProjectileEvent.h"
 #include "common_generated.h"
 #include "components_generated.h"
 #include "entities_generated.h"
