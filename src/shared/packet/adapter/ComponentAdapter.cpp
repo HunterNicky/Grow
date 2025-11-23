@@ -16,16 +16,11 @@
 #include "chroma/shared/core/components/Weapon.h"
 #include "chroma/shared/factory/WeaponFactory.h"
 
-<<<<<<< HEAD
 #include <flatbuffers/flatbuffer_builder.h>
 #include <flatbuffers/vector.h>
 #include <components_generated.h>
 #include <common_generated.h>
 #include <raylib.h>
-=======
-#include <components_generated.h>
-#include <flatbuffers/flatbuffer_builder.h>
->>>>>>> ce6fb81654ea25f88ab28bc704238c124b34a891
 #include <memory>
 #include <cstdint>
 #include <vector>
