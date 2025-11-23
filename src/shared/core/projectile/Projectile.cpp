@@ -7,7 +7,7 @@
 #include "chroma/shared/core/components/Transform.h"
 #include "chroma/shared/render/RenderBridge.h"
 #include "chroma/shared/render/SpriteLoader.h"
-#include "chroma/shared/events/Event"
+#include "chroma/shared/events/Event.h"
 #include "chroma/shared/core/GameObject.h"
 
 #include <memory>
@@ -101,7 +101,7 @@ std::shared_ptr<GameObject> Projectile::Clone() { return std::make_shared<Projec
 
 void Projectile::OnFixedUpdate(float delta_time) { (void)delta_time; }
 
-void Player::OnCollision(const collision::CollisionEvent &event) { (void)event; }
+void Projectile::OnCollision(const collision::CollisionEvent &event) { (void)event; }
 
 void Projectile::HandleEvent(const event::Event &event) { (void)event; }
 
