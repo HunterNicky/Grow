@@ -12,6 +12,7 @@
 #include "chroma/app/layers/network/NetworkLayer.h"
 #include "chroma/app/states/GameState.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
+#include "chroma/app/states/mediator/RenderMediator.h"
 #include "chroma/app/states/network/NetworkState.h"
 #include "chroma/client/audio/AudioBridgeImpl.h"
 #include "chroma/client/audio/AudioEngine.h"
@@ -19,13 +20,12 @@
 #include "chroma/client/render/Renderer.h"
 #include "chroma/client/render/Window.h"
 #include "chroma/shared/audio/AudioBridge.h"
+#include "chroma/shared/context/GameContext.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/EventCatcher.h"
 #include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/render/RenderBridge.h"
-#include "chroma/shared/context/GameContext.h"
-#include "chroma/app/states/mediator/RenderMediator.h"
 
 using namespace chroma::client::render;
 
@@ -39,7 +39,7 @@ Application::Application()
     }()),
     audio_(std::make_unique<client::audio::AudioEngine>())
 {
-  
+
   const auto bridge = std::make_shared<client::render::RenderBridgeImpl>(renderer_.get());
   shared::render::SetRenderBridge(bridge);
 
@@ -102,7 +102,8 @@ void Application::Run()
   renderer_->Close();
 }
 
-void Application::Initialize() {
+void Application::Initialize()
+{
   shared::render::GetRenderBridge()->LoadSprite("assets/sprites/player/weapons/randi-fist.png");
   shared::render::GetRenderBridge()->LoadSprite("assets/sprites/player/weapons/randi-spear.png");
   shared::render::GetRenderBridge()->LoadSprite("assets/sprites/player/weapons/randi-javelin.png");

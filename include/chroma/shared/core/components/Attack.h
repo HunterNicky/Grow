@@ -6,14 +6,14 @@ namespace chroma::shared::core::component {
 class Attack : public Component
 {
 public:
-    Attack();
-    Attack(bool is_attacking);
+  Attack();
+  Attack(bool is_attacking);
 
-    bool IsAttacking() const;
-    void SetAttacking(bool attacking);
+  bool IsAttacking() const;
+  void SetAttacking(bool attacking);
 
 private:
-    bool is_attacking_ = false;
+  bool is_attacking_ = false;
 };
 
-} // namespace chroma::shared::core::component
+}// namespace chroma::shared::core::component

@@ -1,15 +1,14 @@
 #include "chroma/shared/factory/WeaponFactory.h"
 
-#include "chroma/shared/core/components/Spear.h"
 #include "chroma/shared/core/components/Javelin.h"
+#include "chroma/shared/core/components/Spear.h"
 
 namespace chroma::shared::factory {
 std::shared_ptr<core::component::Weapon> WeaponFactory::CreateWeaponByType(core::component::WeaponType type)
 {
-    switch (type)
-    {
-    case core::component::WeaponType::SPEAR:
-        return std::make_shared<core::component::Spear>();
+  switch (type) {
+  case core::component::WeaponType::SPEAR:
+    return std::make_shared<core::component::Spear>();
     // case core::component::WeaponType::SWORD:
     //     return std::make_shared<core::component::Sword>();
 
@@ -19,12 +18,12 @@ std::shared_ptr<core::component::Weapon> WeaponFactory::CreateWeaponByType(core:
     // case core::component::WeaponType::AXE:
     //     return std::make_shared<core::component::Axe>();
 
-    case core::component::WeaponType::JAVELIN:
-        return std::make_shared<core::component::Javelin>();
-    case core::component::WeaponType::FIST:
-    default:
-        return std::make_shared<core::component::Weapon>();
-    }
+  case core::component::WeaponType::JAVELIN:
+    return std::make_shared<core::component::Javelin>();
+  case core::component::WeaponType::FIST:
+  default:
+    return std::make_shared<core::component::Weapon>();
+  }
 }
 
-} // namespace chroma::shared::factory
+}// namespace chroma::shared::factory

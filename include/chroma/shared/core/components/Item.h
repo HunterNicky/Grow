@@ -4,28 +4,29 @@
 
 namespace chroma::shared::core::component {
 
-class Item : public Component {
+class Item : public Component
+{
 public:
-    explicit Item(std::string name, std::string description, float weight);
-    ~Item() override = default;
+  explicit Item(std::string name, std::string description, float weight);
+  ~Item() override = default;
 
-    Item(const Item&) = delete;
-    Item& operator=(const Item&) = delete;
-    Item(Item&&) noexcept = default;
-    Item& operator=(Item&&) noexcept = default;
+  Item(const Item &) = delete;
+  Item &operator=(const Item &) = delete;
+  Item(Item &&) noexcept = default;
+  Item &operator=(Item &&) noexcept = default;
 
-    [[nodiscard]] std::string GetName() const;
-    void SetName(const std::string& name);
+  [[nodiscard]] std::string GetName() const;
+  void SetName(const std::string &name);
 
-    [[nodiscard]] std::string GetDescription() const;
-    void SetDescription(const std::string& description);
+  [[nodiscard]] std::string GetDescription() const;
+  void SetDescription(const std::string &description);
 
-    [[nodiscard]] float GetWeight() const;
-    void SetWeight(float weight);
+  [[nodiscard]] float GetWeight() const;
+  void SetWeight(float weight);
 
 private:
-    std::string name_;
-    std::string description_;
-    float weight_;
+  std::string name_;
+  std::string description_;
+  float weight_;
 };
-} // namespace chroma::shared::core::component
+}// namespace chroma::shared::core::component

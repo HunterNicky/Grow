@@ -1,10 +1,11 @@
-#pragma once 
+#pragma once
 
 #include "chroma/shared/core/components/Weapon.h"
 
 namespace chroma::shared::core::component {
-class Javelin : public Weapon {
+class Javelin : public Weapon
+{
 public:
-    Javelin();
+  Javelin();
 };
-} // namespace chroma::shared::core::component
+}// namespace chroma::shared::core::component

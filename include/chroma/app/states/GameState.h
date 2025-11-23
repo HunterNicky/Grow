@@ -48,6 +48,6 @@ private:
   std::shared_ptr<GameNetworkMediator> network_mediator_;
   std::shared_ptr<mediator::RenderMediator> render_mediator_;
   UUIDv4::UUID player_id_;
-  bool first_snapshot_received_{true};
+  bool first_snapshot_received_{ true };
 };
 }// namespace chroma::app::states

@@ -6,15 +6,15 @@
 #include "chroma/client/render/TextureAtlas.h"
 #include "chroma/client/render/Window.h"
 #include "chroma/client/render/animation/AnimationRenderer.h"
-#include "chroma/client/render/shader/RenderPipeline.h"
 #include "chroma/client/render/shader/RenderPass.h"
+#include "chroma/client/render/shader/RenderPipeline.h"
 
 #include <functional>
 #include <memory>
 #include <string>
 
 namespace chroma::client::render {
-  
+
 class Renderer
 {
 public:
@@ -54,7 +54,6 @@ public:
   [[nodiscard]] animation::AnimationRenderer &GetAnimationRenderer() const { return *animation_renderer_; }
 
 private:
-
   std::unique_ptr<Window> window_;
   RenderConfig config_;
   Color clear_color_;

@@ -1,15 +1,15 @@
 #pragma once
 
+#include <cstdint>
 #include <flatbuffers/flatbuffer_builder.h>
+#include <memory>
 #include <unordered_map>
 #include <uuid_v4.h>
-#include <cstdint>
-#include <memory>
 #include <vector>
 
+#include "chroma//shared/core/GameObject.h"
 #include "chroma/shared/packet/events/InputEventMessage.h"
 #include "chroma/shared/packet/events/ProjectileMessage.h"
-#include "chroma//shared/core/GameObject.h"
 
 #include "entities_generated.h"
 #include "events_generated.h"

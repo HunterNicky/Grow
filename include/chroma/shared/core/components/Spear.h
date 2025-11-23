@@ -3,8 +3,9 @@
 #include "chroma/shared/core/components/Weapon.h"
 
 namespace chroma::shared::core::component {
-class Spear : public Weapon {
+class Spear : public Weapon
+{
 public:
-    Spear();
+  Spear();
 };
-} // namespace chroma::shared::core::components
+}// namespace chroma::shared::core::component

@@ -37,19 +37,19 @@ void Renderer::BeginFrame() const
 
 void Renderer::EndFrame() const
 {
-    render_queue_->Sort();
-    render_queue_->Execute();
-    render_queue_->Clear();
-    EndMode2D();
-    RenderTarget::End(); 
-    
-    RenderTexture2D scene_rt = render_target_->GetTexture();
+  render_queue_->Sort();
+  render_queue_->Execute();
+  render_queue_->Clear();
+  EndMode2D();
+  RenderTarget::End();
 
-    auto final_tex = render_pipeline_->Execute(scene_rt);
+  RenderTexture2D scene_rt = render_target_->GetTexture();
 
-    render_target_->Draw(final_tex.texture, GetScreenWidth(), GetScreenHeight());
+  auto final_tex = render_pipeline_->Execute(scene_rt);
 
-    EndDrawing();
+  render_target_->Draw(final_tex.texture, GetScreenWidth(), GetScreenHeight());
+
+  EndDrawing();
 }
 
 void Renderer::RenderFrame(const std::function<void()> &draw_world) const
@@ -97,33 +97,28 @@ void Renderer::InitializeSubsystems()
   animation_renderer_ = std::make_unique<animation::AnimationRenderer>(
     std::shared_ptr<TextureAtlas>(atlas_manager_.get(), [](TextureAtlas *) {}),
     std::shared_ptr<SpriteRenderer>(sprite_renderer_.get(), [](SpriteRenderer *) {}));
-  
+
   render_pipeline_ = std::make_unique<shader::RenderPipeline>();
   render_pipeline_->Initialize(vw, vh);
-  
+
   auto crt_pass = std::make_unique<shader::shaders::CrtPass>();
   render_pipeline_->AddPassBack(std::move(crt_pass));
   render_pipeline_->Setup();
 
   SetTextureFilter(render_target_->GetTexture().texture, config_.filter);
   SetVSync(config_.vsync);
-
 }
 
 void Renderer::AddShaderPassFront(std::unique_ptr<shader::RenderPass> pass)
 {
-    if(render_pipeline_) {
-        render_pipeline_->AddPassFront(std::move(pass));
-    }
-    render_pipeline_->Setup();
+  if (render_pipeline_) { render_pipeline_->AddPassFront(std::move(pass)); }
+  render_pipeline_->Setup();
 }
 
 void Renderer::AddShaderPassBack(std::unique_ptr<shader::RenderPass> pass)
 {
-    if(render_pipeline_) {
-        render_pipeline_->AddPassBack(std::move(pass));
-    }
-    render_pipeline_->Setup();
+  if (render_pipeline_) { render_pipeline_->AddPassBack(std::move(pass)); }
+  render_pipeline_->Setup();
 }
 
 }// namespace chroma::client::render

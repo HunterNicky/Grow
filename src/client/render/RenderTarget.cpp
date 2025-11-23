@@ -31,7 +31,7 @@ void RenderTarget::Draw(const int screen_width, const int screen_height)
   DrawTexturePro(target_.texture, source_rec_, dest_rec_, { 0.0F, 0.0F }, 0.0F, WHITE);
 }
 
-void RenderTarget::Draw(const Texture2D& texture, const int screen_width, const int screen_height)
+void RenderTarget::Draw(const Texture2D &texture, const int screen_width, const int screen_height)
 {
   CalculateLetterbox(screen_width, screen_height);
   DrawTexturePro(texture, source_rec_, dest_rec_, { 0.0F, 0.0F }, 0.0F, WHITE);

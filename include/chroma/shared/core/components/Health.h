@@ -1,4 +1,4 @@
-#pragma once 
+#pragma once
 
 #include "chroma/shared/core/components/Component.h"
 
@@ -7,32 +7,33 @@
 
 namespace chroma::shared::core::component {
 
-class Health : public Component {
+class Health : public Component
+{
 public:
-    explicit Health(float max_health);
-    explicit Health();
-    ~Health() override = default;
+  explicit Health(float max_health);
+  explicit Health();
+  ~Health() override = default;
 
-    // default copy/move semantics (trivial for float members)
-    Health(const Health&) = default;
-    Health& operator=(const Health&) = default;
-    Health(Health&&) noexcept = default;
-    Health& operator=(Health&&) noexcept = default;
+  // default copy/move semantics (trivial for float members)
+  Health(const Health &) = default;
+  Health &operator=(const Health &) = default;
+  Health(Health &&) noexcept = default;
+  Health &operator=(Health &&) noexcept = default;
 
-    void TakeDamage(float amount);
-    void Heal(float amount);
-    
-    [[nodiscard]] std::shared_ptr<float> GetCurrentHealth() const;
-    [[nodiscard]] std::shared_ptr<float> GetMaxHealth() const;
+  void TakeDamage(float amount);
+  void Heal(float amount);
 
-    void SetMaxHealth(float max_health);
-    void SetCurrentHealth(float current_health);
+  [[nodiscard]] std::shared_ptr<float> GetCurrentHealth() const;
+  [[nodiscard]] std::shared_ptr<float> GetMaxHealth() const;
 
-    void DrawHealth(Vector2 position, Vector2 size) const;
+  void SetMaxHealth(float max_health);
+  void SetCurrentHealth(float current_health);
+
+  void DrawHealth(Vector2 position, Vector2 size) const;
 
 private:
-    std::shared_ptr<float> current_health_;
-    std::shared_ptr<float> max_health_;
+  std::shared_ptr<float> current_health_;
+  std::shared_ptr<float> max_health_;
 };
 
-} // namespace chroma::shared::core::component
+}// namespace chroma::shared::core::component

@@ -43,7 +43,7 @@ private:
     const std::shared_ptr<shared::core::GameObject> &target_object,
     std::shared_ptr<shared::core::GameObject> &out_object,
     float alpha) const;
-  
+
   static void InterpolateHealth(const std::shared_ptr<shared::core::GameObject> &past_object,
     const std::shared_ptr<shared::core::GameObject> &target_object,
     std::shared_ptr<shared::core::GameObject> &out_object,

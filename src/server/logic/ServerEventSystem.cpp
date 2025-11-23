@@ -33,9 +33,7 @@ void ServerEventSystem::ProcessGameEvent(const ENetEvent &event,
   }
   case Game::EventUnion::ProjectileEventMessage: {
     const auto projectile_message = network::ServerPacketHandler::EventToProjectileMessage(evt);
-    if (projectile_message) {
-      game_logic.OnReceivedProjectileMessage(projectile_message);
-    }
+    if (projectile_message) { game_logic.OnReceivedProjectileMessage(projectile_message); }
     break;
   }
   default:

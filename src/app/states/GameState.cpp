@@ -2,6 +2,9 @@
 
 #include "chroma/app/states/State.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
+#include "chroma/client/render/shader/shaders/HealthPass.h"
+#include "chroma/shared/builder/GameObjectBuilder.h"
+#include "chroma/shared/context/GameContext.h"
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/player/Player.h"
@@ -10,11 +13,8 @@
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/events/KeyEvent.h"
-#include "chroma/shared/context/GameContext.h"
-#include "chroma/shared/builder/GameObjectBuilder.h"
 #include "chroma/shared/events/ProjectileEvent.h"
 #include "chroma/shared/render/RenderBridge.h"
-#include "chroma/client/render/shader/shaders/HealthPass.h"
 
 #include <cstdint>
 #include <memory>
@@ -31,17 +31,17 @@ GameState::GameState()
     network_mediator_(nullptr)
 {
   auto player = shared::builder::GameObjectBuilder<shared::core::player::Player>()
-        .AddTransform({0,0})
-        .AddSpeed(50.0F)
-        .AddMovement()
-        .AddAnimation()
-        .AddCamera(shared::render::CameraMode::FollowSmooth, 3.0F, 2.0F, {64,128})
-        .AddAudioListener()
-        .AddHealth(100.0F, 1.0F)
-        .AddRun(false, 1.5F)
-        .NetRole(shared::core::NetRole::AUTONOMOUS)
-        .AddInventory(10 )
-        .Build();
+                  .AddTransform({ 0, 0 })
+                  .AddSpeed(50.0F)
+                  .AddMovement()
+                  .AddAnimation()
+                  .AddCamera(shared::render::CameraMode::FollowSmooth, 3.0F, 2.0F, { 64, 128 })
+                  .AddAudioListener()
+                  .AddHealth(100.0F, 1.0F)
+                  .AddRun(false, 1.5F)
+                  .NetRole(shared::core::NetRole::AUTONOMOUS)
+                  .AddInventory(10)
+                  .Build();
 
   SetPlayerId(player->GetId());
   player->SetupAnimation(player->GetComponent<shared::core::component::SpriteAnimation>());
@@ -107,21 +107,20 @@ void GameState::OnEvent(shared::event::Event &event)
   if (network_mediator_) { network_mediator_->AddInputEvent(event); }
 }
 
-void GameState::SetPlayerId(const UUIDv4::UUID &player_id) {
-   player_id_ = player_id; 
+void GameState::SetPlayerId(const UUIDv4::UUID &player_id)
+{
+  player_id_ = player_id;
 
-   auto player = GetPlayer();
+  auto player = GetPlayer();
 
-   if(player)
-   {
-       shared::context::GameContext::GetInstance().SetLocalPlayer(player);
-      if(first_snapshot_received_) 
-      {
-          auto health_pass = std::make_unique<client::render::shader::shaders::HealthPass>();
-          render_mediator_->AddShaderFront(std::move(health_pass));
-          first_snapshot_received_ = false;
-      }
-   }
+  if (player) {
+    shared::context::GameContext::GetInstance().SetLocalPlayer(player);
+    if (first_snapshot_received_) {
+      auto health_pass = std::make_unique<client::render::shader::shaders::HealthPass>();
+      render_mediator_->AddShaderFront(std::move(health_pass));
+      first_snapshot_received_ = false;
+    }
+  }
 }
 
 void GameState::SetEventDispatcher()
@@ -135,21 +134,21 @@ void GameState::SetEventDispatcher()
 
 void GameState::HandleProjectileEvent(shared::event::Event &event)
 {
-    auto& projectile_event = dynamic_cast<shared::event::ProjectileEvent&>(event);
+  auto &projectile_event = dynamic_cast<shared::event::ProjectileEvent &>(event);
 
-    auto projectile = shared::builder::GameObjectBuilder<shared::core::projectile::Projectile>()
-        .Id(projectile_event.GetProjectileId())
-        .AddTransform(projectile_event.GetPosition())
-        .AddMovement(projectile_event.GetDirection())
-        .AddSpeed(projectile_event.GetSpeed())
-        .AddAnimation()
-        .AddProjectileType(projectile_event.GetProjectileType())
-        .NetRole(shared::core::NetRole::SIMULATED)
-        .Build();
+  auto projectile = shared::builder::GameObjectBuilder<shared::core::projectile::Projectile>()
+                      .Id(projectile_event.GetProjectileId())
+                      .AddTransform(projectile_event.GetPosition())
+                      .AddMovement(projectile_event.GetDirection())
+                      .AddSpeed(projectile_event.GetSpeed())
+                      .AddAnimation()
+                      .AddProjectileType(projectile_event.GetProjectileType())
+                      .NetRole(shared::core::NetRole::SIMULATED)
+                      .Build();
 
-    projectile->InitAnimation();
+  projectile->InitAnimation();
 
-    game_objects_->emplace(projectile_event.GetProjectileId(), projectile);
+  game_objects_->emplace(projectile_event.GetProjectileId(), projectile);
 }
 
 std::shared_ptr<shared::core::player::Player> GameState::GetPlayer() const

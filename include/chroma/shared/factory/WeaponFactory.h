@@ -1,13 +1,14 @@
 #pragma once
 
-#include <memory>
 #include "chroma/shared/core/components/Weapon.h"
+#include <memory>
 
 namespace chroma::shared::factory {
 
-class WeaponFactory {
+class WeaponFactory
+{
 public:
-    static std::shared_ptr<core::component::Weapon> CreateWeaponByType(core::component::WeaponType type);
+  static std::shared_ptr<core::component::Weapon> CreateWeaponByType(core::component::WeaponType type);
 };
 
-} // namespace chroma::shared::factory
+}// namespace chroma::shared::factory

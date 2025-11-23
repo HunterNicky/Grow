@@ -9,8 +9,8 @@ namespace chroma::app::states::network {
 void PredictiveSyncSystem::ApplyEvents(const std::shared_ptr<shared::core::player::Player> &player) const
 {
   for (const auto &[seq, event] : input_event_history_) {
-    if(event->GetType() == shared::event::Event::SoundEvent) { continue; }
-      player->HandleEvent(*event); 
+    if (event->GetType() == shared::event::Event::SoundEvent) { continue; }
+    player->HandleEvent(*event);
   }
 }
 
