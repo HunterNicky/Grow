@@ -1,4 +1,8 @@
 #include "chroma/shared/core/components/Javelin.h"
+#include "chroma/shared/core/components/Weapon.h"
+#include "chroma/shared/core/components/Component.h"
+
+#include <raylib.h>
 
 namespace chroma::shared::core::component {
 Javelin::Javelin() : Weapon(WeaponType::JAVELIN, 5, 40.0F, 1.0F, 1.5F)

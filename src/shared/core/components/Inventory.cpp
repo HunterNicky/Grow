@@ -1,8 +1,12 @@
 #pragma once
 
 #include <algorithm>
+#include <memory>
 
 #include "chroma/shared/core/components/Inventory.h"
+#include "chroma/shared/core/components/Item.h"
+#include "chroma/shared/core/components/Weapon.h"
+#include "chroma/shared/core/components/Component.h"
 
 namespace chroma::shared::core::component {
 Inventory::Inventory(int capacity) : capacity_(capacity) { type_ = ComponentType::INVENTORY; }
