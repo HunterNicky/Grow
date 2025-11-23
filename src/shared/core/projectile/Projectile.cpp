@@ -1,14 +1,14 @@
 #include "chroma/shared/core/projectile/Projectile.h"
 
+#include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/Movement.h"
 #include "chroma/shared/core/components/ProjectileType.h"
 #include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/components/Transform.h"
+#include "chroma/shared/events/Event"
 #include "chroma/shared/render/RenderBridge.h"
 #include "chroma/shared/render/SpriteLoader.h"
-#include "chroma/shared/events/Event"
-#include "chroma/shared/core/GameObject.h"
 
 #include <memory>
 #include <raylib.h>
