@@ -309,7 +309,7 @@ void Player::HandleThrowInput(const std::shared_ptr<component::Weapon> &weapon)
 
   if (weapon->GetWeaponType() == component::WeaponType::JAVELIN) {
     auto projectile_event =
-      std::make_shared<event::ProjectileEvent>(core::component::TypeProjectile::JAVELIN, direction, 50.0F);
+      std::make_shared<event::ProjectileEvent>(core::component::TypeProjectile::JAVELIN, direction, 80.0F);
     projectile_event->SetProjectileId(utils::UUID::Generate());
     projectile_event->SetPosition(transform->GetPosition());
     event::EventBus::Dispatch(*projectile_event);

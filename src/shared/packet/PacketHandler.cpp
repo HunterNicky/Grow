@@ -76,41 +76,32 @@ std::vector<flatbuffers::Offset<Game::EntityState>> PacketHandler::GameObjectsTo
 void PacketHandler::UpdateGameObjectWithEntityState(const Game::EntityState *entity_state,
   std::shared_ptr<core::GameObject> &game_object)
 {
+  if (entity_state == nullptr || game_object == nullptr) { return; }
+  game_object->SetId(UUIDv4::UUID::fromStrFactory(entity_state->id()->str()));
+
+  for (const auto &component : *entity_state->components()) {
+    if (component == nullptr) { continue; }
+    adapter::ComponentAdapter::FromComponent(*component, game_object);
+  }
+
   switch (entity_state->type()) {
   case Game::GameObjectType::Player: {
     const auto player = std::static_pointer_cast<core::player::Player>(game_object);
-    if (player) {
+    if (!player) { break; }
 
-      const UUIDv4::UUID player_id = UUIDv4::UUID(entity_state->id()->str());
-
-      player->SetId(player_id);
-
-      for (const auto &component : *entity_state->components()) {
-        if (component != nullptr) { adapter::ComponentAdapter::FromComponent(*component, game_object); }
-      }
-
-      auto inventory = player->GetComponent<core::component::Inventory>();
-      if (inventory && inventory->GetCurrentWeapon()) { player->SetCurrentWeapon(inventory->GetCurrentWeapon()); }
-    }
+    auto inventory = player->GetComponent<core::component::Inventory>();
+    if (inventory && inventory->GetCurrentWeapon()) { player->SetCurrentWeapon(inventory->GetCurrentWeapon()); }
     break;
   }
   case Game::GameObjectType::Projectile: {
     const auto projectile = std::static_pointer_cast<core::projectile::Projectile>(game_object);
-    if (projectile) {
+    
+    if (!projectile) { break; }
 
-      const UUIDv4::UUID projectile_id = UUIDv4::UUID::fromStrFactory(entity_state->id()->str());
+    auto sprite_anim = projectile->GetComponent<core::component::SpriteAnimation>();
+    if (sprite_anim == nullptr) { break; }
 
-      projectile->SetId(projectile_id);
-
-      for (const auto &component : *entity_state->components()) {
-        if (component != nullptr) { adapter::ComponentAdapter::FromComponent(*component, game_object); }
-      }
-
-      auto sprite_anim = projectile->GetComponent<core::component::SpriteAnimation>();
-      if (!sprite_anim) { return; }
-
-      if (sprite_anim->GetAnimations().empty()) { projectile->InitAnimation(); }
-    }
+    if (sprite_anim->GetAnimations().empty()) { projectile->InitAnimation(); }
     break;
   }
   default:
