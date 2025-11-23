@@ -67,7 +67,7 @@ void SliderWidget::OnRender()
   const float center_y = bounds_.y + (bounds_.height / 2.0F);
   const float handle_x = GetHandleX();
 
-  DrawText(label_.c_str(), (int)bounds_.x, (int)bounds_.y - 25, 20, WHITE);
+  DrawText(label_.c_str(), (int)bounds_.x, (int)bounds_.y - 25, 26, WHITE);
 
   DrawLineEx({ bounds_.x, center_y }, { bounds_.x + bounds_.width, center_y }, bar_thickness_, LIGHTGRAY);
 
@@ -80,7 +80,7 @@ void SliderWidget::OnRender()
   oss << value_;
   const std::string value_text = oss.str();
 
-  DrawText(value_text.c_str(), (int)(bounds_.x + bounds_.width + 15.0F), (int)(center_y - 10.0F), 20, WHITE);
+  DrawText(value_text.c_str(), (int)(bounds_.x + bounds_.width + 15.0F), (int)(center_y - 10.0F), 26, WHITE);
 }
 
 }// namespace chroma::client::ui::widget

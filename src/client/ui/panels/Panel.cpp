@@ -1,23 +1,21 @@
 #include <memory>
+#include <numeric>
 #include <raylib.h>
 #include <utility>
 
 #include "chroma/client/ui/UIContext.h"
 #include "chroma/client/ui/panels/Panel.h"
-#include "chroma/client/ui/widgets/Widget.h"
 #include "chroma/client/ui/panels/PanelIdentifiers.h"
+#include "chroma/client/ui/widgets/Widget.h"
 
 namespace chroma::client::ui::panel {
-Panel::Panel(const PanelID panel_id, Rectangle bounds) : bounds_(bounds), 
- id_(panel_id), is_active_(true), is_visible_(true), background_texture_()
- {
- }
+Panel::Panel(const PanelID panel_id, Rectangle bounds)
+  : bounds_(bounds), id_(panel_id), is_active_(true), is_visible_(true), background_texture_()
+{}
 
 Panel::~Panel()
 {
-  if (background_texture_.id != 0) {
-    UnloadTexture(background_texture_);
-  }
+  if (background_texture_.id != 0) { UnloadTexture(background_texture_); }
 }
 
 void Panel::OnUpdate(const float delta_time, const UIContext &context)
@@ -33,60 +31,39 @@ void Panel::OnRender()
 
 void Panel::CenterWidgets(float spacing)
 {
-    if (widgets_.empty()) { return; }
+  if (widgets_.empty()) { return; }
 
-    float total_height = 0.0F;
-    for (auto &w : widgets_) {
-        total_height += w->GetBounds().height;
-    }
+  float total_height = std::accumulate( // NOLINT(boost-use-ranges)
+    widgets_.begin(), widgets_.end(), 0.0F, [](float sum, const auto &w) { return sum + w->GetBounds().height; });
 
-    total_height += spacing * static_cast<float>(widgets_.size() - 1);
+  total_height += spacing * static_cast<float>(widgets_.size() - 1);
 
-    float start_y = bounds_.y + ((bounds_.height - total_height) / 2.0F);
+  float start_y = bounds_.y + ((bounds_.height - total_height) / 2.0F);
 
-    for (auto &w : widgets_) {
-        Rectangle b = w->GetBounds();
+  for (auto &w : widgets_) {
+    Rectangle b = w->GetBounds();
 
-        b.x = bounds_.x + ((bounds_.width - b.width) / 2.0F);
+    b.x = bounds_.x + ((bounds_.width - b.width) / 2.0F);
 
-        b.y = start_y;
+    b.y = start_y;
 
-        w->SetBounds(b);
+    w->SetBounds(b);
 
-        start_y += b.height + spacing;
-    }
+    start_y += b.height + spacing;
+  }
 }
 
+void Panel::AddWidget(std::unique_ptr<widget::Widget> widget) { widgets_.push_back(std::move(widget)); }
 
-void Panel::AddWidget(std::unique_ptr<widget::Widget> widget)
-{
-  widgets_.push_back(std::move(widget));
-}
+void Panel::SetIsActive(const bool is_active) { is_active_ = is_active; }
 
-void Panel::SetIsActive(const bool is_active)
-{
-  is_active_ = is_active;
-}
+void Panel::SetIsVisible(const bool is_visible) { is_visible_ = is_visible; }
 
-void Panel::SetIsVisible(const bool is_visible)
-{
-  is_visible_ = is_visible;
-}
+bool Panel::GetIsActive() const { return is_active_; }
 
-bool Panel::GetIsActive() const
-{
-  return is_active_;
-}
+bool Panel::GetIsVisible() const { return is_visible_; }
 
-bool Panel::GetIsVisible() const
-{
-  return is_visible_;
-}
-
-PanelID Panel::GetID() const
-{
-  return id_;
-}
+PanelID Panel::GetID() const { return id_; }
 
 void Panel::SetBackgroundTexture(const Texture2D &texture)
 {

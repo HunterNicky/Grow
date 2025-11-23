@@ -1,5 +1,7 @@
 #include "chroma/client/ui/widgets/Widget.h"
 
+#include <raylib.h>
+
 namespace chroma::client::ui::widget {
 void Widget::SetBounds(const Rectangle &bounds)
 {

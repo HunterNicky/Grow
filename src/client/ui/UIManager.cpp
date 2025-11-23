@@ -46,9 +46,9 @@ void UIManager::OnPanelEvent(shared::event::ui::PanelEvent &panel_event)
 
 void UIManager::DoOpenPanel(const panel::PanelID panel_id)
 {
-  render::RenderConfig config;
+  const render::RenderConfig config;
   const Vector2 screen_size = {static_cast<float>(config.virtual_width), static_cast<float>(config.virtual_height)};
-  Vector2 panel_size = { static_cast<float>(config.virtual_width), static_cast<float>(config.virtual_height) };
+  const Vector2 panel_size = { static_cast<float>(config.virtual_width), static_cast<float>(config.virtual_height) };
 
   auto panel = panel_factory_.Create(panel_id, screen_size, panel_size);
   if (panel) { panel_stack_.push_back(panel); }

@@ -8,6 +8,9 @@
 #include "chroma/app/states/StateIdentifiers.h"
 #include "chroma/app/states/menu/MainMenuState.h"
 #include "chroma/app/states/menu/OptionsMenuState.h"
+#include "chroma/client/ui/panels/PanelIdentifiers.h"
+#include "chroma/shared/events/ui/PanelEvent.h"
+#include "chroma/shared/events/EventBus.h"
 
 namespace chroma::app::layer::game {
 MainMenuLayer::MainMenuLayer(std::string name) : Layer(std::move(name))
@@ -16,7 +19,12 @@ MainMenuLayer::MainMenuLayer(std::string name) : Layer(std::move(name))
   state_machine_->PushState(main_menu_state);
 }
 
-MainMenuLayer::~MainMenuLayer() = default;
+MainMenuLayer::~MainMenuLayer()
+{
+  shared::event::ui::PanelEvent bg_main(
+    shared::event::ui::Action::Close, client::ui::panel::PanelID::MainBackgroundPanel);
+  shared::event::EventBus::Dispatch(bg_main);
+};
 
 void MainMenuLayer::RegisterStates()
 {

@@ -59,7 +59,7 @@ void ToggleWidget::OnRender()
 
   const float label_x = bounds_.x + bounds_.width + 10.0F;
   const float label_y = bounds_.y + (bounds_.height / 2.0F) - 10.0F;
-  const int font_size = 20;
+  const int font_size = 26;
 
   DrawText(label_.c_str(), static_cast<int>(label_x), static_cast<int>(label_y), font_size, WHITE);
 }

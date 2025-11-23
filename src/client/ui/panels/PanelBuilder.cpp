@@ -46,7 +46,7 @@ PanelBuilder &PanelBuilder::AddButton(const std::string &id,
 
 PanelBuilder &PanelBuilder::AddBackgroundTexture(const std::string &texture_path)
 {
-  Texture2D texture = LoadTexture(texture_path.c_str());
+  const Texture2D texture = LoadTexture(texture_path.c_str());
   panel_->SetBackgroundTexture(texture);
   return *this;
 }
