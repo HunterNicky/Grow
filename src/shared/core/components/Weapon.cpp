@@ -7,8 +7,8 @@
 namespace chroma::shared::core::component {
 
 Weapon::Weapon()
-  : weapon_type_(WeaponType::FIST), damage_(0), range_(0.0F), weight_(0.0F), cooldown_(0.0F), last_attack_time_(0.0F),
-    position_{ 0.0F, 0.0F }, size_{ 16.0F, 16.0F }
+  : position_{ 0.0F, 0.0F },  size_{ 16.0F, 16.0F },
+   weapon_type_(WeaponType::FIST), damage_(0), range_(0.0F), weight_(0.0F), cooldown_(0.0F), last_attack_time_(0.0F)
 {
   type_ = ComponentType::WEAPON;
 }
