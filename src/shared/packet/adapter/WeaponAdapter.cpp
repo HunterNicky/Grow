@@ -2,9 +2,11 @@
 #include "chroma/shared/core/components/Weapon.h"
 
 #include <flatbuffers/flatbuffer_builder.h>
+#include <flatbuffers/vector.h>
 #include <components_generated.h>
 #include <common_generated.h>
 #include <memory>
+#include <vector>
 
 namespace chroma::shared::packet::adapter {
 
