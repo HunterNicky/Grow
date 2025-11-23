@@ -1,8 +1,8 @@
 #include "chroma/shared/render/SpriteLoader.h"
 
 #include <fstream>
-#include <string>
 #include <nlohmann/json.hpp>
+#include <string>
 
 namespace chroma::shared::render {
 

@@ -1,5 +1,5 @@
-#include "chroma/shared/packet/events/ProjectileMessage.h"
 #include "chroma/shared/events/ProjectileEvent.h"
+#include "chroma/shared/packet/events/ProjectileMessage.h"
 
 #include <cstdint>
 #include <memory>
