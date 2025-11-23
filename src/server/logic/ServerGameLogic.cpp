@@ -3,16 +3,16 @@
 #include "chroma/shared/builder/GameObjectBuilder.h"
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/Fist.h"
+#include "chroma/shared/core/components/Inventory.h"
 #include "chroma/shared/core/components/Javelin.h"
 #include "chroma/shared/core/components/Spear.h"
 #include "chroma/shared/core/components/SpriteAnimation.h"
-#include "chroma/shared/core/components/Inventory.h"
-#include "chroma/shared/render/RenderBridge.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/core/projectile/Projectile.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/packet/PacketHandler.h"
 #include "chroma/shared/packet/events/InputEventMessage.h"
+#include "chroma/shared/render/RenderBridge.h"
 #include "entities_generated.h"
 
 #include <flatbuffers/buffer.h>

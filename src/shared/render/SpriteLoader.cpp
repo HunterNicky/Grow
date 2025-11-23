@@ -1,11 +1,11 @@
 #include "chroma/shared/render/SpriteLoader.h"
 #include "chroma/shared/core/components/SpriteAnimation.h"
 
-#include <fstream>
-#include <string>
-#include <memory>
 #include <cstddef>
+#include <fstream>
+#include <memory>
 #include <nlohmann/json.hpp>
+#include <string>
 
 namespace chroma::shared::render {
 
