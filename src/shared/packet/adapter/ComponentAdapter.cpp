@@ -42,7 +42,8 @@ void ComponentAdapter::ToComponent(const std::shared_ptr<core::GameObject> &game
   ProjectileTypeToComponent(game_object->GetComponent<core::component::ProjectileType>(), builder, fb_components);
 }
 
-void ComponentAdapter::FromComponent(const Game::Component &component, std::shared_ptr<core::GameObject> &game_object)
+void ComponentAdapter::FromComponent(const Game::Component &component,
+  const std::shared_ptr<core::GameObject> &game_object)
 {
   switch (component.type_type()) {
   case Game::ComponentUnion::Velocity:

@@ -12,7 +12,7 @@ public:
   static void ToComponent(const std::shared_ptr<core::GameObject> &game_object,
     flatbuffers::FlatBufferBuilder &builder,
     std::vector<flatbuffers::Offset<Game::Component>> &fb_components);
-  static void FromComponent(const Game::Component &component, std::shared_ptr<core::GameObject> &game_objec);
+  static void FromComponent(const Game::Component &component, const std::shared_ptr<core::GameObject> &game_object);
 
 private:
   //

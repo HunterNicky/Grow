@@ -2,6 +2,7 @@
 
 #include "chroma/app/states/State.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
+#include "chroma/app/states/mediator/RenderMediator.h"
 #include "chroma/client/render/shader/shaders/HealthPass.h"
 #include "chroma/shared/builder/GameObjectBuilder.h"
 #include "chroma/shared/context/GameContext.h"
@@ -129,12 +130,12 @@ void GameState::SetEventDispatcher()
     [this](shared::event::Event &event) { this->OnEvent(event); });
 
   shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::ProjectileEvent>(
-    [this](shared::event::Event &event) { this->HandleProjectileEvent(event); });
+    [this](const shared::event::Event &event) { this->HandleProjectileEvent(event); });
 }
 
-void GameState::HandleProjectileEvent(shared::event::Event &event)
+void GameState::HandleProjectileEvent(const shared::event::Event &event) const
 {
-  auto &projectile_event = dynamic_cast<shared::event::ProjectileEvent &>(event);
+  const auto &projectile_event = dynamic_cast<const shared::event::ProjectileEvent &>(event);
 
   auto projectile = shared::builder::GameObjectBuilder<shared::core::projectile::Projectile>()
                       .Id(projectile_event.GetProjectileId())

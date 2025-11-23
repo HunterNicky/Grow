@@ -20,7 +20,7 @@ void ServerEventSystem::ProcessGameEvent(const ENetEvent &event,
   case Game::EventUnion::InputEventMessage: {
     const auto input_message = network::ServerPacketHandler::EventToInputMessage(evt);
     if (input_message) {
-      if (auto *session = sessions.GetSession(event.peer)) {
+      if (const auto *session = sessions.GetSession(event.peer)) {
         game_logic.OnReceivedInputMessage(input_message, session->GetPlayerId());
         sessions.UpdateLastProcessedInput(event.peer, input_message->GetSeq());
       }

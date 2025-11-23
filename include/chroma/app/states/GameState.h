@@ -31,7 +31,7 @@ public:
   void OnRender() override;
   void OnUpdate(float delta_time) override;
   void OnEvent(shared::event::Event &event) override;
-  void HandleProjectileEvent(shared::event::Event &event);
+  void HandleProjectileEvent(const shared::event::Event &event) const;
 
   void SetRenderMediator(std::shared_ptr<mediator::RenderMediator> mediator);
   void SetPlayerId(const UUIDv4::UUID &player_id);
