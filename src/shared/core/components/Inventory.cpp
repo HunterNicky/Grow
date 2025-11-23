@@ -1,8 +1,8 @@
 #pragma once
 
 #include <algorithm>
-#include <vector>
 #include <memory>
+#include <vector>
 
 #include "chroma/shared/core/components/Component.h"
 #include "chroma/shared/core/components/Inventory.h"
