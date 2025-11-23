@@ -1,8 +1,8 @@
 #include "chroma/shared/core/components/Weapon.h"
 #include "chroma/shared/core/components/Component.h"
+#include <cstdint>
 #include <raylib.h>
 #include <string>
-#include <cstdint>
 
 namespace chroma::shared::core::component {
 
