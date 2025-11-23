@@ -86,7 +86,7 @@ void Player::AnimationState(const Vector2 dir, const float magnitude)
       const auto run_comp = GetComponent<component::Run>();
       if (run_comp) { run = run_comp->IsRunning(); }
 
-      std::string state = run ? "running_" : "walk_";
+      const std::string state = run ? "running_" : "walk_";
       AnimateMove(mode, state, dir);
     }
   }
@@ -219,7 +219,7 @@ void Player::OnRender()
     Vector2 pos_h;
     pos_h.y = pos.y - 30.F;
     pos_h.x = pos.x - 15.F;
-    Vector2 size = { .x = 30.F, .y = 4.F };
+    const Vector2 size = { .x = 30.F, .y = 4.F };
     health->DrawHealth(pos_h, size);
   }
 }
@@ -282,8 +282,8 @@ void Player::UpdateAttack(float delta_time)
   current_weapon->SetLastAttackTime(current_weapon->GetLastAttackTime() + delta_time);
 
   if (attack->IsAttacking()) {
-    float cooldown = current_weapon->GetCooldown();
-    float elapsed = current_weapon->GetLastAttackTime();
+    const float cooldown = current_weapon->GetCooldown();
+    const float elapsed = current_weapon->GetLastAttackTime();
     if (elapsed >= cooldown) {
       HandleThrowInput(current_weapon);
       current_weapon->SetLastAttackTime(0.0F);

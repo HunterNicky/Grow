@@ -7,9 +7,12 @@
 #include "chroma/shared/core/components/Transform.h"
 #include "chroma/shared/render/RenderBridge.h"
 #include "chroma/shared/render/SpriteLoader.h"
+#include "chroma/shared/events/Event"
+#include "chroma/shared/core/GameObject.h"
 
 #include <memory>
 #include <raylib.h>
+#include <string>
 
 namespace chroma::shared::core::projectile {
 Projectile::Projectile() { Type_ = GameObjectType::PROJECTILE; }
@@ -50,8 +53,8 @@ void Projectile::OnUpdate(float delta_time)
   if (!speed) { return; }
 
   Vector2 pos = transform->GetPosition();
-  Vector2 dir = movement->GetDirection();
-  Vector2 speed_value = speed->GetSpeed();
+  const Vector2 dir = movement->GetDirection();
+  const Vector2 speed_value = speed->GetSpeed();
 
   pos.x += dir.x * speed_value.x * delta_time;
   pos.y += dir.y * speed_value.y * delta_time;
@@ -98,7 +101,7 @@ std::shared_ptr<GameObject> Projectile::Clone() { return std::make_shared<Projec
 
 void Projectile::OnFixedUpdate(float delta_time) { (void)delta_time; }
 
-void Projectile::OnCollision(const collision::CollisionEvent &colission_event) { (void)colission_event; }
+void Player::OnCollision(const collision::CollisionEvent &event) { (void)event; }
 
 void Projectile::HandleEvent(const event::Event &event) { (void)event; }
 
