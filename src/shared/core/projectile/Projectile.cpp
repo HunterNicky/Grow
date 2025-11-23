@@ -9,7 +9,6 @@
 #include "chroma/shared/render/RenderBridge.h"
 #include "chroma/shared/render/SpriteLoader.h"
 #include "chroma/shared/events/Event.h"
-#include "chroma/shared/core/GameObject.h"
 
 #include <memory>
 #include <raylib.h>
