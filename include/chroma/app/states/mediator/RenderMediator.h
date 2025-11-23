@@ -18,8 +18,8 @@ public:
   RenderMediator(RenderMediator &&) noexcept = default;
   RenderMediator &operator=(RenderMediator &&) noexcept = default;
 
-  void AddShaderFront(std::unique_ptr<chroma::client::render::shader::RenderPass> pass);
-  void AddShaderBack(std::unique_ptr<chroma::client::render::shader::RenderPass> pass);
+  void AddShaderFront(std::unique_ptr<chroma::client::render::shader::RenderPass> pass) const;
+  void AddShaderBack(std::unique_ptr<chroma::client::render::shader::RenderPass> pass) const;
 
 private:
   std::shared_ptr<client::render::Renderer> renderer_;

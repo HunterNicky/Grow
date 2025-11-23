@@ -3,7 +3,6 @@
 #include "chroma/shared/core/components/Health.h"
 
 #include <algorithm>
-#include <components_generated.h>
 #include <cstdint>
 #include <memory>
 #include <raymath.h>
@@ -55,14 +54,14 @@ void InterpolateSystem::InterpolateHealth(const std::shared_ptr<shared::core::Ga
   std::shared_ptr<shared::core::GameObject> &out_object,
   float alpha)
 {
-  auto past_health = past_object->GetComponent<shared::core::component::Health>();
-  auto target_health = target_object->GetComponent<shared::core::component::Health>();
-  auto out_health = out_object->GetComponent<shared::core::component::Health>();
+  const auto past_health = past_object->GetComponent<shared::core::component::Health>();
+  const auto target_health = target_object->GetComponent<shared::core::component::Health>();
+  const auto out_health = out_object->GetComponent<shared::core::component::Health>();
 
   if (past_health && target_health && out_health) {
-    float past_value = *past_health->GetCurrentHealth();
-    float target_value = *target_health->GetCurrentHealth();
-    float interpolated_value = past_value + ((target_value - past_value) * alpha);
+    const float past_value = *past_health->GetCurrentHealth();
+    const float target_value = *target_health->GetCurrentHealth();
+    const float interpolated_value = past_value + ((target_value - past_value) * alpha);
     out_health->SetCurrentHealth(interpolated_value);
   }
 }
@@ -93,7 +92,7 @@ void InterpolateSystem::Update(uint64_t delta_time)
       InterpolateHealth(past_it->second, target_obj, interpolated, alpha);
       (*game_objects_)[id] = interpolated;
     } else {
-      auto clone = target_obj->Clone();
+      const auto clone = target_obj->Clone();
       if (!clone) { continue; }
       clone->SetNetRole(target_obj->GetNetRole());
       (*game_objects_)[id] = clone;

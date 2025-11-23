@@ -1,4 +1,7 @@
 #include "chroma/client/render/shader/shaders/CrtPass.h"
+#include "chroma/client/render/shader/ShaderPass.h"
+
+#include <raylib.h>
 
 namespace chroma::client::render::shader::shaders {
 
@@ -9,7 +12,7 @@ void CrtPass::Setup()
   LoadShader();
 
   for (auto &pair : values_) {
-    int loc = ::GetShaderLocation(shader_, pair.first.c_str());
+    const int loc = ::GetShaderLocation(shader_, pair.first.c_str());
     if (loc >= 0) { pair.second->SetLocation(loc); }
   }
 }

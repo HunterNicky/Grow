@@ -12,6 +12,7 @@
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/packet/PacketHandler.h"
 #include "chroma/shared/packet/events/InputEventMessage.h"
+#include "chroma/shared/packet/events/ProjectileMessage.h"
 #include "chroma/shared/render/RenderBridge.h"
 #include "entities_generated.h"
 
@@ -48,12 +49,12 @@ void ServerGameLogic::OnReceivedInputMessage(const std::shared_ptr<shared::packe
 
 std::shared_ptr<shared::core::player::Player> ServerGameLogic::CreatePlayer()
 {
-  auto player = chroma::shared::builder::GameObjectBuilder<chroma::shared::core::player::Player>()
+  auto player = chroma::shared::builder::GameObjectBuilder<shared::core::player::Player>()
                   .AddTransform({ 0, 0 })
                   .AddSpeed(50.0F)
                   .AddMovement()
                   .AddAnimation()
-                  .AddCamera(chroma::shared::render::CameraMode::FollowSmooth, 3.0F, 2.0F, { 64, 128 })
+                  .AddCamera(shared::render::CameraMode::FollowSmooth, 3.0F, 2.0F, { 64, 128 })
                   .AddAudioListener()
                   .AddHealth(100.0F, 1.0F)
                   .AddRun(false, 1.5F)
@@ -62,9 +63,9 @@ std::shared_ptr<shared::core::player::Player> ServerGameLogic::CreatePlayer()
                   .NetRole(shared::core::NetRole::AUTHORITY)
                   .Build();
 
-  auto javelin = std::make_shared<chroma::shared::core::component::Javelin>();
-  auto spear = std::make_shared<chroma::shared::core::component::Spear>();
-  auto fist = std::make_shared<chroma::shared::core::component::Fist>();
+  auto javelin = std::make_shared<shared::core::component::Javelin>();
+  auto spear = std::make_shared<shared::core::component::Spear>();
+  auto fist = std::make_shared<shared::core::component::Fist>();
 
   player->GetComponent<shared::core::component::Inventory>()->AddInventory(spear);
   player->GetComponent<shared::core::component::Inventory>()->AddInventory(javelin);
@@ -98,7 +99,7 @@ void ServerGameLogic::OnReceivedProjectileMessage(
   auto event = projectile_message->GetProjectileEvent();
   if (!event) { return; }
 
-  auto projectile = chroma::shared::builder::GameObjectBuilder<chroma::shared::core::projectile::Projectile>()
+  auto projectile = chroma::shared::builder::GameObjectBuilder<shared::core::projectile::Projectile>()
                       .Id(event->GetProjectileId())
                       .AddTransform(event->GetPosition())
                       .AddMovement(event->GetDirection())

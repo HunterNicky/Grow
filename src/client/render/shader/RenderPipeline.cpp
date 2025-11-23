@@ -1,5 +1,9 @@
 #include "chroma/client/render/shader/RenderPipeline.h"
+#include "chroma/client/render/shader/RenderPass.h"
+
+#include <memory>
 #include <raylib.h>
+#include <utility>
 
 namespace chroma::client::render::shader {
 

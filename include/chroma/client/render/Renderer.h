@@ -44,8 +44,8 @@ public:
     Window::Close();
   }
 
-  void AddShaderPassFront(std::unique_ptr<shader::RenderPass> pass);
-  void AddShaderPassBack(std::unique_ptr<shader::RenderPass> pass);
+  void AddShaderPassFront(std::unique_ptr<shader::RenderPass> pass) const;
+  void AddShaderPassBack(std::unique_ptr<shader::RenderPass> pass) const;
 
   [[nodiscard]] Camera &GetCamera() const { return *camera_; }
   [[nodiscard]] RenderQueue &GetQueue() const { return *render_queue_; }

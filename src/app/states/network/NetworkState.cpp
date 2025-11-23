@@ -8,6 +8,7 @@
 #include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/packet/PacketHandler.h"
 #include "chroma/shared/packet/events/InputEventMessage.h"
+#include "chroma/shared/packet/events/ProjectileMessage.h"
 #include "entities_generated.h"
 #include "events_generated.h"
 #include "game_generated.h"

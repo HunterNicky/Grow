@@ -1,5 +1,7 @@
 #include <algorithm>
 #include <memory>
+#include <cstddef>
+#include <utility>
 #include <vector>
 
 #include "chroma/shared/core/components/Component.h"
@@ -12,17 +14,23 @@ Inventory::Inventory(int capacity) : capacity_(capacity) { type_ = ComponentType
 
 Inventory::Inventory() : capacity_(0) { type_ = ComponentType::INVENTORY; }
 
-bool Inventory::AddInventory(const std::shared_ptr<Component> &item)
+bool Inventory::AddInventory(const std::shared_ptr<Component>& item)
 {
-  if (static_cast<int>(items_.size() + weapons_.size()) >= capacity_) { return false; }
+  const size_t used = items_.size() + weapons_.size();
+  if (std::cmp_greater_equal(used, static_cast<size_t>(capacity_))) {
+    return false;
+  }
 
   if (item->IsType(ComponentType::ITEM)) {
     items_.emplace_back(std::static_pointer_cast<Item>(item));
     return true;
-  } else if (item->IsType(ComponentType::WEAPON)) {
+  }
+
+  if (item->IsType(ComponentType::WEAPON)) {
     weapons_.emplace_back(std::static_pointer_cast<Weapon>(item));
     return true;
   }
+
   return false;
 }
 

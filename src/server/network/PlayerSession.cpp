@@ -1,6 +1,6 @@
 #include "chroma/server/network/PlayerSession.h"
 
-
+#include <cstdint>
 #include <enet.h>
 #include <uuid_v4.h>
 

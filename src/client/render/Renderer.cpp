@@ -5,6 +5,7 @@
 #include "chroma/client/render/TextureAtlas.h"
 #include "chroma/client/render/Window.h"
 #include "chroma/client/render/animation/AnimationRenderer.h"
+#include "chroma/client/render/shader/RenderPass.h"
 #include "chroma/client/render/shader/RenderPipeline.h"
 #include "chroma/client/render/shader/shaders/CrtPass.h"
 
@@ -109,15 +110,17 @@ void Renderer::InitializeSubsystems()
   SetVSync(config_.vsync);
 }
 
-void Renderer::AddShaderPassFront(std::unique_ptr<shader::RenderPass> pass)
+void Renderer::AddShaderPassFront(std::unique_ptr<shader::RenderPass> pass) const
 {
-  if (render_pipeline_) { render_pipeline_->AddPassFront(std::move(pass)); }
+  if (render_pipeline_ == nullptr) { return; }
+  render_pipeline_->AddPassFront(std::move(pass));
   render_pipeline_->Setup();
 }
 
-void Renderer::AddShaderPassBack(std::unique_ptr<shader::RenderPass> pass)
+void Renderer::AddShaderPassBack(std::unique_ptr<shader::RenderPass> pass) const
 {
-  if (render_pipeline_) { render_pipeline_->AddPassBack(std::move(pass)); }
+  if (render_pipeline_ == nullptr) { return; }
+  render_pipeline_->AddPassBack(std::move(pass));
   render_pipeline_->Setup();
 }
 
