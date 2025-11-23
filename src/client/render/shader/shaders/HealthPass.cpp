@@ -3,9 +3,9 @@
 #include "chroma/shared/context/GameContext.h"
 #include "chroma/shared/core/components/Health.h"
 
+#include <memory>
 #include <string>
 #include <utility>
-#include <memory>
 
 namespace chroma::client::render::shader::shaders {
 
@@ -46,12 +46,10 @@ void HealthPass::Execute(RenderTexture2D &src, RenderTexture2D &dst)
 
   BeginShaderMode(shader_);
   UploadAll();
-  DrawTextureRec(
-      src.texture,
-      Rectangle{ 0, 0, static_cast<float>(src.texture.width), static_cast<float>(-src.texture.height) },
-      Vector2{ 0, 0 },
-      WHITE
-  );
+  DrawTextureRec(src.texture,
+    Rectangle{ 0, 0, static_cast<float>(src.texture.width), static_cast<float>(-src.texture.height) },
+    Vector2{ 0, 0 },
+    WHITE);
 
   EndShaderMode();
   EndTextureMode();
