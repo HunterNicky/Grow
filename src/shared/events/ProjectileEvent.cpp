@@ -1,6 +1,10 @@
+#include "chroma/shared/core/components/ProjectileType.h"
 #include "chroma/shared/events/ProjectileEvent.h"
 #include "chroma/shared/events/Event.h"
+
+#include <uuid_v4.h>
 #include <raylib.h>
+#include <memory>
 
 namespace chroma::shared::event {
 
