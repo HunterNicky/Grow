@@ -1,6 +1,6 @@
 #include <algorithm>
-#include <memory>
 #include <cstddef>
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -14,12 +14,10 @@ Inventory::Inventory(int capacity) : capacity_(capacity) { type_ = ComponentType
 
 Inventory::Inventory() : capacity_(0) { type_ = ComponentType::INVENTORY; }
 
-bool Inventory::AddInventory(const std::shared_ptr<Component>& item)
+bool Inventory::AddInventory(const std::shared_ptr<Component> &item)
 {
   const size_t used = items_.size() + weapons_.size();
-  if (std::cmp_greater_equal(used, static_cast<size_t>(capacity_))) {
-    return false;
-  }
+  if (std::cmp_greater_equal(used, static_cast<size_t>(capacity_))) { return false; }
 
   if (item->IsType(ComponentType::ITEM)) {
     items_.emplace_back(std::static_pointer_cast<Item>(item));
