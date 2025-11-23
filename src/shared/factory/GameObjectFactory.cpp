@@ -1,11 +1,11 @@
 #include "chroma/shared/factory/GameObjectFactory.h"
 
-#include "chroma/shared/core/components//SpriteAnimation.h"
-#include "chroma/shared/core/projectile/Projectile.h"
 #include "chroma/shared/builder/GameObjectBuilder.h"
-#include "chroma/shared/render/RenderBridge.h"
-#include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/core/GameObject.h"
+#include "chroma/shared/core/components//SpriteAnimation.h"
+#include "chroma/shared/core/player/Player.h"
+#include "chroma/shared/core/projectile/Projectile.h"
+#include "chroma/shared/render/RenderBridge.h"
 
 
 #include "entities_generated.h"

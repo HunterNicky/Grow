@@ -15,8 +15,8 @@
 #include "chroma/shared/core/components/Weapon.h"
 #include "chroma/shared/factory/WeaponFactory.h"
 
-#include <flatbuffers/flatbuffer_builder.h>
 #include <components_generated.h>
+#include <flatbuffers/flatbuffer_builder.h>
 #include <memory>
 
 namespace chroma::shared::packet::adapter {
