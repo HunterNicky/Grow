@@ -75,15 +75,8 @@ void GameState::OnUpdate(float delta_time)
 
   if (network_mediator_) { network_mediator_->UpdateInterpolation(static_cast<uint64_t>(delta_time * 1000)); }
 
-  std::cout << "-----------------------------------------------\n";
-
   for (const auto &[uuid, obj] : *game_objects_) {
     if (obj && obj->IsActive()) { obj->OnUpdate(delta_time); }
-
-    std::cout << "[GameState] Atualizando objeto: "
-              << uuid
-              << " | Tipo = " << static_cast<int>(obj->GetTag())
-              << "\n";
   }
 }
 

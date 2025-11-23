@@ -44,6 +44,5 @@ private:
   bool last_left_{ false };
   float step_timer_{ 0.0F };
   bool was_moving_{ false };
-  bool attacking_{ false };
 };
 }// namespace chroma::shared::core::player

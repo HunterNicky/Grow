@@ -13,6 +13,11 @@ public:
   CameraComponent();
   ~CameraComponent() override = default;
 
+  CameraComponent(const CameraComponent &) = default;
+  CameraComponent(CameraComponent &&) = delete;
+  CameraComponent &operator=(const CameraComponent &) = default;
+  CameraComponent &operator=(CameraComponent &&) = delete;
+
   void Update(float delta_time) override;
 
   void SetMode(render::CameraMode mode);
