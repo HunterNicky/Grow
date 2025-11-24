@@ -2,8 +2,8 @@
 
 #include "chroma/app/states/State.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
-#include "chroma/shared/collision/CollisionManager.h"
 #include "chroma/app/states/mediator/RenderMediator.h"
+#include "chroma/shared/collision/CollisionManager.h"
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/player/Player.h"
 

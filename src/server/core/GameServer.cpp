@@ -8,11 +8,11 @@
 #include <memory>
 #include <vector>
 
+#include "chroma/shared/context/GameContextManager.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/events/SoundEvent.h"
-#include "chroma/shared/context/GameContextManager.h"
 #include "chroma/shared/packet/PacketHandler.h"
 #include "chroma/shared/packet/events/SoundEventMessage.h"
 #include "entities_generated.h"

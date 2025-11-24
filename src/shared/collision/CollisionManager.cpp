@@ -1,11 +1,11 @@
 ﻿#include "chroma/shared/collision/CollisionManager.h"
 #include "chroma/shared/collision/CollisionEvent.h"
+#include "chroma/shared/collision/CollisionResponseResolver.h"
 #include "chroma/shared/collision/Quadtree.h"
 #include "chroma/shared/context/GameContext.h"
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/ColliderBox.h"
 #include "chroma/shared/core/components/Transform.h"
-#include "chroma/shared/collision/CollisionResponseResolver.h"
 
 #include <algorithm>
 #include <cmath>

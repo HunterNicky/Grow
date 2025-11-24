@@ -1,9 +1,9 @@
 #pragma once
 
-#include <vector>
 #include <memory>
-#include <shared_mutex>
 #include <raylib.h>
+#include <shared_mutex>
+#include <vector>
 
 #include "chroma/shared/core/components/ColliderBox.h"
 
@@ -39,4 +39,4 @@ private:
   static Rectangle GetObjectBounds(const std::shared_ptr<core::component::ColliderBox> &collider_box);
 };
 
-}
+}// namespace chroma::shared::collision
