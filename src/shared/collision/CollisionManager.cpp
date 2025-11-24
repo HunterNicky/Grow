@@ -1,11 +1,19 @@
-#include "chroma/shared/collision/CollisionManager.h"
+﻿#include "chroma/shared/collision/CollisionManager.h"
+#include "chroma/shared/collision/CollisionEvent.h"
+#include "chroma/shared/collision/Quadtree.h"
+#include "chroma/shared/context/GameContext.h"
 #include "chroma/shared/core/GameObject.h"
-#include "chroma/shared/core/components/Speed.h"
+#include "chroma/shared/core/components/ColliderBox.h"
 #include "chroma/shared/core/components/Transform.h"
+#include "chroma/shared/collision/CollisionResponseResolver.h"
 
 #include <algorithm>
+#include <cmath>
+#include <memory>
+#include <raylib.h>
 #include <raymath.h>
 #include <unordered_set>
+#include <vector>
 
 namespace chroma::shared::collision {
 CollisionManager::CollisionManager(const Rectangle map_bounds) : map_bounds_(map_bounds)
@@ -88,6 +96,61 @@ void CollisionManager::RebuildStaticTree() const
   }
 }
 
+CollisionResolutionStrategy CollisionManager::DetermineResolutionStrategy(
+  const std::shared_ptr<core::GameObject> &obj_a,
+  const std::shared_ptr<core::GameObject> &obj_b,
+  const BodyType type_a,
+  const BodyType type_b) const
+{
+  if (!obj_a || !obj_b) { return CollisionResolutionStrategy::None; }
+
+  const core::NetRole role_a = obj_a->GetNetRole();
+  const core::NetRole role_b = obj_b->GetNetRole();
+
+  const auto response_a = CollisionResponseResolver::Resolve(obj_a, type_a);
+  const auto response_b = CollisionResponseResolver::Resolve(obj_b, type_b);
+
+  if (type_a == BodyType::Static && type_b == BodyType::Static) { return CollisionResolutionStrategy::None; }
+
+  if (type_a == BodyType::Static) {
+    return response_b.can_be_pushed ? CollisionResolutionStrategy::ResolveB : CollisionResolutionStrategy::None;
+  }
+
+  if (type_b == BodyType::Static) {
+    return response_a.can_be_pushed ? CollisionResolutionStrategy::ResolveA : CollisionResolutionStrategy::None;
+  }
+
+  if (context_type_ == GameContextType::Server) {
+    if (response_a.can_be_pushed && response_b.can_be_pushed) { return CollisionResolutionStrategy::ResolveBoth; }
+    if (response_a.can_be_pushed) { return CollisionResolutionStrategy::ResolveA; }
+    if (response_b.can_be_pushed) { return CollisionResolutionStrategy::ResolveB; }
+    return CollisionResolutionStrategy::None;
+  }
+
+  if (context_type_ == GameContextType::Client) {
+    const bool a_is_local = (role_a == core::NetRole::AUTONOMOUS);
+    const bool b_is_local = (role_b == core::NetRole::AUTONOMOUS);
+
+    if (a_is_local && b_is_local && response_a.can_be_pushed && response_b.can_be_pushed) {
+      return CollisionResolutionStrategy::ResolveBoth;
+    }
+
+    if (a_is_local && !b_is_local) {
+      return response_a.can_be_pushed && response_b.blocks_movement ? CollisionResolutionStrategy::ResolveA
+                                                                    : CollisionResolutionStrategy::None;
+    }
+
+    if (b_is_local && !a_is_local) {
+      return response_b.can_be_pushed && response_a.blocks_movement ? CollisionResolutionStrategy::ResolveB
+                                                                    : CollisionResolutionStrategy::None;
+    }
+
+    return CollisionResolutionStrategy::None;
+  }
+
+  return CollisionResolutionStrategy::None;
+}
+
 void CollisionManager::Update() const
 {
   dynamic_quadtree_->Clear();
@@ -149,83 +212,94 @@ void CollisionManager::CheckCollision(const std::shared_ptr<core::component::Col
   const Vector2 offset = { normal.x * (half_a.x - half_pen.x), normal.y * (half_a.y - half_pen.y) };
   const Vector2 contact = Vector2Add(center_a, offset);
 
-  const CollisionEvent event(b->GetGameObject(), penetration, normal, contact);
+  const auto obj_a = a->GetGameObject();
+  const auto obj_b = b->GetGameObject();
+  if (!obj_a || !obj_b) { return; }
 
-  if (context_type_ == GameContextType::Client) {
-    const auto obj_a = a->GetGameObject();
-    const auto obj_b = b->GetGameObject();
+  BodyType type_a = BodyType::Dynamic;
+  BodyType type_b = BodyType::Dynamic;
 
-    const bool a_is_local = obj_a->GetNetRole() == core::NetRole::AUTONOMOUS;
-    const bool b_is_local = obj_b->GetNetRole() == core::NetRole::AUTONOMOUS;
-
-    if (a_is_local && !b_is_local) {
-      ResolveCollisionAsStatic(a, event);
-      return;
-    }
-
-    if (b_is_local && !a_is_local) {
-      ResolveCollisionAsStatic(b, event);
-      return;
-    }
+  for (const auto &collider : static_colliders_) {
+    if (collider == a) { type_a = BodyType::Static; }
+    if (collider == b) { type_b = BodyType::Static; }
   }
 
-  ResolveCollision(a, event);
-}
+  const CollisionResolutionStrategy strategy = DetermineResolutionStrategy(obj_a, obj_b, type_a, type_b);
 
-void CollisionManager::ResolveCollision(const std::shared_ptr<core::component::ColliderBox> &dynamic_obj,
-  const CollisionEvent &event)
-{
-  if (const auto owner = dynamic_obj->GetGameObject()) {
-    if (const auto transform = owner->GetComponent<core::component::Transform>()) {
-      Vector2 current_pos = transform->GetPosition();
+  const CollisionEvent event_a(obj_b, penetration, normal, contact);
+  const CollisionEvent event_b(obj_a, penetration, Vector2Negate(normal), contact);
 
-      const Vector2 correction = { event.normal.x * event.penetration, event.normal.y * event.penetration };
+  obj_a->OnCollision(event_a);
+  obj_b->OnCollision(event_b);
 
-      current_pos = Vector2Subtract(current_pos, correction);
+  switch (strategy) {
+  case CollisionResolutionStrategy::None:
+    break;
 
-      transform->SetPosition(current_pos);
+  case CollisionResolutionStrategy::ResolveA: {
+    ResolveCollisionOneWay(a, event_a);
+    break;
+  }
 
-      if (const auto velocity = owner->GetComponent<core::component::Speed>()) {
-        Vector2 vel = velocity->GetSpeed();
-        const float dot = Vector2DotProduct(vel, event.normal);
+  case CollisionResolutionStrategy::ResolveB: {
+    ResolveCollisionOneWay(b, event_b);
+    break;
+  }
 
-        if (dot < 0) {
-          const Vector2 vel_correction = { event.normal.x * dot, event.normal.y * dot };
-          vel = Vector2Subtract(vel, vel_correction);
-
-          velocity->SetSpeed(vel);
-        }
-      }
-
-      dynamic_obj->Update(0.0F);
-    }
+  case CollisionResolutionStrategy::ResolveBoth: {
+    ResolveBothEqual(a, b, normal, penetration);
+    break;
+  }
   }
 }
 
-void CollisionManager::ResolveCollisionAsStatic(const std::shared_ptr<core::component::ColliderBox> &dynamic_obj,
-  const CollisionEvent &event)
+void CollisionManager::ResolveCollisionOneWay(const std::shared_ptr<core::component::ColliderBox> &moving_obj,
+  const CollisionEvent &event) const
 {
-  if (const auto owner = dynamic_obj->GetGameObject()) {
-    if (const auto transform = owner->GetComponent<core::component::Transform>()) {
-      Vector2 current_pos = transform->GetPosition();
-      const Vector2 correction = { event.normal.x * event.penetration, event.normal.y * event.penetration };
+  if (!moving_obj) { return; }
 
-      current_pos = Vector2Subtract(current_pos, correction);
-      transform->SetPosition(current_pos);
-    }
+  const auto owner = moving_obj->GetGameObject();
+  if (!owner) { return; }
 
-    if (const auto speed_comp = owner->GetComponent<core::component::Speed>()) {
-      Vector2 velocity = speed_comp->GetSpeed();
-      const float dot = Vector2DotProduct(velocity, event.normal);
-      if (dot > 0) {
-        const Vector2 wall_component = { event.normal.x * dot, event.normal.y * dot };
-        velocity = Vector2Subtract(velocity, wall_component);
+  const auto transform = owner->GetComponent<core::component::Transform>();
+  if (!transform) { return; }
 
-        speed_comp->SetSpeed(velocity);
-      }
-    }
-    dynamic_obj->Update(0.0F);
-  }
+  Vector2 current_pos = transform->GetPosition();
+  const Vector2 correction = { event.normal.x * event.penetration, event.normal.y * event.penetration };
+  current_pos = Vector2Subtract(current_pos, correction);
+  transform->SetPosition(current_pos);
+
+  moving_obj->Update(0.0F);
+}
+
+void CollisionManager::ResolveBothEqual(const std::shared_ptr<core::component::ColliderBox> &obj_a,
+  const std::shared_ptr<core::component::ColliderBox> &obj_b,
+  const Vector2 &normal,
+  const float penetration) const
+{
+  if (!obj_a || !obj_b) { return; }
+
+  const auto owner_a = obj_a->GetGameObject();
+  const auto owner_b = obj_b->GetGameObject();
+  if (!owner_a || !owner_b) { return; }
+
+  const auto transform_a = owner_a->GetComponent<core::component::Transform>();
+  const auto transform_b = owner_b->GetComponent<core::component::Transform>();
+  if (!transform_a || !transform_b) { return; }
+
+  const float half_penetration = penetration * 0.5F;
+  const Vector2 correction = { normal.x * half_penetration, normal.y * half_penetration };
+
+  Vector2 pos_a = transform_a->GetPosition();
+  pos_a = Vector2Subtract(pos_a, correction);
+  transform_a->SetPosition(pos_a);
+
+  Vector2 pos_b = transform_b->GetPosition();
+  pos_b = Vector2Add(pos_b, correction);
+  transform_b->SetPosition(pos_b);
+
+  obj_a->Update(0.0F);
+  obj_b->Update(0.0F);
 }
 
 }// namespace chroma::shared::collision

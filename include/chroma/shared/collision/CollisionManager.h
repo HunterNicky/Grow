@@ -10,7 +10,21 @@
 #include <vector>
 
 namespace chroma::shared::collision {
-enum class BodyType : uint8_t { Static, Dynamic, All };
+enum class BodyType : uint8_t { Static = 0, Dynamic = 1, All };
+
+enum class CollisionResolutionStrategy : uint8_t { None = 0, ResolveA = 1, ResolveB = 2, ResolveBoth = 3 };
+
+struct CollisionResponseConfig
+{
+  bool can_push{ true };
+  bool can_be_pushed{ true };
+  bool blocks_movement{ true };
+
+  CollisionResponseConfig() = default;
+  CollisionResponseConfig(bool can_push, bool can_be_pushed, bool blocks = true)
+    : can_push(can_push), can_be_pushed(can_be_pushed), blocks_movement(blocks)
+  {}
+};
 
 class CollisionManager
 {
@@ -41,10 +55,19 @@ private:
 
   void CheckCollision(const std::shared_ptr<core::component::ColliderBox> &a,
     const std::shared_ptr<core::component::ColliderBox> &b) const;
-  static void ResolveCollision(const std::shared_ptr<core::component::ColliderBox> &dynamic_obj,
-    const CollisionEvent &event);
-  static void ResolveCollisionAsStatic(const std::shared_ptr<core::component::ColliderBox> &dynamic_obj,
-                                const CollisionEvent &event);
+
+  [[nodiscard]] CollisionResolutionStrategy DetermineResolutionStrategy(const std::shared_ptr<core::GameObject> &obj_a,
+    const std::shared_ptr<core::GameObject> &obj_b,
+    BodyType type_a,
+    BodyType type_b) const;
+
+  void ResolveCollisionOneWay(const std::shared_ptr<core::component::ColliderBox> &moving_obj,
+    const CollisionEvent &event) const;
+
+  void ResolveBothEqual(const std::shared_ptr<core::component::ColliderBox> &obj_a,
+    const std::shared_ptr<core::component::ColliderBox> &obj_b,
+    const Vector2 &normal,
+    float penetration) const;
 
   void RebuildStaticTree() const;
 };
