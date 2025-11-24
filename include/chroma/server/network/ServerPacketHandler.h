@@ -23,8 +23,7 @@ public:
   static std::shared_ptr<shared::packet::ProjectileMessage> EventToProjectileMessage(const Game::Event *evt);
 
   static std::vector<flatbuffers::Offset<Game::EntityState>> GameObjectsToFlatBufferEntities(
-    flatbuffers::FlatBufferBuilder &builder,
-    const std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>> &objects);
+    flatbuffers::FlatBufferBuilder &builder);
 
   static std::vector<uint8_t> BuildGameState(flatbuffers::FlatBufferBuilder &builder,
     const std::vector<flatbuffers::Offset<Game::EntityState>> &entities,

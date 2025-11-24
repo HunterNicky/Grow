@@ -19,7 +19,7 @@ public:
   Player &operator=(Player &&) = delete;
   ~Player() override;
   void AnimationState(Vector2 dir, float magnitude);
-  void AnimateAttack(const std::string &mode, FacingDir facing_dir);
+  void AnimateAttack(const std::string &mode, FacingDir facing_dir) const;
   void AnimateMove(const std::string &mode, const std::string &state, Vector2 dir);
 
   void OnUpdate(float delta_time) override;
@@ -27,16 +27,16 @@ public:
   void OnCollision(const collision::CollisionEvent &event) override;
   void OnRender() override;
 
-  void HandleEvent(const event::Event &event) override;
-  void HandleDirectionInput(Vector2 &direction);
+  void HandleEvent(event::Event &event) override;
+  void HandleDirectionInput(Vector2 &direction) const;
   void HandleWeaponInput();
-  void UpdateAttack(float delta_time);
-  void HandleThrowInput(const std::shared_ptr<component::Weapon> &weapon);
+  void UpdateAttack(float delta_time) const;
+  void HandleThrowInput(const std::shared_ptr<component::Weapon> &weapon) const;
 
   static void SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &anim_component);
   std::shared_ptr<GameObject> Clone() override;
 
-  void SetCurrentWeapon(const std::shared_ptr<component::Weapon> &weapon);
+  void SetCurrentWeapon(const std::shared_ptr<component::Weapon> &weapon) const;
 
 private:
   events::InputState input_state_;

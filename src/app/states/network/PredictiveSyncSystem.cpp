@@ -16,6 +16,7 @@ void PredictiveSyncSystem::ApplyEvents(const std::shared_ptr<shared::core::playe
 
 void PredictiveSyncSystem::AddInputEventHistory(const shared::event::Event &event)
 {
+  if (event.GetType() != shared::event::Event::Type::KeyEvent) { return; }
   input_event_history_[GetNextSeq()] = event.Clone();
 }
 

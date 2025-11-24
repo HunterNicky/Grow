@@ -11,7 +11,10 @@
 #include "chroma/app/states/network/InterpolateSystem.h"
 #include "chroma/app/states/network/NetworkState.h"
 #include "chroma/app/states/network/PredictiveSyncSystem.h"
+#include "chroma/shared/context/GameContext.h"
+#include "chroma/shared/context/GameContextManager.h"
 #include "chroma/shared/core/GameObject.h"
+#include "chroma/shared/core/GameObjectManager.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/SoundEvent.h"
@@ -56,23 +59,30 @@ void GameNetworkMediator::OnSnapshotReceived(const Game::Snapshot *snapshot) con
   if (!state) { return; }
 
   const UUIDv4::UUID player_id = shared::packet::PacketHandler::SnapshotGetUUID(snapshot);
-  state->SetPlayerId(player_id);
-  interpolate_system_->SetPlayerId(player_id);
 
-  const auto game_objects = state->GetGameObjects();
-  shared::packet::PacketHandler::SnapshotToGameObjects(snapshot, *game_objects);
+  if (state->GetPlayerId() != player_id) {
+    state->SetPlayerId(player_id);
+    interpolate_system_->SetPlayerId(player_id);
+  }
+
+  auto manager = GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager();
+  auto new_snapshot = shared::packet::PacketHandler::SnapshotToGameObjects(manager, snapshot);
 
   const uint32_t last_processed_input = shared::packet::PacketHandler::SnapshotGetLastProcessedInputSeq(snapshot);
 
-  if (game_objects->contains(state->GetPlayerId())) {
-    const auto player = std::static_pointer_cast<shared::core::player::Player>((*game_objects)[state->GetPlayerId()]);
+  if (GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager()->Exists(state->GetPlayerId())) {
+    const auto player = std::static_pointer_cast<shared::core::player::Player>(
+      GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager()->Get(state->GetPlayerId()));
 
     if (player && predictive_sync_system_) {
       predictive_sync_system_->RemoveEventsAt(last_processed_input);
       predictive_sync_system_->ApplyEvents(player);
     }
   }
-  interpolate_system_->Interpolate(*game_objects, shared::packet::PacketHandler::SnapshotGetTimeLapse(snapshot));
+
+  interpolate_system_->OnPacketReceived(new_snapshot, shared::packet::PacketHandler::SnapshotGetTimeLapse(snapshot));
+
+  ProcessPendingSoundEvents();
 }
 
 void GameNetworkMediator::OnEventReceived(const Game::Event *evt) const
@@ -94,15 +104,19 @@ void GameNetworkMediator::OnEventReceived(const Game::Event *evt) const
     sound_event.SetEmitterId(source_id);
 
     if (const auto state = game_state_.lock()) {
+      bool delivered_to_emitter = false;
       if (!source_id.empty()) {
-        const auto &game_object = state->GetGameObjects();
         UUIDv4::UUID const src_uuid(source_id);
-        const auto it = game_object->find(src_uuid);
-        if (it != game_object->end() && it->second) {
-          it->second->HandleEvent(sound_event);
-          break;
+        const auto manager = GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager();
+        if (manager && manager->Exists(src_uuid)) {
+          const auto game_object = manager->Get(src_uuid);
+          if (game_object) {
+            game_object->HandleEvent(sound_event);
+            delivered_to_emitter = true;
+          }
         }
       }
+      if (!delivered_to_emitter) { pending_sound_events_.push_back(sound_event); }
       state->OnEvent(sound_event);
     }
     break;
@@ -136,15 +150,38 @@ uint32_t GameNetworkMediator::GetSeqCounter() const
   if (predictive_sync_system_) { return predictive_sync_system_->GetSeqCounter(); }
   return 0;
 }
+
 void GameNetworkMediator::UpdateInterpolation(const uint64_t delta_time) const
 {
-  if (interpolate_system_) { interpolate_system_->Update(delta_time); }
+  if (interpolate_system_) {
+    auto manager = GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager();
+    if (manager) { interpolate_system_->Update(manager, delta_time); }
+  }
 }
 
-void GameNetworkMediator::SetGameObjects(
-  const std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>> &game_objects)
-  const
+void GameNetworkMediator::ProcessPendingSoundEvents() const
 {
-  if (interpolate_system_) { interpolate_system_->SetGameObjects(game_objects); }
+  if (pending_sound_events_.empty()) { return; }
+  const auto manager = GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager();
+  if (!manager) { return; }
+
+  std::vector<shared::event::SoundEvent> still_pending;
+  still_pending.reserve(pending_sound_events_.size());
+
+  for (auto &evt : pending_sound_events_) {
+    const std::string emitter_id = evt.GetEmitterId();
+    if (emitter_id.empty()) { continue; }
+    UUIDv4::UUID const uuid_emitter(emitter_id);
+    if (manager->Exists(uuid_emitter)) {
+      const auto game_object = manager->Get(uuid_emitter);
+      if (game_object) {
+        game_object->HandleEvent(evt);
+        continue;
+      }
+    }
+    still_pending.push_back(evt);
+  }
+  pending_sound_events_.swap(still_pending);
 }
+
 }// namespace chroma::app::states
