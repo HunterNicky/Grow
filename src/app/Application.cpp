@@ -21,6 +21,7 @@
 #include "chroma/client/render/Window.h"
 #include "chroma/shared/audio/AudioBridge.h"
 #include "chroma/shared/context/GameContext.h"
+#include "chroma/shared/context/GameContextManager.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/EventCatcher.h"
@@ -89,7 +90,7 @@ void Application::Run()
     delta_time_ = current_time - last_time;
     last_time = current_time;
 
-    shared::context::GameContext::GetInstance().SetDeltaTime(delta_time_);
+    GCM::Instance().SetDeltaTime(delta_time_);
 
     event_catcher_->CatchEvent();
 

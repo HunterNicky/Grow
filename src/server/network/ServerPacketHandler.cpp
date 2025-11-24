@@ -27,10 +27,9 @@ std::shared_ptr<shared::packet::ProjectileMessage> ServerPacketHandler::EventToP
 }
 
 std::vector<flatbuffers::Offset<Game::EntityState>> ServerPacketHandler::GameObjectsToFlatBufferEntities(
-  flatbuffers::FlatBufferBuilder &builder,
-  const std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>> &objects)
+  flatbuffers::FlatBufferBuilder &builder)
 {
-  return shared::packet::PacketHandler::GameObjectsToFlatBufferEntities(builder, objects);
+  return shared::packet::PacketHandler::GameObjectsToFlatBufferEntities(builder);
 }
 
 std::vector<uint8_t> ServerPacketHandler::BuildGameState(flatbuffers::FlatBufferBuilder &builder,

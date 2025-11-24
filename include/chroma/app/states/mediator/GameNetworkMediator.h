@@ -6,6 +6,8 @@
 #include <uuid_v4.h>
 #include <vector>
 
+#include "chroma/shared/events/SoundEvent.h"
+
 #include "chroma/app/states/network/InterpolateSystem.h"
 #include "chroma/app/states/network/PredictiveSyncSystem.h"
 #include "game_generated.h"
@@ -42,15 +44,15 @@ public:
   [[nodiscard]] uint32_t GetSeqCounter() const;
 
   void UpdateInterpolation(uint64_t delta_time) const;
-  void SetGameObjects(
-    const std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>> &game_objects)
-    const;
+
+  void ProcessPendingSoundEvents() const;
 
 private:
   std::weak_ptr<GameState> game_state_;
   std::weak_ptr<NetworkState> network_state_;
   std::unique_ptr<network::InterpolateSystem> interpolate_system_;
   std::unique_ptr<network::PredictiveSyncSystem> predictive_sync_system_;
+  mutable std::vector<shared::event::SoundEvent> pending_sound_events_;
 };
 
 }// namespace chroma::app::states

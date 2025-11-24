@@ -1,9 +1,12 @@
 #pragma once
 
+#include "chroma/shared/collision/CollisionManager.h"
+#include "chroma/shared/context/GameContextManager.h"
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/Attack.h"
 #include "chroma/shared/core/components/AudioListener.h"
 #include "chroma/shared/core/components/Camera.h"
+#include "chroma/shared/core/components/ColliderBox.h"
 #include "chroma/shared/core/components/Coloring.h"
 #include "chroma/shared/core/components/Health.h"
 #include "chroma/shared/core/components/Inventory.h"
@@ -67,7 +70,7 @@ public:
   //   COMPONENTES
   // ------------------------------------------
 
-  GameObjectBuilder &AddTransform(Vector2 pos, Vector2 scale = { 1.0F, 1.0F })
+  GameObjectBuilder &AddTransform(const Vector2 pos, const Vector2 scale = { 1.0F, 1.0F })
   {
     auto transform = std::make_shared<core::component::Transform>();
     transform->SetPosition(pos);
@@ -83,7 +86,7 @@ public:
     return *this;
   }
 
-  GameObjectBuilder &AddMovement(Vector2 direction = { 0.0F, 0.0F })
+  GameObjectBuilder &AddMovement(const Vector2 direction = { 0.0F, 0.0F })
   {
     auto movement = std::make_shared<core::component::Movement>();
     movement->SetDirection(direction);
@@ -98,7 +101,8 @@ public:
     return *this;
   }
 
-  GameObjectBuilder &AddCamera(render::CameraMode mode, float zoom, float smoothness, Vector2 deadzone)
+  GameObjectBuilder &
+    AddCamera(const render::CameraMode mode, const float zoom, const float smoothness, const Vector2 deadzone)
   {
     auto camera = std::make_shared<core::component::CameraComponent>();
     camera->SetMode(mode);
@@ -117,7 +121,7 @@ public:
     return *this;
   }
 
-  GameObjectBuilder &AddHealth(float max_hp, float current_hp)
+  GameObjectBuilder &AddHealth(float max_hp, const float current_hp)
   {
     auto health = std::make_shared<core::component::Health>(max_hp);
     health->SetCurrentHealth(current_hp);
@@ -126,7 +130,7 @@ public:
     return *this;
   }
 
-  GameObjectBuilder &AddColoring(Color color)
+  GameObjectBuilder &AddColoring(const Color color)
   {
     auto coloring = std::make_shared<core::component::Coloring>();
     coloring->SetColoring(color.r, color.g, color.b, color.a);
@@ -135,7 +139,7 @@ public:
     return *this;
   }
 
-  GameObjectBuilder &AddRun(bool is_running, float speed_factor = 1.5F)
+  GameObjectBuilder &AddRun(const bool is_running, const float speed_factor = 1.5F)
   {
     auto run = std::make_shared<core::component::Run>();
     run->SetRunning(is_running);
@@ -145,7 +149,7 @@ public:
     return *this;
   }
 
-  GameObjectBuilder &AddInventory(int capacity)
+  GameObjectBuilder &AddInventory(const int capacity)
   {
     auto inventory = std::make_shared<core::component::Inventory>();
     inventory->SetCapacity(capacity);
@@ -160,11 +164,22 @@ public:
     return *this;
   }
 
-  GameObjectBuilder &AddProjectileType(core::component::TypeProjectile projectile_type)
+  GameObjectBuilder &AddProjectileType(const core::component::TypeProjectile projectile_type)
   {
     auto proj_type = std::make_shared<core::component::ProjectileType>();
     proj_type->SetProjectileType(projectile_type);
     obj_->AttachComponent(proj_type);
+    return *this;
+  }
+
+  GameObjectBuilder &AddColliderBox(const GameContextType context_type,
+    const Vector2 size,
+    const Vector2 offset = { 0.0F, 0.0F },
+    const collision::BodyType type = collision::BodyType::Dynamic)
+  {
+    auto collider = std::make_shared<core::component::ColliderBox>(size, offset);
+    obj_->AttachComponent(collider);
+    GCM::Instance().GetContext(context_type)->GetCollisionManager()->AddCollider(collider, type);
     return *this;
   }
 
