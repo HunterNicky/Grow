@@ -1,5 +1,7 @@
 #pragma once
 
+#include "chroma/shared/collision/CollisionManager.h"
+#include "chroma/shared/context/GameContextManager.h"
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/Attack.h"
 #include "chroma/shared/core/components/AudioListener.h"
@@ -170,10 +172,14 @@ public:
     return *this;
   }
 
-  GameObjectBuilder &AddColliderBox(const Vector2 size, const Vector2 offset = { 0.0F, 0.0F })
+  GameObjectBuilder &AddColliderBox(const GameContextType context_type,
+    const Vector2 size,
+    const Vector2 offset = { 0.0F, 0.0F },
+    const collision::BodyType type = collision::BodyType::Dynamic)
   {
     auto collider = std::make_shared<core::component::ColliderBox>(size, offset);
     obj_->AttachComponent(collider);
+    GCM::Instance().GetContext(context_type)->GetCollisionManager()->AddCollider(collider, type);
     return *this;
   }
 

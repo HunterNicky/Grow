@@ -229,7 +229,6 @@ std::unordered_map<UUIDv4::UUID, std::shared_ptr<core::GameObject>> PacketHandle
       game_object = current_clones[entity_id];
     } else {
       game_object = factory::GameObjectFactory::Create(entity_state, is_local_player);
-      game_object->SetId(entity_id);
       if (game_object) {
         current_clones[entity_id] = game_object;
         if (manager && !manager->Exists(entity_id)) { manager->Register(game_object); }

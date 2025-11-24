@@ -48,7 +48,7 @@ void ServerGameLogic::Update(const float delta_time)
     });
 
   if (const auto collision_manager =
-        GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager()->GetCollisionManager();
+        GCM::Instance().GetContext(GameContextType::Server)->GetGameObjectManager()->GetCollisionManager();
     collision_manager) {
     collision_manager->Update();
   }
@@ -70,7 +70,7 @@ std::shared_ptr<shared::core::player::Player> ServerGameLogic::CreatePlayer()
                   .AddMovement()
                   .AddAnimation()
                   .AddCamera(shared::render::CameraMode::FollowSmooth, 3.0F, 2.0F, { 64, 128 })
-                  .AddColliderBox({ 32.F, 16.F }, { -16.F, 32.F })
+                  .AddColliderBox(GameContextType::Server, { 16.F, 32.F }, { -8.F, -16.F })
                   .AddAudioListener()
                   .AddHealth(100.0F, 1.0F)
                   .AddRun(false, 1.5F)

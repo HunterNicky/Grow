@@ -28,7 +28,7 @@ namespace {
       reg.emplace(Game::GameObjectType::Player,
         [](const Game::EntityState *entity_state, const bool is_local_player) -> std::shared_ptr<core::GameObject> {
           if (entity_state == nullptr || entity_state->id() == nullptr) { return nullptr; }
-          const UUIDv4::UUID entity_id(entity_state->id()->str());
+          const UUIDv4::UUID entity_id = UUIDv4::UUID::fromStrFactory(entity_state->id()->str());
 
           auto player = builder::GameObjectBuilder<core::player::Player>()
                           .Id(entity_id)
@@ -37,7 +37,7 @@ namespace {
                           .AddMovement()
                           .AddAnimation()
                           .AddCamera(render::CameraMode::FollowSmooth, 3.0F, 2.0F, { 64, 128 })
-                          .AddColliderBox({ 32.F, 16.F }, { -16.F, 32.F })
+                          .AddColliderBox(GameContextType::Client, { 16.F, 32.F }, { -8.F, -16.F })
                           .AddAudioListener()
                           .AddHealth(100.0F, 100.0F)
                           .AddRun(false, 1.5F)
