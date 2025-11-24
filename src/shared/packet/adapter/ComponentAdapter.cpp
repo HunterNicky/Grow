@@ -266,7 +266,7 @@ void ComponentAdapter::ComponentToInventory(const Game::Component *component,
       auto type = static_cast<core::component::WeaponType>(fb_weapon->weapon_type());
       auto weapon = inventory->GetWeaponByWeaponType(type);
       if (!weapon) {
-        weapon = factory::WeaponFactory::CreateWeaponByType(type);
+        weapon = factory::WeaponFactory::Create(type);
         inventory->AddInventory(weapon);
       }
       WeaponAdapter::FromComponent(*fb_weapon, weapon);

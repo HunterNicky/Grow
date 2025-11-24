@@ -8,6 +8,7 @@
 #include "chroma/client/render/animation/AnimationRenderer.h"
 #include "chroma/client/render/shader/RenderPass.h"
 #include "chroma/client/render/shader/RenderPipeline.h"
+#include "chroma/shared/events/Event.h"
 
 #include <functional>
 #include <memory>
@@ -43,6 +44,12 @@ public:
     render_target_.reset();
     Window::Close();
   }
+
+  void SetEventDispatcher();
+
+  void HandleShaderEvent(const shared::event::Event &event) const;
+  void HandleAddShaderEvent(const shared::event::Event &event) const;
+  void HandleChangeShaderEvent(const shared::event::Event &event) const;
 
   void AddShaderPassFront(std::unique_ptr<shader::RenderPass> pass) const;
   void AddShaderPassBack(std::unique_ptr<shader::RenderPass> pass) const;

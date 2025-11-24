@@ -9,7 +9,7 @@ namespace chroma::client::render::shader::shaders {
 class ThresHoldPass : public ShaderPass
 {
 public:
-  explicit ThresHoldPass(float threshold);
+  explicit ThresHoldPass(float threshold = 0.1F);
 
   void Setup() override;
   void Execute(RenderTexture2D &src, RenderTexture2D &dst) override;

@@ -12,7 +12,6 @@
 #include "chroma/app/layers/network/NetworkLayer.h"
 #include "chroma/app/states/GameState.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
-#include "chroma/app/states/mediator/RenderMediator.h"
 #include "chroma/app/states/network/NetworkState.h"
 #include "chroma/client/audio/AudioBridgeImpl.h"
 #include "chroma/client/audio/AudioEngine.h"
@@ -58,9 +57,8 @@ void Application::Run()
   {
     auto event_dispatcher = std::make_unique<shared::event::EventDispatcher>();
     shared::event::EventBus::SetDispatcher(event_dispatcher);
+    renderer_->SetEventDispatcher();
   }
-
-  auto render_mediator = std::make_shared<states::mediator::RenderMediator>(renderer_);
 
   auto game_layer = std::make_unique<layer::game::GameLayer>();
   auto network_layer = std::make_unique<layer::network::NetworkLayer>();
@@ -68,7 +66,6 @@ void Application::Run()
   auto mediator = std::make_shared<states::GameNetworkMediator>();
   const auto game_state = std::make_shared<states::GameState>(mediator);
   game_state->SetEventDispatcher();
-  game_state->SetRenderMediator(render_mediator);
   const auto network_state = std::make_shared<states::NetworkState>(mediator);
   network_state->SetEventDispatcher();
 

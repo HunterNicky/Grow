@@ -8,6 +8,7 @@ namespace chroma::client::render::shader::shaders {
 GrayPass::GrayPass()
     : ShaderPass("resources/shaders/base.vs", "assets/shaders/gray.fs")
 {
+    SetPassType(PassType::GRAYSCALE);
 }
 
 void GrayPass::Setup()

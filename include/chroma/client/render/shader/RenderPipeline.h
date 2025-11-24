@@ -26,6 +26,19 @@ public:
 
   RenderTexture2D &Execute(RenderTexture2D &original_scene);
 
+  [[nodiscard]] RenderPass* GetPassByType(PassType type) const;
+
+  template<typename T>
+  T* GetPass() const {
+      for (const auto &p : passes_) {
+          if (auto casted = dynamic_cast<T*>(p.get()))
+          {
+            return casted;
+          }
+      }
+      return nullptr;
+  }
+
 private:
   std::vector<std::unique_ptr<RenderPass>> passes_;
 

@@ -11,7 +11,7 @@ namespace chroma::client::render::shader::shaders {
 class BorderPass : public ShaderPass
 {
 public:
-  BorderPass(int width, int height);
+  explicit BorderPass(int width = 1920, int height = 1080);
   ~BorderPass() override;
 
   BorderPass(const BorderPass &) = delete;
@@ -21,6 +21,9 @@ public:
 
   void Setup() override;
   void Execute(RenderTexture2D &src, RenderTexture2D &dst) override;
+
+  void SetTextureDX(const std::shared_ptr<RenderTexture2D> &tex_dx);
+  void SetTextureDY(const std::shared_ptr<RenderTexture2D> &tex_dy);
 
 private:
 

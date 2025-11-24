@@ -7,6 +7,8 @@ ThresHoldPass::ThresHoldPass(float threshold)
     SetUniform("threshold", UniformType::FLOAT, threshold_);
 }
 
+
+
 void ThresHoldPass::Setup()
 {
     LoadShader();

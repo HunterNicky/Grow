@@ -1,5 +1,6 @@
 #include "chroma/client/render/shader/RenderPipeline.h"
 #include "chroma/client/render/shader/RenderPass.h"
+#include "chroma/client/render/shader/ShaderPass.h"
 
 #include <memory>
 #include <raylib.h>
@@ -38,6 +39,7 @@ RenderTexture2D &RenderPipeline::Execute(RenderTexture2D &original_scene)
   RenderTexture2D *dst = &ping_;
 
   for (auto &pass : passes_) {
+    if(!pass->IsActive()) { continue; }
     pass->Execute(*src, *dst);
     src = dst;
     if (dst == &ping_) {
@@ -48,4 +50,16 @@ RenderTexture2D &RenderPipeline::Execute(RenderTexture2D &original_scene)
   }
   return *src;
 }
+
+RenderPass* RenderPipeline::GetPassByType(PassType type) const
+{
+  for (const auto &p : passes_) {
+    if (const auto &shader_pass = dynamic_cast<ShaderPass*>(p.get()))
+    {
+      if (shader_pass->GetPassType() == type) { return shader_pass; }
+    }
+  }
+  return nullptr;
+}
+
 }// namespace chroma::client::render::shader

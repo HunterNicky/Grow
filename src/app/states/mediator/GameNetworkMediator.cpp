@@ -60,13 +60,14 @@ void GameNetworkMediator::OnSnapshotReceived(const Game::Snapshot *snapshot) con
 
   const UUIDv4::UUID player_id = shared::packet::PacketHandler::SnapshotGetUUID(snapshot);
 
+  
+  auto manager = GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager();
+  auto new_snapshot = shared::packet::PacketHandler::SnapshotToGameObjects(manager, snapshot);
+  
   if (state->GetPlayerId() != player_id) {
     state->SetPlayerId(player_id);
     interpolate_system_->SetPlayerId(player_id);
   }
-
-  auto manager = GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager();
-  auto new_snapshot = shared::packet::PacketHandler::SnapshotToGameObjects(manager, snapshot);
 
   const uint32_t last_processed_input = shared::packet::PacketHandler::SnapshotGetLastProcessedInputSeq(snapshot);
 

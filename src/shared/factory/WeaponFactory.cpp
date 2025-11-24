@@ -8,7 +8,7 @@
 #include <memory>
 
 namespace chroma::shared::factory {
-std::shared_ptr<core::component::Weapon> WeaponFactory::CreateWeaponByType(core::component::WeaponType type)
+std::shared_ptr<core::component::Weapon> WeaponFactory::Create(core::component::WeaponType type)
 {
   switch (type) {
   case core::component::WeaponType::SPEAR:
