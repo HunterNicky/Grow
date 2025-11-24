@@ -6,30 +6,26 @@
 #include <utility>
 
 #include "chroma/app/Application.h"
+#include "chroma/app/database/DatabaseManager.h"
+#include "chroma/app/database/repositories/SettingsRepository.h"
 #include "chroma/app/layers/Layer.h"
 #include "chroma/app/layers/LayerStack.h"
-// #include "chroma/app/layers/game/GameLayer.h"
-// #include "chroma/app/layers/network/NetworkLayer.h"
-// #include "chroma/app/states/GameState.h"
-// #include "chroma/app/states/mediator/GameNetworkMediator.h"
-// #include "chroma/app/states/network/NetworkState.h"
+#include "chroma/app/layers/game/MainMenuLayer.h"
+#include "chroma/app/settings/SettingsManager.h"
 #include "chroma/client/audio/AudioBridgeImpl.h"
 #include "chroma/client/audio/AudioEngine.h"
 #include "chroma/client/render/RenderBridgeImpl.h"
 #include "chroma/client/render/Renderer.h"
 #include "chroma/client/render/Window.h"
+#include "chroma/client/ui/UIManager.h"
+#include "chroma/client/ui/UIManagerBus.h"
 #include "chroma/shared/audio/AudioBridge.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/EventCatcher.h"
 #include "chroma/shared/events/EventDispatcher.h"
-#include "chroma/shared/render/RenderBridge.h"
-
-#include "chroma/app/layers/game/MainMenuLayer.h"
-#include "chroma/client/ui/UIManager.h"
-#include "chroma/client/ui/UIManagerBus.h"
-
 #include "chroma/shared/events/layer/LayerEvent.h"
+#include "chroma/shared/render/RenderBridge.h"
 
 namespace chroma::app {
 
@@ -39,7 +35,8 @@ Application::Application()
       auto window = std::make_unique<client::render::Window>(1280, 720, "Chroma");
       return std::make_unique<client::render::Renderer>(std::move(window), config);
     }()),
-    audio_(std::make_unique<client::audio::AudioEngine>())
+    audio_(std::make_unique<client::audio::AudioEngine>()),
+    database_(std::make_unique<app::database::DatabaseManager>("game.db"))
 {
   const auto bridge = std::make_shared<client::render::RenderBridgeImpl>(renderer_.get());
   shared::render::SetRenderBridge(bridge);
@@ -49,20 +46,27 @@ Application::Application()
 
   audio_bridge->LoadSound("step", "assets/sfx/step.wav");
   audio_bridge->LoadMusic("bgm", "assets/music/06.mp3");
+
+  auto event_dispatcher = std::make_unique<shared::event::EventDispatcher>();
+  shared::event::EventBus::SetDispatcher(event_dispatcher);
+  auto ui_manager = std::make_unique<client::ui::UIManager>();
+  client::ui::UIManagerBus::SetUIManager(ui_manager);
+  layer_subscription_ = shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::layer::LayerEvent>(
+    [this](shared::event::Event &event) { this->OnEvent(event); });
+
+  database_->InitEventListener();
+  auto &settings = app::settings::SettingsManager::Instance();
+  settings.SetGameConfig(database_->GetSettingsRepo().Load());
+  settings.InitEventListener();
+  settings.ApplyCurrentSettings();
+
   audio_bridge->PlayMusic("bgm", true, 0.4F);
 }
 
 void Application::Run()
 {
   Initialize();
-  {
-    auto event_dispatcher = std::make_unique<shared::event::EventDispatcher>();
-    shared::event::EventBus::SetDispatcher(event_dispatcher);
-    auto ui_manager = std::make_unique<client::ui::UIManager>();
-    client::ui::UIManagerBus::SetUIManager(ui_manager);
-    layer_subscription_ = shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::layer::LayerEvent>(
-      [this](shared::event::Event &event) { this->OnEvent(event); });
-  }
+  {}
 
   auto menu_layer = std::make_unique<layer::game::MainMenuLayer>("MainMenu");
   PushLayer(std::move(menu_layer));
@@ -83,10 +87,7 @@ void Application::Run()
     layer_stack_->UpdateLayers(delta_time_);
     client::ui::UIManagerBus::GetUIManager()->OnUpdate(delta_time_);
 
-    renderer_->RenderFrame([&] {
-      layer_stack_->RenderLayers();
-    });
-
+    renderer_->RenderFrame([&] { layer_stack_->RenderLayers(); });
   }
   renderer_->Close();
 }

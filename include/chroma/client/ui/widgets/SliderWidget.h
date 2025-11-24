@@ -3,6 +3,7 @@
 #include <raylib.h>
 #include <string>
 #include <utility>
+#include <functional>
 
 #include "chroma/client/ui/UIContext.h"
 #include "chroma/client/ui/widgets/Widget.h"
@@ -26,6 +27,8 @@ public:
 
   int GetValue() const { return value_; }
 
+  void SetOnSlide(std::function<void(float)> on_slide);
+
 private:
   int value_;
   int min_value_;
@@ -39,6 +42,7 @@ private:
 
   float GetHandleX() const;
   bool IsMouseOverHandle(Vector2 mouse_pos) const;
+  std::function<void(float)> on_slide_;
 };
 
 }// namespace chroma::client::ui::widget

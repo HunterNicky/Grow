@@ -19,6 +19,8 @@ public:
     StateEvent = 10,
     LayerEvent,
     PanelEvent,
+    AudioVolumeEvent,
+    SaveSettingsEvent,
   };
 
   Event() = default;

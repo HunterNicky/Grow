@@ -18,7 +18,7 @@ public:
   PanelBuilder &
     AddButton(const std::string &id, const std::string &text, std::function<void(const std::string &)> on_click);
 
-  PanelBuilder &AddSlider(const std::string &id, const std::string &label, int min, int max, int initial);
+  PanelBuilder &AddSlider(const std::string &id, const std::string &label, int min, int max, int initial, std::function<void(float)> on_slide);
   PanelBuilder &AddToggle(const std::string &id, const std::string &label, bool is_toggled, std::function<void(bool)> on_toggle);
   PanelBuilder &AddBackgroundTexture(const std::string &texture_path);
   PanelBuilder &CenterPanel();

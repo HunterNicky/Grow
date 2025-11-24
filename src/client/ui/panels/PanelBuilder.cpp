@@ -57,7 +57,7 @@ PanelBuilder &PanelBuilder::CenterPanel()
   return *this;
 }
 
-PanelBuilder &PanelBuilder::AddSlider(const std::string &id, const std::string &label, int min, int max, int initial)
+PanelBuilder &PanelBuilder::AddSlider(const std::string &id, const std::string &label, int min, int max, int initial, std::function<void(float)> on_slide)
 {
   const float slider_width = 360.0F;
   const float slider_height = 80.0F;
@@ -65,6 +65,8 @@ PanelBuilder &PanelBuilder::AddSlider(const std::string &id, const std::string &
   const Rectangle rect = { cursor_x_ + item_padding_, cursor_y_, slider_width, slider_height };
 
   auto slider = std::make_unique<widget::SliderWidget>(id, rect, label, min, max, initial);
+
+  slider->SetOnSlide(std::move(on_slide));
   panel_->AddWidget(std::move(slider));
 
   cursor_y_ += slider_height + item_padding_;

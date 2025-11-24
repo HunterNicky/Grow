@@ -6,6 +6,7 @@
 
 #include "chroma/app/commands/CommandQueue.h"
 #include "chroma/app/commands/FunctionalCommand.h"
+#include "chroma/app/settings/SettingsManager.h"
 #include "chroma/client/render/Window.h"
 #include "chroma/client/ui/UIContext.h"
 #include "chroma/client/ui/UIManager.h"
@@ -13,6 +14,7 @@
 #include "chroma/client/ui/panels/PanelBuilder.h"
 #include "chroma/client/ui/panels/PanelFactory.h"
 #include "chroma/client/ui/panels/PanelIdentifiers.h"
+#include "chroma/shared/events/AudioVolumeEvent.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/ui/ButtonClickEvent.h"
@@ -47,7 +49,7 @@ void UIManager::OnPanelEvent(shared::event::ui::PanelEvent &panel_event)
 void UIManager::DoOpenPanel(const panel::PanelID panel_id)
 {
   const render::RenderConfig config;
-  const Vector2 screen_size = {static_cast<float>(config.virtual_width), static_cast<float>(config.virtual_height)};
+  const Vector2 screen_size = { static_cast<float>(config.virtual_width), static_cast<float>(config.virtual_height) };
   const Vector2 panel_size = { static_cast<float>(config.virtual_width), static_cast<float>(config.virtual_height) };
 
   auto panel = panel_factory_.Create(panel_id, screen_size, panel_size);
@@ -86,7 +88,7 @@ void UIManager::RegisterPanels()
 {
   panel_factory_.Register(panel::PanelID::MainMenuPanel, [this](Vector2 screen_size, Vector2 panel_size) {
     const Rectangle bounds = this->GetCenteredRect(screen_size, panel_size.x, panel_size.y);
-    (void) panel_size;
+    (void)panel_size;
     auto on_click_callback = [this](const std::string &button_id) {
       shared::event::ui::ButtonClickEvent event(shared::event::Event::Type::ButtonClickEvent, button_id);
       shared::event::EventBus::Dispatch(event);
@@ -135,10 +137,20 @@ void UIManager::RegisterPanels()
       shared::event::EventBus::Dispatch(event);
     };
 
+    auto make_volume_callback = [this](shared::event::AudioChannel channel) {
+      return [this, channel](float volume) {
+        shared::event::AudioVolumeEvent event(channel, volume);
+        shared::event::EventBus::Dispatch(event);
+      };
+    };
+
+    const auto& game_config = chroma::app::settings::SettingsManager::Instance().GetGameConfig();
+
     return panel::PanelBuilder::Create(panel::PanelID::AudioOptionsPanel, bounds)
-      .AddSlider("GeneralVolume", "General", 0.0F, 100.0F, 0.0F)
-      .AddSlider("MusicVolume", "Music", 0.0F, 100.0F, 0.0F)
-      .AddSlider("SFXVolume", "SFX", 0.0F, 100.0F, 0.0F)
+      .AddSlider(
+        "GeneralVolume", "General", 0.0F, 100.0F, static_cast<int>(game_config.master_volume * 100.0F), make_volume_callback(shared::event::AudioChannel::Master))
+      .AddSlider("MusicVolume", "Music", 0.0F, 100.0F, static_cast<int>(game_config.music_volume * 100.0F), make_volume_callback(shared::event::AudioChannel::Music))
+      .AddSlider("SFXVolume", "SFX", 0.0F, 100.0F, static_cast<int>(game_config.sfx_volume * 100.0F), make_volume_callback(shared::event::AudioChannel::SFX))
       .AddButton("AudioBack", "Back", on_click_callback)
       .CenterPanel()
       .Build();

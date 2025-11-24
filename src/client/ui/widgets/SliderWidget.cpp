@@ -9,6 +9,7 @@
 #include <sstream>
 #include <string>
 #include <utility>
+#include <functional>
 
 namespace chroma::client::ui::widget {
 
@@ -25,7 +26,8 @@ SliderWidget::SliderWidget(const std::string &id,
 
 float SliderWidget::GetHandleX() const
 {
-  const float normalized_value = (static_cast<float>(value_) - static_cast<float>(min_value_)) / (static_cast<float>(max_value_) - static_cast<float>(min_value_));
+  const float normalized_value = (static_cast<float>(value_) - static_cast<float>(min_value_))
+                                 / (static_cast<float>(max_value_) - static_cast<float>(min_value_));
   return bounds_.x + (normalized_value * bounds_.width);
 }
 
@@ -34,6 +36,8 @@ bool SliderWidget::IsMouseOverHandle(Vector2 mouse_pos) const
   const Vector2 handle_center = { GetHandleX(), bounds_.y + (bounds_.height / 2.0F) };
   return CheckCollisionPointCircle(mouse_pos, handle_center, handle_radius_);
 }
+
+void SliderWidget::SetOnSlide(std::function<void(float)> on_slide) { on_slide_ = std::move(on_slide); }
 
 void SliderWidget::OnUpdate(const float delta_time, const UIContext &context)
 {
@@ -59,6 +63,8 @@ void SliderWidget::OnUpdate(const float delta_time, const UIContext &context)
     const int new_value = static_cast<int>(std::round(new_float_value));
 
     value_ = std::clamp(new_value, min_value_, max_value_);
+
+    on_slide_(std::clamp(static_cast<float>(value_) / 100.0F, 0.0F, 1.0F));
   }
 }
 
