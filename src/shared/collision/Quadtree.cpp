@@ -1,5 +1,6 @@
 #include "chroma/shared/collision/Quadtree.h"
 #include <shared_mutex>
+#include <mutex>
 
 namespace chroma::shared::collision {
 

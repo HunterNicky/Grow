@@ -61,13 +61,13 @@ private:
     BodyType type_a,
     BodyType type_b) const;
 
-  void ResolveCollisionOneWay(const std::shared_ptr<core::component::ColliderBox> &moving_obj,
-    const CollisionEvent &event) const;
+  static void ResolveCollisionOneWay(const std::shared_ptr<core::component::ColliderBox> &moving_obj,
+    const CollisionEvent &event);
 
-  void ResolveBothEqual(const std::shared_ptr<core::component::ColliderBox> &obj_a,
+  static void ResolveBothEqual(const std::shared_ptr<core::component::ColliderBox> &obj_a,
     const std::shared_ptr<core::component::ColliderBox> &obj_b,
     const Vector2 &normal,
-    float penetration) const;
+    float penetration);
 
   void RebuildStaticTree() const;
 };

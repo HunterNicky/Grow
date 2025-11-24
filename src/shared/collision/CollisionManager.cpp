@@ -38,23 +38,25 @@ void CollisionManager::AddCollider(const std::shared_ptr<core::component::Collid
   }
 }
 
-void CollisionManager::RemoveCollider(const std::shared_ptr<core::component::ColliderBox> &collider)
+void CollisionManager::RemoveCollider(
+    const std::shared_ptr<core::component::ColliderBox> &collider)
 {
-  if (!collider) { return; }
+    if (!collider) { return; }
 
-  auto eraseFrom = [&](auto &vec) {
-    auto sub = std::ranges::remove(vec, collider);
-    auto new_end = sub.begin();
-    if (new_end != vec.end()) {
-      vec.erase(new_end, vec.end());
-      return true;
-    }
-    return false;
-  };
+    auto erase_from = [&](auto &vec) {
+        auto it = std::remove(vec.begin(), vec.end(), collider);
+        if (it != vec.end()) {
+            vec.erase(it, vec.end());
+            return true;
+        }
+        return false;
+    };
 
-  if (eraseFrom(dynamic_colliders_)) { return; }
-  if (eraseFrom(static_colliders_)) { RebuildStaticTree(); }
+    if (erase_from(dynamic_colliders_)) { return; }
+    if (erase_from(static_colliders_)) { RebuildStaticTree(); }
 }
+
+
 std::vector<std::shared_ptr<core::GameObject>> CollisionManager::GetCollisions(
   const std::shared_ptr<core::component::ColliderBox> &collider_box,
   const BodyType type) const
@@ -254,7 +256,7 @@ void CollisionManager::CheckCollision(const std::shared_ptr<core::component::Col
 }
 
 void CollisionManager::ResolveCollisionOneWay(const std::shared_ptr<core::component::ColliderBox> &moving_obj,
-  const CollisionEvent &event) const
+  const CollisionEvent &event)
 {
   if (!moving_obj) { return; }
 
@@ -275,7 +277,7 @@ void CollisionManager::ResolveCollisionOneWay(const std::shared_ptr<core::compon
 void CollisionManager::ResolveBothEqual(const std::shared_ptr<core::component::ColliderBox> &obj_a,
   const std::shared_ptr<core::component::ColliderBox> &obj_b,
   const Vector2 &normal,
-  const float penetration) const
+  const float penetration)
 {
   if (!obj_a || !obj_b) { return; }
 
