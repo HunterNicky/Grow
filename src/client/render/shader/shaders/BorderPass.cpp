@@ -14,6 +14,7 @@ namespace chroma::client::render::shader::shaders {
       tex_dx_(std::make_shared<RenderTexture2D>(LoadRenderTexture(width, height))),
       tex_dy_(std::make_shared<RenderTexture2D>(LoadRenderTexture(width, height)))
   {
+    SetPassType(PassType::BORDER);
     SetUniform("u_dx", UniformType::SAMPLER2D, tex_dx_);
     SetUniform("u_dy", UniformType::SAMPLER2D, tex_dy_);
   }

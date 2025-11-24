@@ -9,7 +9,7 @@ uniform sampler2D u_dy;
 void main()
 {
     float CONTRASTE_FATOR = 0.2; 
-    float LIMIAR = 0.1;
+    float LIMIAR = 0.15;
     
     float gx = texture(u_dx, fragTexCoord).r;
     float gy = texture(u_dy, fragTexCoord).r;

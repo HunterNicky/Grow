@@ -1,5 +1,6 @@
 #include "chroma/client/render/shader/shaders/BlurPass.h"
 #include "chroma/client/render/shader/IShaderValue.h"
+#include "chroma/client/render/shader/RenderPass.h"
 #include "chroma/client/render/shader/ShaderPass.h"
 
 #include <algorithm>
@@ -12,6 +13,7 @@ BlurPass::BlurPass(const int width, const int height, int initial_radius)
   : ShaderPass("resources/shaders/base.vs", "assets/shaders/blur.fs"),
     resolution_(std::make_shared<Vector2>(Vector2{ static_cast<float>(width), static_cast<float>(height) }))
 {
+  SetPassType(PassType::BLUR);
   SetUniform("u_resolution", UniformType::VEC2, resolution_);
 
   radius_ = std::make_shared<int>(initial_radius);
@@ -51,4 +53,12 @@ void BlurPass::Execute(RenderTexture2D &src, RenderTexture2D &dst)
   EndShaderMode();
   EndTextureMode();
 }
+
+void BlurPass::SetResolution(int width, int height)
+{
+  resolution_->x = static_cast<float>(width);
+  resolution_->y = static_cast<float>(height);
+  SetUniform("u_resolution", UniformType::VEC2, resolution_);
+}
+
 }// namespace chroma::client::render::shader::shaders

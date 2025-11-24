@@ -13,7 +13,8 @@ public:
     MouseClickEvent = 2,
     MouseEvent = 3,
     SoundEvent = 4,
-    ProjectileEvent = 5
+    ProjectileEvent = 5,
+    ShaderEvent = 6,
   };
 
   Event() = default;

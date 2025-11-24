@@ -27,6 +27,8 @@ HealthPass::HealthPass() : ShaderPass("resources/shaders/base.vs", "assets/shade
     TraceLog(LOG_WARNING, "HealthPass: Local player has no Health component.");
     return;
   }
+
+  SetPassType(PassType::HEALTH);
   SetUniform("health", UniformType::FLOAT, health->GetCurrentHealth());
   SetUniform("max_health", UniformType::FLOAT, health->GetMaxHealth());
   SetUniform("time", UniformType::FLOAT, GCM::Instance().GetContext(GameContextType::Client)->GetDeltaTime());

@@ -7,6 +7,7 @@ namespace chroma::client::render::shader::shaders {
 DerivativeYPass::DerivativeYPass()
     : ShaderPass("resources/shaders/base.vs", "assets/shaders/dfy.fs")
 {
+    SetPassType(PassType::DERIVATIVEY);
 }
 
 void DerivativeYPass::Setup()

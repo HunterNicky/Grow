@@ -2,14 +2,10 @@
 
 #include "chroma/app/states/State.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
-#include "chroma/app/states/mediator/RenderMediator.h"
-#include "chroma/client/render/shader/shaders/HealthPass.h"
 #include "chroma/shared/builder/GameObjectBuilder.h"
 #include "chroma/shared/context/GameContext.h"
 #include "chroma/shared/context/GameContextManager.h"
 #include "chroma/shared/core/GameObject.h"
-#include "chroma/shared/core/GameObjectManager.h"
-#include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/core/projectile/Projectile.h"
 #include "chroma/shared/events/Event.h"
@@ -17,7 +13,8 @@
 #include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/events/ProjectileEvent.h"
-#include "chroma/shared/render/RenderBridge.h"
+#include "chroma/shared/events/ShaderEvent.h"
+#include "chroma/client/render/shader/RenderPass.h"
 
 #include <cstdint>
 #include <memory>
@@ -84,13 +81,15 @@ void GameState::SetPlayerId(const UUIDv4::UUID &player_id)
 {
   player_id_ = player_id;
 
-  auto player = GetPlayer();
+  auto player = GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager()->Get(player_id);
 
   if (player) {
     GCM::Instance().GetContext(GameContextType::Client)->SetLocalPlayer(player);
     if (first_snapshot_received_) {
-      auto health_pass = std::make_unique<client::render::shader::shaders::HealthPass>();
-      render_mediator_->AddShaderFront(std::move(health_pass));
+      shared::event::ShaderEvent shader_event(shared::event::ShaderEventType::ADD);
+      shader_event.SetPassType(client::render::shader::PassType::HEALTH);
+      shader_event.SetFront(true);
+      shared::event::EventBus::GetDispatcher()->Dispatch(shader_event);
       first_snapshot_received_ = false;
     }
   }
@@ -124,18 +123,6 @@ void GameState::HandleProjectileEvent(const shared::event::Event &event) const
   GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager()->Register(projectile);
 }
 
-std::shared_ptr<shared::core::player::Player> GameState::GetPlayer() const
-{
-  auto player = GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager()->Get(player_id_);
-  if (player) { return std::static_pointer_cast<shared::core::player::Player>(player); }
-  return nullptr;
-}
-
 UUIDv4::UUID GameState::GetPlayerId() const { return player_id_; }
-
-void GameState::SetRenderMediator(std::shared_ptr<mediator::RenderMediator> mediator)
-{
-  render_mediator_ = std::move(mediator);
-}
 
 }// namespace chroma::app::states
