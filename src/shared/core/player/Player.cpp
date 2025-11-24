@@ -6,9 +6,9 @@
 #include "chroma/shared/context/GameContextManager.h"
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/Attack.h"
+#include "chroma/shared/core/components/ColliderBox.h"
 #include "chroma/shared/core/components/Health.h"
 #include "chroma/shared/core/components/Inventory.h"
-#include "chroma/shared/core/components/ColliderBox.h"
 #include "chroma/shared/core/components/Movement.h"
 #include "chroma/shared/core/components/ProjectileType.h"
 #include "chroma/shared/core/components/Speed.h"
@@ -54,9 +54,9 @@ void Player::AnimationState(const Vector2 dir, const float magnitude)
   std::string mode = "fist_";
 
   const auto attack_comp = GetComponent<component::Attack>();
-  auto inventory = GetComponent<component::Inventory>();
+  const auto inventory = GetComponent<component::Inventory>();
   if (inventory) {
-    auto current_weapon = inventory->GetCurrentWeapon();
+    const auto current_weapon = inventory->GetCurrentWeapon();
     if (current_weapon) { mode = component::Weapon::WeaponTypeToPrefix(current_weapon->GetWeaponType()) + "_"; }
   }
 
@@ -96,7 +96,7 @@ void Player::AnimationState(const Vector2 dir, const float magnitude)
   }
 }
 
-void Player::AnimateAttack(const std::string &mode, FacingDir facing_dir)
+void Player::AnimateAttack(const std::string &mode, const FacingDir facing_dir) const
 {
   if (const auto anim = GetComponent<component::SpriteAnimation>()) {
     switch (facing_dir) {
@@ -113,7 +113,7 @@ void Player::AnimateAttack(const std::string &mode, FacingDir facing_dir)
   }
 }
 
-void Player::AnimateMove(const std::string &mode, const std::string &state, Vector2 dir)
+void Player::AnimateMove(const std::string &mode, const std::string &state, const Vector2 dir)
 {
   if (const auto anim = GetComponent<component::SpriteAnimation>()) {
     if (std::fabs(dir.x) > std::fabs(dir.y)) {
@@ -130,8 +130,7 @@ void Player::AnimateMove(const std::string &mode, const std::string &state, Vect
   }
 }
 
-
-void Player::OnUpdate(float delta_time)
+void Player::OnUpdate(const float delta_time)
 {
   const auto transform = GetComponent<component::Transform>();
   const auto speed = GetComponent<component::Speed>();
@@ -140,7 +139,7 @@ void Player::OnUpdate(float delta_time)
   const auto movement = GetComponent<component::Movement>();
   if (!movement) { return; }
 
-  const auto health = GetComponent<core::component::Health>();
+  const auto health = GetComponent<component::Health>();
   if (!health) { return; }
 
   const auto run_comp = GetComponent<component::Run>();
@@ -165,9 +164,9 @@ void Player::OnUpdate(float delta_time)
 
       transform->SetPosition(pos);
 
-      auto inventory = GetComponent<component::Inventory>();
+      const auto inventory = GetComponent<component::Inventory>();
       if (inventory) {
-        auto weapon = inventory->GetCurrentWeapon();
+        const auto weapon = inventory->GetCurrentWeapon();
         if (weapon) { weapon->SetPosition(pos); }
       }
     }
@@ -193,7 +192,7 @@ void Player::OnUpdate(float delta_time)
   for (const auto &[fst, snd] : components_) { snd->Update(delta_time); }
 }
 
-void Player::OnFixedUpdate(float fixed_delta_time) { (void)fixed_delta_time; }
+void Player::OnFixedUpdate(const float fixed_delta_time) { (void)fixed_delta_time; }
 
 void Player::OnCollision(const collision::CollisionEvent &event) { (void)event; }
 
@@ -208,7 +207,7 @@ void Player::OnRender()
   const auto bridge = render::GetRenderBridge();
   if (!bridge) { return; }
 
-  const auto health = GetComponent<core::component::Health>();
+  const auto health = GetComponent<component::Health>();
   if (!health) { return; }
 
   const Vector2 pos = transform->GetPosition();
@@ -279,15 +278,15 @@ void Player::HandleEvent(event::Event &event)
   }
 }
 
-void Player::UpdateAttack(float delta_time)
+void Player::UpdateAttack(const float delta_time) const
 {
-  auto attack = GetComponent<component::Attack>();
+  const auto attack = GetComponent<component::Attack>();
   if (!attack) { return; }
 
-  auto inventory = GetComponent<component::Inventory>();
+  const auto inventory = GetComponent<component::Inventory>();
   if (!inventory) { return; }
 
-  auto current_weapon = inventory->GetCurrentWeapon();
+  const auto current_weapon = inventory->GetCurrentWeapon();
   if (!current_weapon) { return; }
 
   current_weapon->SetLastAttackTime(current_weapon->GetLastAttackTime() + delta_time);
@@ -303,9 +302,9 @@ void Player::UpdateAttack(float delta_time)
 }
 
 
-void Player::HandleThrowInput(const std::shared_ptr<component::Weapon> &weapon)
+void Player::HandleThrowInput(const std::shared_ptr<component::Weapon> &weapon) const
 {
-  auto transform = GetComponent<component::Transform>();
+  const auto transform = GetComponent<component::Transform>();
   if (!transform) { return; }
 
   Vector2 direction{ 0.0F, 0.0F };
@@ -319,15 +318,15 @@ void Player::HandleThrowInput(const std::shared_ptr<component::Weapon> &weapon)
   }
 
   if (weapon->GetWeaponType() == component::WeaponType::JAVELIN) {
-    auto projectile_event =
-      std::make_shared<event::ProjectileEvent>(core::component::TypeProjectile::JAVELIN, direction, 80.0F);
+    const auto projectile_event =
+      std::make_shared<event::ProjectileEvent>(component::TypeProjectile::JAVELIN, direction, 80.0F);
     projectile_event->SetProjectileId(utils::UUID::Generate());
     projectile_event->SetPosition(transform->GetPosition());
     event::EventBus::Dispatch(*projectile_event);
   }
 }
 
-void Player::HandleDirectionInput(Vector2 &direction)
+void Player::HandleDirectionInput(Vector2 &direction) const
 {
   if (input_state_.IsKeyPressed(KEY_W)) { direction.y -= 1.0F; }
   if (input_state_.IsKeyPressed(KEY_S)) { direction.y += 1.0F; }
@@ -337,7 +336,7 @@ void Player::HandleDirectionInput(Vector2 &direction)
 
 void Player::HandleWeaponInput()
 {
-  auto inventory = GetComponent<component::Inventory>();
+  const auto inventory = GetComponent<component::Inventory>();
   if (!inventory) { return; }
 
   std::shared_ptr<component::Weapon> weapon(nullptr);
@@ -350,7 +349,7 @@ void Player::HandleWeaponInput()
   SetCurrentWeapon(weapon);
 }
 
-void Player::SetCurrentWeapon(const std::shared_ptr<component::Weapon> &weapon)
+void Player::SetCurrentWeapon(const std::shared_ptr<component::Weapon> &weapon) const
 {
   if (!weapon) { return; }
 

@@ -19,10 +19,21 @@ void GameContextManager::SetContext(const GameContextType type, const std::share
 {
   if (context) { contexts_[type] = context; }
 }
+
 void GameContextManager::CreateContext(const GameContextType type)
 {
   const auto context = std::make_shared<GameContext>();
   context->SetType(type);
   contexts_[type] = context;
+}
+
+void GameContextManager::DeleteContext(const GameContextType type)
+{
+  if (contexts_.contains(type)) { contexts_.erase(type); }
+}
+
+void GameContextManager::SetDeltaTime(const float delta_time)
+{
+  for (const auto &[type, context] : contexts_) { context->SetDeltaTime(delta_time); }
 }
 }// namespace chroma::shared::context

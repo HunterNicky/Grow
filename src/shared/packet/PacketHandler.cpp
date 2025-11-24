@@ -61,16 +61,19 @@ std::vector<flatbuffers::Offset<Game::EntityState>> PacketHandler::GameObjectsTo
 {
   std::vector<flatbuffers::Offset<Game::EntityState>> fb_entities;
 
-  for (const auto &[uuid, object] : objects) {
-    if (!object || !object->HasAuthority()) { continue; }
+  GCM::Instance()
+    .GetContext(GameContextType::Server)
+    ->GetGameObjectManager()
+    ->ForEach([&](const std::shared_ptr<core::GameObject> &object) {
+      if (!object || !object->HasAuthority()) { return; }
 
-    std::vector<flatbuffers::Offset<Game::Component>> components;
-    adapter::ComponentAdapter::ToComponent(object, builder, components);
+      std::vector<flatbuffers::Offset<Game::Component>> components;
+      adapter::ComponentAdapter::ToComponent(object, builder, components);
 
       const auto fb_id = builder.CreateString(object->GetId().str());
       const auto fb_type = static_cast<Game::GameObjectType>(object->GetTag());
       const auto fb_components = builder.CreateVector(components);
-      auto fb_entity = Game::CreateEntityState(builder, fb_id, fb_type, fb_components);
+      const auto fb_entity = Game::CreateEntityState(builder, fb_id, fb_type, fb_components);
       fb_entities.push_back(fb_entity);
     });
 
@@ -79,7 +82,7 @@ std::vector<flatbuffers::Offset<Game::EntityState>> PacketHandler::GameObjectsTo
 
 
 void PacketHandler::UpdateGameObjectWithEntityState(const Game::EntityState *entity_state,
-  std::shared_ptr<core::GameObject> &game_object)
+  const std::shared_ptr<core::GameObject> &game_object)
 {
   if (entity_state == nullptr || game_object == nullptr) { return; }
   game_object->SetId(UUIDv4::UUID::fromStrFactory(entity_state->id()->str()));
@@ -201,19 +204,16 @@ uint64_t PacketHandler::SnapshotGetTimeLapse(const Game::Snapshot *snapshot)
   if (snapshot == nullptr) { return 0; }
   return snapshot->server_time();
 }
+
 std::unordered_map<UUIDv4::UUID, std::shared_ptr<core::GameObject>> PacketHandler::SnapshotToGameObjects(
   const std::shared_ptr<core::GameObjectManager> &manager,
   const Game::Snapshot *snapshot)
 {
-  std::unordered_map<UUIDv4::UUID, std::shared_ptr<core::GameObject>> next_game_objects;
-
-  if (snapshot == nullptr || snapshot->entities() == nullptr) { return next_game_objects; }
-
   auto current_clones = manager->CloneObjectsMap();
 
-  for (auto &[id, obj] : current_clones) {
-    next_game_objects[id] = std::move(obj);
-  }
+  if (snapshot == nullptr || snapshot->entities() == nullptr) { return current_clones; }
+
+  for (auto &[id, obj] : current_clones) { current_clones[id] = std::move(obj); }
 
   const std::string local_player_id_str =
     snapshot->player_id() != nullptr ? snapshot->player_id()->str() : std::string{};
@@ -225,12 +225,14 @@ std::unordered_map<UUIDv4::UUID, std::shared_ptr<core::GameObject>> PacketHandle
     const bool is_local_player = (entity_state->id()->str() == local_player_id_str);
 
     std::shared_ptr<core::GameObject> game_object;
-    if (next_game_objects.contains(entity_id)) {
-      game_object = next_game_objects[entity_id];
+    if (current_clones.contains(entity_id)) {
+      game_object = current_clones[entity_id];
     } else {
-      game_object = factory::GameObjectFactory::Create(manager, entity_state, is_local_player);
+      game_object = factory::GameObjectFactory::Create(entity_state, is_local_player);
+      game_object->SetId(entity_id);
       if (game_object) {
-        next_game_objects[entity_id] = game_object;
+        current_clones[entity_id] = game_object;
+        if (manager && !manager->Exists(entity_id)) { manager->Register(game_object); }
       }
     }
 
@@ -245,7 +247,7 @@ std::unordered_map<UUIDv4::UUID, std::shared_ptr<core::GameObject>> PacketHandle
     UpdateGameObjectWithEntityState(entity_state, game_object);
   }
 
-  return next_game_objects;
+  return current_clones;
 }
 
 std::shared_ptr<InputMessage> PacketHandler::EventToInputMessage(const Game::Event *evt)
@@ -327,7 +329,7 @@ std::shared_ptr<ProjectileMessage> PacketHandler::EventToProjectileMessage(const
   const auto *proj_msg = evt->event_as<Game::ProjectileEventMessage>();
   if (proj_msg == nullptr) { return nullptr; }
 
-  std::shared_ptr<ProjectileMessage> projectile_message = std::make_unique<ProjectileMessage>();
+  std::shared_ptr projectile_message = std::make_unique<ProjectileMessage>();
   projectile_message->SetSeq(proj_msg->seq());
   projectile_message->SetDeltaTime(proj_msg->dt());
 

@@ -59,8 +59,11 @@ void GameNetworkMediator::OnSnapshotReceived(const Game::Snapshot *snapshot) con
   if (!state) { return; }
 
   const UUIDv4::UUID player_id = shared::packet::PacketHandler::SnapshotGetUUID(snapshot);
-  state->SetPlayerId(player_id);
-  interpolate_system_->SetPlayerId(player_id);
+
+  if (state->GetPlayerId() != player_id) {
+    state->SetPlayerId(player_id);
+    interpolate_system_->SetPlayerId(player_id);
+  }
 
   auto manager = GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager();
   auto new_snapshot = shared::packet::PacketHandler::SnapshotToGameObjects(manager, snapshot);
@@ -78,6 +81,8 @@ void GameNetworkMediator::OnSnapshotReceived(const Game::Snapshot *snapshot) con
   }
 
   interpolate_system_->OnPacketReceived(new_snapshot, shared::packet::PacketHandler::SnapshotGetTimeLapse(snapshot));
+
+  ProcessPendingSoundEvents();
 }
 
 void GameNetworkMediator::OnEventReceived(const Game::Event *evt) const
@@ -99,14 +104,19 @@ void GameNetworkMediator::OnEventReceived(const Game::Event *evt) const
     sound_event.SetEmitterId(source_id);
 
     if (const auto state = game_state_.lock()) {
+      bool delivered_to_emitter = false;
       if (!source_id.empty()) {
         UUIDv4::UUID const src_uuid(source_id);
-        GCM::Instance()
-          .GetContext(GameContextType::Client)
-          ->GetGameObjectManager()
-          ->Get(src_uuid)
-          ->HandleEvent(sound_event);
+        const auto manager = GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager();
+        if (manager && manager->Exists(src_uuid)) {
+          const auto game_object = manager->Get(src_uuid);
+          if (game_object) {
+            game_object->HandleEvent(sound_event);
+            delivered_to_emitter = true;
+          }
+        }
       }
+      if (!delivered_to_emitter) { pending_sound_events_.push_back(sound_event); }
       state->OnEvent(sound_event);
     }
     break;
@@ -147,6 +157,31 @@ void GameNetworkMediator::UpdateInterpolation(const uint64_t delta_time) const
     auto manager = GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager();
     if (manager) { interpolate_system_->Update(manager, delta_time); }
   }
+}
+
+void GameNetworkMediator::ProcessPendingSoundEvents() const
+{
+  if (pending_sound_events_.empty()) { return; }
+  const auto manager = GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager();
+  if (!manager) { return; }
+
+  std::vector<shared::event::SoundEvent> still_pending;
+  still_pending.reserve(pending_sound_events_.size());
+
+  for (auto &evt : pending_sound_events_) {
+    const std::string emitter_id = evt.GetEmitterId();
+    if (emitter_id.empty()) { continue; }
+    UUIDv4::UUID const uuid_emitter(emitter_id);
+    if (manager->Exists(uuid_emitter)) {
+      const auto game_object = manager->Get(uuid_emitter);
+      if (game_object) {
+        game_object->HandleEvent(evt);
+        continue;
+      }
+    }
+    still_pending.push_back(evt);
+  }
+  pending_sound_events_.swap(still_pending);
 }
 
 }// namespace chroma::app::states

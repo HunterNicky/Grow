@@ -17,26 +17,33 @@ Health::Health(float max_health)
   type_ = ComponentType::HEALTH;
 }
 
-void Health::TakeDamage(float amount)
+void Health::TakeDamage(const float amount) const
 {
+  if (current_health_ == nullptr) { return; }
   *current_health_ -= amount;
   *current_health_ = std::max(*current_health_, 0.0F);
 }
 
-void Health::Heal(float amount)
+void Health::Heal(const float amount) const
 {
+  if (current_health_ == nullptr) { return; }
+  if (max_health_ == nullptr) { return; }
   *current_health_ += amount;
   *current_health_ = std::min(*current_health_, *max_health_);
 }
 
-void Health::SetMaxHealth(float max_health)
+void Health::SetMaxHealth(const float max_health) const
 {
+  if (current_health_ == nullptr) { return; }
+  if (max_health_ == nullptr) { return; }
   *max_health_ = max_health;
   *current_health_ = std::min(*current_health_, *max_health_);
 }
 
-void Health::SetCurrentHealth(float current_health)
+void Health::SetCurrentHealth(const float current_health) const
 {
+  if (current_health_ == nullptr) { return; }
+  if (max_health_ == nullptr) { return; }
   *current_health_ = std::clamp(current_health, 0.0F, *max_health_);
 }
 
@@ -44,9 +51,13 @@ std::shared_ptr<float> Health::GetCurrentHealth() const { return current_health_
 
 std::shared_ptr<float> Health::GetMaxHealth() const { return max_health_; }
 
-void Health::DrawHealth(Vector2 position, Vector2 size) const
+void Health::DrawHealth(const Vector2 position, const Vector2 size) const
 {
-  float health_ratio = *current_health_ / *max_health_;
+  if (!current_health_ || !max_health_) { return; }
+  const float cur = (*current_health_);
+  const float max = (*max_health_);
+  if (!std::isfinite(cur) || !std::isfinite(max) || max <= 0.0F) { return; }
+  float health_ratio = cur / max;
   health_ratio = std::clamp(health_ratio, 0.0F, 1.0F);
 
   DrawRectangleV(position, size, DARKGRAY);

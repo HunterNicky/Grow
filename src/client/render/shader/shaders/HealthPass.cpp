@@ -2,6 +2,7 @@
 #include "chroma/client/render/shader/IShaderValue.h"
 #include "chroma/client/render/shader/ShaderPass.h"
 #include "chroma/shared/context/GameContext.h"
+#include "chroma/shared/context/GameContextManager.h"
 #include "chroma/shared/core/components/Health.h"
 
 #include <memory>
@@ -13,7 +14,7 @@ namespace chroma::client::render::shader::shaders {
 
 HealthPass::HealthPass() : ShaderPass("resources/shaders/base.vs", "assets/shaders/health.fs")
 {
-  const auto player = shared::context::GameContext::GetInstance().GetLocalPlayer();
+  const auto player = GCM::Instance().GetContext(GameContextType::Client)->GetLocalPlayer();
   if (!player) {
     // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg)
     TraceLog(LOG_WARNING, "HealthPass: No local player found in GameContext.");
@@ -28,7 +29,7 @@ HealthPass::HealthPass() : ShaderPass("resources/shaders/base.vs", "assets/shade
   }
   SetUniform("health", UniformType::FLOAT, health->GetCurrentHealth());
   SetUniform("max_health", UniformType::FLOAT, health->GetMaxHealth());
-  SetUniform("time", UniformType::FLOAT, shared::context::GameContext::GetInstance().GetDeltaTime());
+  SetUniform("time", UniformType::FLOAT, GCM::Instance().GetContext(GameContextType::Client)->GetDeltaTime());
 }
 
 void HealthPass::Setup()

@@ -8,8 +8,8 @@
 #include "chroma/shared/context/GameContext.h"
 #include "chroma/shared/context/GameContextManager.h"
 #include "chroma/shared/core/GameObject.h"
-#include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/GameObjectManager.h"
+#include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/core/projectile/Projectile.h"
 #include "chroma/shared/events/Event.h"
@@ -27,25 +27,7 @@
 
 namespace chroma::app::states {
 
-GameState::GameState() : State("GameState"), network_mediator_(nullptr)
-{
-  auto player = shared::builder::GameObjectBuilder<shared::core::player::Player>()
-                  .AddTransform({ 0, 0 })
-                  .AddSpeed(50.0F)
-                  .AddMovement()
-                  .AddAnimation()
-                  .AddCamera(shared::render::CameraMode::FollowSmooth, 3.0F, 2.0F, { 64, 128 })
-                  .AddAudioListener()
-                  .AddHealth(100.0F, 1.0F)
-                  .AddRun(false, 1.5F)
-                  .NetRole(shared::core::NetRole::AUTONOMOUS)
-                  .AddInventory(10)
-                  .Build();
-
-  SetPlayerId(player->GetId());
-  player->SetupAnimation(player->GetComponent<shared::core::component::SpriteAnimation>());
-  game_objects_->emplace(player->GetId(), player);
-}
+GameState::GameState() : State("GameState"), network_mediator_(nullptr) {}
 
 GameState::GameState(std::shared_ptr<GameNetworkMediator> network_mediator)
   : State("GameState"), network_mediator_(std::move(network_mediator))
@@ -105,7 +87,7 @@ void GameState::SetPlayerId(const UUIDv4::UUID &player_id)
   auto player = GetPlayer();
 
   if (player) {
-    shared::context::GameContext::GetInstance().SetLocalPlayer(player);
+    GCM::Instance().GetContext(GameContextType::Client)->SetLocalPlayer(player);
     if (first_snapshot_received_) {
       auto health_pass = std::make_unique<client::render::shader::shaders::HealthPass>();
       render_mediator_->AddShaderFront(std::move(health_pass));
@@ -139,7 +121,7 @@ void GameState::HandleProjectileEvent(const shared::event::Event &event) const
 
   projectile->InitAnimation();
 
-  game_objects_->emplace(projectile_event.GetProjectileId(), projectile);
+  GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager()->Register(projectile);
 }
 
 std::shared_ptr<shared::core::player::Player> GameState::GetPlayer() const

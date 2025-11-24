@@ -27,7 +27,7 @@ public:
   void Clear();
 
   void SetCollisionManager(const std::shared_ptr<collision::CollisionManager> &collision_manager);
-        std::shared_ptr<collision::CollisionManager> GetCollisionManager() const;
+  std::shared_ptr<collision::CollisionManager> GetCollisionManager() const;
 
   std::shared_ptr<GameObject> Get(const UUIDv4::UUID &id) const;
   bool Exists(const UUIDv4::UUID &id) const;
@@ -36,38 +36,34 @@ public:
 
   template<typename Func> void ForEach(Func &&func)
   {
-    std::shared_lock const lock(mutex_);
-    for (const auto &object : all_objects_) {
+    std::vector<std::shared_ptr<GameObject>> snapshot;
+    {
+      std::shared_lock const lock(mutex_);
+      snapshot = all_objects_;
+    }
+
+    for (const auto &object : snapshot) {
       if (object) { func(object); }
     }
   }
 
-  template<typename Predicate>
-  std::vector<std::shared_ptr<GameObject>> Query(Predicate &&predicate) const
+  template<typename Predicate> std::vector<std::shared_ptr<GameObject>> Query(Predicate &&predicate) const
   {
     std::shared_lock const lock(mutex_);
     std::vector<std::shared_ptr<GameObject>> results;
-
-    if (!all_objects_.empty()) {
-      results.reserve(all_objects_.size() / 4);
-    }
+    if (!all_objects_.empty()) {}
 
     for (const auto &object : all_objects_) {
-      if (object && predicate(object)) {
-        results.push_back(object);
-      }
+      if (object && predicate(object)) { results.push_back(object); }
     }
     return results;
   }
 
-  template<typename Predicate>
-  std::shared_ptr<GameObject> FindFirst(Predicate &&predicate) const
+  template<typename Predicate> std::shared_ptr<GameObject> FindFirst(Predicate &&predicate) const
   {
     std::shared_lock const lock(mutex_);
     for (const auto &object : all_objects_) {
-      if (object && predicate(object)) {
-        return object;
-      }
+      if (object && predicate(object)) { return object; }
     }
     return nullptr;
   }

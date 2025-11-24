@@ -59,7 +59,7 @@ public:
 
 private:
   static void UpdateGameObjectWithEntityState(const Game::EntityState *entity_state,
-    std::shared_ptr<core::GameObject> &game_object);
+    const std::shared_ptr<core::GameObject> &game_object);
 };
 
 }// namespace chroma::shared::packet

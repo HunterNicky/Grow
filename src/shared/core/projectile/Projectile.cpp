@@ -103,6 +103,6 @@ void Projectile::OnFixedUpdate(float delta_time) { (void)delta_time; }
 
 void Projectile::OnCollision(const collision::CollisionEvent &event) { (void)event; }
 
-void Projectile::HandleEvent(const event::Event &event) { (void)event; }
+void Projectile::HandleEvent(event::Event &event) { (void)event; }
 
 }// namespace chroma::shared::core::projectile

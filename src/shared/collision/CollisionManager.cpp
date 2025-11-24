@@ -155,8 +155,8 @@ void CollisionManager::CheckCollision(const std::shared_ptr<core::component::Col
     const auto obj_a = a->GetGameObject();
     const auto obj_b = b->GetGameObject();
 
-    const bool a_is_local = obj_a->GetNetRole() == core::NetRole::ROLE_AutonomousProxy;
-    const bool b_is_local = obj_b->GetNetRole() == core::NetRole::ROLE_AutonomousProxy;
+    const bool a_is_local = obj_a->GetNetRole() == core::NetRole::AUTONOMOUS;
+    const bool b_is_local = obj_b->GetNetRole() == core::NetRole::AUTONOMOUS;
 
     if (a_is_local && !b_is_local) {
       ResolveCollisionAsStatic(a, event);

@@ -13,8 +13,10 @@ public:
 
   std::shared_ptr<GameContext> GetContext(GameContextType type);
   void SetContext(GameContextType type, const std::shared_ptr<GameContext> &context);
-
   void CreateContext(GameContextType type);
+  void DeleteContext(GameContextType type);
+
+  void SetDeltaTime(float delta_time);
 
 private:
   GameContextManager() = default;
