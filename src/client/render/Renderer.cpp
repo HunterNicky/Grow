@@ -47,15 +47,17 @@ void Renderer::EndFrame() const
   render_queue_->Execute();
   render_queue_->Clear();
   EndMode2D();
+  RenderTarget::End();
 
+  
+  RenderTexture2D scene_rt = render_target_->GetTexture();
+  render_target_->SetRenderTexture(render_pipeline_->Execute(scene_rt));
+  
+  render_target_->Begin();
   ui::UIManagerBus::GetUIManager()->OnRender();
   RenderTarget::End();
 
-  RenderTexture2D scene_rt = render_target_->GetTexture();
-
-  auto final_tex = render_pipeline_->Execute(scene_rt);
-
-  render_target_->Draw(final_tex.texture, GetScreenWidth(), GetScreenHeight());
+  render_target_->Draw(GetScreenWidth(), GetScreenHeight());
 
   EndDrawing();
 }
@@ -108,6 +110,10 @@ void Renderer::InitializeSubsystems()
 
   render_pipeline_ = std::make_unique<shader::RenderPipeline>();
   render_pipeline_->Initialize(vw, vh);
+
+  auto crt_pass = std::make_unique<shader::shaders::CrtPass>();
+  render_pipeline_->AddPassBack(std::move(crt_pass));
+  render_pipeline_->Setup();
 
   SetTextureFilter(render_target_->GetTexture().texture, config_.filter);
   SetVSync(config_.vsync);
