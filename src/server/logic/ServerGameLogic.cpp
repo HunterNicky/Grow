@@ -18,6 +18,7 @@
 #include "chroma/shared/packet/events/ProjectileMessage.h"
 #include "chroma/shared/render/RenderBridge.h"
 #include "chroma/shared/utils/UUID.h"
+#include "chroma/shared/utils/Random.h"
 #include "entities_generated.h"
 
 #include <flatbuffers/buffer.h>
@@ -25,8 +26,6 @@
 #include <memory>
 #include <uuid_v4.h>
 #include <vector>
-#include <random>
-
 namespace chroma::server::logic {
 
 ServerGameLogic::ServerGameLogic() = default;
@@ -79,11 +78,9 @@ std::shared_ptr<shared::core::player::Player> ServerGameLogic::CreatePlayer()
                   .AddRun(false, 1.5F)
                   .AddInventory(10)
                   .AddAttack(false)
-                  // .AddCharacterType(static_cast<shared::core::component::CharacterType>([](){
-                  //       static thread_local std::mt19937 rng{std::random_device{}()};
-                  //       return std::uniform_int_distribution<int>(1, 2)(rng);
-                  //     }()))
-                  .AddCharacterType(shared::core::component::CharacterType::PRIMM)
+                  .AddCharacterType(static_cast<shared::core::component::CharacterType>(
+                        shared::utils::Random::Int(1, 2)
+                  ))
                   .NetRole(shared::core::NetRole::AUTHORITY)
                   .Build();
   

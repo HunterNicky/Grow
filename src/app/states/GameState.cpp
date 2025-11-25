@@ -7,8 +7,6 @@
 #include "chroma/shared/context/GameContextManager.h"
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/CharacterType.h"
-#include "chroma/shared/core/components/ProjectileType.h"
-#include "chroma/shared/core/components/Transform.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/core/projectile/Projectile.h"
 #include "chroma/shared/events/Event.h"
@@ -23,13 +21,13 @@
 #include "chroma/shared/core/components/Javelin.h"
 #include "chroma/shared/core/components/Spear.h"
 #include "chroma/shared/utils/UUID.h"
+#include "chroma/shared/utils/Random.h"
 
 #include <cstdint>
 #include <memory>
 #include <string>
 #include <utility>
 #include <uuid_v4.h>
-#include <random>
 
 namespace chroma::app::states {
 
@@ -48,10 +46,9 @@ GameState::GameState() : State("GameState"), network_mediator_(nullptr)
                   .AddRun(false, 1.5F)
                   .AddInventory(10)
                   .AddAttack(false)
-                  .AddCharacterType(static_cast<shared::core::component::CharacterType>([](){
-                        static thread_local std::mt19937 rng{std::random_device{}()};
-                        return std::uniform_int_distribution<int>(1, 2)(rng);
-                      }()))
+                  .AddCharacterType(static_cast<shared::core::component::CharacterType>(
+                        shared::utils::Random::Int(1, 2)
+                      ))
                   .NetRole(shared::core::NetRole::AUTONOMOUS)
                   .Build();
   
@@ -156,7 +153,7 @@ void GameState::SetEventDispatcher()
   key_sub_ = shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::KeyEvent>(
     [this](shared::event::Event &event) { this->OnEvent(event); });
 
-  shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::ProjectileEvent>(
+  projectile_sub_ = shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::ProjectileEvent>(
     [this](const shared::event::Event &event) { this->HandleProjectileEvent(event); });
 }
 
@@ -179,11 +176,6 @@ void GameState::HandleProjectileEvent(const shared::event::Event &event) const
                       .AddProjectileType(projectile_event.GetProjectileType())
                       .NetRole(shared::core::NetRole::SIMULATED)
                       .Build();
-
-  if(projectile->GetComponent<shared::core::component::ProjectileType>()->GetProjectileType() == shared::core::component::TypeProjectile::ARROW)
-  {
-    projectile->GetComponent<shared::core::component::Transform>()->SetScale({ 0.15F, 0.15F });
-  }
 
   projectile->InitAnimation();
 

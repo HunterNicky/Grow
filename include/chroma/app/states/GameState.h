@@ -47,6 +47,7 @@ private:
   bool first_snapshot_received_{ true };
 
   shared::event::Subscription key_sub_;
+  shared::event::Subscription projectile_sub_;
   shared::event::Subscription sound_sub_;
 };
 }// namespace chroma::app::states
