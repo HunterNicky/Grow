@@ -101,7 +101,7 @@ void GameState::SetPlayerId(const UUIDv4::UUID &player_id)
 
 void GameState::SetEventDispatcher()
 {
-  shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::KeyEvent>(
+  key_sub_ = shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::KeyEvent>(
     [this](shared::event::Event &event) { this->OnEvent(event); });
 
   shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::ProjectileEvent>(

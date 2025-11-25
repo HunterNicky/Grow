@@ -15,6 +15,12 @@ public:
     SoundEvent = 4,
     ProjectileEvent = 5,
     ShaderEvent = 6,
+    ButtonClickEvent = 7,
+    StateEvent = 8,
+    LayerEvent = 9,
+    PanelEvent = 10,
+    AudioVolumeEvent = 11,
+    SaveSettingsEvent = 12,
   };
 
   Event() = default;

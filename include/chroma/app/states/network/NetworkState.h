@@ -6,6 +6,7 @@
 #include "chroma/app/states/State.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
 #include "chroma/shared/events/EventDispatcher.h"
+#include "chroma/shared/events/Subscription.h"
 
 namespace chroma::app::states {
 class NetworkState final : public State
@@ -29,6 +30,8 @@ private:
   std::unique_ptr<ENetPeer, decltype(&enet_peer_reset)> server_peer_;
   ENetAddress server_address_;
   ENetEvent event_;
+
+  shared::event::Subscription key_sub_;
 
   bool connected_ = false;
   float delta_time_ = 0.0F;

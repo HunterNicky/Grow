@@ -34,7 +34,7 @@ private:
   std::string current_id_;
   std::string current_music_id_;
 
-  float current_volume_ = 1.0f;
+  float current_volume_ = 0.0F;
 };
 
 }// namespace chroma::client::audio

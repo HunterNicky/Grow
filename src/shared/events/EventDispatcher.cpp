@@ -1,18 +1,30 @@
 #include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/events/Event.h"
+#include "chroma/shared/events/Subscription.h"
+
+#include <map>
 
 namespace chroma::shared::event {
-void EventDispatcher::Unsubscribe(const Event::Type type) { listeners_.erase(type); }
+
+EventDispatcher::EventDispatcher() : next_listener_id_(0) {}
+
+void EventDispatcher::Unsubscribe(const SubscriptionInfo &info)
+{
+  if (info.id_ == 0) { return; }
+
+  auto it = listeners_.find(info.event_type_);
+  if (it != listeners_.end()) { it->second.erase(info.id_); }
+}
 
 void EventDispatcher::Dispatch(Event &event)
 {
   if (Event::Type::None == event.GetType()) { return; }
 
-  const auto iterator = listeners_.find(event.GetType());
-  if (iterator != listeners_.end()) {
-    for (const auto &listener : iterator->second) {
-      listener(event);
-      if (event.IsHandled()) { break; }
+  auto it = listeners_.find(event.GetType());
+  if (it != listeners_.end()) {
+    for (const auto &pair : it->second) {
+      pair.second(event);
+      if (event.IsHandled()) { break; };
     }
   }
 }

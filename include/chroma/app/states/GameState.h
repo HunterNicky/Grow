@@ -5,6 +5,8 @@
 #include "chroma/shared/collision/CollisionManager.h"
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/player/Player.h"
+#include "chroma/shared/events/EventDispatcher.h"
+#include "chroma/shared/events/Subscription.h"
 
 #include <memory>
 #include <unordered_map>
@@ -42,5 +44,7 @@ private:
   std::shared_ptr<GameNetworkMediator> network_mediator_;
   UUIDv4::UUID player_id_;
   bool first_snapshot_received_{ true };
+
+  shared::event::Subscription key_sub_;
 };
 }// namespace chroma::app::states

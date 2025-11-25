@@ -12,6 +12,7 @@
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/ShaderEvent.h"
 #include "chroma/client/factory/ShaderFactory.h"
+#include "chroma/client/ui/UIManagerBus.h"
 
 #include <functional>
 #include <memory>
@@ -46,6 +47,8 @@ void Renderer::EndFrame() const
   render_queue_->Execute();
   render_queue_->Clear();
   EndMode2D();
+
+  ui::UIManagerBus::GetUIManager()->OnRender();
   RenderTarget::End();
 
   RenderTexture2D scene_rt = render_target_->GetTexture();
@@ -94,7 +97,7 @@ void Renderer::InitializeSubsystems()
 
   render_target_ = std::make_unique<RenderTarget>(vw, vh);
 
-  camera_ = std::make_unique<Camera>(0.0F, 0.0F, vw, vh);
+  camera_ = std::make_unique<Camera>(static_cast<float>(vh) / 2.0F, static_cast<float>(vw) / 2.0F, vw, vh);
   render_queue_ = std::make_unique<RenderQueue>();
   atlas_manager_ = std::make_unique<TextureAtlas>();
   sprite_renderer_ =
