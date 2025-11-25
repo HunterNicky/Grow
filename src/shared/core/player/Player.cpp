@@ -235,7 +235,7 @@ void Player::OnRender()
 
   bridge->DrawAnimation(*anim, pos, scale, rotation, WHITE, flip_x, false, { 0.5F, 0.5F });
 
-  if (health) {
+  if (health && !IsAutonomousProxy()) {
     Vector2 pos_h;
     pos_h.y = pos.y - 30.F;
     pos_h.x = pos.x - 15.F;

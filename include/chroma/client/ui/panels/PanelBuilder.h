@@ -22,6 +22,7 @@ public:
   PanelBuilder &AddToggle(const std::string &id, const std::string &label, bool is_toggled, std::function<void(bool)> on_toggle);
   PanelBuilder &AddBackgroundTexture(const std::string &texture_path);
   PanelBuilder &AddLifeWidget(const std::string &id, Rectangle bounds);
+  PanelBuilder &AddXpWidget(const std::string &id, Rectangle bounds);
   PanelBuilder &CenterPanel();
 
   PanelBuilder &AddSpace(float height);

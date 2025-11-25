@@ -17,6 +17,7 @@
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/components/Transform.h"
 #include "chroma/shared/core/components/CharacterType.h"
+#include "chroma/shared/core/components/Nivel.h"
 
 #include <memory>
 #include <raylib.h>
@@ -189,6 +190,16 @@ public:
       auto character_type_comp = std::make_shared<core::component::CharacterTypeComponent>();
       character_type_comp->SetCharacterType(character_type);
       obj_->AttachComponent(character_type_comp);
+      return *this;
+  }
+
+  GameObjectBuilder &AddNivel(int nivel = 1, float experience = 0.0F, float experience_to_next_nivel = 0.0F)
+  {
+      auto nivel_comp = std::make_shared<core::component::Nivel>();
+      nivel_comp->SetNivel(nivel);
+      nivel_comp->SetExperience(experience);
+      nivel_comp->SetExperienceToNextNivel(experience_to_next_nivel);
+      obj_->AttachComponent(nivel_comp);
       return *this;
   }
 

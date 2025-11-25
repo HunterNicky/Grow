@@ -81,6 +81,7 @@ std::shared_ptr<shared::core::player::Player> ServerGameLogic::CreatePlayer()
                   .AddCharacterType(static_cast<shared::core::component::CharacterType>(
                         shared::utils::Random::Int(1, 2)
                   ))
+                  .AddNivel(1, 69.0F, 100.0F)
                   .NetRole(shared::core::NetRole::AUTHORITY)
                   .Build();
   

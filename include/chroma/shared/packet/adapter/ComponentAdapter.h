@@ -41,6 +41,8 @@ private:
     const std::shared_ptr<core::GameObject> &game_object);
   static void ComponentToCharacterType(const Game::Component *component,
     const std::shared_ptr<core::GameObject> &game_object);
+  static void ComponentToNivel(const Game::Component *component,
+    const std::shared_ptr<core::GameObject> &game_object);
   //
   // ===========================================================
   // FLATBUFFER COMPONENT --> GAME OBJECT COMPONENT HELPERS
@@ -84,6 +86,9 @@ private:
     flatbuffers::FlatBufferBuilder &builder,
     std::vector<flatbuffers::Offset<Game::Component>> &fb_components);
   static void CharacterTypeToComponent(const std::shared_ptr<core::component::Component> &component,
+    flatbuffers::FlatBufferBuilder &builder,
+    std::vector<flatbuffers::Offset<Game::Component>> &fb_components);
+  static void NivelToComponent(const std::shared_ptr<core::component::Component> &component,
     flatbuffers::FlatBufferBuilder &builder,
     std::vector<flatbuffers::Offset<Game::Component>> &fb_components);
 };

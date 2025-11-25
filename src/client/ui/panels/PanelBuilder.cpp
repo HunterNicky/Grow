@@ -5,6 +5,7 @@
 #include "chroma/client/ui/widgets/SliderWidget.h"
 #include "chroma/client/ui/widgets/ToggleWidget.h"
 #include "chroma/client/ui/widgets/LifeWidget.h"
+#include "chroma/client/ui/widgets/XpWidget.h"
 
 #include <functional>
 #include <memory>
@@ -110,6 +111,13 @@ PanelBuilder &PanelBuilder::AddLifeWidget(const std::string &id, Rectangle bound
 {
     auto life_widget = std::make_unique<client::ui::widget::LifeWidget>(id, bounds);
     panel_->AddWidget(std::move(life_widget));
+    return *this;
+}
+
+PanelBuilder &PanelBuilder::AddXpWidget(const std::string &id, Rectangle bounds)
+{
+    auto xp_widget = std::make_unique<client::ui::widget::XpWidget>(id, bounds);
+    panel_->AddWidget(std::move(xp_widget));
     return *this;
 }
 

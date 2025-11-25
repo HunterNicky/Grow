@@ -22,6 +22,7 @@
 #include "chroma/shared/core/components/Spear.h"
 #include "chroma/shared/utils/UUID.h"
 #include "chroma/shared/utils/Random.h"
+#include "chroma/shared/events/ui/PanelEvent.h"
 
 #include <cstdint>
 #include <memory>
@@ -49,6 +50,7 @@ GameState::GameState() : State("GameState"), network_mediator_(nullptr)
                   .AddCharacterType(static_cast<shared::core::component::CharacterType>(
                         shared::utils::Random::Int(1, 2)
                       ))
+                  .AddNivel(1, 0.0F, 100.0F)
                   .NetRole(shared::core::NetRole::AUTONOMOUS)
                   .Build();
   
@@ -77,13 +79,28 @@ GameState::GameState() : State("GameState"), network_mediator_(nullptr)
 
   GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager()->Register(player);
   SetPlayerId(player->GetId());
-}
-
+  
+    shared::event::ui::PanelEvent hud_main(
+      shared::event::ui::Action::Open, client::ui::panel::PanelID::GameHUDPanel);
+    shared::event::EventBus::Dispatch(hud_main);
+  }
+  
 GameState::GameState(std::shared_ptr<GameNetworkMediator> network_mediator)
   : State("GameState"), network_mediator_(std::move(network_mediator))
-{}
+{
+  
+  shared::event::ui::PanelEvent hud_main(
+    shared::event::ui::Action::Open, client::ui::panel::PanelID::GameHUDPanel);
+  shared::event::EventBus::Dispatch(hud_main);
+}
 
-GameState::~GameState() { GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager()->Clear(); }
+GameState::~GameState() { 
+  GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager()->Clear();
+
+  shared::event::ui::PanelEvent hud_main(
+    shared::event::ui::Action::Close, client::ui::panel::PanelID::GameHUDPanel);
+  shared::event::EventBus::Dispatch(hud_main);
+}
 
 void GameState::OnRender()
 {

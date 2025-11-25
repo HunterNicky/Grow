@@ -183,13 +183,23 @@ void UIManager::RegisterPanels()
       .Build();
   });
 
-  // panel_factory_.Register(panel::PanelID::GameHUDPanel, [this](Vector2 screen_size, Vector2 panel_size) {
-  //   const Rectangle bounds = this->GetCenteredRect(screen_size, panel_size.x, panel_size.y);
+  panel_factory_.Register(panel::PanelID::GameHUDPanel, [this](Vector2 screen_size, Vector2 panel_size) {
+      const Rectangle bounds = this->GetCenteredRect(screen_size, panel_size.x, panel_size.y);
 
-  //   return panel::PanelBuilder::Create(panel::PanelID::GameHUDPanel, bounds)
-  //     .AddLifeWidget("PlayerHealth", "Health", 100, 75)
-  //     .Build();
-  // });
+      const float widget_width = 400.0F;
+      const float widget_height = 50.0F;
+      const float margin = 20.0F;
+      const float xp_x = screen_size.x - widget_width - margin;
+      const float xp_y = margin;
+
+      const Rectangle life_widget_bounds = { margin, margin, widget_width, widget_height };
+      const Rectangle xp_widget_bounds = { xp_x, xp_y, widget_width, widget_height };
+      
+      return panel::PanelBuilder::Create(panel::PanelID::GameHUDPanel, bounds)
+          .AddLifeWidget("PlayerHealth", life_widget_bounds)
+          .AddXpWidget("PlayerXP", xp_widget_bounds)
+          .Build();
+  });
 }
 
 }// namespace chroma::client::ui
