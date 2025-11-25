@@ -22,6 +22,8 @@
 #include "chroma/shared/utils/UUID.h"
 #include "chroma/shared/events/ShaderEvent.h"
 #include "chroma/client/render/shader/RenderPass.h"
+#include "chroma/shared/render/RenderBridge.h"
+#include "chroma/shared/utils/UUID.h"
 
 #include <cstdint>
 #include <memory>
