@@ -100,6 +100,8 @@ Vector2 Camera::GetPosition() const { return camera_.target; }
 
 Matrix Camera::GetMatrix() const { return GetCameraMatrix2D(camera_); }
 
+Rectangle Camera::GetBounds() const { return bounds_; }
+
 Vector2 Camera::ScreenToWorld(const Vector2 screen_pos) const { return GetScreenToWorld2D(screen_pos, camera_); }
 
 Vector2 Camera::WorldToScreen(const Vector2 world_pos) const { return GetWorldToScreen2D(world_pos, camera_); }

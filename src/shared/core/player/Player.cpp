@@ -1,12 +1,11 @@
 #include "chroma/shared/core/player/Player.h"
 
+#include "chroma/shared/core/components/world/ColliderBox.h"
 #include "chroma/shared/audio/AudioBridge.h"
 #include "chroma/shared/collision/CollisionManager.h"
-#include "chroma/shared/context/GameContext.h"
-#include "chroma/shared/context/GameContextManager.h"
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/Attack.h"
-#include "chroma/shared/core/components/ColliderBox.h"
+#include "chroma/shared/core/components/Camera.h"
 #include "chroma/shared/core/components/Health.h"
 #include "chroma/shared/core/components/Inventory.h"
 #include "chroma/shared/core/components/Movement.h"
@@ -37,7 +36,7 @@
 
 
 namespace chroma::shared::core::player {
-Player::Player() { Type_ = GameObjectType::PLAYER; }
+Player::Player() { type_ = GameObjectType::PLAYER; }
 
 void Player::SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &anim_component)
 {
@@ -210,8 +209,19 @@ void Player::OnUpdate(const float delta_time)
 
   UpdateAttack(delta_time);
   AnimationState(dir, magnitude);
+  UpdateColliderSize();
 
   for (const auto &[fst, snd] : components_) { snd->Update(delta_time); }
+
+  const auto camera = GetComponent<component::CameraComponent>();
+  if (camera) {
+    const float wheel_move = GetMouseWheelMove();
+    if (wheel_move != 0.0F) {
+      float new_zoom = camera->GetZoom() + (wheel_move * 0.1F);
+      new_zoom = std::clamp(new_zoom, 0.5F, 5.0F);
+      camera->SetZoom(new_zoom);
+    }
+  }
 }
 
 void Player::OnFixedUpdate(const float fixed_delta_time) { (void)fixed_delta_time; }
@@ -323,6 +333,20 @@ void Player::UpdateAttack(const float delta_time) const
   }
 }
 
+void Player::UpdateColliderSize() const
+{
+  const auto collider = GetComponent<component::ColliderBox>();
+
+  auto new_size = Vector2{ 12.F, 28.F };
+  auto new_offset = Vector2{ -6.F, -14.F };
+  if (last_facing_ == FacingDir::Side) {
+    new_size = Vector2{ 12.F, 12.F };
+    new_offset = Vector2{ -6.F, 0.F };
+  }
+
+  collider->SetSize(new_size);
+  collider->SetOffset(new_offset);
+}
 
 void Player::HandleThrowInput(const std::shared_ptr<component::Weapon> &weapon) const
 {
@@ -369,7 +393,7 @@ void Player::HandleDirectionInput(Vector2 &direction) const
   if (input_state_.IsKeyPressed(KEY_D)) { direction.x += 1.0F; }
 }
 
-void Player::HandleWeaponInput()
+void Player::HandleWeaponInput() const
 {
   const auto inventory = GetComponent<component::Inventory>();
   if (!inventory) { return; }

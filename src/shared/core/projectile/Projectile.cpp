@@ -15,7 +15,7 @@
 #include <string>
 
 namespace chroma::shared::core::projectile {
-Projectile::Projectile() { Type_ = GameObjectType::PROJECTILE; }
+Projectile::Projectile() { type_ = GameObjectType::PROJECTILE; }
 
 Projectile::~Projectile() = default;
 

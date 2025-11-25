@@ -21,6 +21,7 @@ public:
   [[nodiscard]] Camera2D GetCamera2D() const;
   [[nodiscard]] Vector2 GetPosition() const;
   [[nodiscard]] Matrix GetMatrix() const;
+  [[nodiscard]] Rectangle GetBounds() const;
 
   [[nodiscard]] Vector2 ScreenToWorld(Vector2 screen_pos) const;
   [[nodiscard]] Vector2 WorldToScreen(Vector2 world_pos) const;

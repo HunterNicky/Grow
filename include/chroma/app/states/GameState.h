@@ -5,6 +5,7 @@
 #include "chroma/shared/collision/CollisionManager.h"
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/player/Player.h"
+#include "chroma/shared/core/world/WorldSystem.h"
 
 #include <memory>
 #include <unordered_map>

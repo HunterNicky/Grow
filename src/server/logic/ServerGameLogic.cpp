@@ -12,6 +12,7 @@
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/core/projectile/Projectile.h"
+#include "chroma/shared/core/world/World.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/packet/PacketHandler.h"
 #include "chroma/shared/packet/events/InputEventMessage.h"
@@ -33,7 +34,12 @@ ServerGameLogic::ServerGameLogic() = default;
 
 void ServerGameLogic::CreateWorld()
 {
-  // Criar mundo do jogo
+  const auto world = shared::builder::GameObjectBuilder<shared::core::world::World>()
+             .Id(shared::utils::UUID::Generate())
+             .NetRole(shared::core::NetRole::AUTHORITY)
+             .AddWorldSystem("assets/world/plains.json")
+             .Build();
+  GCM::Instance().GetContext(GameContextType::Server)->GetGameObjectManager()->Register(world);
 }
 
 ServerGameLogic::~ServerGameLogic()
@@ -67,14 +73,12 @@ void ServerGameLogic::OnReceivedInputMessage(const std::shared_ptr<shared::packe
 std::shared_ptr<shared::core::player::Player> ServerGameLogic::CreatePlayer()
 {
   auto player = chroma::shared::builder::GameObjectBuilder<shared::core::player::Player>()
-                  .AddTransform({ 0, 0 })
+                  .AddTransform({ 2048, 2048 })
                   .Id(shared::utils::UUID::Generate())
                   .AddSpeed(50.0F)
                   .AddMovement()
                   .AddAnimation()
-                  .AddCamera(shared::render::CameraMode::FollowSmooth, 3.0F, 2.0F, { 64, 128 })
                   .AddColliderBox(GameContextType::Server, { 16.F, 32.F }, { -8.F, -16.F })
-                  .AddAudioListener()
                   .AddHealth(100.0F, 1.0F)
                   .AddRun(false, 1.5F)
                   .AddInventory(10)
