@@ -37,6 +37,7 @@ public:
 
   void SetPlayerId(const UUIDv4::UUID &player_id);
   void SetEventDispatcher();
+  void SetSoundEventDispatcher();
 
   [[nodiscard]] UUIDv4::UUID GetPlayerId() const;
 
@@ -46,5 +47,6 @@ private:
   bool first_snapshot_received_{ true };
 
   shared::event::Subscription key_sub_;
+  shared::event::Subscription sound_sub_;
 };
 }// namespace chroma::app::states

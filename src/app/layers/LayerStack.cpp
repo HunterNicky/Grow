@@ -107,6 +107,7 @@ void LayerStack::PushLayerEvent(const LayerID layer_id)
     auto game_layer = std::make_unique<layer::game::GameLayer>();
     game_layer->PushState(game_state);
     game_state->SetEventDispatcher();
+    game_state->SetSoundEventDispatcher();
     if (!layers_.empty()) { layers_.pop_back(); }
     PushLayer(std::move(game_layer));
     break;

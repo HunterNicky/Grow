@@ -162,6 +162,12 @@ void GameState::SetEventDispatcher()
     [this](const shared::event::Event &event) { this->HandleProjectileEvent(event); });
 }
 
+void GameState::SetSoundEventDispatcher()
+{
+  sound_sub_ = shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::SoundEvent>(
+    [this](shared::event::Event &event) { this->OnEvent(event); });
+}
+
 void GameState::HandleProjectileEvent(const shared::event::Event &event) const
 {
   const auto &projectile_event = dynamic_cast<const shared::event::ProjectileEvent &>(event);

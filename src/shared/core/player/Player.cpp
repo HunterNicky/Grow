@@ -187,7 +187,7 @@ void Player::OnUpdate(const float delta_time)
       }
     }
 
-    if (is_authority) {
+    if (should_simulate) {
       step_timer_ += delta_time;
       constexpr float step_interval = 0.5F;
       if (step_timer_ >= step_interval) {
