@@ -51,13 +51,13 @@ void Renderer::EndFrame() const
 
   
   RenderTexture2D scene_rt = render_target_->GetTexture();
-  render_target_->SetRenderTexture(render_pipeline_->Execute(scene_rt));
+  RenderTexture2D processed_rt = render_pipeline_->Execute(scene_rt);
   
-  render_target_->Begin();
+  BeginTextureMode(processed_rt);
   ui::UIManagerBus::GetUIManager()->OnRender();
-  RenderTarget::End();
+  EndTextureMode();
 
-  render_target_->Draw(GetScreenWidth(), GetScreenHeight());
+  render_target_->Draw(processed_rt.texture, GetScreenWidth(), GetScreenHeight());
 
   EndDrawing();
 }
@@ -136,7 +136,7 @@ void Renderer::AddShaderPassBack(std::unique_ptr<shader::RenderPass> pass) const
 
 void Renderer::SetEventDispatcher()
 {
-  shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::ShaderEvent>(
+  key_sub_ = shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::ShaderEvent>(
     [this](shared::event::Event &event) { this->HandleShaderEvent(event); });
 }
 

@@ -9,6 +9,7 @@
 #include "chroma/client/render/shader/RenderPass.h"
 #include "chroma/client/render/shader/RenderPipeline.h"
 #include "chroma/shared/events/Event.h"
+#include "chroma/shared/events/Subscription.h"
 
 #include <functional>
 #include <memory>
@@ -72,6 +73,7 @@ private:
   std::unique_ptr<SpriteRenderer> sprite_renderer_;
   std::unique_ptr<animation::AnimationRenderer> animation_renderer_;
   std::unique_ptr<shader::RenderPipeline> render_pipeline_;
+  shared::event::Subscription key_sub_;
 
   void InitializeSubsystems();
 };

@@ -18,7 +18,6 @@
 #include "chroma/shared/events/ProjectileEvent.h"
 #include "chroma/shared/events/ShaderEvent.h"
 #include "chroma/client/render/shader/RenderPass.h"
-#include "chroma/client/render/shader/shaders/CrtPass.h"
 #include "chroma/shared/core/components/Bow.h"
 #include "chroma/shared/core/components/Fist.h"
 #include "chroma/shared/core/components/Javelin.h"
@@ -49,11 +48,10 @@ GameState::GameState() : State("GameState"), network_mediator_(nullptr)
                   .AddRun(false, 1.5F)
                   .AddInventory(10)
                   .AddAttack(false)
-                  // .AddCharacterType(static_cast<shared::core::component::CharacterType>([](){
-                  //       static thread_local std::mt19937 rng{std::random_device{}()};
-                  //       return std::uniform_int_distribution<int>(1, 2)(rng);
-                  //     }()))
-                  .AddCharacterType(shared::core::component::CharacterType::PRIMM)
+                  .AddCharacterType(static_cast<shared::core::component::CharacterType>([](){
+                        static thread_local std::mt19937 rng{std::random_device{}()};
+                        return std::uniform_int_distribution<int>(1, 2)(rng);
+                      }()))
                   .NetRole(shared::core::NetRole::AUTONOMOUS)
                   .Build();
   
