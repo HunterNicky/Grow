@@ -5,9 +5,9 @@
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/core/projectile/Projectile.h"
 #include "chroma/shared/core/world/World.h"
+#include "chroma/shared/packet/adapter/ComponentAdapter.h"
 #include "chroma/shared/render/RenderBridge.h"
 #include "entities_generated.h"
-#include "chroma/shared/packet/adapter/ComponentAdapter.h"
 
 #include <memory>
 #include <unordered_map>

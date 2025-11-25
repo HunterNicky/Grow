@@ -1,11 +1,11 @@
 #include "chroma/shared/core/player/Player.h"
 
-#include "chroma/shared/core/components/world/ColliderBox.h"
 #include "chroma/shared/audio/AudioBridge.h"
 #include "chroma/shared/collision/CollisionManager.h"
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/Attack.h"
 #include "chroma/shared/core/components/Camera.h"
+#include "chroma/shared/core/components/CharacterType.h"
 #include "chroma/shared/core/components/Health.h"
 #include "chroma/shared/core/components/Inventory.h"
 #include "chroma/shared/core/components/Movement.h"
@@ -14,7 +14,7 @@
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/components/Transform.h"
 #include "chroma/shared/core/components/Weapon.h"
-#include "chroma/shared/core/components/CharacterType.h"
+#include "chroma/shared/core/components/world/ColliderBox.h"
 
 #include "chroma/shared/core/components/Run.h"
 #include "chroma/shared/events/Event.h"
@@ -44,14 +44,15 @@ void Player::SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &a
   if (!chara_type_comp) { return; }
 
   switch (chara_type_comp->GetCharacterType()) {
-    case component::CharacterType::PRIMM:
-      render::SpriteLoader::LoadSpriteAnimationFromFile(anim_component, "assets/sprites/player/weapons/primm-fist.json");
-      render::SpriteLoader::LoadSpriteAnimationFromFile(anim_component, "assets/sprites/player/weapons/primm-bow.json");
-      break;
-    case component::CharacterType::RANDI:
-      render::SpriteLoader::LoadSpriteAnimationFromFile(anim_component, "assets/sprites/player/weapons/randi-fist.json");
-      render::SpriteLoader::LoadSpriteAnimationFromFile(anim_component, "assets/sprites/player/weapons/randi-spear.json");
-      render::SpriteLoader::LoadSpriteAnimationFromFile(anim_component, "assets/sprites/player/weapons/randi-javelin.json");
+  case component::CharacterType::PRIMM:
+    render::SpriteLoader::LoadSpriteAnimationFromFile(anim_component, "assets/sprites/player/weapons/primm-fist.json");
+    render::SpriteLoader::LoadSpriteAnimationFromFile(anim_component, "assets/sprites/player/weapons/primm-bow.json");
+    break;
+  case component::CharacterType::RANDI:
+    render::SpriteLoader::LoadSpriteAnimationFromFile(anim_component, "assets/sprites/player/weapons/randi-fist.json");
+    render::SpriteLoader::LoadSpriteAnimationFromFile(anim_component, "assets/sprites/player/weapons/randi-spear.json");
+    render::SpriteLoader::LoadSpriteAnimationFromFile(
+      anim_component, "assets/sprites/player/weapons/randi-javelin.json");
   }
 
   anim_component->Play(chara_type_comp->GetPrefixCharacter() + "_fist_idle_down", false);
@@ -61,13 +62,13 @@ Player::~Player() = default;
 
 void Player::AnimationState(const Vector2 dir, const float magnitude)
 {
-  
+
   const auto chara_type_comp = GetComponent<component::CharacterTypeComponent>();
   if (!chara_type_comp) { return; }
 
   std::string chracter_prefix = chara_type_comp->GetPrefixCharacter() + "_";
   std::string mode = "fist_";
-  
+
   const auto attack_comp = GetComponent<component::Attack>();
   const auto inventory = GetComponent<component::Inventory>();
   if (inventory) {
@@ -90,15 +91,12 @@ void Player::AnimationState(const Vector2 dir, const float magnitude)
       switch (last_facing_) {
       case FacingDir::Up:
         anim->Play(chracter_prefix + mode + "idle_up", false);
-        std::cout << chracter_prefix + mode + "idle_up" << std::endl;
         break;
       case FacingDir::Down:
         anim->Play(chracter_prefix + mode + "idle_down", false);
-        std::cout << chracter_prefix + mode + "idle_down" << std::endl;
         break;
       case FacingDir::Side:
         anim->Play(chracter_prefix + mode + "idle_side", false);
-        std::cout << chracter_prefix + mode + "idle_side" << std::endl;
         break;
       }
     } else {
@@ -120,15 +118,12 @@ void Player::AnimateAttack(const std::string &mode, const FacingDir facing_dir) 
     switch (facing_dir) {
     case FacingDir::Up:
       anim->Play(mode + "attack_up", false);
-      std::cout << mode + "attack_up" << std::endl;
       break;
     case FacingDir::Down:
       anim->Play(mode + "attack_down", false);
-      std::cout << mode + "attack_down" << std::endl;
       break;
     case FacingDir::Side:
       anim->Play(mode + "attack_side", false);
-      std::cout << mode + "attack_side" << std::endl;
       break;
     }
   }
@@ -364,22 +359,22 @@ void Player::HandleThrowInput(const std::shared_ptr<component::Weapon> &weapon) 
   }
 
   switch (weapon->GetWeaponType()) {
-    case component::WeaponType::BOW: {
-        const auto projectile_event =
-        std::make_shared<event::ProjectileEvent>(component::TypeProjectile::ARROW, direction, 100.0F);
-        projectile_event->SetProjectileId(utils::UUID::Generate());
-        projectile_event->SetPosition(transform->GetPosition());
-        event::EventBus::Dispatch(*projectile_event);
-      break;
-    }
-    case component::WeaponType::JAVELIN: {
-      const auto projectile_event =
-        std::make_shared<event::ProjectileEvent>(component::TypeProjectile::JAVELIN, direction, 80.0F);
-      projectile_event->SetProjectileId(utils::UUID::Generate());
-      projectile_event->SetPosition(transform->GetPosition());
-      event::EventBus::Dispatch(*projectile_event);
+  case component::WeaponType::BOW: {
+    const auto projectile_event =
+      std::make_shared<event::ProjectileEvent>(component::TypeProjectile::ARROW, direction, 100.0F);
+    projectile_event->SetProjectileId(utils::UUID::Generate());
+    projectile_event->SetPosition(transform->GetPosition());
+    event::EventBus::Dispatch(*projectile_event);
     break;
-    }
+  }
+  case component::WeaponType::JAVELIN: {
+    const auto projectile_event =
+      std::make_shared<event::ProjectileEvent>(component::TypeProjectile::JAVELIN, direction, 80.0F);
+    projectile_event->SetProjectileId(utils::UUID::Generate());
+    projectile_event->SetPosition(transform->GetPosition());
+    event::EventBus::Dispatch(*projectile_event);
+    break;
+  }
   default:
     break;
   }

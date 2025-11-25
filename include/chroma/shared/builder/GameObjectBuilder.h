@@ -7,6 +7,7 @@
 #include "chroma/shared/core/components/Attack.h"
 #include "chroma/shared/core/components/AudioListener.h"
 #include "chroma/shared/core/components/Camera.h"
+#include "chroma/shared/core/components/CharacterType.h"
 #include "chroma/shared/core/components/Coloring.h"
 #include "chroma/shared/core/components/Health.h"
 #include "chroma/shared/core/components/Inventory.h"
@@ -17,10 +18,7 @@
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/components/Transform.h"
 #include "chroma/shared/core/components/world/ColliderBox.h"
-#include "chroma/shared/core/components/world/WorldRender.h"
-#include "chroma/shared/core/components/world/WorldSystem.h"
-#include "chroma/shared/core/components/CharacterType.h"
-#include "chroma/shared/core/components/world/ColliderBox.h"
+#include "chroma/shared/core/components/world/WorldNavigation.h"
 #include "chroma/shared/core/components/world/WorldRender.h"
 #include "chroma/shared/core/components/world/WorldSystem.h"
 
@@ -222,10 +220,17 @@ public:
 
   GameObjectBuilder &AddCharacterType(const core::component::CharacterType character_type)
   {
-      auto character_type_comp = std::make_shared<core::component::CharacterTypeComponent>();
-      character_type_comp->SetCharacterType(character_type);
-      obj_->AttachComponent(character_type_comp);
-      return *this;
+    auto character_type_comp = std::make_shared<core::component::CharacterTypeComponent>();
+    character_type_comp->SetCharacterType(character_type);
+    obj_->AttachComponent(character_type_comp);
+    return *this;
+  }
+
+  GameObjectBuilder &AddWorldNavigation()
+  {
+    auto world_navigation = std::make_shared<core::component::WorldNavigation>();
+    obj_->AttachComponent(world_navigation);
+    return *this;
   }
 
   std::shared_ptr<T> Build() { return obj_; }

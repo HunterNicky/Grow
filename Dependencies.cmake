@@ -131,7 +131,6 @@ function(chroma_setup_dependencies)
     )
   endif ()
 
-  # FastNoiseLite (header-only)
   CPMAddPackage(
     NAME fastnoiselite
     GITHUB_REPOSITORY Auburn/FastNoiseLite
@@ -145,8 +144,23 @@ function(chroma_setup_dependencies)
     elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
       target_compile_options(fastnoiselite_silenced INTERFACE -w)
     endif ()
-    # C++ header is under Cpp directory
     target_include_directories(fastnoiselite_silenced SYSTEM INTERFACE "${fastnoiselite_SOURCE_DIR}/Cpp")
+  endif ()
+
+  CPMAddPackage(
+    NAME aitoolkit
+    GITHUB_REPOSITORY linkdd/aitoolkit
+    GIT_TAG v0.5.1
+  )
+
+  if (NOT TARGET aitoolkit_silenced)
+    add_library(aitoolkit_silenced INTERFACE)
+    if (MSVC)
+      target_compile_options(aitoolkit_silenced INTERFACE /w)
+    elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+      target_compile_options(aitoolkit_silenced INTERFACE -w)
+    endif ()
+    target_include_directories(aitoolkit_silenced SYSTEM INTERFACE "${aitoolkit_SOURCE_DIR}/include")
   endif ()
 
 endfunction()

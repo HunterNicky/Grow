@@ -156,10 +156,14 @@ bool NetworkState::ConnectToServer(const std::string &host, const enet_uint16 po
     });
     thread_server.detach();
 
-    if (fut.wait_for(std::chrono::seconds(2)) == std::future_status::ready && fut.get()) {
+    int tries = 0;
+    while (tries++ < 10) {
+      std::this_thread::sleep_for(std::chrono::seconds(2));
       if (!TryConnect(host, port)) {
         connected_ = false;
         return false;
+      } else {
+        break;
       }
     }
   }
