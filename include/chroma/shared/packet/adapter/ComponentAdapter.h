@@ -3,6 +3,9 @@
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/Component.h"
 #include "chroma/shared/core/components/Inventory.h"
+#include "chroma/shared/core/components/CharacterType.h"
+
+#include <entities_generated.h>
 #include "components_generated.h"
 
 namespace chroma::shared::packet::adapter {
@@ -13,6 +16,9 @@ public:
     flatbuffers::FlatBufferBuilder &builder,
     std::vector<flatbuffers::Offset<Game::Component>> &fb_components);
   static void FromComponent(const Game::Component &component, const std::shared_ptr<core::GameObject> &game_object);
+
+  static core::component::CharacterType GetCharacterTypeFromEntityState(
+    const Game::EntityState *entity_state);
 
 private:
   //
@@ -32,6 +38,8 @@ private:
     const std::shared_ptr<core::GameObject> &game_object);
   static void ComponentToAttack(const Game::Component *component, const std::shared_ptr<core::GameObject> &game_object);
   static void ComponentToProjectileType(const Game::Component *component,
+    const std::shared_ptr<core::GameObject> &game_object);
+  static void ComponentToCharacterType(const Game::Component *component,
     const std::shared_ptr<core::GameObject> &game_object);
   //
   // ===========================================================
@@ -73,6 +81,9 @@ private:
     flatbuffers::FlatBufferBuilder &builder,
     std::vector<flatbuffers::Offset<Game::Component>> &fb_components);
   static void ProjectileTypeToComponent(const std::shared_ptr<core::component::Component> &component,
+    flatbuffers::FlatBufferBuilder &builder,
+    std::vector<flatbuffers::Offset<Game::Component>> &fb_components);
+  static void CharacterTypeToComponent(const std::shared_ptr<core::component::Component> &component,
     flatbuffers::FlatBufferBuilder &builder,
     std::vector<flatbuffers::Offset<Game::Component>> &fb_components);
 };

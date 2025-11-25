@@ -74,7 +74,7 @@ void Projectile::InitAnimation()
   std::string sprite_path;
 
   if (projectile_type->GetProjectileType() == component::TypeProjectile::ARROW) {
-    sprite_path = "assets/sprites/player/projectile/arrow-projectile.json";
+    sprite_path = "assets/sprites/player/projectile/bow-projectile.json";
   } else if (projectile_type->GetProjectileType() == component::TypeProjectile::JAVELIN) {
     sprite_path = "assets/sprites/player/projectile/javelin-projectile.json";
   }
@@ -92,8 +92,10 @@ void Projectile::UpdateAnimation()
 
   if (movement->GetDirection().x == 1.0F || movement->GetDirection().x == -1.0F) {
     anim->Play("projectile_attack_horizontal", true);
-  } else if (movement->GetDirection().y == 1.0F || movement->GetDirection().y == -1.0F) {
-    anim->Play("projectile_attack_vertical", true);
+  } else if (movement->GetDirection().y == 1.0F) {
+    anim->Play("projectile_attack_down", true);
+  } else if (movement->GetDirection().y == -1.0F) {
+    anim->Play("projectile_attack_up", true);
   }
 }
 

@@ -1,0 +1,401 @@
+{
+    "sprite_sheet": "primm-fist.png",
+    "animations": {
+        "primm_fist_idle_up": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 24,
+                    "y": 1,
+                    "width": 18,
+                    "height": 33,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "primm_fist_idle_down": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 4,
+                    "y": 1,
+                    "width": 18,
+                    "height": 33,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "primm_fist_idle_side": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 44,
+                    "y": 0,
+                    "width": 18,
+                    "height": 34,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "primm_fist_running_down": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 0,
+                    "y": 40,
+                    "width": 23,
+                    "height": 34,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 24,
+                    "y": 41,
+                    "width": 20,
+                    "height": 33,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 46,
+                    "y": 41,
+                    "width": 20,
+                    "height": 33,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 67,
+                    "y": 40,
+                    "width": 23,
+                    "height": 34,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 91,
+                    "y": 41,
+                    "width": 20,
+                    "height": 33,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 113,
+                    "y": 41,
+                    "width": 20,
+                    "height": 33,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "primm_fist_running_up": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 134,
+                    "y": 43,
+                    "width": 23,
+                    "height": 31,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 157,
+                    "y": 42,
+                    "width": 21,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 179,
+                    "y": 42,
+                    "width": 21,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 202,
+                    "y": 43,
+                    "width": 23,
+                    "height": 31,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 225,
+                    "y": 42,
+                    "width": 21,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 247,
+                    "y": 42,
+                    "width": 21,
+                    "height": 32,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "primm_fist_walk_side": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 333,
+                    "y": 3,
+                    "width": 21,
+                    "height": 33,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 355,
+                    "y": 2,
+                    "width": 20,
+                    "height": 34,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 377,
+                    "y": 2,
+                    "width": 22,
+                    "height": 34,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 402,
+                    "y": 3,
+                    "width": 20,
+                    "height": 33,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 424,
+                    "y": 2,
+                    "width": 22,
+                    "height": 34,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 448,
+                    "y": 2,
+                    "width": 20,
+                    "height": 34,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "primm_fist_running_side": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 268,
+                    "y": 43,
+                    "width": 28,
+                    "height": 31,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 298,
+                    "y": 40,
+                    "width": 20,
+                    "height": 34,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 323,
+                    "y": 40,
+                    "width": 24,
+                    "height": 34,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 351,
+                    "y": 43,
+                    "width": 27,
+                    "height": 31,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 380,
+                    "y": 40,
+                    "width": 22,
+                    "height": 34,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 404,
+                    "y": 40,
+                    "width": 21,
+                    "height": 34,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "primm_fist_walk_down": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 66,
+                    "y": 3,
+                    "width": 18,
+                    "height": 33,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 87,
+                    "y": 3,
+                    "width": 20,
+                    "height": 33,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 109,
+                    "y": 3,
+                    "width": 20,
+                    "height": 33,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 132,
+                    "y": 3,
+                    "width": 18,
+                    "height": 33,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 152,
+                    "y": 3,
+                    "width": 20,
+                    "height": 33,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 174,
+                    "y": 3,
+                    "width": 20,
+                    "height": 33,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "primm_fist_walk_up": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 196,
+                    "y": 4,
+                    "width": 20,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 218,
+                    "y": 4,
+                    "width": 21,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 240,
+                    "y": 4,
+                    "width": 21,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 264,
+                    "y": 4,
+                    "width": 20,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 286,
+                    "y": 4,
+                    "width": 21,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 309,
+                    "y": 4,
+                    "width": 21,
+                    "height": 32,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "primm_fist_attack_down": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 2,
+                    "y": 84,
+                    "width": 23,
+                    "height": 25,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 26,
+                    "y": 84,
+                    "width": 22,
+                    "height": 29,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 50,
+                    "y": 84,
+                    "width": 30,
+                    "height": 25,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "primm_fist_attack_up": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 83,
+                    "y": 75,
+                    "width": 24,
+                    "height": 34,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 109,
+                    "y": 75,
+                    "width": 18,
+                    "height": 34,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 129,
+                    "y": 76,
+                    "width": 24,
+                    "height": 33,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "primm_fist_attack_side": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 154,
+                    "y": 77,
+                    "width": 22,
+                    "height": 32,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 178,
+                    "y": 83,
+                    "width": 26,
+                    "height": 26,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 205,
+                    "y": 83,
+                    "width": 33,
+                    "height": 26,
+                    "duration_ticks": 180
+                }
+            ]
+        }
+    }
+}

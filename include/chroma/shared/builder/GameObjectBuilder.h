@@ -16,6 +16,7 @@
 #include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/components/Transform.h"
+#include "chroma/shared/core/components/CharacterType.h"
 #include "chroma/shared/core/components/world/ColliderBox.h"
 #include "chroma/shared/core/components/world/WorldRender.h"
 #include "chroma/shared/core/components/world/WorldSystem.h"
@@ -214,6 +215,14 @@ public:
     world_render->SetRenderTile(world_system->GetRenderTile());
     world_render->Initialize(path);
     return *this;
+  }
+
+  GameObjectBuilder &AddCharacterType(const core::component::CharacterType character_type)
+  {
+      auto character_type_comp = std::make_shared<core::component::CharacterTypeComponent>();
+      character_type_comp->SetCharacterType(character_type);
+      obj_->AttachComponent(character_type_comp);
+      return *this;
   }
 
   std::shared_ptr<T> Build() { return obj_; }

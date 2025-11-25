@@ -14,8 +14,9 @@
   table Inventory {capacity: uint8; weapons: [Weapon]; itens: [Item]; current_weapon: Weapon; current_item: Item; }
   table Attack {attack: bool; }
   table ProjectileType { proj_type_ : TypeProjectile; }
+  table CharacterTypeComponent { character_type : CharacterType; }
 
-  union ComponentUnion { Position, Scale, Velocity, Movement, Health, Facing, Color, Run, Inventory, Attack, ProjectileType }
+  union ComponentUnion { Position, Scale, Velocity, Movement, Health, Facing, Color, Run, Inventory, Attack, ProjectileType, CharacterTypeComponent }
 
   table Component {
     type:ComponentUnion;

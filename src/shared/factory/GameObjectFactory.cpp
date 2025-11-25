@@ -1,6 +1,5 @@
 #include "chroma/shared/factory/GameObjectFactory.h"
 #include "chroma/shared/builder/GameObjectBuilder.h"
-#include "chroma/shared/context/GameContext.h"
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/player/Player.h"
@@ -8,6 +7,7 @@
 #include "chroma/shared/core/world/World.h"
 #include "chroma/shared/render/RenderBridge.h"
 #include "entities_generated.h"
+#include "chroma/shared/packet/adapter/ComponentAdapter.h"
 
 #include <memory>
 #include <unordered_map>
@@ -42,7 +42,8 @@ namespace {
               .AddColliderBox(GameContextType::Client, { 16.F, 32.F }, { -8.F, -16.F })
               .AddHealth(100.0F, 100.0F)
               .AddRun(false, 1.5F)
-              .AddInventory(10);
+              .AddInventory(10)
+              .AddCharacterType(packet::adapter::ComponentAdapter::GetCharacterTypeFromEntityState(entity_state));
 
           if (is_local_player) {
             player_build.AddAudioListener()

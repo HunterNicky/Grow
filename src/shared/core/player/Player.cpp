@@ -14,6 +14,7 @@
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/components/Transform.h"
 #include "chroma/shared/core/components/Weapon.h"
+#include "chroma/shared/core/components/CharacterType.h"
 
 #include "chroma/shared/core/components/Run.h"
 #include "chroma/shared/events/Event.h"
@@ -39,19 +40,34 @@ Player::Player() { type_ = GameObjectType::PLAYER; }
 
 void Player::SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &anim_component)
 {
-  render::SpriteLoader::LoadSpriteAnimationFromFile(anim_component, "assets/sprites/player/weapons/randi-fist.json");
-  render::SpriteLoader::LoadSpriteAnimationFromFile(anim_component, "assets/sprites/player/weapons/randi-spear.json");
-  render::SpriteLoader::LoadSpriteAnimationFromFile(anim_component, "assets/sprites/player/weapons/randi-javelin.json");
+  auto chara_type_comp = GetComponent<component::CharacterTypeComponent>();
+  if (!chara_type_comp) { return; }
 
-  anim_component->Play("fist_idle_down", false);
+  switch (chara_type_comp->GetCharacterType()) {
+    case component::CharacterType::PRIMM:
+      render::SpriteLoader::LoadSpriteAnimationFromFile(anim_component, "assets/sprites/player/weapons/primm-fist.json");
+      render::SpriteLoader::LoadSpriteAnimationFromFile(anim_component, "assets/sprites/player/weapons/primm-bow.json");
+      break;
+    case component::CharacterType::RANDI:
+      render::SpriteLoader::LoadSpriteAnimationFromFile(anim_component, "assets/sprites/player/weapons/randi-fist.json");
+      render::SpriteLoader::LoadSpriteAnimationFromFile(anim_component, "assets/sprites/player/weapons/randi-spear.json");
+      render::SpriteLoader::LoadSpriteAnimationFromFile(anim_component, "assets/sprites/player/weapons/randi-javelin.json");
+  }
+
+  anim_component->Play(chara_type_comp->GetPrefixCharacter() + "_fist_idle_down", false);
 }
 
 Player::~Player() = default;
 
 void Player::AnimationState(const Vector2 dir, const float magnitude)
 {
-  std::string mode = "fist_";
+  
+  const auto chara_type_comp = GetComponent<component::CharacterTypeComponent>();
+  if (!chara_type_comp) { return; }
 
+  std::string chracter_prefix = chara_type_comp->GetPrefixCharacter() + "_";
+  std::string mode = "fist_";
+  
   const auto attack_comp = GetComponent<component::Attack>();
   const auto inventory = GetComponent<component::Inventory>();
   if (inventory) {
@@ -67,19 +83,22 @@ void Player::AnimationState(const Vector2 dir, const float magnitude)
       }
 
       if (attack_comp && attack_comp->IsAttacking()) {
-        AnimateAttack(mode, last_facing_);
+        AnimateAttack(chracter_prefix + mode, last_facing_);
         return;
       }
 
       switch (last_facing_) {
       case FacingDir::Up:
-        anim->Play(mode + "idle_up", false);
+        anim->Play(chracter_prefix + mode + "idle_up", false);
+        std::cout << chracter_prefix + mode + "idle_up" << std::endl;
         break;
       case FacingDir::Down:
-        anim->Play(mode + "idle_down", false);
+        anim->Play(chracter_prefix + mode + "idle_down", false);
+        std::cout << chracter_prefix + mode + "idle_down" << std::endl;
         break;
       case FacingDir::Side:
-        anim->Play(mode + "idle_side", false);
+        anim->Play(chracter_prefix + mode + "idle_side", false);
+        std::cout << chracter_prefix + mode + "idle_side" << std::endl;
         break;
       }
     } else {
@@ -90,7 +109,7 @@ void Player::AnimationState(const Vector2 dir, const float magnitude)
       if (run_comp) { run = run_comp->IsRunning(); }
 
       const std::string state = run ? "running_" : "walk_";
-      AnimateMove(mode, state, dir);
+      AnimateMove(chracter_prefix + mode, state, dir);
     }
   }
 }
@@ -101,12 +120,15 @@ void Player::AnimateAttack(const std::string &mode, const FacingDir facing_dir) 
     switch (facing_dir) {
     case FacingDir::Up:
       anim->Play(mode + "attack_up", false);
+      std::cout << mode + "attack_up" << std::endl;
       break;
     case FacingDir::Down:
       anim->Play(mode + "attack_down", false);
+      std::cout << mode + "attack_down" << std::endl;
       break;
     case FacingDir::Side:
       anim->Play(mode + "attack_side", false);
+      std::cout << mode + "attack_side" << std::endl;
       break;
     }
   }
@@ -341,12 +363,25 @@ void Player::HandleThrowInput(const std::shared_ptr<component::Weapon> &weapon) 
     direction.x = last_left_ ? -1.0F : 1.0F;
   }
 
-  if (weapon->GetWeaponType() == component::WeaponType::JAVELIN) {
-    const auto projectile_event =
-      std::make_shared<event::ProjectileEvent>(component::TypeProjectile::JAVELIN, direction, 80.0F);
-    projectile_event->SetProjectileId(utils::UUID::Generate());
-    projectile_event->SetPosition(transform->GetPosition());
-    event::EventBus::Dispatch(*projectile_event);
+  switch (weapon->GetWeaponType()) {
+    case component::WeaponType::BOW: {
+        const auto projectile_event =
+        std::make_shared<event::ProjectileEvent>(component::TypeProjectile::ARROW, direction, 100.0F);
+        projectile_event->SetProjectileId(utils::UUID::Generate());
+        projectile_event->SetPosition(transform->GetPosition());
+        event::EventBus::Dispatch(*projectile_event);
+      break;
+    }
+    case component::WeaponType::JAVELIN: {
+      const auto projectile_event =
+        std::make_shared<event::ProjectileEvent>(component::TypeProjectile::JAVELIN, direction, 80.0F);
+      projectile_event->SetProjectileId(utils::UUID::Generate());
+      projectile_event->SetPosition(transform->GetPosition());
+      event::EventBus::Dispatch(*projectile_event);
+    break;
+    }
+  default:
+    break;
   }
 }
 
