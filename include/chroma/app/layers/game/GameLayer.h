@@ -18,5 +18,7 @@ public:
   void OnRender() override;
 
   void RegisterStates() override;
+
+  void OnStateEvent(shared::event::state::StateEvent &state_event) override;
 };
 }// namespace chroma::app::layer::game

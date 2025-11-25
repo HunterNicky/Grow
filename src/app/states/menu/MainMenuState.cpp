@@ -15,9 +15,7 @@
 namespace chroma::app::states::menu {
 MainMenuState::MainMenuState() : State("Menu")
 {
-  shared::event::ui::PanelEvent bg_main(
-    shared::event::ui::Action::Open, client::ui::panel::PanelID::MainBackgroundPanel);
-  shared::event::EventBus::Dispatch(bg_main);
+
 
   shared::event::ui::PanelEvent panel_open_ev(
     shared::event::ui::Action::Open, client::ui::panel::PanelID::MainMenuPanel);

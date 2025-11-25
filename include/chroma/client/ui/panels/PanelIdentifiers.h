@@ -9,5 +9,6 @@ namespace chroma::client::ui::panel {
     VideoOptionsPanel,
     MainBackgroundPanel,
     GameHUDPanel,
+    PausePanel,
   };
 }

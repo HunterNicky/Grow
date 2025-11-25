@@ -7,7 +7,8 @@
 #include "chroma/client/render/animation/AnimationRenderer.h"
 #include "chroma/client/render/shader/RenderPass.h"
 #include "chroma/client/render/shader/RenderPipeline.h"
-#include "chroma/client/render/shader/shaders/CrtPass.h"
+#include "chroma/client/render/shader/shaders/BorderPass.h"
+#include "chroma/client/render/shader/shaders/BorderPass.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/ShaderEvent.h"
@@ -111,7 +112,7 @@ void Renderer::InitializeSubsystems()
   render_pipeline_ = std::make_unique<shader::RenderPipeline>();
   render_pipeline_->Initialize(vw, vh);
 
-  auto crt_pass = std::make_unique<shader::shaders::CrtPass>();
+  auto crt_pass = std::make_unique<shader::shaders::BorderPass>(vw, vh);
   render_pipeline_->AddPassBack(std::move(crt_pass));
   render_pipeline_->Setup();
 

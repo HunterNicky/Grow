@@ -17,8 +17,6 @@ Layer::Layer(std::string name)
   : name_(std::move(name)), active_(true), state_machine_(std::make_unique<states::StateMachine>()),
     command_queue_(std::make_unique<command::CommandQueue>())
 {
-  state_sub_ = shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::state::StateEvent>(
-    [this](shared::event::state::StateEvent &event) { this->OnStateEvent(event); });
 }
 
 void Layer::OnAttach() { RegisterStates(); }
@@ -37,24 +35,6 @@ void Layer::OnRender() { state_machine_->OnRender(); }
 
 void Layer::OnEvent(shared::event::Event &event) { state_machine_->OnEvent(event); }
 
-void Layer::OnStateEvent(shared::event::state::StateEvent &state_event)
-{
-  switch (state_event.GetAction()) {
-  case shared::event::state::Action::Pop: {
-    auto action = [this]() { this->state_machine_->PopState(); };
-    command_queue_->Push(std::make_unique<app::command::FunctionalCommand>(action));
-    break;
-  }
-  case shared::event::state::Action::Push: {
-    auto action = [this, state_id = state_event.GetStateId()]() {
-      auto state = this->state_factory_.Create(state_id);
-      if (state) { this->state_machine_->PushState(state); }
-    };
-    command_queue_->Push(std::make_unique<app::command::FunctionalCommand>(action));
-    break;
-  }
-  }
-}
 
 const std::string &Layer::GetName() const { return name_; }
 

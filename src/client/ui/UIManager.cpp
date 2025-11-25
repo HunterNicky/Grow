@@ -204,6 +204,21 @@ void UIManager::RegisterPanels()
           .AddTextWidget("CoinText", text_coin_widget_bottom, "Coins: 0", 32, YELLOW)
           .Build();
   });
+
+  panel_factory_.Register(panel::PanelID::PausePanel, [this](Vector2 screen_size, Vector2 panel_size) {
+    const Rectangle bounds = this->GetCenteredRect(screen_size, panel_size.x, panel_size.y);
+    auto on_click_callback = [this](const std::string &button_id) {
+      shared::event::ui::ButtonClickEvent event(shared::event::Event::Type::ButtonClickEvent, button_id);
+      shared::event::EventBus::Dispatch(event);
+    };
+
+    return panel::PanelBuilder::Create(panel::PanelID::PausePanel, bounds)
+      .AddButton("Resume", "Resume", on_click_callback)
+      .AddButton("Options", "Options", on_click_callback)
+      .AddButton("MainMenu", "Main Menu", on_click_callback)
+      .CenterPanel()
+      .Build();
+  });
 }
 
 }// namespace chroma::client::ui

@@ -65,7 +65,7 @@ void XpWidget::OnRender()
     const Rectangle bounds = GetBounds();
 
     const float border_size = 3.0F;
-    const Color fill_color = { 0, 191, 255, 255 };
+    const Color fill_color = { static_cast<unsigned char>(xp_ratio * 255), 191, 255, 255 };
     
     const float inner_width = bounds.width - (2 * border_size);
     const float inner_height = bounds.height - (2 * border_size);

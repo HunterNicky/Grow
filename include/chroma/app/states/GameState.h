@@ -41,6 +41,9 @@ public:
 
   [[nodiscard]] UUIDv4::UUID GetPlayerId() const;
 
+  [[nodiscard]] bool IsPaused() const;
+  void SetPaused(bool paused);
+
 private:
   std::shared_ptr<GameNetworkMediator> network_mediator_;
   UUIDv4::UUID player_id_;
@@ -49,5 +52,7 @@ private:
   shared::event::Subscription key_sub_;
   shared::event::Subscription projectile_sub_;
   shared::event::Subscription sound_sub_;
+
+  bool is_paused_{ false };
 };
 }// namespace chroma::app::states

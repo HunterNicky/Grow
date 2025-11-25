@@ -14,4 +14,9 @@ void NetworkLayer::OnUpdate(float delta_time)
 }
 
 void NetworkLayer::RegisterStates() {}
+
+void NetworkLayer::OnStateEvent(shared::event::state::StateEvent &state_event)
+{
+  
+  }
 }// namespace chroma::app::layer::network

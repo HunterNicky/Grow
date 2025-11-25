@@ -32,7 +32,7 @@ public:
 
   virtual void OnEvent(shared::event::Event &event);
 
-  void OnStateEvent(shared::event::state::StateEvent &state_event);
+  virtual void OnStateEvent(shared::event::state::StateEvent &state_event) = 0;
 
   [[nodiscard]] const std::string &GetName() const;
   [[nodiscard]] bool IsActive() const;

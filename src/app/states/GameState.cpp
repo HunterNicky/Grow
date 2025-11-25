@@ -22,6 +22,7 @@
 #include "chroma/shared/core/components/Spear.h"
 #include "chroma/shared/utils/UUID.h"
 #include "chroma/shared/utils/Random.h"
+#include "chroma/shared/events/state/StateEvent.h"
 #include "chroma/shared/events/ui/PanelEvent.h"
 
 #include <cstdint>
@@ -47,9 +48,10 @@ GameState::GameState() : State("GameState"), network_mediator_(nullptr)
                   .AddRun(false, 1.5F)
                   .AddInventory(10)
                   .AddAttack(false)
-                  .AddCharacterType(static_cast<shared::core::component::CharacterType>(
-                        shared::utils::Random::Int(1, 2)
-                      ))
+                  // .AddCharacterType(static_cast<shared::core::component::CharacterType>(
+                  //       shared::utils::Random::Int(1, 2)
+                  //     ))
+                  .AddCharacterType(shared::core::component::CharacterType::RANDI)
                   .AddNivel(1, 0.0F, 100.0F)
                   .NetRole(shared::core::NetRole::AUTONOMOUS)
                   .Build();
@@ -136,6 +138,16 @@ void GameState::OnUpdate(float delta_time)
 void GameState::OnEvent(shared::event::Event &event)
 {
   if (player_id_ == UUIDv4::UUID{}) { return; }
+  if(IsPaused()) { return; }
+
+  if(const auto *key_event = dynamic_cast<shared::event::KeyEvent*>(&event)) {
+    if(key_event->IsPressed() && key_event->GetKey() == KEY_P) {
+      SetPaused(true);
+      shared::event::state::StateEvent state_event(shared::event::state::Action::Push, states::StateID::PauseState);
+      shared::event::EventBus::Dispatch(state_event);
+      return;
+    }
+  }
 
   auto player = GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager()->Get(player_id_);
   if (player) {
@@ -200,5 +212,9 @@ void GameState::HandleProjectileEvent(const shared::event::Event &event) const
 }
 
 UUIDv4::UUID GameState::GetPlayerId() const { return player_id_; }
+
+bool GameState::IsPaused() const { return is_paused_; }
+
+void GameState::SetPaused(bool paused) { is_paused_ = paused; }
 
 }// namespace chroma::app::states

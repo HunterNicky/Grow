@@ -17,6 +17,8 @@ public:
   MainMenuLayer(MainMenuLayer &&) = delete;
   MainMenuLayer &operator=(MainMenuLayer) = delete;
 
+  void OnStateEvent(shared::event::state::StateEvent &state_event) override;
+
   void RegisterStates() override;
 };
 }// namespace chroma::app::layer::game
