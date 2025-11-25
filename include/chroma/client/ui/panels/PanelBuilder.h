@@ -23,6 +23,8 @@ public:
   PanelBuilder &AddBackgroundTexture(const std::string &texture_path);
   PanelBuilder &AddLifeWidget(const std::string &id, Rectangle bounds);
   PanelBuilder &AddXpWidget(const std::string &id, Rectangle bounds);
+  PanelBuilder &AddTextWidget(const std::string &id, Rectangle bounds, const std::string &text, int font_size, Color color);
+
   PanelBuilder &CenterPanel();
 
   PanelBuilder &AddSpace(float height);

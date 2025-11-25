@@ -194,10 +194,14 @@ void UIManager::RegisterPanels()
 
       const Rectangle life_widget_bounds = { margin, margin, widget_width, widget_height };
       const Rectangle xp_widget_bounds = { xp_x, xp_y, widget_width, widget_height };
+      const Rectangle text_widget_center = { (screen_size.x / 2.0F) - 100.0F, margin + margin, 200.0F, widget_height };
+      const Rectangle text_coin_widget_bottom = { margin, screen_size.y - widget_height - margin, 200.0F, widget_height };
       
       return panel::PanelBuilder::Create(panel::PanelID::GameHUDPanel, bounds)
           .AddLifeWidget("PlayerHealth", life_widget_bounds)
           .AddXpWidget("PlayerXP", xp_widget_bounds)
+          .AddTextWidget("CenterText", text_widget_center, "Round 1 of 10", 48, WHITE)
+          .AddTextWidget("CoinText", text_coin_widget_bottom, "Coins: 0", 32, YELLOW)
           .Build();
   });
 }

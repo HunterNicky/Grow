@@ -13,6 +13,31 @@ using Nivel = shared::core::component::Nivel;
 XpWidget::XpWidget(const std::string& id, Rectangle bounds)
     : Widget(id, bounds)
 {
+    const float border_size = 3.0F;
+    const int font_size = 24;
+    const float inner_x = bounds.x + border_size;
+    const float inner_y = bounds.y + border_size;
+    const float inner_width = bounds.width - (2 * border_size);
+    const float inner_height = bounds.height - (2 * border_size);
+
+    const Rectangle level_text_bounds = { 
+        inner_x, 
+        inner_y, 
+        inner_width / 2.0F, 
+        inner_height 
+    };
+
+    level_text_widget_ = std::make_unique<TextWidget>(
+        id + "_level", level_text_bounds, "Nível 1", font_size, WHITE);
+    
+    const Rectangle progress_text_bounds = { 
+        inner_x + (inner_width / 2.0F),
+        inner_y, 
+        inner_width / 2.0F,             
+        inner_height 
+    };
+    progress_text_widget_ = std::make_unique<TextWidget>(
+        id + "_progress", progress_text_bounds, "0 / 100", font_size, WHITE);
 }
 
 void XpWidget::OnUpdate(const float delta_time, const UIContext &context)
@@ -41,7 +66,6 @@ void XpWidget::OnRender()
 
     const float border_size = 3.0F;
     const Color fill_color = { 0, 191, 255, 255 };
-    const Color text_color = WHITE;
     
     const float inner_width = bounds.width - (2 * border_size);
     const float inner_height = bounds.height - (2 * border_size);
@@ -65,32 +89,16 @@ void XpWidget::OnRender()
         fill_color
     );
     
-    const std::string level_text = "Nível " + std::to_string(static_cast<int>(current_level));
-    const int level_font_size = 24;
-    const float level_text_x = bounds.x + border_size + 10; 
-    const float level_text_y = bounds.y + (bounds.height / 2.0F) - (level_font_size / 2.0F);
-    
-    DrawText(level_text.c_str(), 
-             static_cast<int>(level_text_x), 
-             static_cast<int>(level_text_y), 
-             level_font_size, 
-             text_color);
+    const std::string level_text = "Nível " + std::to_string(current_level);
+    level_text_widget_->SetText(level_text);
+    level_text_widget_->OnRender();
 
     const std::string xp_progress_text = std::to_string(static_cast<int>(current_xp)) + 
                                          " / " + 
                                          std::to_string(static_cast<int>(xp_to_next_level));
     
-    const int progress_font_size = 24;
-    auto text_width = static_cast<float>(MeasureText(xp_progress_text.c_str(), progress_font_size));
-    
-    const float progress_text_x = bounds.x + bounds.width - border_size - 10 - text_width;
-    const float progress_text_y = bounds.y + (bounds.height / 2.0F) - (progress_font_size / 2.0F);
-
-    DrawText(xp_progress_text.c_str(), 
-             static_cast<int>(progress_text_x), 
-             static_cast<int>(progress_text_y), 
-             progress_font_size, 
-             text_color);
+    progress_text_widget_->SetText(xp_progress_text);
+    progress_text_widget_->OnRender();
 }
 
 } // namespace chroma::client::ui::widget
