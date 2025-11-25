@@ -22,7 +22,10 @@ public:
     bool flip_x,
     bool flip_y,
     Vector2 origin,
-    Vector2 offset) override;
+    Vector2 offset,
+    Rectangle subregion,
+    shared::render::RenderLayer layer,
+    int sub_layer) override;
 
   void DrawAnimation(const shared::core::component::SpriteAnimation &anim,
     Vector2 position,
@@ -35,6 +38,7 @@ public:
 
   void LoadSprite(const std::string &filepath) override;
 
+  void CameraSetPosition(Vector2 position) override;
   void CameraSetMode(shared::render::CameraMode mode) override;
   void CameraSetTarget(Vector2 target) override;
   void CameraSetBounds(Rectangle bounds) override;

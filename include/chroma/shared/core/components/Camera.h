@@ -26,6 +26,7 @@ public:
   void SetBounds(Rectangle bounds);
   void EnableBounds(bool enabled);
   void SetDeadzone(Vector2 size);
+  void Setup();
 
   [[nodiscard]] render::CameraMode GetMode() const { return mode_; }
   [[nodiscard]] float GetZoom() const { return zoom_; }

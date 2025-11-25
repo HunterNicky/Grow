@@ -100,8 +100,11 @@ std::vector<RenderTile> WorldSystem::GetRenderTile() const
     for (int x = 0; x < width_; ++x) {
       const TileData *tile = GetTile(x, y);
       if (tile != nullptr) {
-        result.push_back(
-          { .world_x = x, .world_y = y, .data = tile, .render_priority = (tile->elevation * 10000) + y });
+        result.push_back({ .world_x = x,
+          .world_y = y,
+          .tile_size = tile_size_,
+          .data = tile,
+          .render_priority = (tile->elevation * 10000) + y });
       }
     }
   }
@@ -223,7 +226,8 @@ void WorldSystem::GenerateColliders()
       const float py = static_cast<float>(y) * ts;
 
       if (tile.transition == TransitionType::Cliff) {
-        const float edge_thick = ts;
+        const float edge_thick = ts * 0.25f;
+        //const float edge_thick = ts;
 
         if (tile.edges & EdgeDirection::North) {
           global_colliders_.push_back(
@@ -268,11 +272,6 @@ EdgeDirection WorldSystem::CalculateEdges(const int wx, const int wy, const int 
   check(0, 1, EdgeDirection::South);
   check(1, 0, EdgeDirection::East);
   check(-1, 0, EdgeDirection::West);
-
-  check(1, -1, EdgeDirection::NorthEast);
-  check(-1, -1, EdgeDirection::NorthWest);
-  check(1, 1, EdgeDirection::SouthEast);
-  check(-1, 1, EdgeDirection::SouthWest);
 
   return result;
 }

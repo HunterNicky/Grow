@@ -52,6 +52,7 @@ public:
   [[nodiscard]] TextureAtlas &GetAtlasManager() const { return *atlas_manager_; }
   [[nodiscard]] SpriteRenderer &GetSpriteRenderer() const { return *sprite_renderer_; }
   [[nodiscard]] animation::AnimationRenderer &GetAnimationRenderer() const { return *animation_renderer_; }
+  [[nodiscard]] RenderTarget &GetRenderTarget() const { return *render_target_; }
 
 private:
   std::unique_ptr<Window> window_;

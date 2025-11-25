@@ -1,7 +1,13 @@
 #include "chroma/shared/core/components/world/WorldRender.h"
+#include "chroma/shared/core/world/WorldSystem.h"
 #include "chroma/shared/render/RenderBridge.h"
 
 #include <fstream>
+#include <raylib.h>
+#include <string>
+#include <tuple>
+#include <utility>
+#include <vector>
 
 namespace chroma::shared::core::component {
 WorldRender::WorldRender() : sprite_set_() {}
@@ -11,24 +17,51 @@ void WorldRender::Render()
   const auto bridge = render::GetRenderBridge();
   if (!bridge) { return; }
 
-  const auto camera = bridge->GetActiveCameraBounds();
-  for (const auto &params : draw_params_) {
-    if (!(params.position.x >= camera.x && params.position.x <= camera.x + camera.width && params.position.y >= camera.y
-          && params.position.y <= camera.y + camera.height)) {
-      continue;
-    }
+  const Rectangle camera = bridge->GetActiveCameraBounds();
+  static bool t_pressed = false;
 
-    bridge->DrawSprite(params.sprite_id,
-      params.position,
-      params.scale,
-      params.rotation,
-      WHITE,
-      params.flip_x,
-      params.flip_y,
-      params.origin,
-      params.offset);
+  if (IsKeyPressed(KEY_T)) { t_pressed = !t_pressed; }
+
+  for (const auto &params : draw_params_) {
+    float sprite_width = params.subregion.width * params.scale.x;
+    float sprite_height = params.subregion.height * params.scale.y;
+    float world_x = params.position.x - (params.origin.x * params.scale.x);
+    float world_y = params.position.y - (params.origin.y * params.scale.y);
+
+    Rectangle sprite_rect = { world_x, world_y, sprite_width, sprite_height };
+
+    if (!CheckCollisionRecs(camera, sprite_rect)) { continue; }
+    if (t_pressed) {
+      if (params.draw_background) {
+        bridge->DrawSprite(params.sprite_id,
+          params.position,
+          params.scale,
+          params.rotation,
+          WHITE,
+          params.flip_x,
+          params.flip_y,
+          params.origin,
+          params.offset,
+          { sprite_set_.center.x, sprite_set_.center.y, sprite_set_.center.width, sprite_set_.center.height },
+          render::RenderLayer::Ground,
+          0);
+      }
+      bridge->DrawSprite(params.sprite_id,
+        params.position,
+        params.scale,
+        params.rotation,
+        WHITE,
+        params.flip_x,
+        params.flip_y,
+        params.origin,
+        params.offset,
+        params.subregion,
+        render::RenderLayer::Ground,
+        1);
+    }
   }
 }
+
 void WorldRender::SetRenderTile(const std::vector<world::RenderTile> &tiles) { tiles_ = tiles; }
 
 void WorldRender::LoadConfigFromFile(const std::string &filepath)
@@ -49,80 +82,75 @@ void WorldRender::Initialize(const std::string &path)
   LoadConfigFromFile(path);
   if (!tiles_.data()) { TraceLog(LOG_WARNING, "WorldRender: No tiles set during initialization."); }
 
-  auto selectSprite = [&](const world::RenderTile &tile) -> SpriteParam {
+  auto selectSprite = [&](const world::RenderTile &tile) -> std::tuple<SpriteParam, bool> {
     const auto *data = tile.data;
-    if (!data) return sprite_set_.center;
+    if (!data) return std::tuple<SpriteParam, bool>(sprite_set_.center, false);
 
     switch (data->transition) {
     case world::TransitionType::RampNorth:
-      return sprite_set_.ramp_north;
+      return std::tuple<SpriteParam, bool>(sprite_set_.ramp_south, false);
     case world::TransitionType::RampSouth:
-      return sprite_set_.ramp_south;
+      return std::tuple<SpriteParam, bool>(sprite_set_.ramp_north, false);
     case world::TransitionType::RampEast:
-      return sprite_set_.ramp_east;
+      return std::tuple<SpriteParam, bool>(sprite_set_.ramp_west, false);
     case world::TransitionType::RampWest:
-      return sprite_set_.ramp_west;
+      return std::tuple<SpriteParam, bool>(sprite_set_.ramp_east, false);
     default:
       break;
     }
 
     const auto edges = data->edges;
-    if (edges & world::EdgeDirection::NorthEast) return sprite_set_.north_east;
-    if (edges & world::EdgeDirection::NorthWest) return sprite_set_.north_west;
-    if (edges & world::EdgeDirection::SouthEast) return sprite_set_.south_east;
-    if (edges & world::EdgeDirection::SouthWest) return sprite_set_.south_west;
 
-    if (edges & world::EdgeDirection::North) return sprite_set_.north;
-    if (edges & world::EdgeDirection::South) return sprite_set_.south;
-    if (edges & world::EdgeDirection::East) return sprite_set_.east;
-    if (edges & world::EdgeDirection::West) return sprite_set_.west;
+    bool n = (edges & world::EdgeDirection::North);
+    bool s = (edges & world::EdgeDirection::South);
+    bool e = (edges & world::EdgeDirection::East);
+    bool w = (edges & world::EdgeDirection::West);
 
-    return sprite_set_.center;
+    // if (n && e) return sprite_set_.north_east;
+    if (n && e) return std::tuple<SpriteParam, bool>(sprite_set_.north_east, true);
+    if (n && w) return std::tuple<SpriteParam, bool>(sprite_set_.north_west, true);
+    if (s && e) return std::tuple<SpriteParam, bool>(sprite_set_.south_east, true);
+    if (s && w) return std::tuple<SpriteParam, bool>(sprite_set_.south_west, true);
+
+    if (n) return std::tuple<SpriteParam, bool>(sprite_set_.north, true);
+    if (s) return std::tuple<SpriteParam, bool>(sprite_set_.south, true);
+    if (e) return std::tuple<SpriteParam, bool>(sprite_set_.east, true);
+    if (w) return std::tuple<SpriteParam, bool>(sprite_set_.west, true);
+
+    if (edges & world::EdgeDirection::NorthEast) return std::tuple<SpriteParam, bool>(sprite_set_.south_west, true);
+    if (edges & world::EdgeDirection::NorthWest) return std::tuple<SpriteParam, bool>(sprite_set_.south_east, true);
+    if (edges & world::EdgeDirection::SouthEast) return std::tuple<SpriteParam, bool>(sprite_set_.north_west, true);
+    if (edges & world::EdgeDirection::SouthWest) return std::tuple<SpriteParam, bool>(sprite_set_.north_east, true);
+
+    return std::tuple<SpriteParam, bool>(sprite_set_.center, false);
   };
 
   std::vector<DrawParams> draw_params;
   draw_params.reserve(tiles_.size());
 
   for (const auto &tile : tiles_) {
-    const SpriteParam sprite = selectSprite(tile);
+    std::tuple<SpriteParam, bool> sprite_bool = selectSprite(tile);
+    SpriteParam sprite = std::get<0>(sprite_bool);
 
-    DrawParams params{ .sprite_id = sprite_set_.sprite_id,
-      .position = { static_cast<float>(tile.world_x), static_cast<float>(tile.world_y) },
+    DrawParams params{
+      .sprite_id = sprite_set_.sprite_id,
+      .position = { static_cast<float>(tile.world_x * tile.tile_size),
+        static_cast<float>(tile.world_y * tile.tile_size) },
+
       .scale = { 1.0f, 1.0f },
       .origin = { 0.0f, 0.0f },
-
-      .offset = { sprite.x, sprite.y },
-
+      .offset = { 0.0f, 0.0f },
       .flip_x = false,
       .flip_y = false,
-      .rotation = 0.0f };
+      .rotation = 0.0f,
+      .subregion = { sprite.x, sprite.y, sprite.width, sprite.height },
+      .draw_background = std::get<1>(sprite_bool),
+    };
 
     draw_params.push_back(params);
   }
 
   draw_params_ = std::move(draw_params);
 }
-
-
-// void WorldRender::Initialize(const std::string &path)
-// {
-//   LoadConfigFromFile(path);
-//   if (!tiles_.data()) { TraceLog(LOG_WARNING, "WorldRender: No tiles set during initialization."); }
-//
-//   std::vector<DrawParams> draw_params;
-//   for (const auto &tile : tiles_) {
-//
-//     DrawParams params{ .sprite_id = sprite_set_.sprite_id,
-//       .position = { static_cast<float>(tile.world_x), static_cast<float>(tile.world_y) },
-//       .scale = { 1.0F, 1.0F },
-//       .origin = { 0.0F, 0.0F },
-//       .offset = { static_cast<float>(tile.tile_size), static_cast<float>(tile.tile_size) },
-//       .flip_x = false,
-//       .flip_y = false,
-//       .rotation = 0.0F };
-//     draw_params.push_back(params);
-//   }
-//   draw_params_ = draw_params;
-// }
 
 }// namespace chroma::shared::core::component

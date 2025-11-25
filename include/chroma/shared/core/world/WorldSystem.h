@@ -47,14 +47,6 @@ struct CollisionRect
   bool is_cliff;
 };
 
-// struct TerrainSpriteSet
-// {
-//   int base = 0;
-//   int cliff_n = -1, cliff_s = -1, cliff_e = -1, cliff_w = -1;
-//   int cliff_ne = -1, cliff_nw = -1, cliff_se = -1, cliff_sw = -1;
-//   int ramp_n = -1, ramp_s = -1, ramp_e = -1, ramp_w = -1;
-// };
-
 struct RenderTile
 {
   int world_x, world_y;
@@ -84,11 +76,7 @@ public:
   [[nodiscard]] std::vector<CollisionRect> GetAllColliders() const;
 
   [[nodiscard]] std::vector<RenderTile> GetVisibleTiles(Rectangle camera_bounds) const;
-  // [[nodiscard]] std::shared_ptr<std::vector<TileData>> GetAllTiles() const;
   [[nodiscard]] std::vector<RenderTile> GetRenderTile() const;
-
-  // void SetSpriteSet(int terrain_index, const TerrainSpriteSet &sprites);
-  // [[nodiscard]] const TerrainSpriteSet *GetSpriteSet(int terrain_index) const;
 
   void RenderDebugColliders() const;
 
@@ -99,7 +87,6 @@ private:
   std::vector<CollisionRect> global_colliders_;
 
   std::unordered_map<int, int> terrain_elevations_;
-  // std::unordered_map<int, TerrainSpriteSet> sprite_sets_;
 
   int width_ = 0;
   int height_ = 0;

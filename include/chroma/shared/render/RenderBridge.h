@@ -9,6 +9,16 @@
 namespace chroma::shared::render {
 enum class CameraMode : uint8_t { Free = 0, Follow = 1, FollowSmooth = 2, Bounded = 3 };
 
+enum class RenderLayer : uint16_t {
+  Background = 0,
+  Ground = 100,
+  GroundDecoration = 200,
+  Entities = 300,
+  Effects = 400,
+  UI = 500,
+  Debug = 1000
+};
+
 class IRenderBridge
 {
 public:
@@ -22,7 +32,10 @@ public:
     bool flip_x,
     bool flip_y,
     Vector2 origin,
-    Vector2 offset) = 0;
+    Vector2 offset,
+    Rectangle subregion,
+    RenderLayer layer,
+    int sub_layer) = 0;
 
   virtual void DrawAnimation(const core::component::SpriteAnimation &anim,
     Vector2 position,
@@ -35,6 +48,7 @@ public:
 
   virtual void LoadSprite(const std::string &filepath) = 0;
 
+  virtual void CameraSetPosition(Vector2 position) = 0;
   virtual void CameraSetMode(CameraMode mode) = 0;
   virtual void CameraSetTarget(Vector2 target) = 0;
   virtual void CameraSetBounds(Rectangle bounds) = 0;

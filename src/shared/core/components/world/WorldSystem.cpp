@@ -1,8 +1,16 @@
 #include "chroma/shared/core/components/world/WorldSystem.h"
-
 #include "chroma/shared/collision/CollisionManager.h"
+#include "chroma/shared/collision/Quadtree.h"
+#include "chroma/shared/context/GameContext.h"
 #include "chroma/shared/context/GameContextManager.h"
 #include "chroma/shared/core/GameObject.h"
+#include "chroma/shared/core/components/Component.h"
+#include "chroma/shared/core/world/WorldSystem.h"
+
+#include <memory>
+#include <raylib.h>
+#include <string>
+#include <vector>
 
 namespace chroma::shared::core::component {
 WorldSystem::WorldSystem() : world_system_(std::make_unique<world::WorldSystem>())

@@ -113,8 +113,9 @@ public:
     camera->SetZoom(zoom);
     camera->SetSmoothness(smoothness);
     camera->SetDeadzone(deadzone);
-
     obj_->AttachComponent(camera);
+
+    camera->Setup();
     return *this;
   }
 

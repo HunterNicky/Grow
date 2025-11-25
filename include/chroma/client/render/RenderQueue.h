@@ -1,19 +1,12 @@
 #pragma once
+
+#include "chroma/shared/render/RenderBridge.h"
+
 #include <cstdint>
 #include <functional>
 #include <vector>
 
 namespace chroma::client::render {
-enum class RenderLayer : uint16_t {
-  Background = 0,
-  Ground = 100,
-  GroundDecoration = 200,
-  Entities = 300,
-  Effects = 400,
-  UI = 500,
-  Debug = 1000
-};
-
 struct RenderCommand
 {
   int layer;
@@ -31,7 +24,7 @@ class RenderQueue
 {
 public:
   void Submit(int layer, int sub_layer, float y, const std::function<void()> &draw_func);
-  void Submit(RenderLayer layer, int sub_layer, float y, const std::function<void()> &draw_func);
+  void Submit(shared::render::RenderLayer layer, int sub_layer, float y, const std::function<void()> &draw_func);
 
   void Sort();
   void Execute() const;

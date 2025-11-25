@@ -9,6 +9,8 @@
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/render/RenderBridge.h"
 
+#include <algorithm>
+#include <cstdlib>
 #include <numeric>
 #include <raylib.h>
 #include <string>
@@ -25,24 +27,27 @@ void RenderBridgeImpl::DrawSprite(const std::string &sprite_id,
   const bool flip_x,
   const bool flip_y,
   const Vector2 origin,
-  const Vector2 offset)
+  const Vector2 offset,
+  const Rectangle subregion,
+  shared::render::RenderLayer layer,
+  int sub_layer)
 {
   if (renderer_ == nullptr) { return; }
 
   SpriteDrawParams params;
-  params.position = { .x = position.x + offset.x, .y = position.y + offset.y };
+  params.position = { .x = position.x, .y = position.y };
   params.scale = scale;
   params.rotation = rotation;
   params.tint = tint;
   params.flip_x = flip_x;
   params.flip_y = flip_y;
   params.origin = origin;
+  params.subregion = subregion;
 
   auto &queue = renderer_->GetQueue();
   auto &sprites = renderer_->GetSpriteRenderer();
   // NOLINTNEXTLINE(bugprone-exception-escape)
-  queue.Submit(
-    RenderLayer::Entities, 0, position.y, [=, &sprites]() noexcept { sprites.DrawSprite(sprite_id, params); });
+  queue.Submit(layer, sub_layer, position.y, [=, &sprites]() noexcept { sprites.DrawSprite(sprite_id, params); });
 }
 
 void RenderBridgeImpl::DrawAnimation(const shared::core::component::SpriteAnimation &anim,
@@ -114,12 +119,20 @@ void RenderBridgeImpl::DrawAnimation(const shared::core::component::SpriteAnimat
   params.flip_y = flip_y;
   params.origin = origin;
 
+  float foot_offset = 0.0f;
+  if (const auto *frame = ctrl.GetCurrentFrame()) {
+    foot_offset = frame->subregion.height * params.scale.y;
+  } else {
+    foot_offset = params.origin.y * params.scale.y;
+  }
+
   auto &queue = renderer_->GetQueue();
   auto &anim_renderer = renderer_->GetAnimationRenderer();
   // NOLINTNEXTLINE(bugprone-exception-escape)
-  queue.Submit(RenderLayer::Entities, 0, position.y, [=, &anim_renderer, &ctrl]() noexcept {
-    anim_renderer.DrawAnimation(ctrl, params);
-  });
+  queue.Submit(
+    shared::render::RenderLayer::Entities, 0, position.y + foot_offset, [=, &anim_renderer, &ctrl]() noexcept {
+      anim_renderer.DrawAnimation(ctrl, params);
+    });
 }
 
 void RenderBridgeImpl::LoadSprite(const std::string &filepath)
@@ -186,25 +199,30 @@ void RenderBridgeImpl::CameraSetDeadzone(const Vector2 size)
   renderer_->GetCamera().SetDeadzone(size.x, size.y);
 }
 
+void RenderBridgeImpl::CameraSetPosition(Vector2 position)
+{
+  if (renderer_ == nullptr) { return; }
+  renderer_->GetCamera().GetCamera2D().target = position;
+}
+
 const Rectangle RenderBridgeImpl::GetActiveCameraBounds() const
 {
   if (renderer_ == nullptr) { return Rectangle{ 0, 0, 0, 0 }; }
 
   const Camera2D cam = renderer_->GetCamera().GetCamera2D();
 
-  const int screen_width = GetScreenWidth();
-  const int screen_height = GetScreenHeight();
+  float view_w = (float)renderer_->GetRenderTarget().GetWidth();
+  float view_h = (float)renderer_->GetRenderTarget().GetHeight();
+
 
   const Vector2 top_left = GetScreenToWorld2D(Vector2{ 0, 0 }, cam);
+  const Vector2 bottom_right = GetScreenToWorld2D(Vector2{ view_w, view_h }, cam);
 
-  const Vector2 bottom_right =
-    GetScreenToWorld2D(Vector2{ static_cast<float>(screen_width), static_cast<float>(screen_height) }, cam);
-
-  Rectangle visible;
-  visible.x = top_left.x;
-  visible.y = top_left.y;
-  visible.width = bottom_right.x - top_left.x;
-  visible.height = bottom_right.y - top_left.y;
+  Rectangle visible{};
+  visible.x = std::min(top_left.x, bottom_right.x);
+  visible.y = std::min(top_left.y, bottom_right.y);
+  visible.width = std::abs(bottom_right.x - top_left.x);
+  visible.height = std::abs(bottom_right.y - top_left.y);
 
   return visible;
 }

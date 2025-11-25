@@ -73,6 +73,8 @@ private:
     bool flip_x;
     bool flip_y;
     float rotation;
+    Rectangle subregion;
+    bool draw_background;
   };
 
   std::vector<world::RenderTile> tiles_;
