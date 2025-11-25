@@ -91,15 +91,12 @@ void Player::AnimationState(const Vector2 dir, const float magnitude)
       switch (last_facing_) {
       case FacingDir::Up:
         anim->Play(chracter_prefix + mode + "idle_up", false);
-        std::cout << chracter_prefix + mode + "idle_up" << std::endl;
         break;
       case FacingDir::Down:
         anim->Play(chracter_prefix + mode + "idle_down", false);
-        std::cout << chracter_prefix + mode + "idle_down" << std::endl;
         break;
       case FacingDir::Side:
         anim->Play(chracter_prefix + mode + "idle_side", false);
-        std::cout << chracter_prefix + mode + "idle_side" << std::endl;
         break;
       }
     } else {
@@ -121,15 +118,12 @@ void Player::AnimateAttack(const std::string &mode, const FacingDir facing_dir) 
     switch (facing_dir) {
     case FacingDir::Up:
       anim->Play(mode + "attack_up", false);
-      std::cout << mode + "attack_up" << std::endl;
       break;
     case FacingDir::Down:
       anim->Play(mode + "attack_down", false);
-      std::cout << mode + "attack_down" << std::endl;
       break;
     case FacingDir::Side:
       anim->Play(mode + "attack_side", false);
-      std::cout << mode + "attack_side" << std::endl;
       break;
     }
   }
@@ -206,7 +200,7 @@ void Player::OnUpdate(const float delta_time)
     }
     was_moving_ = true;
   }
-  if (is_authority) { health->Heal(10.F * delta_time); }
+  if (should_simulate) { health->Heal(10.F * delta_time); }
 
   UpdateAttack(delta_time);
   AnimationState(dir, magnitude);

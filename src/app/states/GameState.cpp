@@ -18,6 +18,12 @@
 #include "chroma/shared/events/ProjectileEvent.h"
 #include "chroma/shared/events/ShaderEvent.h"
 #include "chroma/client/render/shader/RenderPass.h"
+#include "chroma/client/render/shader/shaders/CrtPass.h"
+#include "chroma/shared/core/components/Bow.h"
+#include "chroma/shared/core/components/Fist.h"
+#include "chroma/shared/core/components/Javelin.h"
+#include "chroma/shared/core/components/Spear.h"
+#include "chroma/shared/utils/UUID.h"
 
 #include <cstdint>
 #include <memory>
@@ -28,7 +34,55 @@
 
 namespace chroma::app::states {
 
-GameState::GameState() : State("GameState"), network_mediator_(nullptr) {}
+GameState::GameState() : State("GameState"), network_mediator_(nullptr)
+{
+  auto player = chroma::shared::builder::GameObjectBuilder<shared::core::player::Player>()
+                  .AddTransform({ 0, 0 })
+                  .Id(shared::utils::UUID::Generate())
+                  .AddSpeed(50.0F)
+                  .AddMovement()
+                  .AddAnimation()
+                  .AddCamera(shared::render::CameraMode::FollowSmooth, 3.0F, 2.0F, { 64, 128 })
+                  .AddColliderBox(GameContextType::Server, { 16.F, 32.F }, { -8.F, -16.F })
+                  .AddAudioListener()
+                  .AddHealth(100.0F, 1.0F)
+                  .AddRun(false, 1.5F)
+                  .AddInventory(10)
+                  .AddAttack(false)
+                  // .AddCharacterType(static_cast<shared::core::component::CharacterType>([](){
+                  //       static thread_local std::mt19937 rng{std::random_device{}()};
+                  //       return std::uniform_int_distribution<int>(1, 2)(rng);
+                  //     }()))
+                  .AddCharacterType(shared::core::component::CharacterType::PRIMM)
+                  .NetRole(shared::core::NetRole::AUTONOMOUS)
+                  .Build();
+  
+    switch (player->GetComponent<shared::core::component::CharacterTypeComponent>()->GetCharacterType()) {
+  
+    case shared::core::component::CharacterType::RANDI: {
+      auto spear = std::make_shared<shared::core::component::Spear>();
+      auto javelin = std::make_shared<shared::core::component::Javelin>();
+      player->GetComponent<shared::core::component::Inventory>()->AddInventory(spear);
+      player->GetComponent<shared::core::component::Inventory>()->AddInventory(javelin);
+      break;
+    }
+    case shared::core::component::CharacterType::PRIMM: {
+      auto bow = std::make_shared<shared::core::component::Bow>();
+      player->GetComponent<shared::core::component::Inventory>()->AddInventory(bow);
+      player->SetCurrentWeapon(bow);
+      break;
+    }
+  }
+
+
+  auto fist = std::make_shared<shared::core::component::Fist>();
+
+  player->GetComponent<shared::core::component::Inventory>()->AddInventory(fist);
+  player->SetupAnimation(player->GetComponent<shared::core::component::SpriteAnimation>());
+
+  GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager()->Register(player);
+  SetPlayerId(player->GetId());
+}
 
 GameState::GameState(std::shared_ptr<GameNetworkMediator> network_mediator)
   : State("GameState"), network_mediator_(std::move(network_mediator))
