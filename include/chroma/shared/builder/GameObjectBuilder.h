@@ -1,12 +1,12 @@
 #pragma once
 
 #include "chroma/shared/collision/CollisionManager.h"
+#include "chroma/shared/collision/Quadtree.h"
 #include "chroma/shared/context/GameContextManager.h"
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/Attack.h"
 #include "chroma/shared/core/components/AudioListener.h"
 #include "chroma/shared/core/components/Camera.h"
-#include "chroma/shared/core/components/ColliderBox.h"
 #include "chroma/shared/core/components/Coloring.h"
 #include "chroma/shared/core/components/Health.h"
 #include "chroma/shared/core/components/Inventory.h"
@@ -16,6 +16,9 @@
 #include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/components/Transform.h"
+#include "chroma/shared/core/components/world/ColliderBox.h"
+#include "chroma/shared/core/components/world/WorldRender.h"
+#include "chroma/shared/core/components/world/WorldSystem.h"
 
 #include <memory>
 #include <raylib.h>
@@ -81,6 +84,7 @@ public:
 
   GameObjectBuilder &AddSpeed(float speed)
   {
+    // speed = 5000.0f;
     auto speed_component = std::make_shared<core::component::Speed>(speed);
     obj_->AttachComponent(speed_component);
     return *this;
@@ -179,7 +183,35 @@ public:
   {
     auto collider = std::make_shared<core::component::ColliderBox>(size, offset);
     obj_->AttachComponent(collider);
-    GCM::Instance().GetContext(context_type)->GetCollisionManager()->AddCollider(collider, type);
+
+    const collision::ColliderEntry entry{
+      .id = obj_->GetId(), .bounds = collider->GetBoundingBox(), .component = collider
+    };
+    GCM::Instance().GetContext(context_type)->GetCollisionManager()->AddCollider(entry, type);
+    return *this;
+  }
+
+  GameObjectBuilder &AddWorldSystem(const std::string &path)
+  {
+    auto world_system = std::make_shared<core::component::WorldSystem>();
+    obj_->AttachComponent(world_system);
+    world_system->Initialize(path);
+    return *this;
+  }
+
+  GameObjectBuilder &AddWorldRender(const std::string &path)
+  {
+    auto world_render = std::make_shared<core::component::WorldRender>();
+    obj_->AttachComponent(world_render);
+
+    auto world_system = obj_->template GetComponent<core::component::WorldSystem>();
+    if (!world_system) {
+      TraceLog(LOG_WARNING, "GameObjectBuilder: WorldRender added without WorldSystem.");
+      return *this;
+    }
+
+    world_render->SetRenderTile(world_system->GetRenderTile());
+    world_render->Initialize(path);
     return *this;
   }
 

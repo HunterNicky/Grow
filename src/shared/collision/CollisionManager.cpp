@@ -3,8 +3,9 @@
 #include "chroma/shared/collision/CollisionResponseResolver.h"
 #include "chroma/shared/collision/Quadtree.h"
 #include "chroma/shared/context/GameContext.h"
+#include "chroma/shared/context/GameContextManager.h"
 #include "chroma/shared/core/GameObject.h"
-#include "chroma/shared/core/components/ColliderBox.h"
+#include "chroma/shared/core/GameObjectManager.h"
 #include "chroma/shared/core/components/Transform.h"
 
 #include <algorithm>
@@ -13,75 +14,67 @@
 #include <raylib.h>
 #include <raymath.h>
 #include <unordered_set>
+#include <uuid_v4.h>
 #include <vector>
 
 namespace chroma::shared::collision {
-CollisionManager::CollisionManager(const Rectangle map_bounds) : map_bounds_(map_bounds)
+CollisionManager::CollisionManager(const Rectangle map_bounds, const GameContextType context_type)
+  : map_bounds_(map_bounds), context_type_(context_type)
 {
   static_quadtree_ = std::make_unique<Quadtree>(0, map_bounds_);
   dynamic_quadtree_ = std::make_unique<Quadtree>(0, map_bounds_);
 }
 
-void CollisionManager::AddCollider(const std::shared_ptr<core::component::ColliderBox> &collider, const BodyType type)
+void CollisionManager::AddCollider(const ColliderEntry &collider, const BodyType type)
 {
-  if (!collider) { return; }
-
-  auto contains = [&](auto &vec) { return std::ranges::find(vec, collider) != vec.end(); };
-
   if (type == BodyType::Static) {
-    if (!contains(static_colliders_)) {
+    auto it = std::ranges::find(static_colliders_, collider);
+    if (it == static_colliders_.end()) {
       static_colliders_.push_back(collider);
-      if (collider->GetGameObject()) { static_quadtree_->Insert(collider); }
+      static_quadtree_->Insert(collider);
     }
   } else {
-    if (!contains(dynamic_colliders_)) { dynamic_colliders_.push_back(collider); }
+    auto it = std::ranges::find(dynamic_colliders_, collider);
+    if (it == dynamic_colliders_.end()) { dynamic_colliders_.push_back(collider); }
   }
 }
 
-void CollisionManager::RemoveCollider(
-    const std::shared_ptr<core::component::ColliderBox> &collider)
+void CollisionManager::RemoveCollider(ColliderEntry collider)
 {
-    if (!collider) { return; }
+  auto erase_from = [&](auto &vec) {
+    auto sub = std::ranges::remove(vec, collider);
+    auto new_end = sub.begin();
+    if (new_end != vec.end()) {
+      vec.erase(new_end, vec.end());
+      return true;
+    }
+    return false;
+  };
 
-    auto erase_from = [&](auto &vec) {
-        auto it = std::remove(vec.begin(), vec.end(), collider);
-        if (it != vec.end()) {
-            vec.erase(it, vec.end());
-            return true;
-        }
-        return false;
-    };
-
-    if (erase_from(dynamic_colliders_)) { return; }
-    if (erase_from(static_colliders_)) { RebuildStaticTree(); }
+  if (erase_from(dynamic_colliders_)) { return; }
+  if (erase_from(static_colliders_)) { RebuildStaticTree(); }
 }
 
-
-std::vector<std::shared_ptr<core::GameObject>> CollisionManager::GetCollisions(
-  const std::shared_ptr<core::component::ColliderBox> &collider_box,
-  const BodyType type) const
+std::vector<UUIDv4::UUID> CollisionManager::GetCollisions(const ColliderEntry &collider_box, const BodyType type) const
 {
-  if (!collider_box) { return {}; }
-
-  std::vector<std::shared_ptr<core::GameObject>> collisions;
-  std::unordered_set<const core::GameObject *> seen;
+  std::vector<UUIDv4::UUID> collisions;
+  std::unordered_set<UUIDv4::UUID> seen;
   if (type == BodyType::Static || type == BodyType::All) {
-    std::vector<std::shared_ptr<core::component::ColliderBox>> return_objects = {};
+    std::vector<ColliderEntry> return_objects = {};
     static_quadtree_->Retrieve(return_objects, collider_box);
+
     for (const auto &target : return_objects) {
       if (target == collider_box) { continue; }
-      auto game_object = target->GetGameObject();
-      if (game_object && seen.insert(game_object.get()).second) { collisions.push_back(game_object); }
+      if (seen.insert(target.id).second) { collisions.push_back(target.id); }
     }
   }
 
   if (type == BodyType::Dynamic || type == BodyType::All) {
-    std::vector<std::shared_ptr<core::component::ColliderBox>> return_objects = {};
+    std::vector<ColliderEntry> return_objects = {};
     dynamic_quadtree_->Retrieve(return_objects, collider_box);
     for (const auto &target : return_objects) {
       if (target == collider_box) { continue; }
-      auto game_object = target->GetGameObject();
-      if (game_object && seen.insert(game_object.get()).second) { collisions.push_back(game_object); }
+      if (seen.insert(target.id).second) { collisions.push_back(target.id); }
     }
   }
 
@@ -93,9 +86,7 @@ void CollisionManager::SetContextType(const GameContextType context_type) { cont
 void CollisionManager::RebuildStaticTree() const
 {
   static_quadtree_->Clear();
-  for (const auto &collider : static_colliders_) {
-    if (collider->GetGameObject()) { static_quadtree_->Insert(collider); }
-  }
+  for (const auto &collider : static_colliders_) { static_quadtree_->Insert(collider); }
 }
 
 CollisionResolutionStrategy CollisionManager::DetermineResolutionStrategy(
@@ -157,34 +148,33 @@ void CollisionManager::Update() const
 {
   dynamic_quadtree_->Clear();
 
-  for (const auto &collider : dynamic_colliders_) {
-    if (collider->GetGameObject()) { dynamic_quadtree_->Insert(collider); }
-  }
+  for (const auto &collider : dynamic_colliders_) { dynamic_quadtree_->Insert(collider); }
 
   for (const auto &dynamic_obj : dynamic_colliders_) {
-    if (!dynamic_obj->GetGameObject()) { continue; }
-
-    std::vector<std::shared_ptr<core::component::ColliderBox>> return_objects = {};
+    std::vector<ColliderEntry> return_objects = {};
     static_quadtree_->Retrieve(return_objects, dynamic_obj);
     for (auto &target : return_objects) { CheckCollision(dynamic_obj, target); }
 
     dynamic_quadtree_->Retrieve(return_objects, dynamic_obj);
     for (auto &target : return_objects) {
       if (dynamic_obj == target) { continue; }
-      if (!target->GetGameObject()) { continue; }
 
       CheckCollision(dynamic_obj, target);
     }
   }
 }
 
-void CollisionManager::CheckCollision(const std::shared_ptr<core::component::ColliderBox> &a,
-  const std::shared_ptr<core::component::ColliderBox> &b) const
+void CollisionManager::CheckCollision(const ColliderEntry &a, const ColliderEntry &b) const
 {
-  const Rectangle bounds_a = a->GetBoundingBox();
-  const Rectangle bounds_b = b->GetBoundingBox();
+  const Rectangle bounds_a = *a.bounds;
+  const Rectangle bounds_b = *b.bounds;
 
   if (!CheckCollisionRecs(bounds_a, bounds_b)) { return; }
+
+  if (context_type_ == GameContextType::Server) {
+    a.component->Update(0.0F);
+    b.component->Update(0.0F);
+  }
 
   const Vector2 half_a = { bounds_a.width * 0.5F, bounds_a.height * 0.5F };
   const Vector2 half_b = { bounds_b.width * 0.5F, bounds_b.height * 0.5F };
@@ -214,8 +204,10 @@ void CollisionManager::CheckCollision(const std::shared_ptr<core::component::Col
   const Vector2 offset = { normal.x * (half_a.x - half_pen.x), normal.y * (half_a.y - half_pen.y) };
   const Vector2 contact = Vector2Add(center_a, offset);
 
-  const auto obj_a = a->GetGameObject();
-  const auto obj_b = b->GetGameObject();
+  const auto manager = GCM::Instance().GetContext(context_type_)->GetGameObjectManager();
+  const auto obj_a = manager ? manager->Get(a.id) : nullptr;
+  const auto obj_b = manager ? manager->Get(b.id) : nullptr;
+
   if (!obj_a || !obj_b) { return; }
 
   BodyType type_a = BodyType::Dynamic;
@@ -255,12 +247,10 @@ void CollisionManager::CheckCollision(const std::shared_ptr<core::component::Col
   }
 }
 
-void CollisionManager::ResolveCollisionOneWay(const std::shared_ptr<core::component::ColliderBox> &moving_obj,
-  const CollisionEvent &event)
+void CollisionManager::ResolveCollisionOneWay(const ColliderEntry &moving_obj, const CollisionEvent &event) const
 {
-  if (!moving_obj) { return; }
-
-  const auto owner = moving_obj->GetGameObject();
+  const auto manager = GCM::Instance().GetContext(context_type_)->GetGameObjectManager();
+  const auto owner = manager ? manager->Get(moving_obj.id) : nullptr;
   if (!owner) { return; }
 
   const auto transform = owner->GetComponent<core::component::Transform>();
@@ -271,18 +261,17 @@ void CollisionManager::ResolveCollisionOneWay(const std::shared_ptr<core::compon
   current_pos = Vector2Subtract(current_pos, correction);
   transform->SetPosition(current_pos);
 
-  moving_obj->Update(0.0F);
+  moving_obj.component->Update(0.0F);
 }
 
-void CollisionManager::ResolveBothEqual(const std::shared_ptr<core::component::ColliderBox> &obj_a,
-  const std::shared_ptr<core::component::ColliderBox> &obj_b,
+void CollisionManager::ResolveBothEqual(const ColliderEntry &obj_a,
+  const ColliderEntry &obj_b,
   const Vector2 &normal,
-  const float penetration)
+  const float penetration) const
 {
-  if (!obj_a || !obj_b) { return; }
-
-  const auto owner_a = obj_a->GetGameObject();
-  const auto owner_b = obj_b->GetGameObject();
+  const auto manager = GCM::Instance().GetContext(context_type_)->GetGameObjectManager();
+  const auto owner_a = manager ? manager->Get(obj_a.id) : nullptr;
+  const auto owner_b = manager ? manager->Get(obj_b.id) : nullptr;
   if (!owner_a || !owner_b) { return; }
 
   const auto transform_a = owner_a->GetComponent<core::component::Transform>();
@@ -300,8 +289,8 @@ void CollisionManager::ResolveBothEqual(const std::shared_ptr<core::component::C
   pos_b = Vector2Add(pos_b, correction);
   transform_b->SetPosition(pos_b);
 
-  obj_a->Update(0.0F);
-  obj_b->Update(0.0F);
+  obj_a.component->Update(0.0F);
+  obj_b.component->Update(0.0F);
 }
 
 }// namespace chroma::shared::collision

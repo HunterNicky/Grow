@@ -26,6 +26,7 @@ enum class GameObjectType : uint8_t {
   ENEMY = 2,
   PROJECTILE = 3,
   OBSTACLE = 4,
+  WORLD = 5,
 };
 
 enum class NetRole : uint8_t {
@@ -87,7 +88,7 @@ protected:
 
   UUIDv4::UUID id_;
   uint32_t layer_;
-  GameObjectType Type_;
+  GameObjectType type_;
   NetRole net_role_{ NetRole::NONE };
 
   std::map<component::ComponentType, std::shared_ptr<component::Component>> components_;

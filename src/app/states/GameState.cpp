@@ -12,12 +12,15 @@
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/core/projectile/Projectile.h"
+#include "chroma/shared/core/world/World.h"
+#include "chroma/shared/core/world/WorldSystem.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/events/ProjectileEvent.h"
 #include "chroma/shared/render/RenderBridge.h"
+#include "chroma/shared/utils/UUID.h"
 
 #include <cstdint>
 #include <memory>
@@ -27,11 +30,14 @@
 
 namespace chroma::app::states {
 
-GameState::GameState() : State("GameState"), network_mediator_(nullptr) {}
+GameState::GameState() : State("GameState"), network_mediator_(nullptr)
+{
+}
 
 GameState::GameState(std::shared_ptr<GameNetworkMediator> network_mediator)
   : State("GameState"), network_mediator_(std::move(network_mediator))
-{}
+{
+}
 
 GameState::~GameState() { GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager()->Clear(); }
 

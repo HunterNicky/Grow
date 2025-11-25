@@ -43,6 +43,8 @@ public:
   void CameraUpdate(float delta_time) override;
   void CameraSetDeadzone(Vector2 size) override;
 
+  const Rectangle GetActiveCameraBounds() const override;
+
 private:
   Renderer *renderer_;
   std::unordered_map<const void *, animation::AnimationController> controllers_;

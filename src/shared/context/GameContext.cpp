@@ -1,14 +1,17 @@
 #include "chroma/shared/context/GameContext.h"
-
 #include "chroma/shared/collision/CollisionManager.h"
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/GameObjectManager.h"
+
+#include <memory>
+#include <raylib.h>
+#include <utility>
 
 namespace chroma::shared::context {
 
 GameContext::GameContext()
   : game_objects_(std::make_shared<core::GameObjectManager>()),
-    collisions_(std::make_shared<collision::CollisionManager>(Rectangle{ 0.0F, 0.0F, 1920.0F, 1080.0F })),
+    collisions_(std::make_shared<collision::CollisionManager>(Rectangle{ 0.0F, 0.0F, 1920.0F, 1080.0F }, type_)),
     delta_time_(std::make_shared<float>(0.0F))
 {
   game_objects_->SetCollisionManager(collisions_);

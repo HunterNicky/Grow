@@ -18,20 +18,20 @@ struct RenderCommand
 {
   int layer;
   int sub_layer;
+  float y;
   std::function<void()> draw_func;
 
   bool operator<(const RenderCommand &other) const
   {
-    if (layer != other.layer) { return layer < other.layer; }
-    return sub_layer < other.sub_layer;
+    return std::tie(layer, y, sub_layer) < std::tie(other.layer, other.y, other.sub_layer);
   }
 };
 
 class RenderQueue
 {
 public:
-  void Submit(int layer, int sub_layer, const std::function<void()> &draw_func);
-  void Submit(RenderLayer layer, int sub_layer, const std::function<void()> &draw_func);
+  void Submit(int layer, int sub_layer, float y, const std::function<void()> &draw_func);
+  void Submit(RenderLayer layer, int sub_layer, float y, const std::function<void()> &draw_func);
 
   void Sort();
   void Execute() const;

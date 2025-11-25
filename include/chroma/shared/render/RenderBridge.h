@@ -42,6 +42,8 @@ public:
   virtual void CameraSetSmoothness(float smoothness) = 0;
   virtual void CameraUpdate(float delta_time) = 0;
   virtual void CameraSetDeadzone(Vector2 size) = 0;
+
+  virtual const Rectangle GetActiveCameraBounds() const = 0;
 };
 
 void SetRenderBridge(std::shared_ptr<IRenderBridge> bridge);

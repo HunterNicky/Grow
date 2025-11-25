@@ -40,6 +40,7 @@ target_link_system_libraries(chroma_shared
     incl
     uuid_v4_silenced
     nlohmann_json_silenced
+    fastnoiselite_silenced
 )
 
 target_link_libraries(chroma_shared

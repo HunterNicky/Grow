@@ -4,11 +4,11 @@
 namespace chroma::shared::collision {
 
 CollisionResponseConfig CollisionResponseResolver::Resolve(const std::shared_ptr<core::GameObject> &obj,
-  BodyType body_type)
+  const BodyType body_type)
 {
-  if (!obj) { return CollisionResponseConfig(false, false, false); }
+  if (!obj) { return { false, false, false }; }
 
-  if (body_type == BodyType::Static) { return CollisionResponseConfig(false, false, true); }
+  if (body_type == BodyType::Static) { return { false, false, true }; }
 
   CollisionResponseConfig config(true, true, true);
 
@@ -34,6 +34,10 @@ CollisionResponseConfig CollisionResponseResolver::Resolve(const std::shared_ptr
     config.can_be_pushed = true;
     config.blocks_movement = true;
     break;
+  case core::GameObjectType::WORLD:
+    config.can_push = false;
+    config.can_be_pushed = false;
+    config.blocks_movement = true;
   default:
     break;
   }

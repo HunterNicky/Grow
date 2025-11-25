@@ -29,8 +29,9 @@ public:
 
   void HandleEvent(event::Event &event) override;
   void HandleDirectionInput(Vector2 &direction) const;
-  void HandleWeaponInput();
+  void HandleWeaponInput() const;
   void UpdateAttack(float delta_time) const;
+  void UpdateColliderSize() const;
   void HandleThrowInput(const std::shared_ptr<component::Weapon> &weapon) const;
 
   static void SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &anim_component);

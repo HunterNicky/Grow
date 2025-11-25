@@ -5,6 +5,7 @@
 #include "chroma/shared/core/components//SpriteAnimation.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/core/projectile/Projectile.h"
+#include "chroma/shared/core/world/World.h"
 #include "chroma/shared/render/RenderBridge.h"
 #include "entities_generated.h"
 
@@ -37,7 +38,7 @@ namespace {
                           .AddMovement()
                           .AddAnimation()
                           .AddCamera(render::CameraMode::FollowSmooth, 3.0F, 2.0F, { 64, 128 })
-                          .AddColliderBox(GameContextType::Client, { 16.F, 32.F }, { -8.F, -16.F })
+                          .AddColliderBox(GameContextType::Client, { 12.F, 28.F }, { -6.F, -14.F })
                           .AddAudioListener()
                           .AddHealth(100.0F, 100.0F)
                           .AddRun(false, 1.5F)
@@ -54,7 +55,7 @@ namespace {
         [](const Game::EntityState *entity_state,
           [[maybe_unused]] const bool is_local_player) -> std::shared_ptr<core::GameObject> {
           if (entity_state == nullptr || entity_state->id() == nullptr) { return nullptr; }
-          const UUIDv4::UUID entity_id(entity_state->id()->str());
+          const UUIDv4::UUID entity_id = UUIDv4::UUID::fromStrFactory(entity_state->id()->str());
 
           auto projectile = builder::GameObjectBuilder<core::projectile::Projectile>()
                               .Id(entity_id)
@@ -64,6 +65,25 @@ namespace {
 
           return projectile;
         });
+    }
+    if (!reg.contains(Game::GameObjectType::World)) {
+      if (!reg.contains(Game::GameObjectType::World)) {
+        reg.emplace(Game::GameObjectType::World,
+          [](const Game::EntityState *entity_state,
+            [[maybe_unused]] const bool is_local_player) -> std::shared_ptr<core::GameObject> {
+            if (entity_state == nullptr || entity_state->id() == nullptr) { return nullptr; }
+            const UUIDv4::UUID entity_id = UUIDv4::UUID::fromStrFactory(entity_state->id()->str());
+
+            auto world = builder::GameObjectBuilder<core::world::World>()
+                           .Id(entity_id)
+                           .AddWorldSystem("assets/world/plains.json")
+                           .AddWorldRender("assets/sprites/world/plains-world.json")
+                           .NetRole(core::NetRole::SIMULATED)
+                           .Build();
+
+            return world;
+          });
+      }
     }
   }
 }// namespace

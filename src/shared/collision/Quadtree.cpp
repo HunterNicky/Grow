@@ -1,6 +1,10 @@
 #include "chroma/shared/collision/Quadtree.h"
-#include <shared_mutex>
+
+#include <memory>
 #include <mutex>
+#include <raylib.h>
+#include <shared_mutex>
+#include <vector>
 
 namespace chroma::shared::collision {
 
@@ -25,27 +29,25 @@ void Quadtree::Clear()
   }
 }
 
-void Quadtree::Insert(const std::shared_ptr<core::component::ColliderBox> &collider_box)
+void Quadtree::Insert(const ColliderEntry &collider_entry)
 {
-  if (!collider_box) { return; }
-
   std::unique_lock const lock(mutex_);
 
   if (northwest_) {
-    const int index = GetIndex(GetObjectBounds(collider_box));
+    const int index = GetIndex(GetObjectBounds(collider_entry));
     if (index != -1) {
       switch (index) {
       case 0:
-        northeast_->Insert(collider_box);
+        northeast_->Insert(collider_entry);
         return;
       case 1:
-        northwest_->Insert(collider_box);
+        northwest_->Insert(collider_entry);
         return;
       case 2:
-        southwest_->Insert(collider_box);
+        southwest_->Insert(collider_entry);
         return;
       case 3:
-        southeast_->Insert(collider_box);
+        southeast_->Insert(collider_entry);
         return;
       default:
         break;
@@ -53,7 +55,7 @@ void Quadtree::Insert(const std::shared_ptr<core::component::ColliderBox> &colli
     }
   }
 
-  collider_boxes_.push_back(collider_box);
+  collider_boxes_.push_back(collider_entry);
 
   if (collider_boxes_.size() > MAX_OBJECTS && level_ < MAX_LEVELS) {
     if (!northwest_) { Split(); }
@@ -86,44 +88,38 @@ void Quadtree::Insert(const std::shared_ptr<core::component::ColliderBox> &colli
   }
 }
 
-void Quadtree::Retrieve(std::vector<std::shared_ptr<core::component::ColliderBox>> &return_objects,
-  const std::shared_ptr<core::component::ColliderBox> &collider_box) const
+void Quadtree::Retrieve(std::vector<ColliderEntry> &return_objects, const ColliderEntry &collider_entry) const
 {
-  if (!collider_box) { return; }
-
   std::shared_lock const lock(mutex_);
 
-  // return_objects.insert(return_objects.end(), collider_boxes_.begin(), collider_boxes_.end());
-  for (const auto &box : collider_boxes_) {
-    if (box) { return_objects.push_back(box); }
-  }
+  for (const auto &box : collider_boxes_) { return_objects.push_back(box); }
 
   if (!northwest_) { return; }
 
-  const int index = GetIndex(GetObjectBounds(collider_box));
+  const int index = GetIndex(GetObjectBounds(collider_entry));
 
   if (index != -1) {
     switch (index) {
     case 0:
-      northeast_->Retrieve(return_objects, collider_box);
+      northeast_->Retrieve(return_objects, collider_entry);
       break;
     case 1:
-      northwest_->Retrieve(return_objects, collider_box);
+      northwest_->Retrieve(return_objects, collider_entry);
       break;
     case 2:
-      southwest_->Retrieve(return_objects, collider_box);
+      southwest_->Retrieve(return_objects, collider_entry);
       break;
     case 3:
-      southeast_->Retrieve(return_objects, collider_box);
+      southeast_->Retrieve(return_objects, collider_entry);
       break;
     default:
       break;
     }
   } else {
-    northeast_->Retrieve(return_objects, collider_box);
-    northwest_->Retrieve(return_objects, collider_box);
-    southwest_->Retrieve(return_objects, collider_box);
-    southeast_->Retrieve(return_objects, collider_box);
+    northeast_->Retrieve(return_objects, collider_entry);
+    northwest_->Retrieve(return_objects, collider_entry);
+    southwest_->Retrieve(return_objects, collider_entry);
+    southeast_->Retrieve(return_objects, collider_entry);
   }
 }
 
@@ -167,10 +163,6 @@ int Quadtree::GetIndex(const Rectangle &rect) const
   return index;
 }
 
-Rectangle Quadtree::GetObjectBounds(const std::shared_ptr<core::component::ColliderBox> &collider_box)
-{
-  if (collider_box) { return collider_box->GetBoundingBox(); }
-  return Rectangle{ 0.0F, 0.0F, 0.0F, 0.0F };
-}
+Rectangle Quadtree::GetObjectBounds(const ColliderEntry &collider_entry) { return *collider_entry.bounds; }
 
 }// namespace chroma::shared::collision

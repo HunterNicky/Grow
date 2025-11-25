@@ -108,7 +108,7 @@ function(chroma_setup_dependencies)
     "ENET_SHARED OFF"
   )
 
-    CPMAddPackage(
+  CPMAddPackage(
     NAME nlohmann_json
     GITHUB_REPOSITORY nlohmann/json
     GIT_TAG v3.12.0
@@ -130,5 +130,23 @@ function(chroma_setup_dependencies)
       "${nlohmann_json_SOURCE_DIR}/include"
     )
   endif ()
-  
+
+  # FastNoiseLite (header-only)
+  CPMAddPackage(
+    NAME fastnoiselite
+    GITHUB_REPOSITORY Auburn/FastNoiseLite
+    GIT_TAG v1.1.1
+  )
+
+  if (NOT TARGET fastnoiselite_silenced)
+    add_library(fastnoiselite_silenced INTERFACE)
+    if (MSVC)
+      target_compile_options(fastnoiselite_silenced INTERFACE /w)
+    elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+      target_compile_options(fastnoiselite_silenced INTERFACE -w)
+    endif ()
+    # C++ header is under Cpp directory
+    target_include_directories(fastnoiselite_silenced SYSTEM INTERFACE "${fastnoiselite_SOURCE_DIR}/Cpp")
+  endif ()
+
 endfunction()

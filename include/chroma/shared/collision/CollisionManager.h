@@ -3,7 +3,6 @@
 #include "CollisionEvent.h"
 #include "chroma/shared/collision/Quadtree.h"
 #include "chroma/shared/context/GameContext.h"
-#include "chroma/shared/core/components/ColliderBox.h"
 
 #include <memory>
 #include <raylib.h>
@@ -29,14 +28,13 @@ struct CollisionResponseConfig
 class CollisionManager
 {
 public:
-  explicit CollisionManager(Rectangle map_bounds);
+  explicit CollisionManager(Rectangle map_bounds, GameContextType context_type);
   ~CollisionManager() = default;
 
-  void AddCollider(const std::shared_ptr<core::component::ColliderBox> &collider, BodyType type);
-  void RemoveCollider(const std::shared_ptr<core::component::ColliderBox> &collider);
+  void AddCollider(const ColliderEntry &collider, BodyType type);
+  void RemoveCollider(ColliderEntry collider);
 
-  std::vector<std::shared_ptr<core::GameObject>> GetCollisions(
-    const std::shared_ptr<core::component::ColliderBox> &collider_box,
+  std::vector<UUIDv4::UUID> GetCollisions(const ColliderEntry &collider_box,
     BodyType type = BodyType::All) const;
 
   void SetContextType(GameContextType context_type);
@@ -50,24 +48,21 @@ private:
   std::unique_ptr<Quadtree> static_quadtree_;
   std::unique_ptr<Quadtree> dynamic_quadtree_;
 
-  std::vector<std::shared_ptr<core::component::ColliderBox>> static_colliders_;
-  std::vector<std::shared_ptr<core::component::ColliderBox>> dynamic_colliders_;
+  std::vector<ColliderEntry> static_colliders_;
+  std::vector<ColliderEntry> dynamic_colliders_;
 
-  void CheckCollision(const std::shared_ptr<core::component::ColliderBox> &a,
-    const std::shared_ptr<core::component::ColliderBox> &b) const;
+  void CheckCollision(const ColliderEntry &a, const ColliderEntry &b) const;
 
   [[nodiscard]] CollisionResolutionStrategy DetermineResolutionStrategy(const std::shared_ptr<core::GameObject> &obj_a,
     const std::shared_ptr<core::GameObject> &obj_b,
     BodyType type_a,
     BodyType type_b) const;
 
-  static void ResolveCollisionOneWay(const std::shared_ptr<core::component::ColliderBox> &moving_obj,
-    const CollisionEvent &event);
+  void ResolveCollisionOneWay(const ColliderEntry &moving_obj, const CollisionEvent &event) const;
 
-  static void ResolveBothEqual(const std::shared_ptr<core::component::ColliderBox> &obj_a,
-    const std::shared_ptr<core::component::ColliderBox> &obj_b,
+  void ResolveBothEqual(const ColliderEntry &obj_a, const ColliderEntry &obj_b,
     const Vector2 &normal,
-    float penetration);
+    float penetration) const;
 
   void RebuildStaticTree() const;
 };

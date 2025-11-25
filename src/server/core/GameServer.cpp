@@ -57,6 +57,8 @@ GameServer::GameServer()
       }
       network_.Flush();
     });
+
+  logic::ServerGameLogic::CreateWorld();
 }
 
 bool GameServer::InitServer(const int port, const int max_clients) { return network_.InitServer(port, max_clients); }

@@ -4,14 +4,14 @@
 #include <functional>
 
 namespace chroma::client::render {
-void RenderQueue::Submit(const int layer, const int sub_layer, const std::function<void()> &draw_func)
+void RenderQueue::Submit(const int layer, const int sub_layer, const float y, const std::function<void()> &draw_func)
 {
-  commands_.push_back({ .layer = layer, .sub_layer = sub_layer, .draw_func = draw_func });
+  commands_.push_back({ .layer = layer, .sub_layer = sub_layer, .y = y, .draw_func = draw_func });
 }
 
-void RenderQueue::Submit(RenderLayer layer, const int sub_layer, const std::function<void()> &draw_func)
+void RenderQueue::Submit(RenderLayer layer, const int sub_layer, const float y, const std::function<void()> &draw_func)
 {
-  Submit(static_cast<int>(layer), sub_layer, draw_func);
+  Submit(static_cast<int>(layer), sub_layer, y, draw_func);
 }
 
 void RenderQueue::Sort()

@@ -41,7 +41,8 @@ void RenderBridgeImpl::DrawSprite(const std::string &sprite_id,
   auto &queue = renderer_->GetQueue();
   auto &sprites = renderer_->GetSpriteRenderer();
   // NOLINTNEXTLINE(bugprone-exception-escape)
-  queue.Submit(RenderLayer::Entities, 0, [=, &sprites]() noexcept { sprites.DrawSprite(sprite_id, params); });
+  queue.Submit(
+    RenderLayer::Entities, 0, position.y, [=, &sprites]() noexcept { sprites.DrawSprite(sprite_id, params); });
 }
 
 void RenderBridgeImpl::DrawAnimation(const shared::core::component::SpriteAnimation &anim,
@@ -116,8 +117,9 @@ void RenderBridgeImpl::DrawAnimation(const shared::core::component::SpriteAnimat
   auto &queue = renderer_->GetQueue();
   auto &anim_renderer = renderer_->GetAnimationRenderer();
   // NOLINTNEXTLINE(bugprone-exception-escape)
-  queue.Submit(
-    RenderLayer::Entities, 0, [=, &anim_renderer, &ctrl]() noexcept { anim_renderer.DrawAnimation(ctrl, params); });
+  queue.Submit(RenderLayer::Entities, 0, position.y, [=, &anim_renderer, &ctrl]() noexcept {
+    anim_renderer.DrawAnimation(ctrl, params);
+  });
 }
 
 void RenderBridgeImpl::LoadSprite(const std::string &filepath)
@@ -184,4 +186,26 @@ void RenderBridgeImpl::CameraSetDeadzone(const Vector2 size)
   renderer_->GetCamera().SetDeadzone(size.x, size.y);
 }
 
+const Rectangle RenderBridgeImpl::GetActiveCameraBounds() const
+{
+  if (renderer_ == nullptr) { return Rectangle{ 0, 0, 0, 0 }; }
+
+  const Camera2D cam = renderer_->GetCamera().GetCamera2D();
+
+  const int screen_width = GetScreenWidth();
+  const int screen_height = GetScreenHeight();
+
+  const Vector2 top_left = GetScreenToWorld2D(Vector2{ 0, 0 }, cam);
+
+  const Vector2 bottom_right =
+    GetScreenToWorld2D(Vector2{ static_cast<float>(screen_width), static_cast<float>(screen_height) }, cam);
+
+  Rectangle visible;
+  visible.x = top_left.x;
+  visible.y = top_left.y;
+  visible.width = bottom_right.x - top_left.x;
+  visible.height = bottom_right.y - top_left.y;
+
+  return visible;
+}
 }// namespace chroma::client::render
