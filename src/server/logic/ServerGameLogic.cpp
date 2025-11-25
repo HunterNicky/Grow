@@ -3,6 +3,8 @@
 #include "chroma/shared/builder/GameObjectBuilder.h"
 #include "chroma/shared/context/GameContextManager.h"
 #include "chroma/shared/core/GameObject.h"
+#include "chroma/shared/core/components/Bow.h"
+#include "chroma/shared/core/components/CharacterType.h"
 #include "chroma/shared/core/components/Fist.h"
 #include "chroma/shared/core/components/Inventory.h"
 #include "chroma/shared/core/components/Javelin.h"
@@ -23,6 +25,7 @@
 #include <memory>
 #include <uuid_v4.h>
 #include <vector>
+#include <random>
 
 namespace chroma::server::logic {
 
@@ -76,17 +79,35 @@ std::shared_ptr<shared::core::player::Player> ServerGameLogic::CreatePlayer()
                   .AddRun(false, 1.5F)
                   .AddInventory(10)
                   .AddAttack(false)
+                  // .AddCharacterType(static_cast<shared::core::component::CharacterType>([](){
+                  //       static thread_local std::mt19937 rng{std::random_device{}()};
+                  //       return std::uniform_int_distribution<int>(1, 2)(rng);
+                  //     }()))
+                  .AddCharacterType(shared::core::component::CharacterType::PRIMM)
                   .NetRole(shared::core::NetRole::AUTHORITY)
                   .Build();
+  
+  switch (player->GetComponent<shared::core::component::CharacterTypeComponent>()->GetCharacterType()) {
+  
+    case shared::core::component::CharacterType::RANDI: {
+      auto spear = std::make_shared<shared::core::component::Spear>();
+      auto javelin = std::make_shared<shared::core::component::Javelin>();
+      player->GetComponent<shared::core::component::Inventory>()->AddInventory(spear);
+      player->GetComponent<shared::core::component::Inventory>()->AddInventory(javelin);
+      break;
+    }
+    case shared::core::component::CharacterType::PRIMM: {
+      auto bow = std::make_shared<shared::core::component::Bow>();
+      player->GetComponent<shared::core::component::Inventory>()->AddInventory(bow);
+      player->SetCurrentWeapon(bow);
+      break;
+    }
+  }
 
-  auto javelin = std::make_shared<shared::core::component::Javelin>();
-  auto spear = std::make_shared<shared::core::component::Spear>();
+
   auto fist = std::make_shared<shared::core::component::Fist>();
 
-  player->GetComponent<shared::core::component::Inventory>()->AddInventory(spear);
-  player->GetComponent<shared::core::component::Inventory>()->AddInventory(javelin);
   player->GetComponent<shared::core::component::Inventory>()->AddInventory(fist);
-  player->SetCurrentWeapon(javelin);
 
   player->SetupAnimation(player->GetComponent<shared::core::component::SpriteAnimation>());
   GCM::Instance().GetContext(GameContextType::Server)->GetGameObjectManager()->Register(player);

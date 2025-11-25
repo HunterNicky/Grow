@@ -1,12 +1,12 @@
 #include "chroma/shared/factory/GameObjectFactory.h"
 #include "chroma/shared/builder/GameObjectBuilder.h"
-#include "chroma/shared/context/GameContextManager.h"
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components//SpriteAnimation.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/core/projectile/Projectile.h"
 #include "chroma/shared/render/RenderBridge.h"
 #include "entities_generated.h"
+#include "chroma/shared/packet/adapter/ComponentAdapter.h"
 
 #include <memory>
 #include <unordered_map>
@@ -42,6 +42,7 @@ namespace {
                           .AddHealth(100.0F, 100.0F)
                           .AddRun(false, 1.5F)
                           .AddInventory(10)
+                          .AddCharacterType(packet::adapter::ComponentAdapter::GetCharacterTypeFromEntityState(entity_state))
                           .NetRole(is_local_player ? core::NetRole::AUTONOMOUS : core::NetRole::SIMULATED)
                           .Build();
 

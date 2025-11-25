@@ -105,7 +105,10 @@ void Application::Initialize()
   shared::render::GetRenderBridge()->LoadSprite("assets/sprites/player/weapons/randi-fist.png");
   shared::render::GetRenderBridge()->LoadSprite("assets/sprites/player/weapons/randi-spear.png");
   shared::render::GetRenderBridge()->LoadSprite("assets/sprites/player/weapons/randi-javelin.png");
+  shared::render::GetRenderBridge()->LoadSprite("assets/sprites/player/weapons/primm-fist.png");
+  shared::render::GetRenderBridge()->LoadSprite("assets/sprites/player/weapons/primm-bow.png");
   shared::render::GetRenderBridge()->LoadSprite("assets/sprites/player/projectile/javelin-projectile.png");
+  shared::render::GetRenderBridge()->LoadSprite("assets/sprites/player/projectile/bow-projectile.png");
 }
 
 void Application::Shutdown() {}

@@ -3,6 +3,7 @@
 #include "chroma/shared/core/components/Fist.h"
 #include "chroma/shared/core/components/Javelin.h"
 #include "chroma/shared/core/components/Spear.h"
+#include "chroma/shared/core/components/Bow.h"
 #include "chroma/shared/core/components/Weapon.h"
 
 #include <memory>
@@ -16,8 +17,8 @@ std::shared_ptr<core::component::Weapon> WeaponFactory::Create(core::component::
     // case core::component::WeaponType::SWORD:
     //     return std::make_shared<core::component::Sword>();
 
-    // case core::component::WeaponType::BOW:
-    //     return std::make_shared<core::component::Bow>();
+    case core::component::WeaponType::BOW:
+        return std::make_shared<core::component::Bow>();
 
     // case core::component::WeaponType::AXE:
     //     return std::make_shared<core::component::Axe>();

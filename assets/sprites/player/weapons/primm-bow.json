@@ -1,0 +1,429 @@
+{
+    "sprite_sheet": "primm-bow.png",
+    "animations": {
+        "primm_bow_walk_down": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 25,
+                    "y": 6,
+                    "width": 30,
+                    "height": 36,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 57,
+                    "y": 6,
+                    "width": 28,
+                    "height": 36,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 109,
+                    "y": 6,
+                    "width": 28,
+                    "height": 36,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 139,
+                    "y": 6,
+                    "width": 30,
+                    "height": 36,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 2,
+                    "y": 9,
+                    "width": 21,
+                    "height": 34,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 87,
+                    "y": 9,
+                    "width": 20,
+                    "height": 33,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "primm_bow_walk_up": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 207,
+                    "y": 9,
+                    "width": 28,
+                    "height": 33,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 237,
+                    "y": 7,
+                    "width": 28,
+                    "height": 35,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 267,
+                    "y": 7,
+                    "width": 23,
+                    "height": 35,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 293,
+                    "y": 9,
+                    "width": 21,
+                    "height": 33,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 318,
+                    "y": 7,
+                    "width": 23,
+                    "height": 35,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 347,
+                    "y": 7,
+                    "width": 28,
+                    "height": 35,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "primm_bow_walk_side": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 399,
+                    "y": 8,
+                    "width": 21,
+                    "height": 34,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 424,
+                    "y": 7,
+                    "width": 24,
+                    "height": 35,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 451,
+                    "y": 7,
+                    "width": 24,
+                    "height": 35,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 479,
+                    "y": 8,
+                    "width": 20,
+                    "height": 34,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 502,
+                    "y": 7,
+                    "width": 24,
+                    "height": 35,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 530,
+                    "y": 7,
+                    "width": 24,
+                    "height": 35,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "primm_bow_attack_down": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 6,
+                    "y": 67,
+                    "width": 30,
+                    "height": 39,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 39,
+                    "y": 65,
+                    "width": 30,
+                    "height": 37,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 71,
+                    "y": 65,
+                    "width": 33,
+                    "height": 37,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 108,
+                    "y": 67,
+                    "width": 25,
+                    "height": 35,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "primm_bow_attack_up": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 159,
+                    "y": 56,
+                    "width": 30,
+                    "height": 46,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 190,
+                    "y": 69,
+                    "width": 28,
+                    "height": 35,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 221,
+                    "y": 66,
+                    "width": 30,
+                    "height": 38,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 252,
+                    "y": 68,
+                    "width": 24,
+                    "height": 34,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "primm_bow_attack_side": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 304,
+                    "y": 67,
+                    "width": 31,
+                    "height": 35,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 338,
+                    "y": 65,
+                    "width": 24,
+                    "height": 37,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 366,
+                    "y": 67,
+                    "width": 28,
+                    "height": 35,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 398,
+                    "y": 67,
+                    "width": 26,
+                    "height": 35,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 428,
+                    "y": 67,
+                    "width": 28,
+                    "height": 35,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "primm_bow_running_down": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 5,
+                    "y": 118,
+                    "width": 25,
+                    "height": 34,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 31,
+                    "y": 115,
+                    "width": 30,
+                    "height": 36,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 63,
+                    "y": 115,
+                    "width": 28,
+                    "height": 36,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 92,
+                    "y": 115,
+                    "width": 23,
+                    "height": 37,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 116,
+                    "y": 115,
+                    "width": 28,
+                    "height": 36,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 146,
+                    "y": 115,
+                    "width": 30,
+                    "height": 36,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "primm_bow_running_up": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 208,
+                    "y": 115,
+                    "width": 31,
+                    "height": 37,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 240,
+                    "y": 116,
+                    "width": 28,
+                    "height": 35,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 270,
+                    "y": 116,
+                    "width": 23,
+                    "height": 35,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 296,
+                    "y": 111,
+                    "width": 23,
+                    "height": 40,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 321,
+                    "y": 116,
+                    "width": 23,
+                    "height": 35,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 350,
+                    "y": 116,
+                    "width": 28,
+                    "height": 35,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "primm_bow_running_side": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 396,
+                    "y": 112,
+                    "width": 27,
+                    "height": 40,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 426,
+                    "y": 116,
+                    "width": 24,
+                    "height": 35,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 452,
+                    "y": 116,
+                    "width": 24,
+                    "height": 35,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 480,
+                    "y": 115,
+                    "width": 28,
+                    "height": 37,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 511,
+                    "y": 116,
+                    "width": 24,
+                    "height": 35,
+                    "duration_ticks": 180
+                },
+                {
+                    "x": 537,
+                    "y": 116,
+                    "width": 24,
+                    "height": 35,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "primm_bow_idle_up": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 489,
+                    "y": 65,
+                    "width": 23,
+                    "height": 33,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "primm_bow_idle_down": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 463,
+                    "y": 68,
+                    "width": 25,
+                    "height": 34,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "primm_bow_idle_side": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 521,
+                    "y": 68,
+                    "width": 27,
+                    "height": 33,
+                    "duration_ticks": 180
+                }
+            ]
+        }
+    }
+}

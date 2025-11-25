@@ -1,7 +1,7 @@
 {
     "sprite_sheet": "randi-fist.png",
     "animations": {
-        "fist_idle_down": {
+        "randi_fist_idle_down": {
             "loop": false,
             "frames": [
                 {
@@ -13,7 +13,7 @@
                 }
             ]
         },
-        "fist_idle_up": {
+        "randi_fist_idle_up": {
             "loop": false,
             "frames": [
                 {
@@ -25,7 +25,7 @@
                 }
             ]
         },
-        "fist_idle_side": {
+        "randi_fist_idle_side": {
             "loop": false,
             "frames": [
                 {
@@ -37,7 +37,7 @@
                 }
             ]
         },
-        "fist_walk_down": {
+        "randi_fist_walk_down": {
             "loop": true,
             "frames": [
                 {
@@ -84,7 +84,7 @@
                 }
             ]
         },
-        "fist_walk_up": {
+        "randi_fist_walk_up": {
             "loop": true,
             "frames": [
                 {
@@ -131,7 +131,7 @@
                 }
             ]
         },
-        "fist_walk_side": {
+        "randi_fist_walk_side": {
             "loop": true,
             "frames": [
                 {
@@ -178,7 +178,7 @@
                 }
             ]
         },
-        "fist_attack_down": {
+        "randi_fist_attack_down": {
             "loop": true,
             "frames": [
                 {
@@ -204,7 +204,7 @@
                 }
             ]
         },
-        "fist_attack_up": {
+        "randi_fist_attack_up": {
             "loop": true,
             "frames": [
                 {
@@ -230,7 +230,7 @@
                 }
             ]
         },
-        "fist_attack_side": {
+        "randi_fist_attack_side": {
             "loop": true,
             "frames": [
                 {
@@ -256,7 +256,7 @@
                 }
             ]
         },
-        "fist_running_down": {
+        "randi_fist_running_down": {
             "loop": true,
             "frames": [
                 {
@@ -310,7 +310,7 @@
                 }
             ]
         },
-        "fist_running_up": {
+        "randi_fist_running_up": {
             "loop": true,
             "frames": [
                 {
@@ -350,7 +350,7 @@
                 }
             ]
         },
-        "fist_running_side": {
+        "randi_fist_running_side": {
             "loop": true,
             "frames": [
                 {

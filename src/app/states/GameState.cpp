@@ -6,6 +6,9 @@
 #include "chroma/shared/context/GameContext.h"
 #include "chroma/shared/context/GameContextManager.h"
 #include "chroma/shared/core/GameObject.h"
+#include "chroma/shared/core/components/CharacterType.h"
+#include "chroma/shared/core/components/ProjectileType.h"
+#include "chroma/shared/core/components/Transform.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/core/projectile/Projectile.h"
 #include "chroma/shared/events/Event.h"
@@ -21,6 +24,7 @@
 #include <string>
 #include <utility>
 #include <uuid_v4.h>
+#include <random>
 
 namespace chroma::app::states {
 
@@ -117,6 +121,11 @@ void GameState::HandleProjectileEvent(const shared::event::Event &event) const
                       .AddProjectileType(projectile_event.GetProjectileType())
                       .NetRole(shared::core::NetRole::SIMULATED)
                       .Build();
+
+  if(projectile->GetComponent<shared::core::component::ProjectileType>()->GetProjectileType() == shared::core::component::TypeProjectile::ARROW)
+  {
+    projectile->GetComponent<shared::core::component::Transform>()->SetScale({ 0.15F, 0.15F });
+  }
 
   projectile->InitAnimation();
 
