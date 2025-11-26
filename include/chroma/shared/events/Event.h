@@ -21,6 +21,7 @@ public:
     PanelEvent = 10,
     AudioVolumeEvent = 11,
     SaveSettingsEvent = 12,
+    PlayerDataEvent = 13,
   };
 
   Event() = default;

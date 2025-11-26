@@ -7,6 +7,7 @@
 #include "chroma/client/ui/panels/PanelIdentifiers.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
+#include "chroma/shared/events/PlayerDataEvent.h"
 #include "chroma/shared/events/layer/LayerEvent.h"
 #include "chroma/shared/events/state/StateEvent.h"
 #include "chroma/shared/events/ui/ButtonClickEvent.h"
@@ -46,6 +47,9 @@ void MainMenuState::OnEvent(shared::event::Event &event)
   } else if (btn_event.GetId() == "Play_Multiplayer") {
     shared::event::layer::LayerEvent push_layer_event(shared::event::layer::Action::Push, layer::LayerID::NetworkLayer);
     shared::event::EventBus::Dispatch(push_layer_event);
+  } else if (btn_event.GetId() == "LoadData") {
+    shared::event::PlayerDataEvent load_event(shared::event::PlayerDataAction::Load);
+    shared::event::EventBus::Dispatch(load_event);
   } else if (btn_event.GetId() == "Options") {
     shared::event::state::StateEvent pop_event(shared::event::state::Action::Pop, StateID::MainMenuState);
     shared::event::EventBus::Dispatch(pop_event);

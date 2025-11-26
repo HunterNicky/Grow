@@ -7,7 +7,7 @@
 
 #include "chroma/app/Application.h"
 #include "chroma/app/database/DatabaseManager.h"
-#include "chroma/app/database/repositories/SettingsRepository.h"
+#include "chroma/app/database/dao/SettingsDAO.h"
 #include "chroma/app/layers/Layer.h"
 #include "chroma/app/layers/LayerStack.h"
 #include "chroma/app/layers/game/MainMenuLayer.h"
@@ -61,7 +61,7 @@ Application::Application()
 
   database_->InitEventListener();
   auto &settings = app::settings::SettingsManager::Instance();
-  settings.SetGameConfig(database_->GetSettingsRepo().Load());
+  settings.SetGameConfig(database_->GetSettingsDAO().Load().value_or(settings::GameConfig{}));
   settings.InitEventListener();
   settings.ApplyCurrentSettings();
   renderer_->SetEventDispatcher();

@@ -13,6 +13,8 @@
 #include "chroma/shared/events/state/StateEvent.h"
 #include "chroma/shared/events/ui/ButtonClickEvent.h"
 #include "chroma/shared/events/ui/PanelEvent.h"
+#include "chroma/app/settings/PlayerDataManager.h"
+#include "chroma/shared/events/PlayerDataEvent.h"
 
 namespace chroma::app::states::menu {
 PauseState::PauseState() : State("PauseState")
@@ -29,7 +31,6 @@ PauseState::~PauseState()
   shared::event::ui::PanelEvent panel_event(shared::event::ui::Action::Close, client::ui::panel::PanelID::PausePanel);
   shared::event::EventBus::Dispatch(panel_event);
 }
-
 
 void PauseState::OnUpdate(const float delta_time) { (void)delta_time; }
 
@@ -60,6 +61,9 @@ void PauseState::OnEvent(shared::event::Event &event)
     dispatch(shared::event::state::StateEvent(StateAction::Pop, StateID::NetworkState));
     dispatch(shared::event::layer::LayerEvent(LayerAction::Push, LayerID::MenuLayer));
     dispatch(shared::event::ui::PanelEvent(UIAction::Close, PanelID::PauseBackgroundPanel));
+  } else if (id == "Save") {
+    auto data = settings::PlayerDataManager::Instance().GetPlayerData();
+    dispatch(shared::event::PlayerDataEvent(shared::event::PlayerDataAction::Save, data));
   }
 }
 }// namespace chroma::app::states::menu
