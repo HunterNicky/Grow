@@ -391,5 +391,6 @@ void Player::SetCurrentWeapon(const std::shared_ptr<component::Weapon> &weapon) 
 
 std::shared_ptr<GameObject> Player::Clone() { return std::make_shared<Player>(*this); }
 
+FacingDir Player::GetLastFacingDir() const { return last_facing_; }
 
 }// namespace chroma::shared::core::player

@@ -33,6 +33,8 @@ public:
   void UpdateAttack(float delta_time) const;
   void HandleThrowInput(const std::shared_ptr<component::Weapon> &weapon) const;
 
+  FacingDir GetLastFacingDir() const;
+
   void SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &anim_component);
   std::shared_ptr<GameObject> Clone() override;
 

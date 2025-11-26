@@ -14,7 +14,7 @@ class PlayerDataEvent : public Event
 {
 public:
   PlayerDataEvent(PlayerDataAction action, const app::database::PlayerData& data = {});
-
+  
   [[nodiscard]] PlayerDataAction GetAction() const;
   [[nodiscard]] const app::database::PlayerData& GetData() const;
   

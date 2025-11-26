@@ -2,8 +2,6 @@
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/PlayerDataEvent.h"
 
-#include <memory>
-
 namespace chroma::app::settings {
 
 void PlayerDataManager::SetPlayerData(const database::PlayerData &player_data) { current_data_ = player_data; }
