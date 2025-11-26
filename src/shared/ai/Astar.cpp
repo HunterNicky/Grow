@@ -5,7 +5,6 @@
 #include <unordered_map>
 
 namespace chroma::shared::ai {
-// float Astar::Heuristic(const Vector2 a, const Vector2 b) { return std::abs(a.x - b.x) + std::abs(a.y - b.y); }
 float Astar::Heuristic(const Vector2 a, const Vector2 b) { return Vector2Distance(a, b); }
 
 

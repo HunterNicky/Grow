@@ -1,5 +1,9 @@
 #include "chroma/shared/core/components/enemy/EnemyAI.h"
 
+#include "chroma/shared/context/GameContextManager.h"
+#include "chroma/shared/core/GameObjectManager.h"
+#include "chroma/shared/core/components/world/WorldNavigation.h"
+
 namespace chroma::shared::core::component {
 
 EnemyAI::EnemyAI() = default;
@@ -8,7 +12,24 @@ void EnemyAI::Initialize()
 {
   blackboard_.owner = game_object_;
 
-  using namespace aitoolkit::bt;
+  if (const auto owner = blackboard_.owner.lock()) {
+    const auto context = context::GameContextManager::Instance().GetContext(GameContextType::Server);
+    if (context) {
+      const auto manager = context->GetGameObjectManager();
+      if (manager) {
+        const auto &worlds = manager->GetByTag(GameObjectType::WORLD);
+        if (!worlds.empty() && worlds.front()) {
+          const auto world_nav = worlds.front()->GetComponent<WorldNavigation>();
+          if (world_nav) {
+            blackboard_.nav_grid = &world_nav->GetGrid();
+            blackboard_.grid_width = world_nav->GetWidth();
+            blackboard_.grid_height = world_nav->GetHeight();
+            blackboard_.tile_size = world_nav->GetTileSize();
+          }
+        }
+      }
+    }
+  }
 
   // Construção da Árvore
   // ROOT (Selector)
@@ -16,6 +37,7 @@ void EnemyAI::Initialize()
   //  |    |-- Check (Tem alvo?)
   //  |    '-- Task (Persegue)
   //  '-- Task (Idle - se não tiver alvo)
+  using namespace aitoolkit::bt;
 
   root_node_ = std::make_unique<sel<ai::EnemyBlackboard>>(node_list<ai::EnemyBlackboard>(
     seq<ai::EnemyBlackboard>(node_list<ai::EnemyBlackboard>(
