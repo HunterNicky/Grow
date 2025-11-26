@@ -50,6 +50,8 @@ void MainMenuState::OnEvent(shared::event::Event &event)
   } else if (btn_event.GetId() == "LoadData") {
     shared::event::PlayerDataEvent load_event(shared::event::PlayerDataAction::Load);
     shared::event::EventBus::Dispatch(load_event);
+    shared::event::layer::LayerEvent push_layer_event(shared::event::layer::Action::Push, layer::LayerID::GameStateSaved);
+    shared::event::EventBus::Dispatch(push_layer_event);
   } else if (btn_event.GetId() == "Options") {
     shared::event::state::StateEvent pop_event(shared::event::state::Action::Pop, StateID::MainMenuState);
     shared::event::EventBus::Dispatch(pop_event);

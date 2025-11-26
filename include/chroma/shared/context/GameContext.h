@@ -28,6 +28,8 @@ public:
   void SetLocalPlayer(std::shared_ptr<core::GameObject> p);
   [[nodiscard]] std::shared_ptr<core::GameObject> GetLocalPlayer() const;
 
+  void RemoveLocalPlayer(std::shared_ptr<core::GameObject> p);
+
   void SetDeltaTime(float delta_time) const;
   [[nodiscard]] std::shared_ptr<float> GetDeltaTime() const;
 

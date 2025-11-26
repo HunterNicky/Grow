@@ -21,6 +21,8 @@ struct PlayerData
   int coins = 0;
   int weapon_id = 0;
   int direction = 0;
+  bool is_left = false;
+  int character_skin = 0;
 };
 
 inline auto InitStorage(const std::string &path)
@@ -43,7 +45,10 @@ inline auto InitStorage(const std::string &path)
       make_column("pos_y", &PlayerData::pos_y),
       make_column("coins", &PlayerData::coins),
       make_column("weapon_id", &PlayerData::weapon_id),
-      make_column("direction", &PlayerData::direction)));
+      make_column("direction", &PlayerData::direction),
+      make_column("is_left", &PlayerData::is_left),
+      make_column("character_skin", &PlayerData::character_skin)));
+      
 }
 
 using StorageType = decltype(InitStorage(""));

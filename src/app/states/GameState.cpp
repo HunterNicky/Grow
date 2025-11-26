@@ -18,6 +18,7 @@
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/events/KeyEvent.h"
+#include "chroma/shared/events/PlayerDataEvent.h"
 #include "chroma/shared/events/ProjectileEvent.h"
 #include "chroma/shared/events/ShaderEvent.h"
 #include "chroma/shared/events/state/StateEvent.h"
@@ -33,8 +34,13 @@
 
 namespace chroma::app::states {
 
-GameState::GameState() : State("GameState"), network_mediator_(nullptr)
+GameState::GameState(shared::core::component::CharacterType character_type) : State("GameState"), network_mediator_(nullptr)
 {
+
+  if(character_type == shared::core::component::CharacterType::NONE) {
+    character_type = static_cast<shared::core::component::CharacterType>(shared::utils::Random::Int(1, 2));
+  }
+
   auto player =
     chroma::shared::builder::GameObjectBuilder<shared::core::player::Player>()
       .AddTransform({ 0, 0 })
@@ -49,7 +55,7 @@ GameState::GameState() : State("GameState"), network_mediator_(nullptr)
       .AddRun(false, 1.5F)
       .AddInventory(10)
       .AddAttack(false)
-      .AddCharacterType(static_cast<shared::core::component::CharacterType>(shared::utils::Random::Int(1, 2)))
+      .AddCharacterType(character_type)
       .AddNivel(1, 0.0F, 100.0F)
       .NetRole(shared::core::NetRole::AUTONOMOUS)
       .Build();
@@ -70,7 +76,6 @@ GameState::GameState() : State("GameState"), network_mediator_(nullptr)
     break;
   }
   }
-
 
   auto fist = std::make_shared<shared::core::component::Fist>();
 
@@ -194,7 +199,7 @@ void GameState::SetSoundEventDispatcher()
     [this](shared::event::Event &event) { this->OnEvent(event); });
 }
 
-void GameState::HandleProjectileEvent(const shared::event::Event &event) const
+void GameState::HandleProjectileEvent(const shared::event::Event &event)
 {
   const auto &projectile_event = dynamic_cast<const shared::event::ProjectileEvent &>(event);
 
@@ -218,5 +223,15 @@ UUIDv4::UUID GameState::GetPlayerId() const { return player_id_; }
 bool GameState::IsPaused() const { return is_paused_; }
 
 void GameState::SetPaused(bool paused) { is_paused_ = paused; }
+
+void GameState::CreatePlayerWithPlayerData(const app::database::PlayerData &player_data)
+{
+  auto player = GCM::Instance().GetContext(GameContextType::Client)->GetLocalPlayer();
+
+  if (player) {
+    auto casted_player = std::static_pointer_cast<shared::core::player::Player>(player);
+    casted_player->LoadPlayerWithPlayerData(player_data);
+  }
+}
 
 }// namespace chroma::app::states

@@ -6,5 +6,6 @@ namespace chroma::app::layer {
     MenuLayer,
     GameLayer,
     NetworkLayer,
+    GameStateSaved,
   };
 }

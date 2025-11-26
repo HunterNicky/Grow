@@ -1,5 +1,6 @@
 #include "chroma/shared/core/player/Player.h"
 
+#include "chroma/app/database/DatabaseTypes.h"
 #include "chroma/shared/audio/AudioBridge.h"
 #include "chroma/shared/collision/CollisionManager.h"
 #include "chroma/shared/context/GameContext.h"
@@ -10,6 +11,7 @@
 #include "chroma/shared/core/components/Health.h"
 #include "chroma/shared/core/components/Inventory.h"
 #include "chroma/shared/core/components/Movement.h"
+#include "chroma/shared/core/components/Nivel.h"
 #include "chroma/shared/core/components/ProjectileType.h"
 #include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/core/components/SpriteAnimation.h"
@@ -27,9 +29,11 @@
 #include "chroma/shared/render/RenderBridge.h"
 #include "chroma/shared/render/SpriteLoader.h"
 #include "chroma/shared/utils/UUID.h"
+#include "chroma/shared/factory/WeaponFactory.h"
 
 
 #include <cmath>
+#include <cstddef>
 #include <memory>
 #include <raylib.h>
 #include <raymath.h>
@@ -392,5 +396,113 @@ void Player::SetCurrentWeapon(const std::shared_ptr<component::Weapon> &weapon) 
 std::shared_ptr<GameObject> Player::Clone() { return std::make_shared<Player>(*this); }
 
 FacingDir Player::GetLastFacingDir() const { return last_facing_; }
+
+void Player::LoadPlayerWithPlayerData(const app::database::PlayerData &player_data)
+{
+  const auto transform = GetComponent<component::Transform>();
+  const auto nivel = GetComponent<component::Nivel>();
+  const auto health = GetComponent<component::Health>();
+  const auto inventory = GetComponent<component::Inventory>();
+
+  if(transform)
+  {
+    transform->SetPosition({ static_cast<float>(player_data.pos_x), static_cast<float>(player_data.pos_y) });
+  }
+  
+  if(nivel)
+  {
+    nivel->SetNivel(player_data.level);
+    nivel->SetExperience(static_cast<float>(player_data.current_xp));
+  }
+
+  if(health)
+  {
+    health->SetCurrentHealth(static_cast<float>(player_data.hp));
+  }
+
+  if(inventory)
+  {
+    auto weapon_type = static_cast<shared::core::component::WeaponType>(player_data.weapon_id);
+    if(!inventory->HasItemType(weapon_type))
+    {
+        auto weapon = shared::factory::WeaponFactory::Create(weapon_type);
+        if(weapon)
+        {
+          inventory->AddInventory(weapon);
+        }
+    }
+
+    inventory->SetCurrentWeapon(inventory->GetWeaponByWeaponType(weapon_type)); 
+  }
+
+  last_facing_ = static_cast<FacingDir>(player_data.direction);
+  last_left_ = player_data.is_left;
+}
+
+bool Player::IsLeft() const
+{
+    return last_left_;
+}
+
+void Player::SetIsLeft(const bool is_left)
+{
+    last_left_ = is_left;
+}
+
+int Player::GetCharacterSkin() const
+{
+    const auto chara_type_comp = GetComponent<component::CharacterTypeComponent>();
+    if (!chara_type_comp) { return 0; }
+
+    return static_cast<int>(chara_type_comp->GetCharacterType());
+}
+
+app::database::PlayerData Player::SavePlayerToPlayerData() const
+{
+  app::database::PlayerData player_data;
+
+  const auto transform = GetComponent<component::Transform>();
+  const auto nivel = GetComponent<component::Nivel>();
+  const auto health = GetComponent<component::Health>();
+  const auto inventory = GetComponent<component::Inventory>();
+  const auto chara_type_comp = GetComponent<component::CharacterTypeComponent>();
+
+  if(transform)
+  {
+      const Vector2 pos = transform->GetPosition();
+      player_data.pos_x = static_cast<int>(pos.x);
+      player_data.pos_y = static_cast<int>(pos.y);
+  }
+
+  if(nivel)
+  {
+      player_data.level = nivel->GetNivel();
+      player_data.current_xp = static_cast<int>(nivel->GetExperience());
+  }
+
+  if(health)
+  {
+      player_data.hp = static_cast<int>(*health->GetCurrentHealth());
+  }
+
+  if(inventory)
+  {
+      const auto current_weapon = inventory->GetCurrentWeapon();
+      if(current_weapon)
+      {
+          player_data.weapon_id = static_cast<int>(current_weapon->GetWeaponType());
+      }
+  }
+
+  player_data.direction = static_cast<int>(last_facing_);
+  player_data.is_left = last_left_;
+
+  if (chara_type_comp)
+  {
+      player_data.character_skin = static_cast<int>(chara_type_comp->GetCharacterType());
+  }
+
+  return player_data;
+}
 
 }// namespace chroma::shared::core::player

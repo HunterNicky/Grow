@@ -2,14 +2,12 @@
 
 #include "chroma/app/states/State.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
-#include "chroma/shared/collision/CollisionManager.h"
-#include "chroma/shared/core/GameObject.h"
-#include "chroma/shared/core/player/Player.h"
-#include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/events/Subscription.h"
+#include "chroma/app/database/DatabaseTypes.h"
+#include "chroma/shared/core/components/CharacterType.h"
 
+#include <common_generated.h>
 #include <memory>
-#include <unordered_map>
 #include <uuid_v4.h>
 
 enum SelectLevel : uint8_t {
@@ -20,7 +18,7 @@ namespace chroma::app::states {
 class GameState : public State
 {
 public:
-  GameState();
+  GameState(shared::core::component::CharacterType character_type = shared::core::component::CharacterType::NONE);
   ~GameState() override;
 
   GameState(const GameState &) = delete;
@@ -30,10 +28,12 @@ public:
 
   explicit GameState(std::shared_ptr<GameNetworkMediator> network_mediator);
 
+  static void CreatePlayerWithPlayerData(const app::database::PlayerData &player_data);
+
   void OnRender() override;
   void OnUpdate(float delta_time) override;
   void OnEvent(shared::event::Event &event) override;
-  void HandleProjectileEvent(const shared::event::Event &event) const;
+  static void HandleProjectileEvent(const shared::event::Event &event);
 
   void SetPlayerId(const UUIDv4::UUID &player_id);
   void SetEventDispatcher();
@@ -52,6 +52,7 @@ private:
   shared::event::Subscription key_sub_;
   shared::event::Subscription projectile_sub_;
   shared::event::Subscription sound_sub_;
+  shared::event::Subscription load_sub_;
 
   bool is_paused_{ false };
 };

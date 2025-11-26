@@ -145,7 +145,7 @@ void GameServer::DisconnectClient(const ENetEvent &event)
   if (!is_running_ || !network_.IsReady()) { return; }
 
   if (network_.ConnectedPeers() == 0) { is_running_ = false; }
-
+  
   sessions_.RemoveSession(event.peer);
 }
 

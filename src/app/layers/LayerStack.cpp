@@ -10,9 +10,11 @@
 #include "chroma/app/layers/LayerStack.h"
 #include "chroma/app/layers/game/GameLayer.h"
 #include "chroma/app/layers/network/NetworkLayer.h"
+#include "chroma/app/settings/PlayerDataManager.h"
 #include "chroma/app/states/GameState.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
 #include "chroma/app/states/network/NetworkState.h"
+#include "chroma/shared/core/components/CharacterType.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/layer/LayerEvent.h"
 #include "chroma/app/states/menu/MainMenuState.h"
@@ -137,6 +139,17 @@ void LayerStack::PushLayerEvent(const LayerID layer_id)
     case layer::LayerID::MenuLayer: {
       auto menu_layer = std::make_unique<layer::game::MainMenuLayer>("MainMenu");
       PushLayer(std::move(menu_layer));
+      break;
+    }
+    case layer::LayerID::GameStateSaved: {
+      auto game_state = std::make_shared<states::GameState>(static_cast<shared::core::component::CharacterType>(chroma::app::settings::PlayerDataManager::Instance().GetPlayerData().character_skin));
+      auto game_layer = std::make_unique<layer::game::GameLayer>();
+      game_layer->PushState(game_state);
+      game_state->SetEventDispatcher();
+      game_state->CreatePlayerWithPlayerData(chroma::app::settings::PlayerDataManager::Instance().GetPlayerData());
+      game_state->SetSoundEventDispatcher();
+      if (!layers_.empty()) { layers_.pop_back(); }
+      PushLayer(std::move(game_layer));
       break;
     }
   }

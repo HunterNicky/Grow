@@ -74,38 +74,8 @@ void PauseState::OnEvent(shared::event::Event &event)
     database::PlayerData player_data;
     auto player = std::dynamic_pointer_cast<shared::core::player::Player>(GCM::Instance().GetContext(GameContextType::Client)->GetLocalPlayer());
 
-    player_data.character_id = static_cast<int>(player->GetTag());
-    player_data.coins = 0;
-
-    player_data.current_xp = 0;
-    if (auto lvl = player->GetComponent<shared::core::component::Nivel>()) {
-        player_data.current_xp = static_cast<int>(lvl->GetExperience());
-    }
-
-    player_data.direction = static_cast<int>(player->GetLastFacingDir());
-
-    player_data.hp = 0;
-    if (auto health = player->GetComponent<shared::core::component::Health>()) {
-        player_data.hp = static_cast<int>(*health->GetCurrentHealth());
-    }
-
-    player_data.level = 0;
-    if (auto lvl = player->GetComponent<shared::core::component::Nivel>()) {
-        player_data.level = lvl->GetNivel();
-    }
-
-    player_data.pos_x = 0;
-    player_data.pos_y = 0;
-    if (auto tr = player->GetComponent<shared::core::component::Transform>()) {
-        player_data.pos_x = static_cast<int>(tr->GetPosition().x);
-        player_data.pos_y = static_cast<int>(tr->GetPosition().y);
-    }
-
-    player_data.weapon_id = 0;
-    if (auto inv = player->GetComponent<shared::core::component::Inventory>()) {
-        if (auto weapon = inv->GetCurrentWeapon()) {
-            player_data.weapon_id = static_cast<int>(weapon->GetWeaponType());
-        }
+    if (player) {
+      player_data = player->SavePlayerToPlayerData();
     }
 
     dispatch(shared::event::PlayerDataEvent(shared::event::PlayerDataAction::Save, player_data));
