@@ -10,5 +10,6 @@ namespace chroma::client::ui::panel {
     MainBackgroundPanel,
     GameHUDPanel,
     PausePanel,
+    PauseBackgroundPanel,
   };
 }

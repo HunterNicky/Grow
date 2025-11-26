@@ -2,6 +2,8 @@
 #include <string>
 #include <utility>
 
+#include "chroma/app/commands/CommandQueue.h"
+#include "chroma/app/commands/FunctionalCommand.h"
 #include "chroma/app/layers/Layer.h"
 #include "chroma/app/layers/game/MainMenuLayer.h"
 #include "chroma/app/states/StateFactory.h"
@@ -9,25 +11,21 @@
 #include "chroma/app/states/menu/MainMenuState.h"
 #include "chroma/app/states/menu/OptionsMenuState.h"
 #include "chroma/client/ui/panels/PanelIdentifiers.h"
-#include "chroma/shared/events/ui/PanelEvent.h"
 #include "chroma/shared/events/EventBus.h"
-#include "chroma/app/commands/CommandQueue.h"
-#include "chroma/app/commands/FunctionalCommand.h"
+#include "chroma/shared/events/ui/PanelEvent.h"
 
 namespace chroma::app::layer::game {
 MainMenuLayer::MainMenuLayer(std::string name) : Layer(std::move(name))
 {
-    state_sub_ = shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::state::StateEvent>(
+  state_sub_ = shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::state::StateEvent>(
     [this](shared::event::state::StateEvent &event) { this->OnStateEvent(event); });
 
-    shared::event::ui::PanelEvent bg_main(
+  shared::event::ui::PanelEvent bg_main(
     shared::event::ui::Action::Open, client::ui::panel::PanelID::MainBackgroundPanel);
   shared::event::EventBus::Dispatch(bg_main);
-  
+
   auto main_menu_state = std::make_shared<chroma::app::states::menu::MainMenuState>();
   state_machine_->PushState(main_menu_state);
-
-  
 }
 
 MainMenuLayer::~MainMenuLayer()
@@ -42,8 +40,8 @@ void MainMenuLayer::RegisterStates()
   state_factory_.Register(
     states::StateID::MainMenuState, []() { return std::make_shared<states::menu::MainMenuState>(); });
 
-  state_factory_.Register(
-    states::StateID::OptionsMenuState, []() { return std::make_shared<states::menu::OptionsMenuState>(); });
+  state_factory_.Register(states::StateID::OptionsMenuState,
+    []() { return std::make_shared<states::menu::OptionsMenuState>(states::StateID::MainMenuState); });
 }
 
 void MainMenuLayer::OnStateEvent(shared::event::state::StateEvent &state_event)

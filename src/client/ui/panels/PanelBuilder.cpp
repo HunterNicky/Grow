@@ -1,13 +1,13 @@
 #include "chroma/client/ui/panels/PanelBuilder.h"
 #include "chroma/client/ui/panels/Panel.h"
 #include "chroma/client/ui/panels/PanelIdentifiers.h"
-#include "chroma/client/ui/widgets/Button.h"
-#include "chroma/client/ui/widgets/SliderWidget.h"
-#include "chroma/client/ui/widgets/ToggleWidget.h"
-#include "chroma/client/ui/widgets/LifeWidget.h"
-#include "chroma/client/ui/widgets/XpWidget.h"
-#include "chroma/client/ui/widgets/TextWidget.h"
 #include "chroma/client/ui/widgets/BackGroundWidget.h"
+#include "chroma/client/ui/widgets/Button.h"
+#include "chroma/client/ui/widgets/LifeWidget.h"
+#include "chroma/client/ui/widgets/SliderWidget.h"
+#include "chroma/client/ui/widgets/TextWidget.h"
+#include "chroma/client/ui/widgets/ToggleWidget.h"
+#include "chroma/client/ui/widgets/XpWidget.h"
 
 #include <functional>
 #include <memory>
@@ -17,9 +17,10 @@
 
 namespace chroma::client::ui::panel {
 
-PanelBuilder::PanelBuilder(const PanelID panel_id, Rectangle bounds) : panel_(std::make_shared<panel::Panel>(panel_id, bounds))
+PanelBuilder::PanelBuilder(const PanelID panel_id, Rectangle bounds)
+  : panel_(std::make_shared<panel::Panel>(panel_id, bounds))
 {
-  
+
   const float margin_top = 40;
   const float margin_side = 20;
 
@@ -27,7 +28,7 @@ PanelBuilder::PanelBuilder(const PanelID panel_id, Rectangle bounds) : panel_(st
   cursor_y_ = bounds.y + margin_top;
 }
 
-PanelBuilder PanelBuilder::Create(const PanelID panel_id, Rectangle bounds) { return {panel_id, bounds}; }
+PanelBuilder PanelBuilder::Create(const PanelID panel_id, Rectangle bounds) { return { panel_id, bounds }; }
 
 PanelBuilder &PanelBuilder::AddButton(const std::string &id,
   const std::string &text,
@@ -61,7 +62,12 @@ PanelBuilder &PanelBuilder::CenterPanel()
   return *this;
 }
 
-PanelBuilder &PanelBuilder::AddSlider(const std::string &id, const std::string &label, int min, int max, int initial, std::function<void(float)> on_slide)
+PanelBuilder &PanelBuilder::AddSlider(const std::string &id,
+  const std::string &label,
+  int min,
+  int max,
+  int initial,
+  std::function<void(float)> on_slide)
 {
   const float slider_width = 360.0F;
   const float slider_height = 80.0F;
@@ -111,30 +117,34 @@ PanelBuilder &PanelBuilder::SetPadding(float padding)
 
 PanelBuilder &PanelBuilder::AddLifeWidget(const std::string &id, Rectangle bounds)
 {
-    auto life_widget = std::make_unique<client::ui::widget::LifeWidget>(id, bounds);
-    panel_->AddWidget(std::move(life_widget));
-    return *this;
+  auto life_widget = std::make_unique<client::ui::widget::LifeWidget>(id, bounds);
+  panel_->AddWidget(std::move(life_widget));
+  return *this;
 }
 
 PanelBuilder &PanelBuilder::AddXpWidget(const std::string &id, Rectangle bounds)
 {
-    auto xp_widget = std::make_unique<client::ui::widget::XpWidget>(id, bounds);
-    panel_->AddWidget(std::move(xp_widget));
-    return *this;
+  auto xp_widget = std::make_unique<client::ui::widget::XpWidget>(id, bounds);
+  panel_->AddWidget(std::move(xp_widget));
+  return *this;
 }
 
-PanelBuilder &PanelBuilder::AddTextWidget(const std::string &id, Rectangle bounds, const std::string &text, int font_size, Color color)
+PanelBuilder &PanelBuilder::AddTextWidget(const std::string &id,
+  Rectangle bounds,
+  const std::string &text,
+  int font_size,
+  Color color)
 {
-    auto text_widget = std::make_unique<client::ui::widget::TextWidget>(id, bounds, text, font_size, color);
-    panel_->AddWidget(std::move(text_widget));
-    return *this;
+  auto text_widget = std::make_unique<client::ui::widget::TextWidget>(id, bounds, text, font_size, color);
+  panel_->AddWidget(std::move(text_widget));
+  return *this;
 }
 
 PanelBuilder &PanelBuilder::AddBackGroundWidget(const std::string &id, Rectangle bounds, Color color)
 {
-    auto bg_widget = std::make_unique<client::ui::widget::BackGroundWidget>(id, bounds, color);
-    panel_->AddWidget(std::move(bg_widget));
-    return *this;
+  auto bg_widget = std::make_unique<client::ui::widget::BackGroundWidget>(id, bounds, color);
+  panel_->AddWidget(std::move(bg_widget));
+  return *this;
 }
 
 std::shared_ptr<panel::Panel> PanelBuilder::Build() { return std::move(panel_); }

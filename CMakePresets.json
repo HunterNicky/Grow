@@ -179,7 +179,8 @@
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "clang",
                 "CMAKE_CXX_COMPILER": "clang++",
-                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+                "chroma_ENABLE_CLANG_TIDY": "OFF"
             }
         },
         {
@@ -188,8 +189,8 @@
             "description": "Fast development build for Windows (no analyzers)",
             "inherits": "conf-windows-common",
             "cacheVariables": {
-                "CMAKE_C_COMPILER": "cl",
-                "CMAKE_CXX_COMPILER": "cl",
+                "CMAKE_C_COMPILER": "clang-cl",
+                "CMAKE_CXX_COMPILER": "clang-cl",
                 "CMAKE_BUILD_TYPE": "Debug",
                 "chroma_ENABLE_IPO": "OFF",
                 "chroma_ENABLE_CLANG_TIDY": "OFF",

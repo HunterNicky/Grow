@@ -2,11 +2,16 @@
 
 #include "chroma/app/states/State.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
+#include "chroma/client/render/shader/RenderPass.h"
 #include "chroma/shared/builder/GameObjectBuilder.h"
 #include "chroma/shared/context/GameContext.h"
 #include "chroma/shared/context/GameContextManager.h"
 #include "chroma/shared/core/GameObject.h"
+#include "chroma/shared/core/components/Bow.h"
 #include "chroma/shared/core/components/CharacterType.h"
+#include "chroma/shared/core/components/Fist.h"
+#include "chroma/shared/core/components/Javelin.h"
+#include "chroma/shared/core/components/Spear.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/core/projectile/Projectile.h"
 #include "chroma/shared/events/Event.h"
@@ -15,15 +20,10 @@
 #include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/events/ProjectileEvent.h"
 #include "chroma/shared/events/ShaderEvent.h"
-#include "chroma/client/render/shader/RenderPass.h"
-#include "chroma/shared/core/components/Bow.h"
-#include "chroma/shared/core/components/Fist.h"
-#include "chroma/shared/core/components/Javelin.h"
-#include "chroma/shared/core/components/Spear.h"
-#include "chroma/shared/utils/UUID.h"
-#include "chroma/shared/utils/Random.h"
 #include "chroma/shared/events/state/StateEvent.h"
 #include "chroma/shared/events/ui/PanelEvent.h"
+#include "chroma/shared/utils/Random.h"
+#include "chroma/shared/utils/UUID.h"
 
 #include <cstdint>
 #include <memory>
@@ -35,41 +35,40 @@ namespace chroma::app::states {
 
 GameState::GameState() : State("GameState"), network_mediator_(nullptr)
 {
-  auto player = chroma::shared::builder::GameObjectBuilder<shared::core::player::Player>()
-                  .AddTransform({ 0, 0 })
-                  .Id(shared::utils::UUID::Generate())
-                  .AddSpeed(50.0F)
-                  .AddMovement()
-                  .AddAnimation()
-                  .AddCamera(shared::render::CameraMode::FollowSmooth, 3.0F, 2.0F, { 64, 128 })
-                  .AddColliderBox(GameContextType::Server, { 16.F, 32.F }, { -8.F, -16.F })
-                  .AddAudioListener()
-                  .AddHealth(100.0F, 1.0F)
-                  .AddRun(false, 1.5F)
-                  .AddInventory(10)
-                  .AddAttack(false)
-                  .AddCharacterType(static_cast<shared::core::component::CharacterType>(
-                        shared::utils::Random::Int(1, 2)
-                      ))
-                  .AddNivel(1, 0.0F, 100.0F)
-                  .NetRole(shared::core::NetRole::AUTONOMOUS)
-                  .Build();
-  
-    switch (player->GetComponent<shared::core::component::CharacterTypeComponent>()->GetCharacterType()) {
-  
-    case shared::core::component::CharacterType::RANDI: {
-      auto spear = std::make_shared<shared::core::component::Spear>();
-      auto javelin = std::make_shared<shared::core::component::Javelin>();
-      player->GetComponent<shared::core::component::Inventory>()->AddInventory(spear);
-      player->GetComponent<shared::core::component::Inventory>()->AddInventory(javelin);
-      break;
-    }
-    case shared::core::component::CharacterType::PRIMM: {
-      auto bow = std::make_shared<shared::core::component::Bow>();
-      player->GetComponent<shared::core::component::Inventory>()->AddInventory(bow);
-      player->SetCurrentWeapon(bow);
-      break;
-    }
+  auto player =
+    chroma::shared::builder::GameObjectBuilder<shared::core::player::Player>()
+      .AddTransform({ 0, 0 })
+      .Id(shared::utils::UUID::Generate())
+      .AddSpeed(50.0F)
+      .AddMovement()
+      .AddAnimation()
+      .AddCamera(shared::render::CameraMode::FollowSmooth, 3.0F, 2.0F, { 64, 128 })
+      .AddColliderBox(GameContextType::Server, { 16.F, 32.F }, { -8.F, -16.F })
+      .AddAudioListener()
+      .AddHealth(100.0F, 1.0F)
+      .AddRun(false, 1.5F)
+      .AddInventory(10)
+      .AddAttack(false)
+      .AddCharacterType(static_cast<shared::core::component::CharacterType>(shared::utils::Random::Int(1, 2)))
+      .AddNivel(1, 0.0F, 100.0F)
+      .NetRole(shared::core::NetRole::AUTONOMOUS)
+      .Build();
+
+  switch (player->GetComponent<shared::core::component::CharacterTypeComponent>()->GetCharacterType()) {
+
+  case shared::core::component::CharacterType::RANDI: {
+    auto spear = std::make_shared<shared::core::component::Spear>();
+    auto javelin = std::make_shared<shared::core::component::Javelin>();
+    player->GetComponent<shared::core::component::Inventory>()->AddInventory(spear);
+    player->GetComponent<shared::core::component::Inventory>()->AddInventory(javelin);
+    break;
+  }
+  case shared::core::component::CharacterType::PRIMM: {
+    auto bow = std::make_shared<shared::core::component::Bow>();
+    player->GetComponent<shared::core::component::Inventory>()->AddInventory(bow);
+    player->SetCurrentWeapon(bow);
+    break;
+  }
   }
 
 
@@ -80,26 +79,24 @@ GameState::GameState() : State("GameState"), network_mediator_(nullptr)
 
   GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager()->Register(player);
   SetPlayerId(player->GetId());
-  
-    shared::event::ui::PanelEvent hud_main(
-      shared::event::ui::Action::Open, client::ui::panel::PanelID::GameHUDPanel);
-    shared::event::EventBus::Dispatch(hud_main);
-  }
-  
-GameState::GameState(std::shared_ptr<GameNetworkMediator> network_mediator)
-  : State("GameState"), network_mediator_(std::move(network_mediator))
-{
-  
-  shared::event::ui::PanelEvent hud_main(
-    shared::event::ui::Action::Open, client::ui::panel::PanelID::GameHUDPanel);
+
+  shared::event::ui::PanelEvent hud_main(shared::event::ui::Action::Open, client::ui::panel::PanelID::GameHUDPanel);
   shared::event::EventBus::Dispatch(hud_main);
 }
 
-GameState::~GameState() { 
+GameState::GameState(std::shared_ptr<GameNetworkMediator> network_mediator)
+  : State("GameState"), network_mediator_(std::move(network_mediator))
+{
+
+  shared::event::ui::PanelEvent hud_main(shared::event::ui::Action::Open, client::ui::panel::PanelID::GameHUDPanel);
+  shared::event::EventBus::Dispatch(hud_main);
+}
+
+GameState::~GameState()
+{
   GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager()->Clear();
 
-  shared::event::ui::PanelEvent hud_main(
-    shared::event::ui::Action::Close, client::ui::panel::PanelID::GameHUDPanel);
+  shared::event::ui::PanelEvent hud_main(shared::event::ui::Action::Close, client::ui::panel::PanelID::GameHUDPanel);
   shared::event::EventBus::Dispatch(hud_main);
 
   shared::event::ShaderEvent shader_event(shared::event::ShaderEventType::REMOVE);
@@ -115,7 +112,7 @@ void GameState::OnRender()
     ->GetGameObjectManager()
     ->ForEach([](const std::shared_ptr<shared::core::GameObject> &obj) {
       if (obj && obj->IsActive()) { obj->OnRender(); }
-  });
+    });
 }
 
 void GameState::OnUpdate(float delta_time)
@@ -129,7 +126,7 @@ void GameState::OnUpdate(float delta_time)
     ->ForEach([delta_time](const std::shared_ptr<shared::core::GameObject> &obj) {
       if (obj && obj->IsActive()) { obj->OnUpdate(delta_time); }
     });
-  
+
   if (const auto collision_manager =
         GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager()->GetCollisionManager();
     collision_manager) {
@@ -140,13 +137,16 @@ void GameState::OnUpdate(float delta_time)
 void GameState::OnEvent(shared::event::Event &event)
 {
   if (player_id_ == UUIDv4::UUID{}) { return; }
-  if(IsPaused()) { return; }
+  if (IsPaused()) { return; }
 
-  if(const auto *key_event = dynamic_cast<shared::event::KeyEvent*>(&event)) {
-    if(key_event->IsPressed() && key_event->GetKey() == KEY_P) {
+  if (const auto *key_event = dynamic_cast<shared::event::KeyEvent *>(&event)) {
+    if (key_event->IsPressed() && key_event->GetKey() == KEY_P) {
       SetPaused(true);
       shared::event::state::StateEvent state_event(shared::event::state::Action::Push, states::StateID::PauseState);
       shared::event::EventBus::Dispatch(state_event);
+      shared::event::ui::PanelEvent panel_bg_event(
+        shared::event::ui::Action::Open, client::ui::panel::PanelID::PauseBackgroundPanel);
+      shared::event::EventBus::Dispatch(panel_bg_event);
       return;
     }
   }

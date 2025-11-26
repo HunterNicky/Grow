@@ -226,6 +226,38 @@ void UIManager::RegisterPanels()
       .CenterPanel()
       .Build();
   });
+
+  panel_factory_.Register(panel::PanelID::PausePanel, [this](Vector2 screen_size, Vector2 panel_size) {
+    const Rectangle bounds = this->GetCenteredRect(screen_size, panel_size.x, panel_size.y);
+    auto on_click_callback = [this](const std::string &button_id) {
+      shared::event::ui::ButtonClickEvent event(shared::event::Event::Type::ButtonClickEvent, button_id);
+      shared::event::EventBus::Dispatch(event);
+    };
+
+    const Rectangle bounds_panel = this->GetCenteredRect(screen_size, panel_size.x * 0.5F, panel_size.y);
+
+    return panel::PanelBuilder::Create(panel::PanelID::PausePanel, bounds)
+      .AddButton("Resume", "Resume", on_click_callback)
+      .AddButton("Options", "Options", on_click_callback)
+      .AddButton("MainMenu", "Main Menu", on_click_callback)
+      .CenterPanel()
+      .Build();
+  });
+
+  panel_factory_.Register(panel::PanelID::PauseBackgroundPanel, [this](Vector2 screen_size, Vector2 panel_size) {
+    const Rectangle bounds = this->GetCenteredRect(screen_size, panel_size.x, panel_size.y);
+
+    const Color overlay = (Color){ 0, 0, 0, 180 };
+    const Color bg_color = (Color){ 20, 20, 20, 230 };
+    const Rectangle bounds_overlay = { 0, 0, screen_size.x, screen_size.y };
+    const Rectangle bounds_panel = this->GetCenteredRect(screen_size, panel_size.x * 0.5F, panel_size.y);
+
+    return panel::PanelBuilder::Create(panel::PanelID::PauseBackgroundPanel, bounds)
+      .AddBackGroundWidget("PauseOverlay", bounds_overlay, overlay)
+      //.AddBackGroundWidget("PauseBackground", bounds_panel, bg_color)
+      .CenterPanel()
+      .Build();
+  });
 }
 
 }// namespace chroma::client::ui

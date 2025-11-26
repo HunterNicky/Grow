@@ -10,7 +10,8 @@
 #include "chroma/shared/events/ui/PanelEvent.h"
 
 namespace chroma::app::states::menu {
-OptionsMenuState::OptionsMenuState() : State("OptionsMenu")
+OptionsMenuState::OptionsMenuState(const StateID state_to_return)
+  : State("OptionsMenu"), state_to_return_(state_to_return)
 {
   shared::event::ui::PanelEvent panel_open_ev(
     shared::event::ui::Action::Open, client::ui::panel::PanelID::OptionsMenuPanel);
@@ -36,40 +37,32 @@ void OptionsMenuState::OnRender() {}
 
 void OptionsMenuState::OnEvent(shared::event::Event &event)
 {
-  auto btn_event = dynamic_cast<shared::event::ui::ButtonClickEvent &>(event);
-  if (btn_event.GetId() == "Video") {
-    shared::event::ui::PanelEvent panel_close_event(
-      shared::event::ui::Action::Close, client::ui::panel::PanelID::OptionsMenuPanel);
-    shared::event::EventBus::Dispatch(panel_close_event);
-    shared::event::ui::PanelEvent panel_open_event(
-      shared::event::ui::Action::Open, client::ui::panel::PanelID::VideoOptionsPanel);
-    shared::event::EventBus::Dispatch(panel_open_event);
-  } else if (btn_event.GetId() == "Audio") {
-    shared::event::ui::PanelEvent panel_close_event(
-      shared::event::ui::Action::Close, client::ui::panel::PanelID::OptionsMenuPanel);
-    shared::event::EventBus::Dispatch(panel_close_event);
-    shared::event::ui::PanelEvent panel_open_event(
-      shared::event::ui::Action::Open, client::ui::panel::PanelID::AudioOptionsPanel);
-    shared::event::EventBus::Dispatch(panel_open_event);
-  } else if (btn_event.GetId() == "Back") {
-    shared::event::state::StateEvent pop_event(shared::event::state::Action::Pop, StateID::OptionsMenuState);
-    shared::event::EventBus::Dispatch(pop_event);
-    shared::event::state::StateEvent push_event(shared::event::state::Action::Push, StateID::MainMenuState);
-    shared::event::EventBus::Dispatch(push_event);
-  } else if (btn_event.GetId() == "VideoBack") {
-    shared::event::ui::PanelEvent panel_close_event(
-      shared::event::ui::Action::Close, client::ui::panel::PanelID::VideoOptionsPanel);
-    shared::event::EventBus::Dispatch(panel_close_event);
-    shared::event::ui::PanelEvent panel_open_event(
-      shared::event::ui::Action::Open, client::ui::panel::PanelID::OptionsMenuPanel);
-    shared::event::EventBus::Dispatch(panel_open_event);
-  } else if (btn_event.GetId() == "AudioBack") {
-    shared::event::ui::PanelEvent panel_close_event(
-      shared::event::ui::Action::Close, client::ui::panel::PanelID::AudioOptionsPanel);
-    shared::event::EventBus::Dispatch(panel_close_event);
-    shared::event::ui::PanelEvent panel_open_event(
-      shared::event::ui::Action::Open, client::ui::panel::PanelID::OptionsMenuPanel);
-    shared::event::EventBus::Dispatch(panel_open_event);
+  auto *btn_event = dynamic_cast<shared::event::ui::ButtonClickEvent *>(&event);
+  if (!btn_event) { return; }
+
+  const auto &id = btn_event->GetId();
+  auto dispatch = [](auto &&e) { shared::event::EventBus::Dispatch(e); };
+
+  using PanelID = client::ui::panel::PanelID;
+  using UIAction = shared::event::ui::Action;
+
+  auto switchPanel = [&](PanelID close, PanelID open) {
+    dispatch(shared::event::ui::PanelEvent(UIAction::Close, close));
+    dispatch(shared::event::ui::PanelEvent(UIAction::Open, open));
+  };
+
+  if (id == "Video") {
+    switchPanel(PanelID::OptionsMenuPanel, PanelID::VideoOptionsPanel);
+  } else if (id == "Audio") {
+    switchPanel(PanelID::OptionsMenuPanel, PanelID::AudioOptionsPanel);
+  } else if (id == "Back") {
+    using StateAction = shared::event::state::Action;
+    dispatch(shared::event::state::StateEvent(StateAction::Pop, StateID::OptionsMenuState));
+    dispatch(shared::event::state::StateEvent(StateAction::Push, state_to_return_));
+  } else if (id == "VideoBack") {
+    switchPanel(PanelID::VideoOptionsPanel, PanelID::OptionsMenuPanel);
+  } else if (id == "AudioBack") {
+    switchPanel(PanelID::AudioOptionsPanel, PanelID::OptionsMenuPanel);
   }
 }
 }// namespace chroma::app::states::menu
