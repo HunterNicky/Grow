@@ -212,7 +212,14 @@ void UIManager::RegisterPanels()
       shared::event::EventBus::Dispatch(event);
     };
 
+    const Color overlay = (Color){ 0, 0, 0, 100 };
+    const Color bg_color = (Color){ 20, 20, 20, 230 };
+    const Rectangle bounds_overlay = { 0, 0, screen_size.x, screen_size.y };
+    const Rectangle bounds_panel = this->GetCenteredRect(screen_size, panel_size.x * 0.5F, panel_size.y);
+
     return panel::PanelBuilder::Create(panel::PanelID::PausePanel, bounds)
+      .AddBackGroundWidget("PauseOverlay", bounds_overlay, overlay)
+      .AddBackGroundWidget("PauseBackground", bounds_panel, bg_color)
       .AddButton("Resume", "Resume", on_click_callback)
       .AddButton("Options", "Options", on_click_callback)
       .AddButton("MainMenu", "Main Menu", on_click_callback)

@@ -28,6 +28,7 @@ public:
   void PopState();
 
   [[nodiscard]] std::shared_ptr<State> GetCurrentState();
+  void OnRenderAll();
 
 private:
   std::stack<std::shared_ptr<State>> states_;

@@ -7,6 +7,7 @@
 #include "chroma/client/ui/widgets/LifeWidget.h"
 #include "chroma/client/ui/widgets/XpWidget.h"
 #include "chroma/client/ui/widgets/TextWidget.h"
+#include "chroma/client/ui/widgets/BackGroundWidget.h"
 
 #include <functional>
 #include <memory>
@@ -126,6 +127,13 @@ PanelBuilder &PanelBuilder::AddTextWidget(const std::string &id, Rectangle bound
 {
     auto text_widget = std::make_unique<client::ui::widget::TextWidget>(id, bounds, text, font_size, color);
     panel_->AddWidget(std::move(text_widget));
+    return *this;
+}
+
+PanelBuilder &PanelBuilder::AddBackGroundWidget(const std::string &id, Rectangle bounds, Color color)
+{
+    auto bg_widget = std::make_unique<client::ui::widget::BackGroundWidget>(id, bounds, color);
+    panel_->AddWidget(std::move(bg_widget));
     return *this;
 }
 

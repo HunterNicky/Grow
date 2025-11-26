@@ -48,10 +48,9 @@ GameState::GameState() : State("GameState"), network_mediator_(nullptr)
                   .AddRun(false, 1.5F)
                   .AddInventory(10)
                   .AddAttack(false)
-                  // .AddCharacterType(static_cast<shared::core::component::CharacterType>(
-                  //       shared::utils::Random::Int(1, 2)
-                  //     ))
-                  .AddCharacterType(shared::core::component::CharacterType::RANDI)
+                  .AddCharacterType(static_cast<shared::core::component::CharacterType>(
+                        shared::utils::Random::Int(1, 2)
+                      ))
                   .AddNivel(1, 0.0F, 100.0F)
                   .NetRole(shared::core::NetRole::AUTONOMOUS)
                   .Build();
@@ -106,19 +105,17 @@ GameState::~GameState() {
 
 void GameState::OnRender()
 {
-  if (!IsActive()) { return; }
   GCM::Instance()
     .GetContext(GameContextType::Client)
     ->GetGameObjectManager()
     ->ForEach([](const std::shared_ptr<shared::core::GameObject> &obj) {
       if (obj && obj->IsActive()) { obj->OnRender(); }
-    });
+  });
 }
 
 void GameState::OnUpdate(float delta_time)
 {
   if (!IsActive()) { return; }
-
   if (network_mediator_) { network_mediator_->UpdateInterpolation(static_cast<uint64_t>(delta_time * 1000)); }
 
   GCM::Instance()
@@ -127,7 +124,7 @@ void GameState::OnUpdate(float delta_time)
     ->ForEach([delta_time](const std::shared_ptr<shared::core::GameObject> &obj) {
       if (obj && obj->IsActive()) { obj->OnUpdate(delta_time); }
     });
-
+  
   if (const auto collision_manager =
         GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager()->GetCollisionManager();
     collision_manager) {

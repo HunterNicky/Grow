@@ -29,9 +29,7 @@ void GameLayer::OnRender()
 {
   if (!IsActive()) { return; }
 
-  auto current_state = GetCurrentState();
-
-  if (current_state) { current_state->OnRender(); }
+  state_machine_->OnRenderAll();
 }
 
 void GameLayer::RegisterStates() {

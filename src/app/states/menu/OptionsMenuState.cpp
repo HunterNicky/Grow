@@ -52,7 +52,7 @@ void OptionsMenuState::OnEvent(shared::event::Event &event)
       shared::event::ui::Action::Open, client::ui::panel::PanelID::AudioOptionsPanel);
     shared::event::EventBus::Dispatch(panel_open_event);
   } else if (btn_event.GetId() == "Back") {
-    shared::event::state::StateEvent pop_event(shared::event::state::Action::Pop);
+    shared::event::state::StateEvent pop_event(shared::event::state::Action::Pop, StateID::OptionsMenuState);
     shared::event::EventBus::Dispatch(pop_event);
     shared::event::state::StateEvent push_event(shared::event::state::Action::Push, StateID::MainMenuState);
     shared::event::EventBus::Dispatch(push_event);

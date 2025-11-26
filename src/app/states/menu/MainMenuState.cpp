@@ -47,7 +47,7 @@ void MainMenuState::OnEvent(shared::event::Event &event)
     shared::event::layer::LayerEvent push_layer_event(shared::event::layer::Action::Push, layer::LayerID::NetworkLayer);
     shared::event::EventBus::Dispatch(push_layer_event);
   } else if (btn_event.GetId() == "Options") {
-    shared::event::state::StateEvent pop_event(shared::event::state::Action::Pop);
+    shared::event::state::StateEvent pop_event(shared::event::state::Action::Pop, StateID::MainMenuState);
     shared::event::EventBus::Dispatch(pop_event);
     shared::event::state::StateEvent push_event(shared::event::state::Action::Push, StateID::OptionsMenuState);
     shared::event::EventBus::Dispatch(push_event);

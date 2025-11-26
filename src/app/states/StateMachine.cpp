@@ -20,6 +20,24 @@ void StateMachine::OnRender()
   if (!states_.empty() && states_.top()->IsActive()) { states_.top()->OnRender(); }
 }
 
+void StateMachine::OnRenderAll()
+{
+  std::stack<std::shared_ptr<State>> temp_stack;
+
+  while (!states_.empty()) {
+    auto current_state = states_.top();
+    states_.pop();
+    temp_stack.push(current_state);
+  }
+
+  while (!temp_stack.empty()) {
+    auto state = temp_stack.top();
+    temp_stack.pop();
+    state->OnRender();
+    states_.push(state);
+  }
+}
+
 void StateMachine::OnEvent(shared::event::Event &event)
 {
   if (!states_.empty() && states_.top()->IsActive()) { states_.top()->OnEvent(event); }

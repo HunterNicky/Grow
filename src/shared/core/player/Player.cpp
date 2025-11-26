@@ -273,8 +273,6 @@ void Player::HandleEvent(event::Event &event)
     if (input_state_.IsKeyPressed(KEY_J) || input_state_.IsKeyPressed(KEY_L)) { HandleWeaponInput(); }
 
     attack->SetAttacking(input_state_.IsKeyPressed(KEY_I));
-
-
     break;
   }
   case event::Event::SoundEvent: {

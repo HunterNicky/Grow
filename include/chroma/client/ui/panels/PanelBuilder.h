@@ -24,6 +24,7 @@ public:
   PanelBuilder &AddLifeWidget(const std::string &id, Rectangle bounds);
   PanelBuilder &AddXpWidget(const std::string &id, Rectangle bounds);
   PanelBuilder &AddTextWidget(const std::string &id, Rectangle bounds, const std::string &text, int font_size, Color color);
+  PanelBuilder &AddBackGroundWidget(const std::string &id, Rectangle bounds, Color color = GRAY);
 
   PanelBuilder &CenterPanel();
 
