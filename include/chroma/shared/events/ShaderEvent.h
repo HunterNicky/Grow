@@ -9,6 +9,7 @@ namespace chroma::shared::event {
 enum class ShaderEventType : uint8_t {
     ADD = 1,
     CHANGE = 2,
+    REMOVE = 3,
 };
 
 class ShaderEvent : public Event {

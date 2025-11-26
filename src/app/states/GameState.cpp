@@ -101,6 +101,11 @@ GameState::~GameState() {
   shared::event::ui::PanelEvent hud_main(
     shared::event::ui::Action::Close, client::ui::panel::PanelID::GameHUDPanel);
   shared::event::EventBus::Dispatch(hud_main);
+
+  shared::event::ShaderEvent shader_event(shared::event::ShaderEventType::REMOVE);
+  shader_event.SetPassType(client::render::shader::PassType::HEALTH);
+  shader_event.SetFront(true);
+  shared::event::EventBus::GetDispatcher()->Dispatch(shader_event);
 }
 
 void GameState::OnRender()

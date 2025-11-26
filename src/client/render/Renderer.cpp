@@ -150,6 +150,9 @@ void Renderer::HandleShaderEvent(const shared::event::Event &event) const
     case shared::event::ShaderEventType::CHANGE:
       HandleChangeShaderEvent(event);
       break;
+    case shared::event::ShaderEventType::REMOVE:
+      HandleRemoveShaderEvent(event);
+      break;
     default:
       break;
   }
@@ -167,6 +170,12 @@ void Renderer::HandleAddShaderEvent(const shared::event::Event &event) const
   } else {
       AddShaderPassBack(std::move(shader_pass));
   }
+}
+
+void Renderer::HandleRemoveShaderEvent(const shared::event::Event &event) const
+{
+  const auto &shader_event = dynamic_cast<const shared::event::ShaderEvent &>(event);
+  render_pipeline_->RemovePassByType(shader_event.GetPassType());
 }
 
 void Renderer::HandleChangeShaderEvent(const shared::event::Event &event) const
