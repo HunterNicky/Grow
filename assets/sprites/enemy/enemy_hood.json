@@ -1,0 +1,185 @@
+{
+    "sprite_sheet": "enemy_hood.png",
+    "animations": {
+        "walk_down": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 1,
+                    "y": 1,
+                    "width": 25,
+                    "height": 26,
+                    "duration_ticks": 60
+                },
+                {
+                    "x": 27,
+                    "y": 1,
+                    "width": 24,
+                    "height": 27,
+                    "duration_ticks": 60
+                },
+                {
+                    "x": 52,
+                    "y": 1,
+                    "width": 25,
+                    "height": 26,
+                    "duration_ticks": 60
+                }
+            ]
+        },
+        "walk_side": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 1,
+                    "y": 30,
+                    "width": 22,
+                    "height": 25,
+                    "duration_ticks": 60
+                },
+                {
+                    "x": 24,
+                    "y": 30,
+                    "width": 21,
+                    "height": 26,
+                    "duration_ticks": 60
+                },
+                {
+                    "x": 46,
+                    "y": 30,
+                    "width": 21,
+                    "height": 26,
+                    "duration_ticks": 60
+                }
+            ]
+        },
+        "walk_up": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 1,
+                    "y": 57,
+                    "width": 24,
+                    "height": 25,
+                    "duration_ticks": 60
+                },
+                {
+                    "x": 26,
+                    "y": 57,
+                    "width": 22,
+                    "height": 26,
+                    "duration_ticks": 60
+                },
+                {
+                    "x": 49,
+                    "y": 57,
+                    "width": 24,
+                    "height": 25,
+                    "duration_ticks": 60
+                }
+            ]
+        },
+        "attack_down": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 78,
+                    "y": 1,
+                    "width": 24,
+                    "height": 26,
+                    "duration_ticks": 60
+                },
+                {
+                    "x": 103,
+                    "y": 1,
+                    "width": 22,
+                    "height": 26,
+                    "duration_ticks": 60
+                },
+                {
+                    "x": 126,
+                    "y": 1,
+                    "width": 22,
+                    "height": 28,
+                    "duration_ticks": 60
+                }
+            ]
+        },
+        "attack_up": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 68,
+                    "y": 30,
+                    "width": 23,
+                    "height": 26,
+                    "duration_ticks": 60
+                },
+                {
+                    "x": 92,
+                    "y": 30,
+                    "width": 23,
+                    "height": 26,
+                    "duration_ticks": 60
+                },
+                {
+                    "x": 116,
+                    "y": 30,
+                    "width": 21,
+                    "height": 26,
+                    "duration_ticks": 60
+                }
+            ]
+        },
+        "attack_side": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 74,
+                    "y": 57,
+                    "width": 32,
+                    "height": 26,
+                    "duration_ticks": 60
+                },
+                {
+                    "x": 107,
+                    "y": 57,
+                    "width": 27,
+                    "height": 26,
+                    "duration_ticks": 60
+                },
+                {
+                    "x": 135,
+                    "y": 57,
+                    "width": 28,
+                    "height": 26,
+                    "duration_ticks": 60
+                }
+            ]
+        },
+        "hit": {
+            "loop": false,
+            "frames": [
+                {
+                    "x": 1,
+                    "y": 84,
+                    "width": 24,
+                    "height": 23,
+                    "duration_ticks": 60
+                }
+            ]
+        },
+        "die": {
+            "loop": false,
+            "frames": [
+                {
+                    "x": 47,
+                    "y": 84,
+                    "width": 30,
+                    "height": 24,
+                    "duration_ticks": 60
+                }
+            ]
+        }
+    }
+}

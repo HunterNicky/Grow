@@ -148,23 +148,14 @@ bool NetworkState::ConnectToServer(const std::string &host, const enet_uint16 po
   if (!TryConnect(host, port)) {
     std::promise<bool> ready;
     auto fut = ready.get_future();
-
-    std::thread thread_server([&ready]() {
-      const auto server = std::make_shared<server::core::GameServer>();
-      ready.set_value(server->IsRunning());
-      server->Run();
-    });
+    const auto server = std::make_shared<server::core::GameServer>();
+    ready.set_value(server->IsRunning());
+    std::thread thread_server([server]() { server->Run(); });
     thread_server.detach();
 
-    int tries = 0;
-    while (tries++ < 10) {
-      std::this_thread::sleep_for(std::chrono::seconds(2));
-      if (!TryConnect(host, port)) {
-        connected_ = false;
-        return false;
-      } else {
-        break;
-      }
+    if (!TryConnect(host, port)) {
+      connected_ = false;
+      return false;
     }
   }
 

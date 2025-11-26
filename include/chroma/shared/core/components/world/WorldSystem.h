@@ -13,10 +13,12 @@ public:
 
   [[nodiscard]] std::vector<world::RenderTile> GetRenderTile() const;
 
+  std::shared_ptr<world::WorldSystem> GetWorldSystem() const { return world_system_; }
+
   void Update(float delta_time) override;
   void Render() override;
 
 private:
-  std::unique_ptr<world::WorldSystem> world_system_;
+  std::shared_ptr<world::WorldSystem> world_system_;
 };
 }// namespace chroma::shared::core

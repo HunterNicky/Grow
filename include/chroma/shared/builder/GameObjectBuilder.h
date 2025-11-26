@@ -230,6 +230,7 @@ public:
   {
     auto world_navigation = std::make_shared<core::component::WorldNavigation>();
     obj_->AttachComponent(world_navigation);
+    world_navigation->Initialize();
     return *this;
   }
 

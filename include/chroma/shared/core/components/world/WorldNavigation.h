@@ -1,42 +1,33 @@
 #pragma once
 
+#include "chroma/shared/ai/Astar.h"
 #include "chroma/shared/core/components/Component.h"
 #include "chroma/shared/core/world/WorldSystem.h"
 
 #include <memory>
-#include <raylib.h>
 #include <vector>
 
 namespace chroma::shared::core::component {
-struct NavNode
-{
-  int x = 0, y = 0;
-  bool is_walkable = false;
-  float cost = 1.0f;
-  std::vector<Vector2> neighbors = {};
-};
-
-class WorldNavigation : public Component
+class WorldNavigation final : public Component
 {
 public:
-  WorldNavigation() = default;
+  WorldNavigation();
   ~WorldNavigation() override = default;
 
-  void Initialize(std::shared_ptr<world::WorldSystem> world_system);
-
-  bool IsPositionWalkable(Vector2 world_pos) const;
-
+  void Initialize();
   void Render() override;
 
-  const std::vector<NavNode> &GetGrid() const;
-  int GetWidth() const;
-  int GetHeight() const;
+  [[nodiscard]] const std::vector<ai::NavNode> &GetGrid() const;
+
+  [[nodiscard]] int GetWidth() const;
+  int GetTileSize() const;
+  [[nodiscard]] int GetHeight() const;
 
 private:
   void BuildGraph();
 
   std::shared_ptr<world::WorldSystem> world_system_;
-  std::vector<NavNode> nav_grid_;
+  std::vector<ai::NavNode> nav_grid_;
   int width_ = 0;
   int height_ = 0;
   int tile_size_ = 0;

@@ -87,6 +87,7 @@ namespace {
                            .Id(entity_id)
                            .AddWorldSystem("assets/world/plains.json")
                            .AddWorldRender("assets/sprites/world/plains-world.json")
+                           .AddWorldNavigation()
                            .NetRole(core::NetRole::SIMULATED)
                            .Build();
 

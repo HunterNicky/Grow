@@ -37,6 +37,7 @@ void ServerGameLogic::CreateWorld()
                        .Id(shared::utils::UUID::Generate())
                        .NetRole(shared::core::NetRole::AUTHORITY)
                        .AddWorldSystem("assets/world/plains.json")
+                       .AddWorldNavigation()
                        .Build();
   GCM::Instance().GetContext(GameContextType::Server)->GetGameObjectManager()->Register(world);
 }

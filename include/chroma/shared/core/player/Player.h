@@ -42,6 +42,9 @@ public:
 private:
   events::InputState input_state_;
   FacingDir last_facing_{ FacingDir::Down };
+
+  std::vector<Vector2> path_;
+
   bool last_left_{ false };
   float step_timer_{ 0.0F };
   bool was_moving_{ false };

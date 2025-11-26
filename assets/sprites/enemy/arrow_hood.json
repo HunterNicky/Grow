@@ -1,0 +1,41 @@
+{
+    "sprite_sheet": "arrow_hood.png",
+    "animations": {
+        "arrow_side": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 1,
+                    "y": 1,
+                    "width": 16,
+                    "height": 7,
+                    "duration_ticks": 60
+                }
+            ]
+        },
+        "arrow_up": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 18,
+                    "y": 1,
+                    "width": 7,
+                    "height": 16,
+                    "duration_ticks": 60
+                }
+            ]
+        },
+        "arrow_down": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 26,
+                    "y": 1,
+                    "width": 7,
+                    "height": 16,
+                    "duration_ticks": 60
+                }
+            ]
+        }
+    }
+}

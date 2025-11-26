@@ -1,11 +1,11 @@
 #pragma once
+#include <cstdint>
 #include <raylib.h>
 #include <string>
 
 namespace chroma::client::render::shader {
 
-enum class PassType : uint8_t
-{
+enum class PassType : uint8_t {
   NONE = 0,
   BLUR = 1,
   CRT = 2,
@@ -40,7 +40,7 @@ public:
 protected:
   std::string vs_path_;
   std::string fs_path_;
-  PassType type_ { PassType::NONE };
+  PassType type_{ PassType::NONE };
   bool active_{ true };
 };
 

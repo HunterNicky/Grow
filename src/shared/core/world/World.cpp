@@ -1,5 +1,6 @@
 #include "chroma/shared/core/world/World.h"
 
+#include "chroma/shared/core/components/world/WorldNavigation.h"
 #include "chroma/shared/core/components/world/WorldRender.h"
 #include "chroma/shared/core/components/world/WorldSystem.h"
 
@@ -14,6 +15,8 @@ void World::OnRender()
   if (world_system) { world_system->Render(); }
   const auto world_render = GetComponent<component::WorldRender>();
   if (world_render) { world_render->Render(); }
+  const auto world_navigation = GetComponent<component::WorldNavigation>();
+  if (world_navigation) { world_navigation->Render(); }
 }
 
 void World::OnUpdate([[maybe_unused]] float delta_time) {}

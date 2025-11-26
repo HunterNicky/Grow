@@ -1,0 +1,48 @@
+{
+    "sprite_sheet": "bat.png",
+    "animations": {
+        "fly": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 1,
+                    "y": 1,
+                    "width": 29,
+                    "height": 35,
+                    "duration_ticks": 60
+                },
+                {
+                    "x": 31,
+                    "y": 1,
+                    "width": 31,
+                    "height": 34,
+                    "duration_ticks": 60
+                }
+            ]
+        },
+        "attack": {
+            "loop": false,
+            "frames": [
+                {
+                    "x": 63,
+                    "y": 1,
+                    "width": 25,
+                    "height": 35,
+                    "duration_ticks": 60
+                }
+            ]
+        },
+        "die": {
+            "loop": false,
+            "frames": [
+                {
+                    "x": 89,
+                    "y": 1,
+                    "width": 32,
+                    "height": 14,
+                    "duration_ticks": 60
+                }
+            ]
+        }
+    }
+}

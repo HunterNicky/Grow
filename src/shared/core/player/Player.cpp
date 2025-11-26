@@ -2,7 +2,9 @@
 
 #include "chroma/shared/audio/AudioBridge.h"
 #include "chroma/shared/collision/CollisionManager.h"
+#include "chroma/shared/context/GameContextManager.h"
 #include "chroma/shared/core/GameObject.h"
+#include "chroma/shared/core/GameObjectManager.h"
 #include "chroma/shared/core/components/Attack.h"
 #include "chroma/shared/core/components/Camera.h"
 #include "chroma/shared/core/components/CharacterType.h"
@@ -17,6 +19,7 @@
 #include "chroma/shared/core/components/world/ColliderBox.h"
 
 #include "chroma/shared/core/components/Run.h"
+#include "chroma/shared/core/components/world/WorldNavigation.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/InputState.h"
@@ -27,13 +30,11 @@
 #include "chroma/shared/render/SpriteLoader.h"
 #include "chroma/shared/utils/UUID.h"
 
-
 #include <cmath>
 #include <memory>
 #include <raylib.h>
 #include <raymath.h>
 #include <string>
-
 
 namespace chroma::shared::core::player {
 Player::Player() { type_ = GameObjectType::PLAYER; }
@@ -100,7 +101,6 @@ void Player::AnimationState(const Vector2 dir, const float magnitude)
         break;
       }
     } else {
-
       bool run = false;
 
       const auto run_comp = GetComponent<component::Run>();
@@ -217,6 +217,46 @@ void Player::OnUpdate(const float delta_time)
       camera->SetZoom(new_zoom);
     }
   }
+
+  std::vector<std::shared_ptr<GameObject>> world_vector = {};
+
+  if (is_authority) {
+    world_vector =
+      GCM::Instance().GetContext(GameContextType::Server)->GetGameObjectManager()->GetByTag(GameObjectType::WORLD);
+  } else if (is_autonomous) {
+    world_vector =
+      GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager()->GetByTag(GameObjectType::WORLD);
+  }
+
+  auto world = world_vector.front();
+  if (world) {
+    auto world_navy = world->GetComponent<component::WorldNavigation>();
+    auto tile_size = world_navy->GetTileSize();
+    if (path_.empty()) {
+      auto &navy = world_navy->GetGrid();
+      const Vector2 start_pos = transform->GetPosition() / static_cast<float>(tile_size);
+      Vector2 end_pos = start_pos;
+      const int x = 10;
+      const int y = 10;
+
+      end_pos.x += static_cast<float>(x);
+      end_pos.y += static_cast<float>(y);
+
+      path_ = ai::Astar::Solve(start_pos, end_pos, navy, world_navy->GetWidth(), world_navy->GetHeight());
+      if (is_authority && !path_.empty()) { movement->SetDirection({ 0.0F, 0.0F }); }
+    } else {
+      Vector2 target_pos = path_.front();
+      target_pos = target_pos * tile_size;
+      Vector2 to_target = Vector2Subtract(target_pos, transform->GetPosition());
+      const float distance = Vector2Length(to_target);
+      if (distance < tile_size) {
+        path_.erase(path_.begin());
+      } else if (is_authority) {
+        to_target = Vector2Normalize(to_target);
+        movement->SetDirection(to_target);
+      }
+    }
+  }
 }
 
 void Player::OnFixedUpdate(const float fixed_delta_time) { (void)fixed_delta_time; }
@@ -256,6 +296,14 @@ void Player::OnRender()
 
   const auto collider = GetComponent<component::ColliderBox>();
   if (collider) { collider->Render(); }
+
+  if (IsAutonomousProxy()) {
+    auto &player_server =
+      GCM::Instance().GetContext(GameContextType::Server)->GetGameObjectManager()->GetByTag(GameObjectType::PLAYER);
+    player_server.front()->OnRender();
+  }
+
+  for (const auto &[x, y] : path_) { DrawRectangleLinesEx({ (16 * x) - 4.F, (16 * y) - 4.F, 8.F, 8.F }, 1.F, GREEN); }
 }
 
 void Player::HandleEvent(event::Event &event)
@@ -264,7 +312,6 @@ void Player::HandleEvent(event::Event &event)
 
   switch (event.GetType()) {
   case event::Event::KeyEvent: {
-
     const auto &key_event = dynamic_cast<const event::KeyEvent &>(event);
 
     const auto movement = GetComponent<component::Movement>();
