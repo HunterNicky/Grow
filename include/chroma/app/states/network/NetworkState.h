@@ -25,6 +25,9 @@ public:
   void OnEvent(shared::event::Event &event) override;
   void SetEventDispatcher();
 
+  void SetDispatchEvent(bool dispatch);
+  [[nodiscard]] bool GetDispatch() const;
+
 private:
   std::unique_ptr<ENetHost, decltype(&enet_host_destroy)> client_;
   std::unique_ptr<ENetPeer, decltype(&enet_peer_reset)> server_peer_;
@@ -33,8 +36,9 @@ private:
 
   shared::event::Subscription key_sub_;
 
-  bool connected_ = false;
-  float delta_time_ = 0.0F;
+  bool connected_ { false };
+  float delta_time_ { 0.0F };
+  bool dispatch_event_ { true };
 
   std::shared_ptr<GameNetworkMediator> game_mediator_;
 

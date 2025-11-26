@@ -9,11 +9,6 @@ public:
   
   explicit PauseState();
   ~PauseState() override;
-  PauseState(const PauseState &) = delete;
-  PauseState &operator=(const PauseState &) = delete;
-  PauseState(PauseState &&) = delete;
-  PauseState &operator=(PauseState &&) = delete;
-
   void OnUpdate(const float delta_time) override;
   void OnRender() override;
   void OnEvent(shared::event::Event &event) override;

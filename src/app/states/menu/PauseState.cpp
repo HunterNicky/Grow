@@ -38,8 +38,8 @@ void PauseState::OnEvent(shared::event::Event &event)
 {
   auto btn_event = dynamic_cast<shared::event::ui::ButtonClickEvent &>(event);
   if (btn_event.GetId() == "Resume") {
-    shared::event::state::StateEvent pop_layer_event(shared::event::state::Action::Pop);
-    shared::event::EventBus::Dispatch(pop_layer_event);
+    shared::event::state::StateEvent pop_state_event(shared::event::state::Action::Pop);
+    shared::event::EventBus::Dispatch(pop_state_event);
     
   } else if (btn_event.GetId() == "Options") {
   } else if (btn_event.GetId() == "MainMenu") {

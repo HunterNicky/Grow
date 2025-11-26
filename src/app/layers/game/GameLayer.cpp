@@ -20,8 +20,8 @@ void GameLayer::OnUpdate(const float delta_time)
 {
   if (!IsActive()) { return; }
 
+  command_queue_->Process();
   auto current_state = GetCurrentState();
-
   if (current_state) { current_state->OnUpdate(delta_time); }
 }
 
@@ -43,6 +43,14 @@ void GameLayer::OnStateEvent(shared::event::state::StateEvent &state_event)
 {
   switch (state_event.GetAction()) {
   case shared::event::state::Action::Pop: {
+    
+    if(auto state = state_machine_->GetStateByName("GameState"))
+    {
+      if (const auto game_state = std::dynamic_pointer_cast<states::GameState>(state)) {
+        game_state->SetPaused(false);
+      }
+    }
+
     auto action = [this]() { this->state_machine_->PopState(); };
     command_queue_->Push(std::make_unique<app::command::FunctionalCommand>(action));
     break;
@@ -56,9 +64,10 @@ void GameLayer::OnStateEvent(shared::event::state::StateEvent &state_event)
       }
     }
 
-    auto action = [this, state_id = state_event.GetStateId()]() {
+    auto action = [this, state_id = state_event.GetStateId()]() 
+    {
       auto state = this->state_factory_.Create(state_id);
-      if (state) { this->state_machine_->PushState(state); }
+      if (state) { this->state_machine_->PushState(state); std::cout << "Pushed PauseState\n"; }
     };
     command_queue_->Push(std::make_unique<app::command::FunctionalCommand>(action));
     break;

@@ -49,4 +49,30 @@ std::shared_ptr<State> StateMachine::GetCurrentState()
   if (!states_.empty()) { return states_.top(); }
   return nullptr;
 }
+
+std::shared_ptr<State> StateMachine::GetStateByName(const std::string &name)
+{
+  std::stack<std::shared_ptr<State>> temp_stack;
+  std::shared_ptr<State> found_state = nullptr;
+
+  while (!states_.empty()) {
+    auto current_state = states_.top();
+    states_.pop();
+    temp_stack.push(current_state);
+
+    if (current_state->GetName() == name) {
+      found_state = current_state;
+      break;
+    }
+  }
+
+  while (!temp_stack.empty()) {
+    states_.push(temp_stack.top());
+    temp_stack.pop();
+  }
+
+  return found_state;
+}
+
+
 }// namespace chroma::app::states

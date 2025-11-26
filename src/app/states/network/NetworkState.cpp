@@ -204,6 +204,7 @@ void NetworkState::ProcessEvent()
 void NetworkState::OnEvent(shared::event::Event &event)
 {
   if (!IsActive() || !server_peer_) { return; }
+  if(!GetDispatch()) { return; }
 
   std::vector<uint8_t> buf;
   switch (event.GetType()) {
@@ -248,6 +249,16 @@ void NetworkState::SetEventDispatcher()
 
   shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::ProjectileEvent>(
     [this](shared::event::Event &event) { this->OnEvent(event); });
+}
+
+void NetworkState::SetDispatchEvent(bool dispatch)
+{
+  dispatch_event_ = dispatch;
+}
+
+bool NetworkState::GetDispatch() const
+{
+   return dispatch_event_;
 }
 
 }// namespace chroma::app::states
