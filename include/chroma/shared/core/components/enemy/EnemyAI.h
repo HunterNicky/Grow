@@ -17,6 +17,8 @@ public:
   void SetTarget(const std::shared_ptr<GameObject> &target);
   void Update(float delta_time) override;
 
+  [[nodiscard]] const ai::EnemyBlackboard &GetBlackboard() const { return blackboard_; }
+
 private:
   ai::EnemyBlackboard blackboard_;
   std::unique_ptr<aitoolkit::bt::node<ai::EnemyBlackboard>> root_node_;
