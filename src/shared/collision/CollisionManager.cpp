@@ -223,12 +223,18 @@ void CollisionManager::CheckCollision(const ColliderEntry &a, const ColliderEntr
   const CollisionResolutionStrategy strategy = DetermineResolutionStrategy(obj_a, obj_b, body_type_a, body_type_b);
 
   CollisionEvent::Type event_type_a = CollisionEvent::Type::Unknown;
-  CollisionEvent::Type event_type_b = CollisionEvent::Type::Unknown;
+  if (a.component && std::dynamic_pointer_cast<core::component::EventColliderBox>(a.component)) {
+    event_type_a = CollisionEvent::Type::Trigger;
+  } else if (a.component && std::dynamic_pointer_cast<core::component::ColliderBox>(a.component)) {
+    event_type_a = CollisionEvent::Type::Wall;
+  }
 
-  if (obj_a->GetComponent<core::component::ColliderBox>()) { event_type_a = CollisionEvent::Type::Wall; }
-  if (obj_b->GetComponent<core::component::ColliderBox>()) { event_type_b = CollisionEvent::Type::Wall; }
-  if (obj_a->GetComponent<core::component::EventColliderBox>()) { event_type_a = CollisionEvent::Type::Trigger; }
-  if (obj_b->GetComponent<core::component::EventColliderBox>()) { event_type_b = CollisionEvent::Type::Trigger; }
+  CollisionEvent::Type event_type_b = CollisionEvent::Type::Unknown;
+  if (b.component && std::dynamic_pointer_cast<core::component::EventColliderBox>(b.component)) {
+    event_type_b = CollisionEvent::Type::Trigger;
+  } else if (b.component && std::dynamic_pointer_cast<core::component::ColliderBox>(b.component)) {
+    event_type_b = CollisionEvent::Type::Wall;
+  }
 
   const CollisionEvent event_a(obj_b, penetration, normal, contact, CollisionSide::None, event_type_a);
   const CollisionEvent event_b(obj_a, penetration, Vector2Negate(normal), contact, CollisionSide::None, event_type_b);
