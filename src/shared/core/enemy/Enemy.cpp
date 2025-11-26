@@ -3,9 +3,10 @@
 #include "chroma/shared/context/GameContext.h"
 #include "chroma/shared/context/GameContextManager.h"
 #include "chroma/shared/core/GameObjectManager.h"
+#include "chroma/shared/core/components/Health.h"
+#include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/components/enemy/EnemyAI.h"
-#include "chroma/shared/core/components/Health.h"
 #include "chroma/shared/core/components/world/EventColliderBox.h"
 #include "chroma/shared/render/RenderBridge.h"
 #include "chroma/shared/render/SpriteLoader.h"
@@ -54,11 +55,38 @@ void Enemy::OnUpdate(const float delta_time)
     }
     enemy_ai->Update(delta_time);
   }
+
+  const auto transform = GetComponent<component::Transform>();
+  if (!transform) { return; }
+
+  const auto speed = GetComponent<component::Speed>();
+  if (!speed) { return; }
+
+  const auto movement = GetComponent<component::Movement>();
+  if (!movement) { return; }
+
+  const bool should_simulate = HasAuthority() || IsAutonomousProxy();
+
+  Vector2 dir = movement->GetDirection();
+  const float magnitude = Vector2Length(dir);
+
+  if (magnitude > 0.0F) {
+    dir = Vector2Normalize(dir);
+    movement->SetDirection(dir);
+
+    if (should_simulate) {
+      Vector2 pos = transform->GetPosition();
+      pos.x += dir.x * speed->GetSpeed().x * delta_time;
+      pos.y += dir.y * speed->GetSpeed().y * delta_time;
+      transform->SetPosition(pos);
+    }
+  }
 }
 
 std::shared_ptr<GameObject> Enemy::Clone() { return std::make_shared<Enemy>(*this); }
 
 void Enemy::OnFixedUpdate([[maybe_unused]] float fixed_delta_time) {}
+
 void Enemy::OnCollision(const collision::CollisionEvent &collision)
 {
   const auto other = collision.other.lock();
@@ -69,7 +97,7 @@ void Enemy::OnCollision(const collision::CollisionEvent &collision)
 
   const auto my_event_collider = GetComponent<component::EventColliderBox>();
 
-    if (collision.type == collision::CollisionEvent::Type::Trigger && my_event_collider && other_health
+  if (collision.type == collision::CollisionEvent::Type::Trigger && my_event_collider && other_health
       && other->GetTag() == GameObjectType::PLAYER) {
     other_health->TakeDamage(2.0F);
   }

@@ -7,10 +7,10 @@
 #include "chroma/shared/core/components/Transform.h"
 #include "chroma/shared/core/components/world/WorldNavigation.h"
 #include "chroma/shared/core/enemy/Enemy.h"
-#include "chroma/shared/utils/UUID.h"
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/events/WaveEvent.h"
+#include "chroma/shared/utils/UUID.h"
 
 #include <raylib.h>
 
@@ -53,8 +53,7 @@ void WaveManager::StartNextWave()
 
 bool WaveManager::IsCurrentWaveCleared() const
 {
-  const auto context =
-    shared::context::GameContextManager::Instance().GetContext(shared::context::GameContextType::Server);
+  const auto context = shared::context::GameContextManager::Instance().GetContext(GameContextType::Server);
   if (!context) { return false; }
 
   const auto manager = context->GetGameObjectManager();
@@ -66,8 +65,7 @@ bool WaveManager::IsCurrentWaveCleared() const
 
 void WaveManager::SpawnEnemies(const uint32_t count) const
 {
-  const auto context =
-    shared::context::GameContextManager::Instance().GetContext(shared::context::GameContextType::Server);
+  const auto context = shared::context::GameContextManager::Instance().GetContext(GameContextType::Server);
   if (!context) { return; }
 
   const auto manager = context->GetGameObjectManager();
@@ -142,6 +140,7 @@ void WaveManager::SpawnEnemies(const uint32_t count) const
                    .AddMovement()
                    .AddColliderBox(GameContextType::Server, { 12.F, 12.F }, { -6.F, 0.F })
                    .AddEventColliderBox(GameContextType::Server, { 32.F, 32.F }, { -16.F, -16.F })
+                   .AddEnemyAI()
                    .NetRole(shared::core::NetRole::AUTHORITY)
                    .Build();
 

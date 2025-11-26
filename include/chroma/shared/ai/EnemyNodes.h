@@ -32,18 +32,14 @@ struct TaskChaseTarget
 {
   execution_state operator()(EnemyBlackboard &bb) const
   {
-    if (bb.owner.expired() || bb.target.expired()) { return execution_state::failure;
-}
-
+    if (bb.owner.expired() || bb.target.expired()) { return execution_state::failure; }
     const auto owner = bb.owner.lock();
     const auto target = bb.target.lock();
 
     const auto transform = owner->GetComponent<core::component::Transform>();
     const auto movement = owner->GetComponent<core::component::Movement>();
 
-    if (!transform || !movement) { return execution_state::failure;
-}
-
+    if (!transform || !movement) { return execution_state::failure; }
     const Vector2 target_real_pos = target->GetComponent<core::component::Transform>()->GetPosition();
     bb.target_position = target_real_pos;
 
@@ -57,6 +53,7 @@ struct TaskChaseTarget
 
     direction = Vector2Normalize(direction);
     movement->SetDirection(direction);
+    std::cout << "Chasing target at position: (" << bb.target_position.x << ", " << bb.target_position.y << ")\n";
 
     return execution_state::running;
   }
