@@ -122,6 +122,17 @@ void GameNetworkMediator::OnEventReceived(const Game::Event *evt) const
     }
     break;
   }
+  case Game::EventUnion::WaveEventMessage: {
+    const auto *wave_msg = evt->event_as_WaveEventMessage();
+    if (!wave_msg || !wave_msg->event()) { break; }
+
+    const uint32_t wave_index = wave_msg->event()->wave_index();
+
+    if (const auto state = game_state_.lock()) {
+      (void)wave_index;
+    }
+    break;
+  }
   default:
     break;
   }

@@ -17,10 +17,13 @@
 #include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/components/Transform.h"
+#include "chroma/shared/core/components/enemy/EnemyAI.h"
 #include "chroma/shared/core/components/world/ColliderBox.h"
+#include "chroma/shared/core/components/world/EventColliderBox.h"
 #include "chroma/shared/core/components/world/WorldNavigation.h"
 #include "chroma/shared/core/components/world/WorldRender.h"
 #include "chroma/shared/core/components/world/WorldSystem.h"
+#include "chroma/shared/packet/adapter/ComponentAdapter.h"
 
 #include <memory>
 #include <raylib.h>
@@ -83,6 +86,28 @@ public:
     obj_->AttachComponent(transform);
     return *this;
   }
+
+  GameObjectBuilder &AddTransform(const Game::EntityState *entity_state, const Vector2 scale = { 1.0F, 1.0F })
+  {
+    if (entity_state == nullptr) { return *this; }
+
+    const Game::Component *comp = nullptr;
+    for (const auto *component : *entity_state->components()) {
+      if (component->type_type() == Game::ComponentUnion::Position) {
+        comp = component;
+        break;
+      }
+    }
+
+    if (comp != nullptr) {
+      packet::adapter::ComponentAdapter::FromComponent(*comp, obj_);
+      auto transform = obj_->template GetComponent<core::component::Transform>();
+      if (transform) { transform->SetScale(scale); }
+    }
+
+    return *this;
+  }
+
 
   GameObjectBuilder &AddSpeed(float speed)
   {
@@ -194,6 +219,21 @@ public:
     return *this;
   }
 
+  GameObjectBuilder &AddEventColliderBox(const GameContextType context_type,
+    const Vector2 size,
+    const Vector2 offset = { 0.0F, 0.0F },
+    const collision::BodyType type = collision::BodyType::Dynamic)
+  {
+    auto collider = std::make_shared<core::component::EventColliderBox>(size, offset);
+    obj_->AttachComponent(collider);
+
+    const collision::ColliderEntry entry{
+      .id = obj_->GetId(), .bounds = collider->GetBoundingBox(), .component = collider
+    };
+    GCM::Instance().GetContext(context_type)->GetCollisionManager()->AddCollider(entry, type);
+    return *this;
+  }
+
   GameObjectBuilder &AddWorldSystem(const std::string &path)
   {
     auto world_system = std::make_shared<core::component::WorldSystem>();
@@ -231,6 +271,14 @@ public:
     auto world_navigation = std::make_shared<core::component::WorldNavigation>();
     obj_->AttachComponent(world_navigation);
     world_navigation->Initialize();
+    return *this;
+  }
+
+  GameObjectBuilder &AddEnemyAI()
+  {
+    auto enemy_ai = std::make_shared<core::component::EnemyAI>();
+    obj_->AttachComponent(enemy_ai);
+    enemy_ai->Initialize();
     return *this;
   }
 

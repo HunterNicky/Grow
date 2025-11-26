@@ -17,6 +17,7 @@
 #include "chroma/shared/core/components/Transform.h"
 #include "chroma/shared/core/components/Weapon.h"
 #include "chroma/shared/core/components/world/ColliderBox.h"
+#include "chroma/shared/core/components/world/EventColliderBox.h"
 
 #include "chroma/shared/core/components/Run.h"
 #include "chroma/shared/core/components/world/WorldNavigation.h"
@@ -204,7 +205,6 @@ void Player::OnUpdate(const float delta_time)
 
   UpdateAttack(delta_time);
   AnimationState(dir, magnitude);
-  UpdateColliderSize();
 
   for (const auto &[fst, snd] : components_) { snd->Update(delta_time); }
 
@@ -217,51 +217,30 @@ void Player::OnUpdate(const float delta_time)
       camera->SetZoom(new_zoom);
     }
   }
-
-  std::vector<std::shared_ptr<GameObject>> world_vector = {};
-
-  if (is_authority) {
-    world_vector =
-      GCM::Instance().GetContext(GameContextType::Server)->GetGameObjectManager()->GetByTag(GameObjectType::WORLD);
-  } else if (is_autonomous) {
-    world_vector =
-      GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager()->GetByTag(GameObjectType::WORLD);
-  }
-
-  auto world = world_vector.front();
-  if (world) {
-    auto world_navy = world->GetComponent<component::WorldNavigation>();
-    auto tile_size = world_navy->GetTileSize();
-    if (path_.empty()) {
-      auto &navy = world_navy->GetGrid();
-      const Vector2 start_pos = transform->GetPosition() / static_cast<float>(tile_size);
-      Vector2 end_pos = start_pos;
-      const int x = 10;
-      const int y = 10;
-
-      end_pos.x += static_cast<float>(x);
-      end_pos.y += static_cast<float>(y);
-
-      path_ = ai::Astar::Solve(start_pos, end_pos, navy, world_navy->GetWidth(), world_navy->GetHeight());
-      if (is_authority && !path_.empty()) { movement->SetDirection({ 0.0F, 0.0F }); }
-    } else {
-      Vector2 target_pos = path_.front();
-      target_pos = target_pos * tile_size;
-      Vector2 to_target = Vector2Subtract(target_pos, transform->GetPosition());
-      const float distance = Vector2Length(to_target);
-      if (distance < tile_size) {
-        path_.erase(path_.begin());
-      } else if (is_authority) {
-        to_target = Vector2Normalize(to_target);
-        movement->SetDirection(to_target);
-      }
-    }
-  }
 }
 
 void Player::OnFixedUpdate(const float fixed_delta_time) { (void)fixed_delta_time; }
 
-void Player::OnCollision(const collision::CollisionEvent &event) { (void)event; }
+void Player::OnCollision(const collision::CollisionEvent &event)
+{
+  const auto other = event.other.lock();
+  if (!other) { return; }
+
+  const auto my_health = GetComponent<component::Health>();
+  const auto other_health = other->GetComponent<component::Health>();
+
+  const auto my_event_collider = GetComponent<component::EventColliderBox>();
+  const auto other_event_collider = other->GetComponent<component::EventColliderBox>();
+
+  const auto attack = GetComponent<component::Attack>();
+
+  if (event.type == collision::CollisionEvent::Type::Trigger && attack && attack->IsAttacking() && my_event_collider
+      && other_health && other_event_collider == nullptr) {
+    other_health->TakeDamage(10.0F);
+  }
+
+  if (event.type == collision::CollisionEvent::Type::Wall) { (void)my_health; }
+}
 
 void Player::OnRender()
 {
@@ -296,14 +275,6 @@ void Player::OnRender()
 
   const auto collider = GetComponent<component::ColliderBox>();
   if (collider) { collider->Render(); }
-
-  if (IsAutonomousProxy()) {
-    auto &player_server =
-      GCM::Instance().GetContext(GameContextType::Server)->GetGameObjectManager()->GetByTag(GameObjectType::PLAYER);
-    player_server.front()->OnRender();
-  }
-
-  for (const auto &[x, y] : path_) { DrawRectangleLinesEx({ (16 * x) - 4.F, (16 * y) - 4.F, 8.F, 8.F }, 1.F, GREEN); }
 }
 
 void Player::HandleEvent(event::Event &event)
@@ -373,21 +344,6 @@ void Player::UpdateAttack(const float delta_time) const
       current_weapon->SetLastAttackTime(0.0F);
     }
   }
-}
-
-void Player::UpdateColliderSize() const
-{
-  const auto collider = GetComponent<component::ColliderBox>();
-
-  auto new_size = Vector2{ 12.F, 28.F };
-  auto new_offset = Vector2{ -6.F, -14.F };
-  if (last_facing_ == FacingDir::Side) {
-    new_size = Vector2{ 12.F, 12.F };
-    new_offset = Vector2{ -6.F, 0.F };
-  }
-
-  collider->SetSize(new_size);
-  collider->SetOffset(new_offset);
 }
 
 void Player::HandleThrowInput(const std::shared_ptr<component::Weapon> &weapon) const

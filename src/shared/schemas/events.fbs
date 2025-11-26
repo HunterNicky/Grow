@@ -44,6 +44,16 @@ table ProjectileEventMessage {
   event: ProjectileEvent;
 }
 
+table WaveEvent {
+  wave_index:uint32;
+}
+
+table WaveEventMessage {
+  seq:uint32;
+  dt:float;
+  event:WaveEvent;
+}
+
 table SoundEventMessage {
   seq:uint32;
   dt:float;
@@ -57,6 +67,6 @@ table InputEventMessage {
   event:InputEvent;
 }
 
-union EventUnion { InputEventMessage, SoundEventMessage, ProjectileEventMessage }
+union EventUnion { InputEventMessage, SoundEventMessage, ProjectileEventMessage, WaveEventMessage }
 
 table Event { event:EventUnion; }

@@ -31,7 +31,6 @@ public:
   void HandleDirectionInput(Vector2 &direction) const;
   void HandleWeaponInput() const;
   void UpdateAttack(float delta_time) const;
-  void UpdateColliderSize() const;
   void HandleThrowInput(const std::shared_ptr<component::Weapon> &weapon) const;
 
   void SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &anim_component);

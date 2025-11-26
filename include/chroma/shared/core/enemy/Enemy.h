@@ -7,6 +7,7 @@ class Enemy final : public GameObject
 public:
   Enemy();
   ~Enemy() override;
+  void SetupAnimation() const;
 
   void OnRender() override;
   void OnUpdate(float delta_time) override;

@@ -61,6 +61,8 @@ void ServerGameLogic::Update(const float delta_time)
     collision_manager) {
     collision_manager->Update();
   }
+
+  wave_manager_.Update(delta_time);
 }
 
 void ServerGameLogic::OnReceivedInputMessage(const std::shared_ptr<shared::packet::InputMessage> &input_message,
@@ -78,7 +80,8 @@ std::shared_ptr<shared::core::player::Player> ServerGameLogic::CreatePlayer()
                   .AddSpeed(50.0F)
                   .AddMovement()
                   .AddAnimation()
-                  .AddColliderBox(GameContextType::Server, { 16.F, 32.F }, { -8.F, -16.F })
+                  .AddColliderBox(GameContextType::Server, { 12.F, 12.F }, { -6.F, 0.F })
+                  .AddEventColliderBox(GameContextType::Server, { 32.F, 32.F }, { -16.F, -16.F })
                   .AddHealth(100.0F, 1.0F)
                   .AddRun(false, 1.5F)
                   .AddInventory(10)

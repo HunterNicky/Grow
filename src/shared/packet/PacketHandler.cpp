@@ -320,6 +320,24 @@ std::vector<uint8_t> PacketHandler::ProjectileMessageToFlatBuffer(
   return { buf.begin(), buf.end() };
 }
 
+std::vector<uint8_t> PacketHandler::WaveEventMessageToFlatBuffer(const uint32_t seq,
+  const float dt,
+  const uint32_t wave_index)
+{
+  flatbuffers::FlatBufferBuilder builder(128);
+
+  const auto fb_wave = Game::CreateWaveEvent(builder, wave_index);
+  const auto fb_wave_msg = Game::CreateWaveEventMessage(builder, seq, dt, fb_wave);
+
+  const auto fb_event = Game::CreateEvent(builder, Game::EventUnion::WaveEventMessage, fb_wave_msg.Union());
+  const auto fb_envelope = Game::CreateEnvelope(builder, Game::MsgType::Event, Game::MsgUnion::Event, fb_event.Union());
+
+  builder.Finish(fb_envelope);
+
+  auto buf = builder.Release();
+  return { buf.begin(), buf.end() };
+}
+
 std::shared_ptr<ProjectileMessage> PacketHandler::EventToProjectileMessage(const Game::Event *evt)
 {
   if (evt == nullptr) { return nullptr; }

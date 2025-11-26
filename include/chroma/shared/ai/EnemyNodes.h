@@ -32,7 +32,8 @@ struct TaskChaseTarget
 {
   execution_state operator()(EnemyBlackboard &bb) const
   {
-    if (bb.owner.expired() || bb.target.expired()) return execution_state::failure;
+    if (bb.owner.expired() || bb.target.expired()) { return execution_state::failure;
+}
 
     const auto owner = bb.owner.lock();
     const auto target = bb.target.lock();
@@ -40,7 +41,8 @@ struct TaskChaseTarget
     const auto transform = owner->GetComponent<core::component::Transform>();
     const auto movement = owner->GetComponent<core::component::Movement>();
 
-    if (!transform || !movement) return execution_state::failure;
+    if (!transform || !movement) { return execution_state::failure;
+}
 
     const Vector2 target_real_pos = target->GetComponent<core::component::Transform>()->GetPosition();
     bb.target_position = target_real_pos;
@@ -49,7 +51,7 @@ struct TaskChaseTarget
     const float dist = Vector2Length(direction);
 
     if (dist <= bb.attack_range) {
-      movement->SetDirection({ 0.0f, 0.0f });
+      movement->SetDirection({ 0.0F, 0.0F });
       return execution_state::success;
     }
 
@@ -65,7 +67,7 @@ struct TaskIdle
   execution_state operator()(const EnemyBlackboard &bb) const
   {
     if (const auto owner = bb.owner.lock()) {
-      if (const auto move = owner->GetComponent<core::component::Movement>()) { move->SetDirection({ 0.0f, 0.0f }); }
+      if (const auto move = owner->GetComponent<core::component::Movement>()) { move->SetDirection({ 0.0F, 0.0F }); }
     }
     return execution_state::success;
   }

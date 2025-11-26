@@ -15,6 +15,7 @@ public:
     SoundEvent = 4,
     ProjectileEvent = 5,
     ShaderEvent = 6,
+    WaveEvent = 7,
   };
 
   Event() = default;

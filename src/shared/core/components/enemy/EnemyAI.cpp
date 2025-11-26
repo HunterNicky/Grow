@@ -2,9 +2,11 @@
 
 namespace chroma::shared::core::component {
 
-EnemyAIComponent::EnemyAIComponent(const std::shared_ptr<GameObject> &owner)
+EnemyAI::EnemyAI() = default;
+
+void EnemyAI::Initialize()
 {
-  blackboard_.owner = owner;
+  blackboard_.owner = game_object_;
 
   using namespace aitoolkit::bt;
 
@@ -21,9 +23,9 @@ EnemyAIComponent::EnemyAIComponent(const std::shared_ptr<GameObject> &owner)
     task<ai::EnemyBlackboard>(ai::TaskIdle{})));
 }
 
-void EnemyAIComponent::SetTarget(const std::shared_ptr<GameObject> &target) { blackboard_.target = target; }
+void EnemyAI::SetTarget(const std::shared_ptr<GameObject> &target) { blackboard_.target = target; }
 
-void EnemyAIComponent::Update([[maybe_unused]] float delta_time)
+void EnemyAI::Update([[maybe_unused]] float delta_time)
 {
   if (root_node_) { root_node_->evaluate(blackboard_); }
 }

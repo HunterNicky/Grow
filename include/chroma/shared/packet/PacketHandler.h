@@ -36,6 +36,7 @@ public:
   static std::vector<uint8_t> SoundEventMessageToFlatBuffer(const std::shared_ptr<SoundEventMessage> &sound_message);
   static std::vector<uint8_t> ProjectileMessageToFlatBuffer(
     const std::shared_ptr<ProjectileMessage> &projectile_message);
+  static std::vector<uint8_t> WaveEventMessageToFlatBuffer(uint32_t seq, float dt, uint32_t wave_index);
   //
   // ============================================================
   //  SNAPSHOT

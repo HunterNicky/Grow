@@ -8,6 +8,7 @@
 #include <flatbuffers/flatbuffer_builder.h>
 
 #include "chroma/shared/core/GameObject.h"
+#include "chroma/server/logic/WaveManager.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/packet/events/InputEventMessage.h"
@@ -28,7 +29,7 @@ public:
   ServerGameLogic &operator=(ServerGameLogic &&) = delete;
 
   static void CreateWorld();
-  static void Update(float delta_time);
+  void Update(float delta_time);
 
   static std::shared_ptr<shared::core::player::Player> CreatePlayer();
   static std::vector<flatbuffers::Offset<Game::EntityState>> GetEntitiesFlatBuffer(
@@ -38,6 +39,9 @@ public:
     const UUIDv4::UUID &player_id);
   void OnReceivedProjectileMessage(const std::shared_ptr<shared::packet::ProjectileMessage> &projectile_message);
   static void HandleInput(shared::event::Event &event, const UUIDv4::UUID &player_id);
+
+private:
+  WaveManager wave_manager_;
 };
 
 }// namespace chroma::server::logic

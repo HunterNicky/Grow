@@ -13,6 +13,7 @@
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/events/SoundEvent.h"
+#include "chroma/shared/events/WaveEvent.h"
 #include "chroma/shared/packet/PacketHandler.h"
 #include "chroma/shared/packet/events/SoundEventMessage.h"
 #include "entities_generated.h"
@@ -49,6 +50,22 @@ GameServer::GameServer()
       sound_msg->SetSourceId(sound_ev.GetEmitterId());
 
       const auto buf = shared::packet::PacketHandler::SoundEventMessageToFlatBuffer(sound_msg);
+      if (buf.empty()) { return; }
+
+      for (const auto &[peer, session] : sessions_.GetAll()) {
+        (void)session;
+        network_.Send(peer, buf.data(), buf.size(), true);
+      }
+      network_.Flush();
+    });
+
+  shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::WaveEvent>(
+    [this](const shared::event::Event &ev) {
+      if (!network_.IsReady()) { return; }
+
+      const auto &wave_ev = dynamic_cast<const shared::event::WaveEvent &>(ev);
+
+      const auto buf = shared::packet::PacketHandler::WaveEventMessageToFlatBuffer(0, 0.0F, wave_ev.GetWaveIndex());
       if (buf.empty()) { return; }
 
       for (const auto &[peer, session] : sessions_.GetAll()) {

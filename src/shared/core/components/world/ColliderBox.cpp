@@ -7,9 +7,7 @@
 #include <raylib.h>
 
 namespace chroma::shared::core::component {
-ColliderBox::ColliderBox()
-  : bounding_box_(std::make_shared<Rectangle>(0.0F, 0.0F, 0.0F, 0.0F)), world_position_{ 0.0F, 0.0F },
-    size_{ 32.0F, 32.0F }, offset_{ 0.0F, 0.0F }
+ColliderBox::ColliderBox() : bounding_box_(std::make_shared<Rectangle>(0.0F, 0.0F, 0.0F, 0.0F))
 {
   type_ = ComponentType::COLLIDER_BOX;
 }
@@ -17,17 +15,22 @@ ColliderBox::ColliderBox()
 ColliderBox::~ColliderBox() = default;
 
 ColliderBox::ColliderBox(const Vector2 &size, const Vector2 &offset)
-  : size_(size), offset_(offset), bounding_box_(std::make_shared<Rectangle>(0.0F, 0.0F, size.x, size.y)),
-    world_position_{ 0.0F, 0.0F }
+  : size_(size), offset_(offset), bounding_box_(std::make_shared<Rectangle>(0.0F, 0.0F, size.x, size.y))
 {
   type_ = ComponentType::COLLIDER_BOX;
 }
 
-void ColliderBox::SetSize(const Vector2 &size) { size_ = size; }
+void ColliderBox::SetSize(const Vector2 &size)
+{
+  size_ = size;
+}
 
 Vector2 ColliderBox::GetSize() const { return size_; }
 
-void ColliderBox::SetOffset(const Vector2 &offset) { offset_ = offset; }
+void ColliderBox::SetOffset(const Vector2 &offset)
+{
+  offset_ = offset;
+}
 
 Vector2 ColliderBox::GetOffset() const { return offset_; }
 

@@ -14,6 +14,10 @@ struct CollisionEvent
 {
   std::weak_ptr<core::GameObject> other;
 
+  enum class Type : uint8_t { Unknown = 0, Wall = 1, Trigger = 2 };
+
+  Type type{ Type::Unknown };
+
   CollisionSide side;
   float penetration;
 
@@ -24,8 +28,10 @@ struct CollisionEvent
     float penetration,
     Vector2 normal,
     Vector2 contact_point,
-    CollisionSide side = CollisionSide::None)
-    : other(std::move(other)), side(side), penetration(penetration), normal(normal), contact_point(contact_point)
+    CollisionSide side = CollisionSide::None,
+    Type type = Type::Unknown)
+    : other(std::move(other)), type(type), side(side), penetration(penetration), normal(normal),
+      contact_point(contact_point)
   {
     if (side == CollisionSide::None) {
       // talvez tenha que ser o valor de 1 ou -1, vai depender do sistema de coordenadas/implementação

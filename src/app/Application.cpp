@@ -110,6 +110,7 @@ void Application::Initialize()
   shared::render::GetRenderBridge()->LoadSprite("assets/sprites/player/projectile/javelin-projectile.png");
   shared::render::GetRenderBridge()->LoadSprite("assets/sprites/world/plains.png");
   shared::render::GetRenderBridge()->LoadSprite("assets/sprites/player/projectile/bow-projectile.png");
+  shared::render::GetRenderBridge()->LoadSprite("assets/sprites/enemy/enemy_hood.png");
 }
 
 void Application::Shutdown() {}

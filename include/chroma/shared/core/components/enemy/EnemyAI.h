@@ -8,13 +8,13 @@
 
 namespace chroma::shared::core::component {
 
-class EnemyAIComponent final : public Component
+class EnemyAI final : public Component
 {
 public:
-  explicit EnemyAIComponent(const std::shared_ptr<GameObject> &owner);
+  explicit EnemyAI();
 
+  void Initialize();
   void SetTarget(const std::shared_ptr<GameObject> &target);
-
   void Update(float delta_time) override;
 
 private:

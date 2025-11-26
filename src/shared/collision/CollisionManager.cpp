@@ -7,6 +7,8 @@
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/GameObjectManager.h"
 #include "chroma/shared/core/components/Transform.h"
+#include "chroma/shared/core/components/world/ColliderBox.h"
+#include "chroma/shared/core/components/world/EventColliderBox.h"
 
 #include <algorithm>
 #include <cmath>
@@ -210,21 +212,31 @@ void CollisionManager::CheckCollision(const ColliderEntry &a, const ColliderEntr
 
   if (!obj_a || !obj_b) { return; }
 
-  BodyType type_a = BodyType::Dynamic;
-  BodyType type_b = BodyType::Dynamic;
+  BodyType body_type_a = BodyType::Dynamic;
+  BodyType body_type_b = BodyType::Dynamic;
 
   for (const auto &collider : static_colliders_) {
-    if (collider == a) { type_a = BodyType::Static; }
-    if (collider == b) { type_b = BodyType::Static; }
+    if (collider == a) { body_type_a = BodyType::Static; }
+    if (collider == b) { body_type_b = BodyType::Static; }
   }
 
-  const CollisionResolutionStrategy strategy = DetermineResolutionStrategy(obj_a, obj_b, type_a, type_b);
+  const CollisionResolutionStrategy strategy = DetermineResolutionStrategy(obj_a, obj_b, body_type_a, body_type_b);
 
-  const CollisionEvent event_a(obj_b, penetration, normal, contact);
-  const CollisionEvent event_b(obj_a, penetration, Vector2Negate(normal), contact);
+  CollisionEvent::Type event_type_a = CollisionEvent::Type::Unknown;
+  CollisionEvent::Type event_type_b = CollisionEvent::Type::Unknown;
+
+  if (obj_a->GetComponent<core::component::ColliderBox>()) { event_type_a = CollisionEvent::Type::Wall; }
+  if (obj_b->GetComponent<core::component::ColliderBox>()) { event_type_b = CollisionEvent::Type::Wall; }
+  if (obj_a->GetComponent<core::component::EventColliderBox>()) { event_type_a = CollisionEvent::Type::Trigger; }
+  if (obj_b->GetComponent<core::component::EventColliderBox>()) { event_type_b = CollisionEvent::Type::Trigger; }
+
+  const CollisionEvent event_a(obj_b, penetration, normal, contact, CollisionSide::None, event_type_a);
+  const CollisionEvent event_b(obj_a, penetration, Vector2Negate(normal), contact, CollisionSide::None, event_type_b);
 
   obj_a->OnCollision(event_a);
   obj_b->OnCollision(event_b);
+
+  if (event_type_a == CollisionEvent::Type::Trigger || event_type_b == CollisionEvent::Type::Trigger) { return; }
 
   switch (strategy) {
   case CollisionResolutionStrategy::None:
