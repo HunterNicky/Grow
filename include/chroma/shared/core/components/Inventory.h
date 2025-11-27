@@ -41,6 +41,9 @@ public:
   const std::shared_ptr<Weapon> &ChangeToNextWeapon();
   const std::shared_ptr<Weapon> &ChangeToPreviousWeapon();
 
+  [[nodiscard]] bool HasItemType(const WeaponType type) const;
+  void SetWeaponByWeaponType(const WeaponType type);
+
 private:
   int capacity_;
   std::vector<std::shared_ptr<Item>> items_;

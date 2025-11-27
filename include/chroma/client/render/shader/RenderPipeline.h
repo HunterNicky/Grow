@@ -27,6 +27,7 @@ public:
   RenderTexture2D &Execute(RenderTexture2D &original_scene);
 
   [[nodiscard]] RenderPass* GetPassByType(PassType type) const;
+  void RemovePassByType(PassType type);
 
   template<typename T>
   T* GetPass() const {

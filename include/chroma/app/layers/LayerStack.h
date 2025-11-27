@@ -4,13 +4,16 @@
 #include <string>
 #include <vector>
 
+#include "chroma/app/commands/CommandQueue.h"
 #include "chroma/app/layers/Layer.h"
+#include "chroma/shared/events/layer/LayerEvent.h"
+#include "chroma/app/layers/LayerIdentifiers.h"
 
 namespace chroma::app::layer {
 class LayerStack
 {
 public:
-  LayerStack() = default;
+  LayerStack();
 
   void PushLayer(std::unique_ptr<Layer> layer);
   void PopLayer();
@@ -21,12 +24,14 @@ public:
   void UpdateLayers(float delta_time) const;
   void UpdateFixedLayers(float fixed_delta_time) const;
   void RenderLayers() const;
-  void HandleEvent(shared::event::Event &event) const;
+  void HandleEvent(shared::event::Event &event);
+  void PushLayerEvent(const LayerID layer_id);
 
   [[nodiscard]] Layer *GetLayer(const std::string &name) const;
 
 private:
   std::vector<std::unique_ptr<Layer>> layers_;
   std::vector<std::unique_ptr<Layer>> overlays_;
+  std::unique_ptr<app::command::CommandQueue> command_queue_;
 };
 }// namespace chroma::app::layer

@@ -24,6 +24,8 @@
 #include "chroma/shared/core/components/world/WorldRender.h"
 #include "chroma/shared/core/components/world/WorldSystem.h"
 #include "chroma/shared/packet/adapter/ComponentAdapter.h"
+#include "chroma/shared/core/components/CharacterType.h"
+#include "chroma/shared/core/components/Nivel.h"
 
 #include <memory>
 #include <raylib.h>
@@ -280,6 +282,16 @@ public:
     obj_->AttachComponent(enemy_ai);
     enemy_ai->Initialize();
     return *this;
+  }
+
+  GameObjectBuilder &AddNivel(int nivel = 1, float experience = 0.0F, float experience_to_next_nivel = 0.0F)
+  {
+      auto nivel_comp = std::make_shared<core::component::Nivel>();
+      nivel_comp->SetNivel(nivel);
+      nivel_comp->SetExperience(experience);
+      nivel_comp->SetExperienceToNextNivel(experience_to_next_nivel);
+      obj_->AttachComponent(nivel_comp);
+      return *this;
   }
 
   std::shared_ptr<T> Build() { return obj_; }

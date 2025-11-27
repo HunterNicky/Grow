@@ -35,9 +35,8 @@ GameServer::GameServer()
     shared::event::EventBus::SetDispatcher(dispatcher);
   }
 
-  shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::SoundEvent>(
-    [this](const shared::event::Event &ev) {
-      if (!network_.IsReady()) { return; }
+  sound_sub_ = shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::SoundEvent>([this](shared::event::Event &ev) {
+    if (!network_.IsReady()) { return; }
 
       const auto &sound_ev = dynamic_cast<const shared::event::SoundEvent &>(ev);
 
@@ -165,7 +164,7 @@ void GameServer::DisconnectClient(const ENetEvent &event)
   if (!is_running_ || !network_.IsReady()) { return; }
 
   if (network_.ConnectedPeers() == 0) { is_running_ = false; }
-
+  
   sessions_.RemoveSession(event.peer);
 }
 

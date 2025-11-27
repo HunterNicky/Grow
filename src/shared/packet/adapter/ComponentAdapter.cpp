@@ -16,6 +16,7 @@
 #include "chroma/shared/core/components/Weapon.h"
 #include "chroma/shared/factory/WeaponFactory.h"
 #include "chroma/shared/core/components/CharacterType.h"
+#include "chroma/shared/core/components/Nivel.h"
 
 #include <common_generated.h>
 #include <components_generated.h>
@@ -42,6 +43,7 @@ void ComponentAdapter::ToComponent(const std::shared_ptr<core::GameObject> &game
   AttackToComponent(game_object->GetComponent<core::component::Attack>(), builder, fb_components);
   ProjectileTypeToComponent(game_object->GetComponent<core::component::ProjectileType>(), builder, fb_components);
   CharacterTypeToComponent(game_object->GetComponent<core::component::CharacterTypeComponent>(), builder, fb_components);
+  NivelToComponent(game_object->GetComponent<core::component::Nivel>(), builder, fb_components);
 }
 
 void ComponentAdapter::FromComponent(const Game::Component &component,
@@ -77,6 +79,9 @@ void ComponentAdapter::FromComponent(const Game::Component &component,
     break;
   case Game::ComponentUnion::CharacterTypeComponent:
     ComponentToCharacterType(&component, game_object);
+    break;
+  case Game::ComponentUnion::Nivel:
+    ComponentToNivel(&component, game_object);
     break;
   default:
     return;
@@ -467,4 +472,32 @@ core::component::CharacterType ComponentAdapter::GetCharacterTypeFromEntityState
   return core::component::CharacterType::NONE;
 }
 
+void ComponentAdapter::NivelToComponent(const std::shared_ptr<core::component::Component> &component,
+  flatbuffers::FlatBufferBuilder &builder,
+  std::vector<flatbuffers::Offset<Game::Component>> &fb_components)
+{
+  if (!component) { return; }
+  const auto nivel = std::static_pointer_cast<core::component::Nivel>(component);
+  const auto fb_nivel = Game::CreateNivel(builder, nivel->GetNivel(), nivel->GetExperience(), nivel->GetExperienceToNextNivel());
+  const auto fb_component = Game::CreateComponent(builder, Game::ComponentUnion::Nivel, fb_nivel.Union());
+  fb_components.push_back(fb_component);
+}
+
+void ComponentAdapter::ComponentToNivel(const Game::Component *component,
+  const std::shared_ptr<core::GameObject> &game_object)
+{
+  const auto *fb_nivel = component->type_as_Nivel();
+  if (fb_nivel == nullptr) { return; }
+
+  auto nivel = game_object->GetComponent<core::component::Nivel>();
+  if (!nivel) {
+    auto new_nivel = std::make_shared<core::component::Nivel>(fb_nivel->nivel());
+    game_object->AttachComponent(new_nivel);
+    nivel = new_nivel;
+  }
+
+  nivel->SetNivel(fb_nivel->nivel());
+  nivel->SetExperience(fb_nivel->experience_());
+  nivel->SetExperienceToNextNivel(fb_nivel->experience_to_next_nivel_());
+}
 }// namespace chroma::shared::packet::adapter

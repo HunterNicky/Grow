@@ -146,4 +146,18 @@ const std::shared_ptr<Weapon> &Inventory::ChangeToPreviousWeapon()
   return current_weapon_;
 }
 
+bool Inventory::HasItemType(const WeaponType type) const
+{
+  auto it = std::ranges::find_if(weapons_, [type](const std::shared_ptr<Weapon> &w) { return w->GetWeaponType() == type; });
+  return it != weapons_.end();
+}
+
+void Inventory::SetWeaponByWeaponType(const WeaponType type)
+{
+  auto it = std::ranges::find_if(weapons_, [type](const std::shared_ptr<Weapon> &w) { return w->GetWeaponType() == type; });
+  if (it != weapons_.end()) {
+    current_weapon_ = *it;
+  }
+}
+
 }// namespace chroma::shared::core::component

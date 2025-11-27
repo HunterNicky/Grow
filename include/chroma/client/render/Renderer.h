@@ -9,6 +9,7 @@
 #include "chroma/client/render/shader/RenderPass.h"
 #include "chroma/client/render/shader/RenderPipeline.h"
 #include "chroma/shared/events/Event.h"
+#include "chroma/shared/events/Subscription.h"
 
 #include <functional>
 #include <memory>
@@ -49,11 +50,9 @@ public:
 
   void HandleShaderEvent(const shared::event::Event &event) const;
   void HandleAddShaderEvent(const shared::event::Event &event) const;
+  void HandleRemoveShaderEvent(const shared::event::Event &event) const;
   void HandleChangeShaderEvent(const shared::event::Event &event) const;
-
-  void AddShaderPassFront(std::unique_ptr<shader::RenderPass> pass) const;
-  void AddShaderPassBack(std::unique_ptr<shader::RenderPass> pass) const;
-
+  
   [[nodiscard]] Camera &GetCamera() const { return *camera_; }
   [[nodiscard]] RenderQueue &GetQueue() const { return *render_queue_; }
   [[nodiscard]] TextureAtlas &GetAtlasManager() const { return *atlas_manager_; }
@@ -61,7 +60,11 @@ public:
   [[nodiscard]] animation::AnimationRenderer &GetAnimationRenderer() const { return *animation_renderer_; }
   [[nodiscard]] RenderTarget &GetRenderTarget() const { return *render_target_; }
 
-private:
+  private:
+
+  void AddShaderPassFront(std::unique_ptr<shader::RenderPass> pass) const;
+  void AddShaderPassBack(std::unique_ptr<shader::RenderPass> pass) const;
+  
   std::unique_ptr<Window> window_;
   RenderConfig config_;
   Color clear_color_;
@@ -73,6 +76,7 @@ private:
   std::unique_ptr<SpriteRenderer> sprite_renderer_;
   std::unique_ptr<animation::AnimationRenderer> animation_renderer_;
   std::unique_ptr<shader::RenderPipeline> render_pipeline_;
+  shared::event::Subscription key_sub_;
 
   void InitializeSubsystems();
 };

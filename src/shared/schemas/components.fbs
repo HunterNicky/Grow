@@ -15,8 +15,9 @@
   table Attack {attack: bool; }
   table ProjectileType { proj_type_ : TypeProjectile; }
   table CharacterTypeComponent { character_type : CharacterType; }
+  table Nivel {nivel : int; experience_ : float; experience_to_next_nivel_ : float; }
 
-  union ComponentUnion { Position, Scale, Velocity, Movement, Health, Facing, Color, Run, Inventory, Attack, ProjectileType, CharacterTypeComponent }
+  union ComponentUnion { Position, Scale, Velocity, Movement, Health, Facing, Color, Run, Inventory, Attack, ProjectileType, CharacterTypeComponent, Nivel }
 
   table Component {
     type:ComponentUnion;

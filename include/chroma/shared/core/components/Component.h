@@ -32,6 +32,7 @@ enum class ComponentType : uint8_t {
   WORLD_SYSTEM = 18,
   WORLD_NAVIGATION = 19,
   EVENT_COLLIDER_BOX = 20,
+  CHARACTER_NIVEL = 21
 };
 
 class Component

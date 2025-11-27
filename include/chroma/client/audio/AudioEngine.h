@@ -25,6 +25,6 @@ private:
   std::unique_ptr<SoundManager> sound_manager_;
   std::unique_ptr<MusicManager> music_manager_;
   std::unique_ptr<AudioListener> audio_listener_;
-  float master_volume_ = 1.0f;
+  float master_volume_ = 0.0F;
 };
 }// namespace chroma::client::audio

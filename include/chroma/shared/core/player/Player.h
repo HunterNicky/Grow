@@ -5,6 +5,7 @@
 #include "chroma/shared/core/components/Weapon.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/InputState.h"
+#include "chroma/app/database/DatabaseTypes.h"
 
 enum class FacingDir : uint8_t { Up = 0, Down = 1, Side = 2 };
 
@@ -33,10 +34,19 @@ public:
   void UpdateAttack(float delta_time) const;
   void HandleThrowInput(const std::shared_ptr<component::Weapon> &weapon) const;
 
+  FacingDir GetLastFacingDir() const;
+
   void SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &anim_component);
   std::shared_ptr<GameObject> Clone() override;
 
   void SetCurrentWeapon(const std::shared_ptr<component::Weapon> &weapon) const;
+
+  void LoadPlayerWithPlayerData(const app::database::PlayerData &player_data);
+  app::database::PlayerData SavePlayerToPlayerData() const;
+
+  [[nodiscard]]bool IsLeft() const; 
+  void SetIsLeft(bool is_left);
+  [[nodiscard]]int GetCharacterSkin() const;
 
 private:
   events::InputState input_state_;

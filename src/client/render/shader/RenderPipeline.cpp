@@ -2,6 +2,7 @@
 #include "chroma/client/render/shader/RenderPass.h"
 #include "chroma/client/render/shader/ShaderPass.h"
 
+#include <algorithm>
 #include <memory>
 #include <raylib.h>
 #include <utility>
@@ -60,6 +61,16 @@ RenderPass* RenderPipeline::GetPassByType(PassType type) const
     }
   }
   return nullptr;
+}
+
+void RenderPipeline::RemovePassByType(PassType type)
+{
+  std::erase_if(passes_, [type](const std::unique_ptr<RenderPass>& p) {
+    if (auto* shader_pass = dynamic_cast<ShaderPass*>(p.get())) {
+      return shader_pass->GetPassType() == type;
+    }
+    return false;
+  });
 }
 
 }// namespace chroma::client::render::shader
