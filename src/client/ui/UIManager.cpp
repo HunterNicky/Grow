@@ -227,8 +227,8 @@ void UIManager::RegisterPanels()
   panel_factory_.Register(panel::PanelID::PauseBackgroundPanel, [this](Vector2 screen_size, Vector2 panel_size) {
     const Rectangle bounds = this->GetCenteredRect(screen_size, panel_size.x, panel_size.y);
 
-    const Color overlay = (Color){ 0, 0, 0, 180 };
-    const Color bg_color = (Color){ 20, 20, 20, 230 };
+    const Color overlay = { 0, 0, 0, 180 };
+    const Color bg_color = { 20, 20, 20, 230 };
     const Rectangle bounds_overlay = { 0, 0, screen_size.x, screen_size.y };
     const Rectangle bounds_panel = this->GetCenteredRect(screen_size, panel_size.x * 0.5F, panel_size.y);
 

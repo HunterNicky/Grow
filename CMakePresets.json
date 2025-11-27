@@ -179,8 +179,7 @@
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "clang",
                 "CMAKE_CXX_COMPILER": "clang++",
-                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-                "chroma_ENABLE_CLANG_TIDY": "OFF"
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
             }
         },
         {
@@ -189,8 +188,8 @@
             "description": "Fast development build for Windows (no analyzers)",
             "inherits": "conf-windows-common",
             "cacheVariables": {
-                "CMAKE_C_COMPILER": "clang-cl",
-                "CMAKE_CXX_COMPILER": "clang-cl",
+                "CMAKE_C_COMPILER": "cl",
+                "CMAKE_CXX_COMPILER": "cl",
                 "CMAKE_BUILD_TYPE": "Debug",
                 "chroma_ENABLE_IPO": "OFF",
                 "chroma_ENABLE_CLANG_TIDY": "OFF",
@@ -230,15 +229,15 @@
         }
     ],
     "buildPresets" :[
-      { "name": "build-unix-clang-debug", "configurePreset": "unixlike-clang-debug", "displayName": "Build Clang Debug (Unix)" },
-      { "name": "build-unix-clang-release", "configurePreset": "unixlike-clang-release", "displayName": "Build Clang Release (Unix)" },
-      { "name": "build-unix-gcc-debug", "configurePreset": "unixlike-gcc-debug", "displayName": "Build GCC Debug (Unix)" },
-      { "name": "build-unix-gcc-release", "configurePreset": "unixlike-gcc-release", "displayName": "Build GCC Release (Unix)" },
-      { "name": "build-windows-clang-release", "configurePreset": "windows-clang-release", "displayName": "Build Clang Release (Windows)" },
-      { "name": "build-windows-clang-debug", "configurePreset": "windows-clang-debug", "displayName": "Build Clang Debug (Windows)" },
-      { "name": "build-windows-msvc-release-dev", "configurePreset": "windows-msvc-release-developer-mode", "displayName": "Build MSVC Release (Dev)" },
-      { "name": "build-windows-msvc-debug-dev", "configurePreset": "windows-msvc-debug-developer-mode", "displayName": "Build MSVC Debug (Dev)" },
-      { "name": "build-dev-fast-windows", "configurePreset": "dev-fast-windows", "displayName": "Build Dev Fast (Windows)" },
-      { "name": "build-dev-fast-linux", "configurePreset": "dev-fast-linux", "displayName": "Build Dev Fast (Linux)" }
+        { "name": "build-unix-clang-debug", "configurePreset": "unixlike-clang-debug", "displayName": "Build Clang Debug (Unix)" },
+        { "name": "build-unix-clang-release", "configurePreset": "unixlike-clang-release", "displayName": "Build Clang Release (Unix)" },
+        { "name": "build-unix-gcc-debug", "configurePreset": "unixlike-gcc-debug", "displayName": "Build GCC Debug (Unix)" },
+        { "name": "build-unix-gcc-release", "configurePreset": "unixlike-gcc-release", "displayName": "Build GCC Release (Unix)" },
+        { "name": "build-windows-clang-release", "configurePreset": "windows-clang-release", "displayName": "Build Clang Release (Windows)" },
+        { "name": "build-windows-clang-debug", "configurePreset": "windows-clang-debug", "displayName": "Build Clang Debug (Windows)" },
+        { "name": "build-windows-msvc-release-dev", "configurePreset": "windows-msvc-release-developer-mode", "displayName": "Build MSVC Release (Dev)" },
+        { "name": "build-windows-msvc-debug-dev", "configurePreset": "windows-msvc-debug-developer-mode", "displayName": "Build MSVC Debug (Dev)" },
+        { "name": "build-dev-fast-windows", "configurePreset": "dev-fast-windows", "displayName": "Build Dev Fast (Windows)" },
+        { "name": "build-dev-fast-linux", "configurePreset": "dev-fast-linux", "displayName": "Build Dev Fast (Linux)" }
     ]
 }
