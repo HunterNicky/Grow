@@ -8,6 +8,11 @@
 #include "chroma/client/render/shader/RenderPass.h"
 #include "chroma/client/render/shader/RenderPipeline.h"
 #include "chroma/client/render/shader/shaders/CrtPass.h"
+#include "chroma/shared/events/Event.h"
+#include "chroma/shared/events/EventBus.h"
+#include "chroma/shared/events/ShaderEvent.h"
+#include "chroma/client/factory/ShaderFactory.h"
+#include "chroma/client/ui/UIManagerBus.h"
 
 #include <functional>
 #include <memory>
@@ -44,11 +49,15 @@ void Renderer::EndFrame() const
   EndMode2D();
   RenderTarget::End();
 
+  
   RenderTexture2D scene_rt = render_target_->GetTexture();
+  RenderTexture2D processed_rt = render_pipeline_->Execute(scene_rt);
+  
+  BeginTextureMode(processed_rt);
+  ui::UIManagerBus::GetUIManager()->OnRender();
+  EndTextureMode();
 
-  auto final_tex = render_pipeline_->Execute(scene_rt);
-
-  render_target_->Draw(final_tex.texture, GetScreenWidth(), GetScreenHeight());
+  render_target_->Draw(processed_rt.texture, GetScreenWidth(), GetScreenHeight());
 
   EndDrawing();
 }
@@ -90,7 +99,7 @@ void Renderer::InitializeSubsystems()
 
   render_target_ = std::make_unique<RenderTarget>(vw, vh);
 
-  camera_ = std::make_unique<Camera>(0.0F, 0.0F, vw, vh);
+  camera_ = std::make_unique<Camera>(static_cast<float>(vh) / 2.0F, static_cast<float>(vw) / 2.0F, vw, vh);
   render_queue_ = std::make_unique<RenderQueue>();
   atlas_manager_ = std::make_unique<TextureAtlas>();
   sprite_renderer_ =
@@ -108,6 +117,7 @@ void Renderer::InitializeSubsystems()
 
   SetTextureFilter(render_target_->GetTexture().texture, config_.filter);
   SetVSync(config_.vsync);
+
 }
 
 void Renderer::AddShaderPassFront(std::unique_ptr<shader::RenderPass> pass) const
@@ -122,6 +132,59 @@ void Renderer::AddShaderPassBack(std::unique_ptr<shader::RenderPass> pass) const
   if (render_pipeline_ == nullptr) { return; }
   render_pipeline_->AddPassBack(std::move(pass));
   render_pipeline_->Setup();
+}
+
+void Renderer::SetEventDispatcher()
+{
+  key_sub_ = shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::ShaderEvent>(
+    [this](shared::event::Event &event) { this->HandleShaderEvent(event); });
+}
+
+void Renderer::HandleShaderEvent(const shared::event::Event &event) const
+{
+  const auto &shader_event = dynamic_cast<const shared::event::ShaderEvent &>(event);
+  switch (shader_event.GetShaderEventType()) {
+    case shared::event::ShaderEventType::ADD:
+      HandleAddShaderEvent(event);
+      break;
+    case shared::event::ShaderEventType::CHANGE:
+      HandleChangeShaderEvent(event);
+      break;
+    case shared::event::ShaderEventType::REMOVE:
+      HandleRemoveShaderEvent(event);
+      break;
+    default:
+      break;
+  }
+}
+
+void Renderer::HandleAddShaderEvent(const shared::event::Event &event) const
+{
+  const auto &shader_event = dynamic_cast<const shared::event::ShaderEvent &>(event);
+  std::unique_ptr<shader::RenderPass> shader_pass = factory::ShaderPassFactory::Create(shader_event.GetPassType());
+
+  if(!shader_pass) { return; }
+
+  if(shader_event.IsFront()) {
+      AddShaderPassFront(std::move(shader_pass));
+  } else {
+      AddShaderPassBack(std::move(shader_pass));
+  }
+}
+
+void Renderer::HandleRemoveShaderEvent(const shared::event::Event &event) const
+{
+  const auto &shader_event = dynamic_cast<const shared::event::ShaderEvent &>(event);
+  render_pipeline_->RemovePassByType(shader_event.GetPassType());
+}
+
+void Renderer::HandleChangeShaderEvent(const shared::event::Event &event) const
+{
+  const auto &shader_event = dynamic_cast<const shared::event::ShaderEvent &>(event);
+  shader::RenderPass* pass = render_pipeline_->GetPassByType(shader_event.GetPassType());
+  if(pass == nullptr) { return; }
+
+  pass->SetActive(!pass->IsActive());
 }
 
 }// namespace chroma::client::render

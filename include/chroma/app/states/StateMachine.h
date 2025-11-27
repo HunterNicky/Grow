@@ -22,11 +22,13 @@ public:
   void OnRender();
 
   void OnEvent(shared::event::Event &event);
+  std::shared_ptr<State> GetStateByName(const std::string &name);
 
   void PushState(const std::shared_ptr<State> &state);
   void PopState();
 
   [[nodiscard]] std::shared_ptr<State> GetCurrentState();
+  void OnRenderAll();
 
 private:
   std::stack<std::shared_ptr<State>> states_;

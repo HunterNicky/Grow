@@ -20,14 +20,14 @@ public:
   Health(Health &&) noexcept = default;
   Health &operator=(Health &&) noexcept = default;
 
-  void TakeDamage(float amount);
-  void Heal(float amount);
+  void TakeDamage(float amount) const;
+  void Heal(float amount) const;
 
   [[nodiscard]] std::shared_ptr<float> GetCurrentHealth() const;
   [[nodiscard]] std::shared_ptr<float> GetMaxHealth() const;
 
-  void SetMaxHealth(float max_health);
-  void SetCurrentHealth(float current_health);
+  void SetMaxHealth(float max_health) const;
+  void SetCurrentHealth(float current_health) const;
 
   void DrawHealth(Vector2 position, Vector2 size) const;
 

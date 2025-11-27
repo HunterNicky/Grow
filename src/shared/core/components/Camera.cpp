@@ -11,6 +11,16 @@ CameraComponent::CameraComponent()
   type_ = ComponentType::CAMERA;
 }
 
+void CameraComponent::Setup()
+{
+  const auto bridge = render::GetRenderBridge();
+  if (!bridge) { return; }
+  const auto obj = GetGameObject();
+  if (!obj) { return; }
+  const auto transform = obj->GetComponent<Transform>();
+  if (transform) { bridge->CameraSetPosition(transform->GetPosition()); }
+}
+
 void CameraComponent::Update(const float delta_time)
 {
   // if (!IsAutonomousProxy()) { return; }

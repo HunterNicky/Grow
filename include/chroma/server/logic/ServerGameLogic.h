@@ -8,6 +8,7 @@
 #include <flatbuffers/flatbuffer_builder.h>
 
 #include "chroma/shared/core/GameObject.h"
+#include "chroma/server/logic/WaveManager.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/packet/events/InputEventMessage.h"
@@ -28,25 +29,19 @@ public:
   ServerGameLogic &operator=(ServerGameLogic &&) = delete;
 
   static void CreateWorld();
-  void Update(float delta_time) const;
+  void Update(float delta_time);
 
-  std::shared_ptr<shared::core::player::Player> CreatePlayer();
-  std::vector<flatbuffers::Offset<Game::EntityState>> GetEntitiesFlatBuffer(
-    flatbuffers::FlatBufferBuilder &builder) const;
+  static std::shared_ptr<shared::core::player::Player> CreatePlayer();
+  static std::vector<flatbuffers::Offset<Game::EntityState>> GetEntitiesFlatBuffer(
+    flatbuffers::FlatBufferBuilder &builder);
 
-  void OnReceivedInputMessage(const std::shared_ptr<shared::packet::InputMessage> &input_message,
+  static void OnReceivedInputMessage(const std::shared_ptr<shared::packet::InputMessage> &input_message,
     const UUIDv4::UUID &player_id);
   void OnReceivedProjectileMessage(const std::shared_ptr<shared::packet::ProjectileMessage> &projectile_message);
-  void HandleInput(const shared::event::Event &event, const UUIDv4::UUID &player_id);
-
-  [[nodiscard]] const std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>> &
-    GetGameObjects() const
-  {
-    return game_objects_;
-  }
+  static void HandleInput(shared::event::Event &event, const UUIDv4::UUID &player_id);
 
 private:
-  std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>> game_objects_;
+  WaveManager wave_manager_;
 };
 
 }// namespace chroma::server::logic

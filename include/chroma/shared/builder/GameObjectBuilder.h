@@ -1,9 +1,13 @@
 #pragma once
 
+#include "chroma/shared/collision/CollisionManager.h"
+#include "chroma/shared/collision/Quadtree.h"
+#include "chroma/shared/context/GameContextManager.h"
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/Attack.h"
 #include "chroma/shared/core/components/AudioListener.h"
 #include "chroma/shared/core/components/Camera.h"
+#include "chroma/shared/core/components/CharacterType.h"
 #include "chroma/shared/core/components/Coloring.h"
 #include "chroma/shared/core/components/Health.h"
 #include "chroma/shared/core/components/Inventory.h"
@@ -13,6 +17,15 @@
 #include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/components/Transform.h"
+#include "chroma/shared/core/components/enemy/EnemyAI.h"
+#include "chroma/shared/core/components/world/ColliderBox.h"
+#include "chroma/shared/core/components/world/EventColliderBox.h"
+#include "chroma/shared/core/components/world/WorldNavigation.h"
+#include "chroma/shared/core/components/world/WorldRender.h"
+#include "chroma/shared/core/components/world/WorldSystem.h"
+#include "chroma/shared/packet/adapter/ComponentAdapter.h"
+#include "chroma/shared/core/components/CharacterType.h"
+#include "chroma/shared/core/components/Nivel.h"
 
 #include <memory>
 #include <raylib.h>
@@ -67,7 +80,7 @@ public:
   //   COMPONENTES
   // ------------------------------------------
 
-  GameObjectBuilder &AddTransform(Vector2 pos, Vector2 scale = { 1.0F, 1.0F })
+  GameObjectBuilder &AddTransform(const Vector2 pos, const Vector2 scale = { 1.0F, 1.0F })
   {
     auto transform = std::make_shared<core::component::Transform>();
     transform->SetPosition(pos);
@@ -76,14 +89,37 @@ public:
     return *this;
   }
 
+  GameObjectBuilder &AddTransform(const Game::EntityState *entity_state, const Vector2 scale = { 1.0F, 1.0F })
+  {
+    if (entity_state == nullptr) { return *this; }
+
+    const Game::Component *comp = nullptr;
+    for (const auto *component : *entity_state->components()) {
+      if (component->type_type() == Game::ComponentUnion::Position) {
+        comp = component;
+        break;
+      }
+    }
+
+    if (comp != nullptr) {
+      packet::adapter::ComponentAdapter::FromComponent(*comp, obj_);
+      auto transform = obj_->template GetComponent<core::component::Transform>();
+      if (transform) { transform->SetScale(scale); }
+    }
+
+    return *this;
+  }
+
+
   GameObjectBuilder &AddSpeed(float speed)
   {
+    // speed = 5000.0f;
     auto speed_component = std::make_shared<core::component::Speed>(speed);
     obj_->AttachComponent(speed_component);
     return *this;
   }
 
-  GameObjectBuilder &AddMovement(Vector2 direction = { 0.0F, 0.0F })
+  GameObjectBuilder &AddMovement(const Vector2 direction = { 0.0F, 0.0F })
   {
     auto movement = std::make_shared<core::component::Movement>();
     movement->SetDirection(direction);
@@ -98,15 +134,17 @@ public:
     return *this;
   }
 
-  GameObjectBuilder &AddCamera(render::CameraMode mode, float zoom, float smoothness, Vector2 deadzone)
+  GameObjectBuilder &
+    AddCamera(const render::CameraMode mode, const float zoom, const float smoothness, const Vector2 deadzone)
   {
     auto camera = std::make_shared<core::component::CameraComponent>();
     camera->SetMode(mode);
     camera->SetZoom(zoom);
     camera->SetSmoothness(smoothness);
     camera->SetDeadzone(deadzone);
-
     obj_->AttachComponent(camera);
+
+    camera->Setup();
     return *this;
   }
 
@@ -117,7 +155,7 @@ public:
     return *this;
   }
 
-  GameObjectBuilder &AddHealth(float max_hp, float current_hp)
+  GameObjectBuilder &AddHealth(float max_hp, const float current_hp)
   {
     auto health = std::make_shared<core::component::Health>(max_hp);
     health->SetCurrentHealth(current_hp);
@@ -126,7 +164,7 @@ public:
     return *this;
   }
 
-  GameObjectBuilder &AddColoring(Color color)
+  GameObjectBuilder &AddColoring(const Color color)
   {
     auto coloring = std::make_shared<core::component::Coloring>();
     coloring->SetColoring(color.r, color.g, color.b, color.a);
@@ -135,7 +173,7 @@ public:
     return *this;
   }
 
-  GameObjectBuilder &AddRun(bool is_running, float speed_factor = 1.5F)
+  GameObjectBuilder &AddRun(const bool is_running, const float speed_factor = 1.5F)
   {
     auto run = std::make_shared<core::component::Run>();
     run->SetRunning(is_running);
@@ -145,7 +183,7 @@ public:
     return *this;
   }
 
-  GameObjectBuilder &AddInventory(int capacity)
+  GameObjectBuilder &AddInventory(const int capacity)
   {
     auto inventory = std::make_shared<core::component::Inventory>();
     inventory->SetCapacity(capacity);
@@ -160,12 +198,100 @@ public:
     return *this;
   }
 
-  GameObjectBuilder &AddProjectileType(core::component::TypeProjectile projectile_type)
+  GameObjectBuilder &AddProjectileType(const core::component::TypeProjectile projectile_type)
   {
     auto proj_type = std::make_shared<core::component::ProjectileType>();
     proj_type->SetProjectileType(projectile_type);
     obj_->AttachComponent(proj_type);
     return *this;
+  }
+
+  GameObjectBuilder &AddColliderBox(const GameContextType context_type,
+    const Vector2 size,
+    const Vector2 offset = { 0.0F, 0.0F },
+    const collision::BodyType type = collision::BodyType::Dynamic)
+  {
+    auto collider = std::make_shared<core::component::ColliderBox>(size, offset);
+    obj_->AttachComponent(collider);
+
+    const collision::ColliderEntry entry{
+      .id = obj_->GetId(), .bounds = collider->GetBoundingBox(), .component = collider
+    };
+    GCM::Instance().GetContext(context_type)->GetCollisionManager()->AddCollider(entry, type);
+    return *this;
+  }
+
+  GameObjectBuilder &AddEventColliderBox(const GameContextType context_type,
+    const Vector2 size,
+    const Vector2 offset = { 0.0F, 0.0F },
+    const collision::BodyType type = collision::BodyType::Dynamic)
+  {
+    auto collider = std::make_shared<core::component::EventColliderBox>(size, offset);
+    obj_->AttachComponent(collider);
+
+    const collision::ColliderEntry entry{
+      .id = obj_->GetId(), .bounds = collider->GetBoundingBox(), .component = collider
+    };
+    GCM::Instance().GetContext(context_type)->GetCollisionManager()->AddCollider(entry, type);
+    return *this;
+  }
+
+  GameObjectBuilder &AddWorldSystem(const std::string &path)
+  {
+    auto world_system = std::make_shared<core::component::WorldSystem>();
+    obj_->AttachComponent(world_system);
+    world_system->Initialize(path);
+    return *this;
+  }
+
+  GameObjectBuilder &AddWorldRender(const std::string &path)
+  {
+    auto world_render = std::make_shared<core::component::WorldRender>();
+    obj_->AttachComponent(world_render);
+
+    auto world_system = obj_->template GetComponent<core::component::WorldSystem>();
+    if (!world_system) {
+      TraceLog(LOG_WARNING, "GameObjectBuilder: WorldRender added without WorldSystem.");
+      return *this;
+    }
+
+    world_render->SetRenderTile(world_system->GetRenderTile());
+    world_render->Initialize(path);
+    return *this;
+  }
+
+  GameObjectBuilder &AddCharacterType(const core::component::CharacterType character_type)
+  {
+    auto character_type_comp = std::make_shared<core::component::CharacterTypeComponent>();
+    character_type_comp->SetCharacterType(character_type);
+    obj_->AttachComponent(character_type_comp);
+    return *this;
+  }
+
+  GameObjectBuilder &AddWorldNavigation()
+  {
+    auto world_navigation = std::make_shared<core::component::WorldNavigation>();
+    obj_->AttachComponent(world_navigation);
+    world_navigation->Initialize();
+    return *this;
+  }
+
+  GameObjectBuilder &AddEnemyAI()
+  {
+    auto enemy_ai = std::make_shared<core::component::EnemyAI>();
+    obj_->AttachComponent(enemy_ai);
+    enemy_ai->Initialize();
+    return *this;
+  }
+
+  GameObjectBuilder &AddNivel(int nivel = 1, float experience = 0.0F, float experience_to_next_nivel = 0.0F)
+  {
+      auto nivel_comp = std::make_shared<core::component::Nivel>();
+      nivel_comp->SetNivel(nivel);
+      nivel_comp->SetExperience(experience);
+      nivel_comp->SetExperienceToNextNivel(experience_to_next_nivel);
+      obj_->AttachComponent(nivel_comp);
+      return *this;
   }
 
   std::shared_ptr<T> Build() { return obj_; }

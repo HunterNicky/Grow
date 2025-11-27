@@ -9,10 +9,10 @@ namespace chroma::client::render::shader::shaders {
 class BlurPass : public ShaderPass
 {
 public:
-  BlurPass(int width, int height, int initial_radius = 6);
+  explicit BlurPass(int width = 1920, int height = 1080, int initial_radius = 6);
 
   void SetRadius(int new_radius);
-
+  void SetResolution(int width, int height);
   int GetRadius() const;
 
   void Setup() override;

@@ -2,106 +2,170 @@
 
 #include "chroma/app/states/State.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
-#include "chroma/app/states/mediator/RenderMediator.h"
-#include "chroma/client/render/shader/shaders/HealthPass.h"
+#include "chroma/client/render/shader/RenderPass.h"
 #include "chroma/shared/builder/GameObjectBuilder.h"
 #include "chroma/shared/context/GameContext.h"
+#include "chroma/shared/context/GameContextManager.h"
 #include "chroma/shared/core/GameObject.h"
-#include "chroma/shared/core/components/SpriteAnimation.h"
+#include "chroma/shared/core/components/Bow.h"
+#include "chroma/shared/core/components/CharacterType.h"
+#include "chroma/shared/core/components/Fist.h"
+#include "chroma/shared/core/components/Javelin.h"
+#include "chroma/shared/core/components/Spear.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/core/projectile/Projectile.h"
+#include "chroma/shared/core/world/World.h"
+#include "chroma/shared/core/world/WorldSystem.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/events/KeyEvent.h"
+#include "chroma/shared/events/PlayerDataEvent.h"
 #include "chroma/shared/events/ProjectileEvent.h"
 #include "chroma/shared/render/RenderBridge.h"
+#include "chroma/shared/utils/UUID.h"
+#include "chroma/shared/events/ShaderEvent.h"
+#include "chroma/client/render/shader/RenderPass.h"
+#include "chroma/shared/render/RenderBridge.h"
+#include "chroma/shared/events/state/StateEvent.h"
+#include "chroma/shared/events/ui/PanelEvent.h"
+#include "chroma/shared/utils/Random.h"
+#include "chroma/shared/utils/UUID.h"
 
 #include <cstdint>
 #include <memory>
 #include <string>
-#include <unordered_map>
 #include <utility>
 #include <uuid_v4.h>
 
 namespace chroma::app::states {
 
-GameState::GameState()
-  : State("GameState"),
-    game_objects_(std::make_shared<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>>()),
-    network_mediator_(nullptr)
+GameState::GameState(shared::core::component::CharacterType character_type) : State("GameState"), network_mediator_(nullptr)
 {
-  auto player = shared::builder::GameObjectBuilder<shared::core::player::Player>()
-                  .AddTransform({ 0, 0 })
-                  .AddSpeed(50.0F)
-                  .AddMovement()
-                  .AddAnimation()
-                  .AddCamera(shared::render::CameraMode::FollowSmooth, 3.0F, 2.0F, { 64, 128 })
-                  .AddAudioListener()
-                  .AddHealth(100.0F, 1.0F)
-                  .AddRun(false, 1.5F)
-                  .NetRole(shared::core::NetRole::AUTONOMOUS)
-                  .AddInventory(10)
-                  .Build();
 
-  SetPlayerId(player->GetId());
+  if(character_type == shared::core::component::CharacterType::NONE) {
+    character_type = static_cast<shared::core::component::CharacterType>(shared::utils::Random::Int(1, 2));
+  }
+
+  auto player =
+    chroma::shared::builder::GameObjectBuilder<shared::core::player::Player>()
+      .AddTransform({ 0, 0 })
+      .Id(shared::utils::UUID::Generate())
+      .AddSpeed(50.0F)
+      .AddMovement()
+      .AddAnimation()
+      .AddCamera(shared::render::CameraMode::FollowSmooth, 3.0F, 2.0F, { 64, 128 })
+      .AddColliderBox(GameContextType::Server, { 16.F, 32.F }, { -8.F, -16.F })
+      .AddAudioListener()
+      .AddHealth(100.0F, 1.0F)
+      .AddRun(false, 1.5F)
+      .AddInventory(10)
+      .AddAttack(false)
+      .AddCharacterType(character_type)
+      .AddNivel(1, 0.0F, 100.0F)
+      .NetRole(shared::core::NetRole::AUTONOMOUS)
+      .Build();
+
+  switch (player->GetComponent<shared::core::component::CharacterTypeComponent>()->GetCharacterType()) {
+
+  case shared::core::component::CharacterType::RANDI: {
+    auto spear = std::make_shared<shared::core::component::Spear>();
+    auto javelin = std::make_shared<shared::core::component::Javelin>();
+    player->GetComponent<shared::core::component::Inventory>()->AddInventory(spear);
+    player->GetComponent<shared::core::component::Inventory>()->AddInventory(javelin);
+    break;
+  }
+  case shared::core::component::CharacterType::PRIMM: {
+    auto bow = std::make_shared<shared::core::component::Bow>();
+    player->GetComponent<shared::core::component::Inventory>()->AddInventory(bow);
+    player->SetCurrentWeapon(bow);
+    break;
+  }
+  }
+
+  auto fist = std::make_shared<shared::core::component::Fist>();
+
+  player->GetComponent<shared::core::component::Inventory>()->AddInventory(fist);
   player->SetupAnimation(player->GetComponent<shared::core::component::SpriteAnimation>());
-  game_objects_->emplace(player->GetId(), player);
+
+  GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager()->Register(player);
+  SetPlayerId(player->GetId());
+
+  shared::event::ui::PanelEvent hud_main(shared::event::ui::Action::Open, client::ui::panel::PanelID::GameHUDPanel);
+  shared::event::EventBus::Dispatch(hud_main);
 }
 
 GameState::GameState(std::shared_ptr<GameNetworkMediator> network_mediator)
-  : State("GameState"),
-    game_objects_(std::make_shared<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>>()),
-    network_mediator_(std::move(network_mediator))
+  : State("GameState"), network_mediator_(std::move(network_mediator))
 {
-  network_mediator_->SetGameObjects(game_objects_);
+
+  shared::event::ui::PanelEvent hud_main(shared::event::ui::Action::Open, client::ui::panel::PanelID::GameHUDPanel);
+  shared::event::EventBus::Dispatch(hud_main);
 }
 
+GameState::~GameState()
+{
+  GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager()->Clear();
 
-GameState::~GameState() { game_objects_->clear(); }
+  shared::event::ui::PanelEvent hud_main(shared::event::ui::Action::Close, client::ui::panel::PanelID::GameHUDPanel);
+  shared::event::EventBus::Dispatch(hud_main);
+
+  shared::event::ShaderEvent shader_event(shared::event::ShaderEventType::REMOVE);
+  shader_event.SetPassType(client::render::shader::PassType::HEALTH);
+  shader_event.SetFront(true);
+  shared::event::EventBus::GetDispatcher()->Dispatch(shader_event);
+}
 
 void GameState::OnRender()
 {
-
-  if (!IsActive() || game_objects_->empty()) { return; }
-
-  for (const auto &[uuid, obj] : *game_objects_) {
-    if (obj && obj->IsActive()) { obj->OnRender(); }
-  }
+  GCM::Instance()
+    .GetContext(GameContextType::Client)
+    ->GetGameObjectManager()
+    ->ForEach([](const std::shared_ptr<shared::core::GameObject> &obj) {
+      if (obj && obj->IsActive()) { obj->OnRender(); }
+    });
 }
 
 void GameState::OnUpdate(float delta_time)
 {
   if (!IsActive()) { return; }
-
   if (network_mediator_) { network_mediator_->UpdateInterpolation(static_cast<uint64_t>(delta_time * 1000)); }
 
-  for (const auto &[uuid, obj] : *game_objects_) {
-    if (obj && obj->IsActive()) { obj->OnUpdate(delta_time); }
+  GCM::Instance()
+    .GetContext(GameContextType::Client)
+    ->GetGameObjectManager()
+    ->ForEach([delta_time](const std::shared_ptr<shared::core::GameObject> &obj) {
+      if (obj && obj->IsActive()) { obj->OnUpdate(delta_time); }
+    });
+
+  if (const auto collision_manager =
+        GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager()->GetCollisionManager();
+    collision_manager) {
+    collision_manager->Update();
   }
-}
-
-void GameState::SetGameObjects(
-  const std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>> &game_objects)
-{
-  game_objects_ =
-    std::make_shared<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>>(game_objects);
-}
-
-std::shared_ptr<std::unordered_map<UUIDv4::UUID, std::shared_ptr<shared::core::GameObject>>> &
-  GameState::GetGameObjects()
-{
-  return game_objects_;
 }
 
 void GameState::OnEvent(shared::event::Event &event)
 {
   if (player_id_ == UUIDv4::UUID{}) { return; }
+  if (IsPaused()) { return; }
 
-  auto it = game_objects_->find(player_id_);
-  if (it != game_objects_->end()) {
-    auto player = std::static_pointer_cast<shared::core::player::Player>(it->second);
-    player->HandleEvent(event);
+  if (const auto *key_event = dynamic_cast<shared::event::KeyEvent *>(&event)) {
+    if (key_event->IsPressed() && key_event->GetKey() == KEY_P) {
+      SetPaused(true);
+      shared::event::state::StateEvent state_event(shared::event::state::Action::Push, states::StateID::PauseState);
+      shared::event::EventBus::Dispatch(state_event);
+      shared::event::ui::PanelEvent panel_bg_event(
+        shared::event::ui::Action::Open, client::ui::panel::PanelID::PauseBackgroundPanel);
+      shared::event::EventBus::Dispatch(panel_bg_event);
+      return;
+    }
+  }
+
+  auto player = GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager()->Get(player_id_);
+  if (player) {
+    auto casted_player = std::static_pointer_cast<shared::core::player::Player>(player);
+    casted_player->HandleEvent(event);
   }
 
 
@@ -112,13 +176,15 @@ void GameState::SetPlayerId(const UUIDv4::UUID &player_id)
 {
   player_id_ = player_id;
 
-  auto player = GetPlayer();
+  auto player = GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager()->Get(player_id);
 
   if (player) {
-    shared::context::GameContext::GetInstance().SetLocalPlayer(player);
+    GCM::Instance().GetContext(GameContextType::Client)->SetLocalPlayer(player);
     if (first_snapshot_received_) {
-      auto health_pass = std::make_unique<client::render::shader::shaders::HealthPass>();
-      render_mediator_->AddShaderFront(std::move(health_pass));
+      shared::event::ShaderEvent shader_event(shared::event::ShaderEventType::ADD);
+      shader_event.SetPassType(client::render::shader::PassType::HEALTH);
+      shader_event.SetFront(true);
+      shared::event::EventBus::GetDispatcher()->Dispatch(shader_event);
       first_snapshot_received_ = false;
     }
   }
@@ -126,14 +192,20 @@ void GameState::SetPlayerId(const UUIDv4::UUID &player_id)
 
 void GameState::SetEventDispatcher()
 {
-  shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::KeyEvent>(
+  key_sub_ = shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::KeyEvent>(
     [this](shared::event::Event &event) { this->OnEvent(event); });
 
-  shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::ProjectileEvent>(
+  projectile_sub_ = shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::ProjectileEvent>(
     [this](const shared::event::Event &event) { this->HandleProjectileEvent(event); });
 }
 
-void GameState::HandleProjectileEvent(const shared::event::Event &event) const
+void GameState::SetSoundEventDispatcher()
+{
+  sound_sub_ = shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::SoundEvent>(
+    [this](shared::event::Event &event) { this->OnEvent(event); });
+}
+
+void GameState::HandleProjectileEvent(const shared::event::Event &event)
 {
   const auto &projectile_event = dynamic_cast<const shared::event::ProjectileEvent &>(event);
 
@@ -149,21 +221,23 @@ void GameState::HandleProjectileEvent(const shared::event::Event &event) const
 
   projectile->InitAnimation();
 
-  game_objects_->emplace(projectile_event.GetProjectileId(), projectile);
-}
-
-std::shared_ptr<shared::core::player::Player> GameState::GetPlayer() const
-{
-  auto it = game_objects_->find(player_id_);
-  if (it != game_objects_->end()) { return std::static_pointer_cast<shared::core::player::Player>(it->second); }
-  return nullptr;
+  GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager()->Register(projectile);
 }
 
 UUIDv4::UUID GameState::GetPlayerId() const { return player_id_; }
 
-void GameState::SetRenderMediator(std::shared_ptr<mediator::RenderMediator> mediator)
+bool GameState::IsPaused() const { return is_paused_; }
+
+void GameState::SetPaused(bool paused) { is_paused_ = paused; }
+
+void GameState::CreatePlayerWithPlayerData(const app::database::PlayerData &player_data)
 {
-  render_mediator_ = std::move(mediator);
+  auto player = GCM::Instance().GetContext(GameContextType::Client)->GetLocalPlayer();
+
+  if (player) {
+    auto casted_player = std::static_pointer_cast<shared::core::player::Player>(player);
+    casted_player->LoadPlayerWithPlayerData(player_data);
+  }
 }
 
 }// namespace chroma::app::states

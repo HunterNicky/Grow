@@ -26,6 +26,7 @@ enum class GameObjectType : uint8_t {
   ENEMY = 2,
   PROJECTILE = 3,
   OBSTACLE = 4,
+  WORLD = 5,
 };
 
 enum class NetRole : uint8_t {
@@ -73,23 +74,21 @@ public:
   }
 
 
-  [[nodiscard]]
-
-  std::shared_ptr<component::Transform> GetTransform() const;
+  [[nodiscard]] std::shared_ptr<component::Transform> GetTransform() const;
 
   virtual void OnRender() = 0;
   virtual void OnUpdate(float delta_time) = 0;
   virtual std::shared_ptr<GameObject> Clone() = 0;
   virtual void OnFixedUpdate(float fixed_delta_time) = 0;
   virtual void OnCollision(const collision::CollisionEvent &collision) = 0;
-  virtual void HandleEvent(const event::Event &event) = 0;
+  virtual void HandleEvent(event::Event &event) = 0;
 
 protected:
   bool active_;
 
   UUIDv4::UUID id_;
   uint32_t layer_;
-  GameObjectType Type_;
+  GameObjectType type_;
   NetRole net_role_{ NetRole::NONE };
 
   std::map<component::ComponentType, std::shared_ptr<component::Component>> components_;

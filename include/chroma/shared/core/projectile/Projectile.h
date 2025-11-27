@@ -20,7 +20,7 @@ public:
   std::shared_ptr<GameObject> Clone() override;
   void OnFixedUpdate(float delta_time) override;
   void OnCollision(const collision::CollisionEvent &event) override;
-  void HandleEvent(const event::Event &event) override;
+  void HandleEvent(event::Event &event) override;
 
 
   void InitAnimation();

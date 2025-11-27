@@ -1,0 +1,41 @@
+{
+    "sprite_sheet": "bow-projectile.png",
+    "animations": {
+        "projectile_attack_horizontal": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 20,
+                    "y": 5,
+                    "width": 13,
+                    "height": 6,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "projectile_attack_down": {
+            "loop": false,
+            "frames": [
+                {
+                    "x": 3,
+                    "y": 1,
+                    "width": 7,
+                    "height": 13,
+                    "duration_ticks": 180
+                }
+            ]
+        },
+        "projectile_attack_up": {
+            "loop": true,
+            "frames": [
+                {
+                    "x": 11,
+                    "y": 0,
+                    "width": 7,
+                    "height": 13,
+                    "duration_ticks": 180
+                }
+            ]
+        }
+    }
+}

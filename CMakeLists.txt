@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 4.0.2)
 
 # This template attempts to be "fetch_content"-able
 # so that it works well with tools like CPM or other
@@ -101,4 +101,3 @@ set(CPACK_PACKAGE_FILE_NAME
 
 include(CPack)
 
-file (COPY "${CMAKE_SOURCE_DIR}/assets" DESTINATION "${CMAKE_BINARY_DIR}/src/app")

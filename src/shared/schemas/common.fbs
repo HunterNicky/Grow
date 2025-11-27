@@ -17,3 +17,10 @@ enum TypeProjectile : uint8 {
 ARROW = 0,
 JAVELIN = 1,
 }
+
+enum CharacterType : uint8
+{
+    NONE = 0,
+    RANDI = 1,
+    PRIMM = 2,
+}

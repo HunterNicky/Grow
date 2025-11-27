@@ -27,6 +27,12 @@ enum class ComponentType : uint8_t {
   WEAPON = 13,
   ATTACK = 14,
   PROJECTILE_TYPE = 15,
+  COLLIDER_BOX = 16,
+  CHARACTER_TYPE = 17,
+  WORLD_SYSTEM = 18,
+  WORLD_NAVIGATION = 19,
+  EVENT_COLLIDER_BOX = 20,
+  CHARACTER_NIVEL = 21
 };
 
 class Component
