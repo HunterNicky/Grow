@@ -15,11 +15,11 @@ class DatabaseManager
 public:
   explicit DatabaseManager(const std::string &db_path);
   StorageType &GetStorage();
-  ISettingsDAO& GetSettingsDAO();
-  IPlayerDAO& GetPlayerDAO();
+  ISettingsDAO& GetSettingsDAO() const;
+  IPlayerDAO& GetPlayerDAO() const;
   void InitEventListener();
 
-  void OnEvent(const shared::event::Event &event);
+  void OnEvent(const shared::event::Event &event) const;
 
 private:
   StorageType storage_;

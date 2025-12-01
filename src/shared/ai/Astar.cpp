@@ -1,12 +1,14 @@
 #include "chroma/shared/ai/Astar.h"
 
+#include <algorithm>
+#include <cmath>
 #include <queue>
+#include <raylib.h>
 #include <raymath.h>
-#include <unordered_map>
+#include <vector>
 
 namespace chroma::shared::ai {
 float Astar::Heuristic(const Vector2 a, const Vector2 b) { return Vector2Distance(a, b); }
-
 
 std::vector<Vector2> Astar::Solve(const Vector2 start_pos,
   const Vector2 end_pos,
@@ -33,7 +35,7 @@ std::vector<Vector2> Astar::Solve(const Vector2 start_pos,
 
   if (start_index == end_index) { return path; }
 
-  std::vector<NodeRecord> node_records(width * height);
+  std::vector<NodeRecord> node_records(static_cast<std::vector<NodeRecord>::size_type>(width * height));
 
   node_records[start_index].g = 0;
   node_records[start_index].h = Heuristic(start_pos, end_pos);

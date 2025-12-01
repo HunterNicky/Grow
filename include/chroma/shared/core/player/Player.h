@@ -1,11 +1,18 @@
 #pragma once
 
+#include "chroma/app/database/DatabaseTypes.h"
+#include "chroma/shared/collision/CollisionEvent.h"
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/components/Weapon.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/InputState.h"
-#include "chroma/app/database/DatabaseTypes.h"
+
+#include <cstdint>
+#include <memory>
+#include <raylib.h>
+#include <string>
+#include <vector>
 
 enum class FacingDir : uint8_t { Up = 0, Down = 1, Side = 2 };
 
@@ -36,7 +43,7 @@ public:
 
   FacingDir GetLastFacingDir() const;
 
-  void SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &anim_component);
+  void SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &anim_component) const;
   std::shared_ptr<GameObject> Clone() override;
 
   void SetCurrentWeapon(const std::shared_ptr<component::Weapon> &weapon) const;
@@ -44,9 +51,9 @@ public:
   void LoadPlayerWithPlayerData(const app::database::PlayerData &player_data);
   app::database::PlayerData SavePlayerToPlayerData() const;
 
-  [[nodiscard]]bool IsLeft() const; 
+  [[nodiscard]] bool IsLeft() const;
   void SetIsLeft(bool is_left);
-  [[nodiscard]]int GetCharacterSkin() const;
+  [[nodiscard]] int GetCharacterSkin() const;
 
 private:
   events::InputState input_state_;

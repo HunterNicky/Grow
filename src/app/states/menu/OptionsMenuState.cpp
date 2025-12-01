@@ -38,7 +38,7 @@ void OptionsMenuState::OnRender() {}
 void OptionsMenuState::OnEvent(shared::event::Event &event)
 {
   auto *btn_event = dynamic_cast<shared::event::ui::ButtonClickEvent *>(&event);
-  if (!btn_event) { return; }
+  if (btn_event == nullptr) { return; }
 
   const auto &id = btn_event->GetId();
   auto dispatch = [](auto &&e) { shared::event::EventBus::Dispatch(e); };
@@ -46,23 +46,23 @@ void OptionsMenuState::OnEvent(shared::event::Event &event)
   using PanelID = client::ui::panel::PanelID;
   using UIAction = shared::event::ui::Action;
 
-  auto switchPanel = [&](PanelID close, PanelID open) {
+  auto switch_panel = [&](const PanelID close, const PanelID open) {
     dispatch(shared::event::ui::PanelEvent(UIAction::Close, close));
     dispatch(shared::event::ui::PanelEvent(UIAction::Open, open));
   };
 
   if (id == "Video") {
-    switchPanel(PanelID::OptionsMenuPanel, PanelID::VideoOptionsPanel);
+    switch_panel(PanelID::OptionsMenuPanel, PanelID::VideoOptionsPanel);
   } else if (id == "Audio") {
-    switchPanel(PanelID::OptionsMenuPanel, PanelID::AudioOptionsPanel);
+    switch_panel(PanelID::OptionsMenuPanel, PanelID::AudioOptionsPanel);
   } else if (id == "Back") {
     using StateAction = shared::event::state::Action;
     dispatch(shared::event::state::StateEvent(StateAction::Pop, StateID::OptionsMenuState));
     dispatch(shared::event::state::StateEvent(StateAction::Push, state_to_return_));
   } else if (id == "VideoBack") {
-    switchPanel(PanelID::VideoOptionsPanel, PanelID::OptionsMenuPanel);
+    switch_panel(PanelID::VideoOptionsPanel, PanelID::OptionsMenuPanel);
   } else if (id == "AudioBack") {
-    switchPanel(PanelID::AudioOptionsPanel, PanelID::OptionsMenuPanel);
+    switch_panel(PanelID::AudioOptionsPanel, PanelID::OptionsMenuPanel);
   }
 }
 }// namespace chroma::app::states::menu

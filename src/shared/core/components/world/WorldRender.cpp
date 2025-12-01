@@ -23,12 +23,12 @@ void WorldRender::Render()
   if (IsKeyPressed(KEY_T)) { t_pressed = !t_pressed; }
 
   for (const auto &params : draw_params_) {
-    float sprite_width = params.subregion.width * params.scale.x;
-    float sprite_height = params.subregion.height * params.scale.y;
-    float world_x = params.position.x - (params.origin.x * params.scale.x);
-    float world_y = params.position.y - (params.origin.y * params.scale.y);
+    const float sprite_width = params.subregion.width * params.scale.x;
+    const float sprite_height = params.subregion.height * params.scale.y;
+    const float world_x = params.position.x - (params.origin.x * params.scale.x);
+    const float world_y = params.position.y - (params.origin.y * params.scale.y);
 
-    Rectangle sprite_rect = { world_x, world_y, sprite_width, sprite_height };
+    const Rectangle sprite_rect = { world_x, world_y, sprite_width, sprite_height };
 
     if (!CheckCollisionRecs(camera, sprite_rect)) { continue; }
     if (t_pressed) {
@@ -77,10 +77,11 @@ void WorldRender::LoadConfigFromFile(const std::string &filepath)
   sprite_set_ = j.get<SpriteSet>();
 }
 
+// NOLINTBEGIN
 void WorldRender::Initialize(const std::string &path)
 {
   LoadConfigFromFile(path);
-  if (!tiles_.data()) { TraceLog(LOG_WARNING, "WorldRender: No tiles set during initialization."); }
+  if (tiles_.data() == nullptr) { TraceLog(LOG_WARNING, "WorldRender: No tiles set during initialization."); }
 
   auto selectSprite = [&](const world::RenderTile &tile) -> std::tuple<SpriteParam, bool> {
     const auto *data = tile.data;
@@ -101,10 +102,10 @@ void WorldRender::Initialize(const std::string &path)
 
     const auto edges = data->edges;
 
-    bool n = (edges & world::EdgeDirection::North);
-    bool s = (edges & world::EdgeDirection::South);
-    bool e = (edges & world::EdgeDirection::East);
-    bool w = (edges & world::EdgeDirection::West);
+    const bool n = (edges & world::EdgeDirection::North);
+    const bool s = (edges & world::EdgeDirection::South);
+    const bool e = (edges & world::EdgeDirection::East);
+    const bool w = (edges & world::EdgeDirection::West);
 
     // if (n && e) return sprite_set_.north_east;
     if (n && e) return std::tuple<SpriteParam, bool>(sprite_set_.north_east, true);
@@ -124,25 +125,26 @@ void WorldRender::Initialize(const std::string &path)
 
     return std::tuple<SpriteParam, bool>(sprite_set_.center, false);
   };
+  // NOLINTEND
 
   std::vector<DrawParams> draw_params;
   draw_params.reserve(tiles_.size());
 
   for (const auto &tile : tiles_) {
     std::tuple<SpriteParam, bool> sprite_bool = selectSprite(tile);
-    SpriteParam sprite = std::get<0>(sprite_bool);
+    const SpriteParam sprite = std::get<0>(sprite_bool);
 
-    DrawParams params{
+    const DrawParams params{
       .sprite_id = sprite_set_.sprite_id,
       .position = { static_cast<float>(tile.world_x * tile.tile_size),
         static_cast<float>(tile.world_y * tile.tile_size) },
 
-      .scale = { 1.0f, 1.0f },
-      .origin = { 0.0f, 0.0f },
-      .offset = { 0.0f, 0.0f },
+      .scale = { 1.0F, 1.0F },
+      .origin = { 0.0F, 0.0F },
+      .offset = { 0.0F, 0.0F },
       .flip_x = false,
       .flip_y = false,
-      .rotation = 0.0f,
+      .rotation = 0.0F,
       .subregion = { sprite.x, sprite.y, sprite.width, sprite.height },
       .draw_background = std::get<1>(sprite_bool),
     };

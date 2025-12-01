@@ -10,9 +10,9 @@ namespace chroma::client::ui::widget {
 class TextWidget : public Widget
 {
 public:
-    TextWidget(const std::string& id, 
+    TextWidget(std::string id,
                Rectangle bounds, 
-               const std::string& text, 
+               std::string text,
                int font_size, 
                Color color);
 

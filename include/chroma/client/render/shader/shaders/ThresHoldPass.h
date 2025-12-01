@@ -6,16 +6,16 @@
 
 namespace chroma::client::render::shader::shaders {
 
-class ThresHoldPass : public ShaderPass
+class ThresholdPass : public ShaderPass
 {
 public:
-  explicit ThresHoldPass(float threshold = 0.1F);
+  explicit ThresholdPass(float threshold = 0.1F);
 
   void Setup() override;
   void Execute(RenderTexture2D &src, RenderTexture2D &dst) override;
 
   [[nodiscard]] std::shared_ptr<float> GetThreshold() const;
-  void SetThreshold(float threshold);
+  void SetThreshold(float threshold) const;
 
 private:
     std::shared_ptr<float> threshold_;

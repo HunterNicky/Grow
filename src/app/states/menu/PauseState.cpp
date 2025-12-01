@@ -1,26 +1,20 @@
-#include <iostream>
 #include <memory>
-#include <raylib.h>
 
 #include "chroma/app/database/DatabaseTypes.h"
 #include "chroma/app/layers/LayerIdentifiers.h"
 #include "chroma/app/states/State.h"
 #include "chroma/app/states/StateIdentifiers.h"
 #include "chroma/app/states/menu/PauseState.h"
-#include "chroma/client/render/Window.h"
 #include "chroma/client/ui/panels/PanelIdentifiers.h"
 #include "chroma/shared/context/GameContext.h"
-#include "chroma/shared/core/components/Health.h"
+#include "chroma/shared/context/GameContextManager.h"
+#include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/layer/LayerEvent.h"
 #include "chroma/shared/events/state/StateEvent.h"
 #include "chroma/shared/events/ui/ButtonClickEvent.h"
 #include "chroma/shared/events/ui/PanelEvent.h"
-#include "chroma/shared/context/GameContextManager.h"
-#include "chroma/shared/core/player/Player.h"
-#include "chroma/shared/core/components/Inventory.h"
-#include "chroma/shared/core/components/Nivel.h"
 
 #include "chroma/shared/events/PlayerDataEvent.h"
 
@@ -47,7 +41,7 @@ void PauseState::OnRender() {}
 void PauseState::OnEvent(shared::event::Event &event)
 {
   auto *btn_event = dynamic_cast<shared::event::ui::ButtonClickEvent *>(&event);
-  if (!btn_event) { return; }
+  if (btn_event == nullptr) { return; }
 
   const auto &id = btn_event->GetId();
   auto dispatch = [](auto &&e) { shared::event::EventBus::Dispatch(e); };

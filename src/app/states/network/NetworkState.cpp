@@ -14,7 +14,6 @@
 #include "game_generated.h"
 #include "messages_generated.h"
 
-#include <chrono>
 #include <cstdint>
 #include <enet.h>
 #include <future>
@@ -147,7 +146,7 @@ bool NetworkState::ConnectToServer(const std::string &host, const enet_uint16 po
 {
   if (!TryConnect(host, port)) {
     std::promise<bool> ready;
-    auto fut = ready.get_future();
+    //const std::future<bool> fut = ready.get_future();
     const auto server = std::make_shared<server::core::GameServer>();
     ready.set_value(server->IsRunning());
     std::thread thread_server([server]() { server->Run(); });
@@ -157,32 +156,32 @@ bool NetworkState::ConnectToServer(const std::string &host, const enet_uint16 po
       connected_ = false;
       return false;
 
-    // std::thread thread_server([&ready]() {
-    //   try {
-    //     const auto server = std::make_shared<server::core::GameServer>();
-    //     ready.set_value(server->IsRunning());
-    //     server->Run();
-    //   } catch (const std::future_error &) {
-    //     (void)0;
-    //   } catch (...) {
-    //     try {
-    //       ready.set_value(false);
-    //     } catch (...) {
-    //       (void)0;
-    //     }
-    //   }
-    // });
-    // thread_server.detach();
+      // std::thread thread_server([&ready]() {
+      //   try {
+      //     const auto server = std::make_shared<server::core::GameServer>();
+      //     ready.set_value(server->IsRunning());
+      //     server->Run();
+      //   } catch (const std::future_error &) {
+      //     (void)0;
+      //   } catch (...) {
+      //     try {
+      //       ready.set_value(false);
+      //     } catch (...) {
+      //       (void)0;
+      //     }
+      //   }
+      // });
+      // thread_server.detach();
 
-    // if (fut.wait_for(std::chrono::seconds(2)) == std::future_status::ready) {
-    //   if (fut.get()) {
-    //     if (!TryConnect(host, port)) {
-    //       connected_ = false;
-    //       return false;
-    //     }
-    //     connected_ = true;
-    //     return true;
-    //   }
+      // if (fut.wait_for(std::chrono::seconds(2)) == std::future_status::ready) {
+      //   if (fut.get()) {
+      //     if (!TryConnect(host, port)) {
+      //       connected_ = false;
+      //       return false;
+      //     }
+      //     connected_ = true;
+      //     return true;
+      //   }
     }
 
     connected_ = false;
@@ -212,7 +211,7 @@ void NetworkState::ProcessEvent()
 void NetworkState::OnEvent(shared::event::Event &event)
 {
   if (!IsActive() || !server_peer_) { return; }
-  if(!GetDispatch()) { return; }
+  if (!GetDispatch()) { return; }
 
   std::vector<uint8_t> buf;
   switch (event.GetType()) {
@@ -259,14 +258,8 @@ void NetworkState::SetEventDispatcher()
     [this](shared::event::Event &event) { this->OnEvent(event); });
 }
 
-void NetworkState::SetDispatchEvent(bool dispatch)
-{
-  dispatch_event_ = dispatch;
-}
+void NetworkState::SetDispatchEvent(bool dispatch) { dispatch_event_ = dispatch; }
 
-bool NetworkState::GetDispatch() const
-{
-   return dispatch_event_;
-}
+bool NetworkState::GetDispatch() const { return dispatch_event_; }
 
 }// namespace chroma::app::states

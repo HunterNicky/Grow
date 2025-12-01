@@ -1,8 +1,13 @@
 #include "chroma/shared/core/world/World.h"
 
+#include "chroma/shared/collision/CollisionEvent.h"
+#include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/world/WorldNavigation.h"
 #include "chroma/shared/core/components/world/WorldRender.h"
 #include "chroma/shared/core/components/world/WorldSystem.h"
+#include "chroma/shared/events/Event.h"
+
+#include <memory>
 
 namespace chroma::shared::core::world {
 World::World() { type_ = GameObjectType::WORLD; }

@@ -1,4 +1,8 @@
 #include "chroma/shared/context/GameContextManager.h"
+#include "chroma/shared/context/GameContext.h"
+
+#include <memory>
+#include <ranges>
 
 namespace chroma::shared::context {
 
@@ -32,8 +36,8 @@ void GameContextManager::DeleteContext(const GameContextType type)
   if (contexts_.contains(type)) { contexts_.erase(type); }
 }
 
-void GameContextManager::SetDeltaTime(const float delta_time)
+void GameContextManager::SetDeltaTime(const float delta_time) const
 {
-  for (const auto &[type, context] : contexts_) { context->SetDeltaTime(delta_time); }
+  for (const auto &context : contexts_ | std::views::values) { context->SetDeltaTime(delta_time); }
 }
 }// namespace chroma::shared::context

@@ -1,29 +1,28 @@
 #include "chroma/shared/core/components/CharacterType.h"
+#include "chroma/shared/core/components/Component.h"
+
+#include <string>
 
 namespace chroma::shared::core::component {
-CharacterTypeComponent::CharacterTypeComponent()
-    : character_type_(CharacterType::NONE)
+CharacterTypeComponent::CharacterTypeComponent() : character_type_(CharacterType::NONE)
 {
-    type_ = ComponentType::CHARACTER_TYPE;
+  type_ = ComponentType::CHARACTER_TYPE;
 }
 
-CharacterType CharacterTypeComponent::GetCharacterType() const {
-    return character_type_;
-}
+CharacterType CharacterTypeComponent::GetCharacterType() const { return character_type_; }
 
-void CharacterTypeComponent::SetCharacterType(CharacterType type) {
-    character_type_ = type;
-}
+void CharacterTypeComponent::SetCharacterType(CharacterType type) { character_type_ = type; }
 
-std::string CharacterTypeComponent::GetPrefixCharacter() const {
-    switch (character_type_) {
-        case CharacterType::RANDI:
-            return "randi";
-        case CharacterType::PRIMM:
-            return "primm";
-        case CharacterType::NONE:
-        default:
-            return "none";
-    }
+std::string CharacterTypeComponent::GetPrefixCharacter() const
+{
+  switch (character_type_) {
+  case CharacterType::RANDI:
+    return "randi";
+  case CharacterType::PRIMM:
+    return "primm";
+  case CharacterType::NONE:
+  default:
+    return "none";
+  }
 }
-} // namespace chroma::shared::core::component
+}// namespace chroma::shared::core::component

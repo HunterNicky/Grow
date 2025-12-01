@@ -3,6 +3,11 @@ Checks: "*,
         -altera-*,
         -android-*,
         -bugprone-easily-swappable-parameters,
+        -boost-*,
+        -enum-cast-out-of-range,
+        -bitwise-*,
+        -clang-analyzer-optin.core.EnumCastOutOfRange,
+        -clang-analyzer-optin.core.BitwiseEnum,
         -fuchsia-*,
         -google-*,
         -llvm*,
@@ -19,6 +24,7 @@ Checks: "*,
         -misc-no-recursion,
         -misc-use-anonymous-namespace,
         -misc-use-internal-linkage"
+
 
 WarningsAsErrors: ''
 HeaderFilterRegex: ''

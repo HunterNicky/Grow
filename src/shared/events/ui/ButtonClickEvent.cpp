@@ -6,7 +6,7 @@
 #include "chroma/shared/events/Event.h"
 
 namespace chroma::shared::event::ui {
-ButtonClickEvent::ButtonClickEvent(Event::Type type, std::string id) : Event(type), id_(std::move(id)) {}
+ButtonClickEvent::ButtonClickEvent(const Type type, std::string id) : Event(type), id_(std::move(id)) {}
 
 ButtonClickEvent::ButtonClickEvent() : Event(Event::ButtonClickEvent), id_("Blank") {}
 

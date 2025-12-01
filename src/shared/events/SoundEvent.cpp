@@ -6,7 +6,7 @@
 #include <utility>
 
 namespace chroma::shared::event {
-SoundEvent::SoundEvent(std::string sound_name, float volume, float pitch)
+SoundEvent::SoundEvent(std::string sound_name, const float volume, const float pitch)
   : Event(Type::SoundEvent), sound_name_(std::move(sound_name)), volume_(volume), pitch_(pitch)
 {}
 

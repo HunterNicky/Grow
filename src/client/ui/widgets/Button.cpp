@@ -8,7 +8,7 @@
 #include "chroma/client/ui/widgets/Widget.h"
 
 namespace chroma::client::ui::widget {
-Button::Button(const std::string &id, Rectangle bounds, std::string text)
+Button::Button(const std::string &id, const Rectangle bounds, std::string text)
   : Widget(id, bounds), text_(std::move(text)), is_hovered_(false)
 {}
 

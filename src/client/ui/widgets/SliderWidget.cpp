@@ -14,11 +14,11 @@
 namespace chroma::client::ui::widget {
 
 SliderWidget::SliderWidget(const std::string &id,
-  Rectangle bounds,
+  const Rectangle bounds,
   std::string label,
-  int min_value,
-  int max_value,
-  int initial_value)
+  const int min_value,
+  const int max_value,
+  const int initial_value)
   : Widget(id, bounds), min_value_(min_value), max_value_(max_value), label_(std::move(label))
 {
   value_ = std::clamp(initial_value, min_value_, max_value_);
@@ -31,7 +31,7 @@ float SliderWidget::GetHandleX() const
   return bounds_.x + (normalized_value * bounds_.width);
 }
 
-bool SliderWidget::IsMouseOverHandle(Vector2 mouse_pos) const
+bool SliderWidget::IsMouseOverHandle(const Vector2 mouse_pos) const
 {
   const Vector2 handle_center = { GetHandleX(), bounds_.y + (bounds_.height / 2.0F) };
   return CheckCollisionPointCircle(mouse_pos, handle_center, handle_radius_);

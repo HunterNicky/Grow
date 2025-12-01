@@ -34,7 +34,7 @@ public:
   const std::vector<std::shared_ptr<GameObject>> &GetByTag(GameObjectType tag) const;
   const std::vector<std::shared_ptr<GameObject>> &GetByLayer(uint32_t layer) const;
 
-  template<typename Func> void ForEach(Func &&func)
+  template<typename Func> void ForEach(Func &&func) const
   {
     std::vector<std::shared_ptr<GameObject>> snapshot;
     {
@@ -52,19 +52,20 @@ public:
     std::shared_lock const lock(mutex_);
     std::vector<std::shared_ptr<GameObject>> results;
     if (!all_objects_.empty()) {}
-
-    for (const auto &object : all_objects_) {
-      if (object && predicate(object)) { results.push_back(object); }
-    }
+    std::copy_if(all_objects_.begin(),
+      all_objects_.end(),
+      std::back_inserter(results),
+      [&predicate](const std::shared_ptr<GameObject> &object) { return object && predicate(object); });
     return results;
   }
 
   template<typename Predicate> std::shared_ptr<GameObject> FindFirst(Predicate &&predicate) const
   {
     std::shared_lock const lock(mutex_);
-    for (const auto &object : all_objects_) {
-      if (object && predicate(object)) { return object; }
-    }
+    auto it = std::find_if(all_objects_.begin(),
+      all_objects_.end(),
+      [&predicate](const std::shared_ptr<GameObject> &object) { return object && predicate(object); });
+
     return nullptr;
   }
 

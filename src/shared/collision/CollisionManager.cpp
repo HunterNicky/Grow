@@ -16,6 +16,7 @@
 #include <raylib.h>
 #include <raymath.h>
 #include <unordered_set>
+#include <utility>
 #include <uuid_v4.h>
 #include <vector>
 
@@ -91,6 +92,108 @@ void CollisionManager::RebuildStaticTree() const
   for (const auto &collider : static_colliders_) { static_quadtree_->Insert(collider); }
 }
 
+CollisionResolutionStrategy CollisionManager::DetermineServerStrategy(const CollisionResponseConfig &response_a,
+  const CollisionResponseConfig &response_b)
+{
+  if (response_a.can_be_pushed && response_b.can_be_pushed) { return CollisionResolutionStrategy::ResolveBoth; }
+  if (response_a.can_be_pushed) { return CollisionResolutionStrategy::ResolveA; }
+  if (response_b.can_be_pushed) { return CollisionResolutionStrategy::ResolveB; }
+  return CollisionResolutionStrategy::None;
+}
+
+CollisionResolutionStrategy CollisionManager::DetermineClientStrategy(const CollisionResponseConfig &response_a,
+  const CollisionResponseConfig &response_b,
+  const core::NetRole role_a,
+  const core::NetRole role_b)
+{
+  const bool a_is_local = (role_a == core::NetRole::AUTONOMOUS);
+  const bool b_is_local = (role_b == core::NetRole::AUTONOMOUS);
+
+  if (a_is_local && b_is_local && response_a.can_be_pushed && response_b.can_be_pushed) {
+    return CollisionResolutionStrategy::ResolveBoth;
+  }
+
+  if (a_is_local && !b_is_local) {
+    return response_a.can_be_pushed && response_b.blocks_movement ? CollisionResolutionStrategy::ResolveA
+                                                                  : CollisionResolutionStrategy::None;
+  }
+
+  if (b_is_local && !a_is_local) {
+    return response_b.can_be_pushed && response_a.blocks_movement ? CollisionResolutionStrategy::ResolveB
+                                                                  : CollisionResolutionStrategy::None;
+  }
+
+  return CollisionResolutionStrategy::None;
+}
+
+CollisionManager::OverlapInfo CollisionManager::CalculateOverlap(const Rectangle &bounds_a, const Rectangle &bounds_b)
+{
+  const Vector2 half_a = { bounds_a.width * 0.5F, bounds_a.height * 0.5F };
+  const Vector2 half_b = { bounds_b.width * 0.5F, bounds_b.height * 0.5F };
+
+  const Vector2 center_a = { bounds_a.x + half_a.x, bounds_a.y + half_a.y };
+  const Vector2 center_b = { bounds_b.x + half_b.x, bounds_b.y + half_b.y };
+
+  const Vector2 delta = Vector2Subtract(center_b, center_a);
+
+  const float overlap_x = (half_a.x + half_b.x) - std::fabs(delta.x);
+  const float overlap_y = (half_a.y + half_b.y) - std::fabs(delta.y);
+
+  if (overlap_x <= 0.0F || overlap_y <= 0.0F) {
+    return { .normal = { 0.0F, 0.0F }, .penetration = 0.0F, .contact = { 0.0F, 0.0F } };
+  }
+
+  Vector2 normal = { 0.0F, 0.0F };
+  float penetration = 0.0F;
+
+  if (overlap_x < overlap_y) {
+    normal.x = (delta.x > 0.0F) ? 1.0F : -1.0F;
+    penetration = overlap_x;
+  } else {
+    normal.y = (delta.y > 0.0F) ? 1.0F : -1.0F;
+    penetration = overlap_y;
+  }
+
+  const Vector2 half_pen = { penetration * 0.5F, penetration * 0.5F };
+  const Vector2 offset = { normal.x * (half_a.x - half_pen.x), normal.y * (half_a.y - half_pen.y) };
+  const Vector2 contact = Vector2Add(center_a, offset);
+
+  return { .normal = normal, .penetration = penetration, .contact = contact };
+}
+
+std::pair<BodyType, BodyType> CollisionManager::DetermineBodyTypes(const ColliderEntry &a, const ColliderEntry &b) const
+{
+  auto body_type_a = BodyType::Dynamic;
+  auto body_type_b = BodyType::Dynamic;
+
+  for (const auto &collider : static_colliders_) {
+    if (collider == a) { body_type_a = BodyType::Static; }
+    if (collider == b) { body_type_b = BodyType::Static; }
+  }
+
+  return { body_type_a, body_type_b };
+}
+
+std::pair<CollisionEvent::Type, CollisionEvent::Type> CollisionManager::DetermineEventTypes(const ColliderEntry &a,
+  const ColliderEntry &b)
+{
+  auto event_type_a = CollisionEvent::Type::Unknown;
+  if (a.component && std::dynamic_pointer_cast<core::component::EventColliderBox>(a.component)) {
+    event_type_a = CollisionEvent::Type::Trigger;
+  } else if (a.component && std::dynamic_pointer_cast<core::component::ColliderBox>(a.component)) {
+    event_type_a = CollisionEvent::Type::Wall;
+  }
+
+  auto event_type_b = CollisionEvent::Type::Unknown;
+  if (b.component && std::dynamic_pointer_cast<core::component::EventColliderBox>(b.component)) {
+    event_type_b = CollisionEvent::Type::Trigger;
+  } else if (b.component && std::dynamic_pointer_cast<core::component::ColliderBox>(b.component)) {
+    event_type_b = CollisionEvent::Type::Wall;
+  }
+
+  return { event_type_a, event_type_b };
+}
+
 CollisionResolutionStrategy CollisionManager::DetermineResolutionStrategy(
   const std::shared_ptr<core::GameObject> &obj_a,
   const std::shared_ptr<core::GameObject> &obj_b,
@@ -115,32 +218,10 @@ CollisionResolutionStrategy CollisionManager::DetermineResolutionStrategy(
     return response_a.can_be_pushed ? CollisionResolutionStrategy::ResolveA : CollisionResolutionStrategy::None;
   }
 
-  if (context_type_ == GameContextType::Server) {
-    if (response_a.can_be_pushed && response_b.can_be_pushed) { return CollisionResolutionStrategy::ResolveBoth; }
-    if (response_a.can_be_pushed) { return CollisionResolutionStrategy::ResolveA; }
-    if (response_b.can_be_pushed) { return CollisionResolutionStrategy::ResolveB; }
-    return CollisionResolutionStrategy::None;
-  }
+  if (context_type_ == GameContextType::Server) { return DetermineServerStrategy(response_a, response_b); }
 
   if (context_type_ == GameContextType::Client) {
-    const bool a_is_local = (role_a == core::NetRole::AUTONOMOUS);
-    const bool b_is_local = (role_b == core::NetRole::AUTONOMOUS);
-
-    if (a_is_local && b_is_local && response_a.can_be_pushed && response_b.can_be_pushed) {
-      return CollisionResolutionStrategy::ResolveBoth;
-    }
-
-    if (a_is_local && !b_is_local) {
-      return response_a.can_be_pushed && response_b.blocks_movement ? CollisionResolutionStrategy::ResolveA
-                                                                    : CollisionResolutionStrategy::None;
-    }
-
-    if (b_is_local && !a_is_local) {
-      return response_b.can_be_pushed && response_a.blocks_movement ? CollisionResolutionStrategy::ResolveB
-                                                                    : CollisionResolutionStrategy::None;
-    }
-
-    return CollisionResolutionStrategy::None;
+    return DetermineClientStrategy(response_a, response_b, role_a, role_b);
   }
 
   return CollisionResolutionStrategy::None;
@@ -155,10 +236,10 @@ void CollisionManager::Update() const
   for (const auto &dynamic_obj : dynamic_colliders_) {
     std::vector<ColliderEntry> return_objects = {};
     static_quadtree_->Retrieve(return_objects, dynamic_obj);
-    for (auto &target : return_objects) { CheckCollision(dynamic_obj, target); }
+    for (const auto &target : return_objects) { CheckCollision(dynamic_obj, target); }
 
     dynamic_quadtree_->Retrieve(return_objects, dynamic_obj);
-    for (auto &target : return_objects) {
+    for (const auto &target : return_objects) {
       if (dynamic_obj == target) { continue; }
 
       CheckCollision(dynamic_obj, target);
@@ -178,33 +259,8 @@ void CollisionManager::CheckCollision(const ColliderEntry &a, const ColliderEntr
     b.component->Update(0.0F);
   }
 
-  const Vector2 half_a = { bounds_a.width * 0.5F, bounds_a.height * 0.5F };
-  const Vector2 half_b = { bounds_b.width * 0.5F, bounds_b.height * 0.5F };
-
-  const Vector2 center_a = { bounds_a.x + half_a.x, bounds_a.y + half_a.y };
-  const Vector2 center_b = { bounds_b.x + half_b.x, bounds_b.y + half_b.y };
-
-  const Vector2 delta = Vector2Subtract(center_b, center_a);
-
-  const float overlap_x = (half_a.x + half_b.x) - std::fabs(delta.x);
-  const float overlap_y = (half_a.y + half_b.y) - std::fabs(delta.y);
-
-  if (overlap_x <= 0.0F || overlap_y <= 0.0F) { return; }
-
-  Vector2 normal = { 0.0F, 0.0F };
-  float penetration = 0.0F;
-
-  if (overlap_x < overlap_y) {
-    normal.x = (delta.x > 0.0F) ? 1.0F : -1.0F;
-    penetration = overlap_x;
-  } else {
-    normal.y = (delta.y > 0.0F) ? 1.0F : -1.0F;
-    penetration = overlap_y;
-  }
-
-  const Vector2 half_pen = { penetration * 0.5F, penetration * 0.5F };
-  const Vector2 offset = { normal.x * (half_a.x - half_pen.x), normal.y * (half_a.y - half_pen.y) };
-  const Vector2 contact = Vector2Add(center_a, offset);
+  const auto overlap_info = CalculateOverlap(bounds_a, bounds_b);
+  if (overlap_info.penetration <= 0.0F) { return; }
 
   const auto manager = GCM::Instance().GetContext(context_type_)->GetGameObjectManager();
   const auto obj_a = manager ? manager->Get(a.id) : nullptr;
@@ -212,32 +268,19 @@ void CollisionManager::CheckCollision(const ColliderEntry &a, const ColliderEntr
 
   if (!obj_a || !obj_b) { return; }
 
-  BodyType body_type_a = BodyType::Dynamic;
-  BodyType body_type_b = BodyType::Dynamic;
-
-  for (const auto &collider : static_colliders_) {
-    if (collider == a) { body_type_a = BodyType::Static; }
-    if (collider == b) { body_type_b = BodyType::Static; }
-  }
-
+  const auto [body_type_a, body_type_b] = DetermineBodyTypes(a, b);
   const CollisionResolutionStrategy strategy = DetermineResolutionStrategy(obj_a, obj_b, body_type_a, body_type_b);
 
-  CollisionEvent::Type event_type_a = CollisionEvent::Type::Unknown;
-  if (a.component && std::dynamic_pointer_cast<core::component::EventColliderBox>(a.component)) {
-    event_type_a = CollisionEvent::Type::Trigger;
-  } else if (a.component && std::dynamic_pointer_cast<core::component::ColliderBox>(a.component)) {
-    event_type_a = CollisionEvent::Type::Wall;
-  }
+  const auto [event_type_a, event_type_b] = DetermineEventTypes(a, b);
 
-  CollisionEvent::Type event_type_b = CollisionEvent::Type::Unknown;
-  if (b.component && std::dynamic_pointer_cast<core::component::EventColliderBox>(b.component)) {
-    event_type_b = CollisionEvent::Type::Trigger;
-  } else if (b.component && std::dynamic_pointer_cast<core::component::ColliderBox>(b.component)) {
-    event_type_b = CollisionEvent::Type::Wall;
-  }
-
-  const CollisionEvent event_a(obj_b, penetration, normal, contact, CollisionSide::None, event_type_a);
-  const CollisionEvent event_b(obj_a, penetration, Vector2Negate(normal), contact, CollisionSide::None, event_type_b);
+  const CollisionEvent event_a(
+    obj_b, overlap_info.penetration, overlap_info.normal, overlap_info.contact, CollisionSide::None, event_type_a);
+  const CollisionEvent event_b(obj_a,
+    overlap_info.penetration,
+    Vector2Negate(overlap_info.normal),
+    overlap_info.contact,
+    CollisionSide::None,
+    event_type_b);
 
   obj_a->OnCollision(event_a);
   obj_b->OnCollision(event_b);
@@ -259,7 +302,7 @@ void CollisionManager::CheckCollision(const ColliderEntry &a, const ColliderEntr
   }
 
   case CollisionResolutionStrategy::ResolveBoth: {
-    ResolveBothEqual(a, b, normal, penetration);
+    ResolveBothEqual(a, b, overlap_info.normal, overlap_info.penetration);
     break;
   }
   }

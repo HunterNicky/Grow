@@ -51,7 +51,7 @@ void Renderer::EndFrame() const
 
   
   RenderTexture2D scene_rt = render_target_->GetTexture();
-  RenderTexture2D processed_rt = render_pipeline_->Execute(scene_rt);
+  const RenderTexture2D processed_rt = render_pipeline_->Execute(scene_rt);
   
   BeginTextureMode(processed_rt);
   ui::UIManagerBus::GetUIManager()->OnRender();
@@ -137,7 +137,7 @@ void Renderer::AddShaderPassBack(std::unique_ptr<shader::RenderPass> pass) const
 void Renderer::SetEventDispatcher()
 {
   key_sub_ = shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::ShaderEvent>(
-    [this](shared::event::Event &event) { this->HandleShaderEvent(event); });
+    [this](const shared::event::Event &event) { this->HandleShaderEvent(event); });
 }
 
 void Renderer::HandleShaderEvent(const shared::event::Event &event) const

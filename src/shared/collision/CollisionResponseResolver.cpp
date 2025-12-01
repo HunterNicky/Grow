@@ -1,5 +1,8 @@
 #include "chroma/shared/collision/CollisionResponseResolver.h"
+#include "chroma/shared/collision/CollisionManager.h"
 #include "chroma/shared/core/GameObject.h"
+
+#include <memory>
 
 namespace chroma::shared::collision {
 
@@ -15,10 +18,6 @@ CollisionResponseConfig CollisionResponseResolver::Resolve(const std::shared_ptr
   const core::GameObjectType obj_type = obj->GetTag();
   switch (obj_type) {
   case core::GameObjectType::PLAYER:
-    config.can_push = true;
-    config.can_be_pushed = true;
-    config.blocks_movement = true;
-    break;
   case core::GameObjectType::ENEMY:
     config.can_push = true;
     config.can_be_pushed = true;

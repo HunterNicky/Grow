@@ -80,9 +80,9 @@ public:
 private:
   FastNoiseLite terrain_noise_;
   FastNoiseLite structure_noise_;
-  WorldConfig config_;
-  bool load_;
+  WorldConfig config_{};
+  bool load_ = false;
 
   static void ConfigureNoise(FastNoiseLite &noise, const NoiseConfig &config, int seed);
 };
-}// namespace chroma::shared::world
+}// namespace chroma::shared::core::world

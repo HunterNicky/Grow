@@ -15,8 +15,9 @@ class XpWidget : public Widget
 {
 public:
     XpWidget(const std::string& id, Rectangle bounds);
+  void Initialize();
 
-    void OnUpdate(const float delta_time, const UIContext &context) override;
+  void OnUpdate(const float delta_time, const UIContext &context) override;
     void OnRender() override;
 
 private:

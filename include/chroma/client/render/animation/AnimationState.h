@@ -39,7 +39,7 @@ private:
   const Animation *animation_ = nullptr;
   int current_tick_ = 0;
   int current_frame_index_ = 0;
-  float speed_ = 1.0f;
+  float speed_ = 1.0F;
   bool finished_ = false;
 
   void CalculateCurrentFrame();

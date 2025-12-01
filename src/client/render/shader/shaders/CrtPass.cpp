@@ -1,14 +1,12 @@
 #include "chroma/client/render/shader/shaders/CrtPass.h"
+#include "chroma/client/render/shader/RenderPass.h"
 #include "chroma/client/render/shader/ShaderPass.h"
 
 #include <raylib.h>
 
 namespace chroma::client::render::shader::shaders {
 
-CrtPass::CrtPass() : ShaderPass("resources/shaders/base.vs", "assets/shaders/crt.fs") 
-{
-  SetPassType(PassType::CRT);
-}
+CrtPass::CrtPass() : ShaderPass("resources/shaders/base.vs", "assets/shaders/crt.fs") { SetPassType(PassType::CRT); }
 
 void CrtPass::Setup()
 {

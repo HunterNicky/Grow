@@ -27,7 +27,7 @@ void RenderBridgeImpl::DrawSprite(const std::string &sprite_id,
   const bool flip_x,
   const bool flip_y,
   const Vector2 origin,
-  const Vector2 offset,
+  [[maybe_unused]] const Vector2 offset,
   const Rectangle subregion,
   shared::render::RenderLayer layer,
   int sub_layer)
@@ -119,7 +119,7 @@ void RenderBridgeImpl::DrawAnimation(const shared::core::component::SpriteAnimat
   params.flip_y = flip_y;
   params.origin = origin;
 
-  float foot_offset = 0.0f;
+  float foot_offset = 0.0F;
   if (const auto *frame = ctrl.GetCurrentFrame()) {
     foot_offset = frame->subregion.height * params.scale.y;
   } else {
@@ -211,8 +211,8 @@ const Rectangle RenderBridgeImpl::GetActiveCameraBounds() const
 
   const Camera2D cam = renderer_->GetCamera().GetCamera2D();
 
-  float view_w = (float)renderer_->GetRenderTarget().GetWidth();
-  float view_h = (float)renderer_->GetRenderTarget().GetHeight();
+  const auto view_w = static_cast<float>(renderer_->GetRenderTarget().GetWidth());
+  const auto view_h = static_cast<float>(renderer_->GetRenderTarget().GetHeight());
 
 
   const Vector2 top_left = GetScreenToWorld2D(Vector2{ 0, 0 }, cam);

@@ -3,21 +3,16 @@
 #include <utility>
 
 #include "chroma/app/commands/CommandQueue.h"
-#include "chroma/app/commands/FunctionalCommand.h"
 #include "chroma/app/layers/Layer.h"
 #include "chroma/app/states/State.h"
 #include "chroma/app/states/StateMachine.h"
 #include "chroma/shared/events/Event.h"
-#include "chroma/shared/events/EventBus.h"
-#include "chroma/shared/events/Subscription.h"
-#include "chroma/shared/events/state/StateEvent.h"
 
 namespace chroma::app::layer {
 Layer::Layer(std::string name)
   : name_(std::move(name)), active_(true), state_machine_(std::make_unique<states::StateMachine>()),
     command_queue_(std::make_unique<command::CommandQueue>())
-{
-}
+{}
 
 void Layer::OnAttach() { RegisterStates(); }
 
@@ -35,16 +30,15 @@ void Layer::OnRender() { state_machine_->OnRender(); }
 
 void Layer::OnEvent(shared::event::Event &event) { state_machine_->OnEvent(event); }
 
-
 const std::string &Layer::GetName() const { return name_; }
 
 bool Layer::IsActive() const { return active_; }
 
-void Layer::SetActive(bool active) { active_ = active; }
+void Layer::SetActive(const bool active) { active_ = active; }
 
-void Layer::PushState(const std::shared_ptr<states::State> &state) { state_machine_->PushState(state); }
+void Layer::PushState(const std::shared_ptr<states::State> &state) const { state_machine_->PushState(state); }
 
-void Layer::PopState() { state_machine_->PopState(); }
+void Layer::PopState() const { state_machine_->PopState(); }
 
-std::shared_ptr<states::State> Layer::GetCurrentState() { return state_machine_->GetCurrentState(); }
+std::shared_ptr<states::State> Layer::GetCurrentState() const { return state_machine_->GetCurrentState(); }
 }// namespace chroma::app::layer

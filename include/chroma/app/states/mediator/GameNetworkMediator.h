@@ -48,6 +48,9 @@ public:
   void ProcessPendingSoundEvents() const;
 
 private:
+  void HandleSoundEvent(const Game::Event *evt) const;
+  void HandleWaveEvent(const Game::Event *evt) const;
+
   std::weak_ptr<GameState> game_state_;
   std::weak_ptr<NetworkState> network_state_;
   std::unique_ptr<network::InterpolateSystem> interpolate_system_;

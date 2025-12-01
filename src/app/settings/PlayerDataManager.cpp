@@ -1,4 +1,5 @@
 #include "chroma/app/settings/PlayerDataManager.h"
+#include "chroma/app/database/DatabaseTypes.h"
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/PlayerDataEvent.h"
 
@@ -8,7 +9,7 @@ void PlayerDataManager::SetPlayerData(const database::PlayerData &player_data) {
 
 database::PlayerData &PlayerDataManager::GetPlayerData() { return current_data_; }
 
-void PlayerDataManager::RequestSave()
+void PlayerDataManager::RequestSave() const
 {
   shared::event::PlayerDataEvent event(shared::event::PlayerDataAction::Save, current_data_);
   shared::event::EventBus::GetDispatcher()->Dispatch(event);

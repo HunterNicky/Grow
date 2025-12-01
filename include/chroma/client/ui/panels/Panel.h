@@ -20,8 +20,8 @@ public:
   Panel(Panel &&) = delete;
   Panel &operator=(Panel &&) = delete;
 
-  void OnUpdate(const float delta_time, const UIContext &context);
-  void OnRender();
+  void OnUpdate(const float delta_time, const UIContext &context) const;
+  void OnRender() const;
   void AddWidget(std::unique_ptr<widget::Widget> widget);
   void SetIsActive(const bool is_active);
   void SetIsVisible(const bool is_visible);
@@ -30,7 +30,7 @@ public:
   [[nodiscard]] PanelID GetID() const;
 
   void SetBackgroundTexture(const Texture2D &texture);
-  void CenterWidgets(float spacing);
+  void CenterWidgets(float spacing) const;
 
 protected:
   Rectangle bounds_;

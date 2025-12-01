@@ -1,6 +1,15 @@
 #include "chroma/shared/core/GameObjectManager.h"
+#include "chroma/shared/collision/CollisionManager.h"
+#include "chroma/shared/core/GameObject.h"
+
 #include <algorithm>
+#include <cstdint>
+#include <memory>
 #include <mutex>
+#include <shared_mutex>
+#include <unordered_map>
+#include <uuid_v4.h>
+#include <vector>
 
 namespace chroma::shared::core {
 

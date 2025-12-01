@@ -2,17 +2,28 @@
 
 #include "chroma/shared/context/GameContext.h"
 #include "chroma/shared/context/GameContextManager.h"
+#include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/GameObjectManager.h"
 #include "chroma/shared/core/components/Health.h"
+#include "chroma/shared/core/components/Movement.h"
+#include "chroma/shared/core/components/ProjectileType.h"
 #include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/core/components/SpriteAnimation.h"
+#include "chroma/shared/core/components/Transform.h"
 #include "chroma/shared/core/components/enemy/EnemyAI.h"
 #include "chroma/shared/core/components/world/EventColliderBox.h"
+#include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/ProjectileEvent.h"
 #include "chroma/shared/render/RenderBridge.h"
 #include "chroma/shared/render/SpriteLoader.h"
 #include "chroma/shared/utils/UUID.h"
+
+#include <cmath>
+#include <limits>
+#include <memory>
+#include <raylib.h>
+#include <raymath.h>
 
 namespace chroma::shared::core::enemy {
 Enemy::Enemy() { type_ = GameObjectType::ENEMY; }
@@ -21,7 +32,7 @@ Enemy::~Enemy() = default;
 
 void Enemy::SetupAnimation() const
 {
-  auto anim_component = GetComponent<component::SpriteAnimation>();
+  const auto anim_component = GetComponent<component::SpriteAnimation>();
   if (!anim_component) { return; }
   render::SpriteLoader::LoadSpriteAnimationFromFile(anim_component, "assets/sprites/enemy/enemy_hood.json");
   anim_component->Play("walk_down", true);
@@ -49,9 +60,7 @@ void Enemy::OnRender()
 void Enemy::OnUpdate(const float delta_time)
 {
   const auto enemy_ai = GetComponent<component::EnemyAI>();
-  if (HasAuthority() && enemy_ai != nullptr) {
-    enemy_ai->Update(delta_time);
-  }
+  if (HasAuthority() && enemy_ai != nullptr) { enemy_ai->Update(delta_time); }
 
   const auto transform = GetComponent<component::Transform>();
   if (!transform) { return; }
@@ -96,7 +105,6 @@ void Enemy::UpdateRangedAttack(const float delta_time, const Vector2 &dir)
   if (!transform) { return; }
 
   const Vector2 my_pos = transform->GetPosition();
-  // Busca o player mais próximo de forma segura
   const auto context = GCM::Instance().GetContext(GameContextType::Server);
   if (!context) { return; }
   const auto manager = context->GetGameObjectManager();
@@ -134,7 +142,8 @@ void Enemy::UpdateRangedAttack(const float delta_time, const Vector2 &dir)
 
   shot_dir = Vector2Normalize(shot_dir);
 
-  auto projectile_event = std::make_shared<event::ProjectileEvent>(component::TypeProjectile::ARROW, shot_dir, 100.0F);
+  const auto projectile_event =
+    std::make_shared<event::ProjectileEvent>(component::TypeProjectile::ARROW, shot_dir, 100.0F);
   projectile_event->SetProjectileId(utils::UUID::Generate());
   projectile_event->SetPosition(my_pos);
   event::EventBus::Dispatch(*projectile_event);
@@ -151,66 +160,86 @@ void Enemy::UpdateAnimations(const Vector2 &dir, const float magnitude)
   if (!anim) { return; }
 
   if (magnitude > 0.0F) {
-    if (std::fabs(dir.x) > std::fabs(dir.y)) {
-      last_facing_ = EnemyFacingDir::Side;
-      last_left_ = (dir.x < 0.0F);
-      anim->Play("walk_side", true);
-    } else if (dir.y < 0.0F) {
-      last_facing_ = EnemyFacingDir::Up;
-      anim->Play("walk_up", true);
-    } else {
-      last_facing_ = EnemyFacingDir::Down;
-      anim->Play("walk_down", true);
-    }
+    UpdateMovementAnimation(dir, anim);
   } else {
-    Vector2 to_player{ 0.0F, 0.0F };
-    const auto context = GCM::Instance().GetContext(GameContextType::Server);
-    if (context) {
-      const auto manager = context->GetGameObjectManager();
-      if (manager) {
-        const auto &players = manager->GetByTag(GameObjectType::PLAYER);
-        if (!players.empty()) {
-          const Vector2 my_pos = transform->GetPosition();
-          float best_dist_sq = std::numeric_limits<float>::max();
-          std::shared_ptr<component::Transform> best_tr;
+    const Vector2 to_player = ComputeDirectionToClosestPlayer(transform);
+    UpdateIdleOrAttackAnimation(to_player, anim);
+  }
+}
 
-          for (const auto &p : players) {
-            if (!p) { continue; }
-            const auto p_tr = p->GetComponent<component::Transform>();
-            if (!p_tr) { continue; }
-            const Vector2 pos = p_tr->GetPosition();
-            const float dx = pos.x - my_pos.x;
-            const float dy = pos.y - my_pos.y;
-            const float dist_sq = (dx * dx) + (dy * dy);
-            if (dist_sq < best_dist_sq) {
-              best_dist_sq = dist_sq;
-              best_tr = p_tr;
-            }
-          }
+void Enemy::UpdateMovementAnimation(const Vector2 &dir, const std::shared_ptr<component::SpriteAnimation> &anim)
+{
+  if (std::fabs(dir.x) > std::fabs(dir.y)) {
+    last_facing_ = EnemyFacingDir::Side;
+    last_left_ = (dir.x < 0.0F);
+    anim->Play("walk_side", true);
+  } else if (dir.y < 0.0F) {
+    last_facing_ = EnemyFacingDir::Up;
+    anim->Play("walk_up", true);
+  } else {
+    last_facing_ = EnemyFacingDir::Down;
+    anim->Play("walk_down", true);
+  }
+}
 
-          if (best_tr) {
-            to_player = Vector2Subtract(best_tr->GetPosition(), my_pos);
-          }
-        }
-      }
+Vector2 Enemy::ComputeDirectionToClosestPlayer(const std::shared_ptr<component::Transform> &transform)
+{
+  Vector2 to_player{ 0, 0 };
+
+  const auto context = GCM::Instance().GetContext(GameContextType::Server);
+  if (!context) { return to_player; }
+
+  const auto manager = context->GetGameObjectManager();
+  if (!manager) { return to_player; }
+
+  const auto &players = manager->GetByTag(GameObjectType::PLAYER);
+  if (players.empty()) { return to_player; }
+
+  const Vector2 my_pos = transform->GetPosition();
+  float best_dist_sq = std::numeric_limits<float>::max();
+  std::shared_ptr<component::Transform> best_tr;
+
+  for (const auto &p : players) {
+    if (!p) { continue; }
+
+    const auto p_tr = p->GetComponent<component::Transform>();
+    if (!p_tr) { continue; }
+
+    const Vector2 pos = p_tr->GetPosition();
+    const float dx = pos.x - my_pos.x;
+    const float dy = pos.y - my_pos.y;
+    const float dist_sq = (dx * dx) + (dy * dy);
+    if (dist_sq < best_dist_sq) {
+      best_dist_sq = dist_sq;
+      best_tr = p_tr;
     }
+  }
 
-    if (to_player.x == 0.0F && to_player.y == 0.0F) {
-      last_facing_ = EnemyFacingDir::Down;
-      anim->Play("walk_down", true);
-    } else {
-      if (std::fabs(to_player.x) > std::fabs(to_player.y)) {
-        last_facing_ = EnemyFacingDir::Side;
-        last_left_ = (to_player.x < 0.0F);
-        anim->Play("attack_side", true);
-      } else if (to_player.y < 0.0F) {
-        last_facing_ = EnemyFacingDir::Up;
-        anim->Play("attack_up", true);
-      } else {
-        last_facing_ = EnemyFacingDir::Down;
-        anim->Play("attack_down", true);
-      }
-    }
+  if (best_tr) { to_player = Vector2Subtract(best_tr->GetPosition(), my_pos); }
+
+  return to_player;
+}
+
+
+void Enemy::UpdateIdleOrAttackAnimation(const Vector2 &to_player,
+  const std::shared_ptr<component::SpriteAnimation> &anim)
+{
+  if (to_player.x == 0.0F && to_player.y == 0.0F) {
+    last_facing_ = EnemyFacingDir::Down;
+    anim->Play("walk_down", true);
+    return;
+  }
+
+  if (std::fabs(to_player.x) > std::fabs(to_player.y)) {
+    last_facing_ = EnemyFacingDir::Side;
+    last_left_ = (to_player.x < 0.0F);
+    anim->Play("attack_side", true);
+  } else if (to_player.y < 0.0F) {
+    last_facing_ = EnemyFacingDir::Up;
+    anim->Play("attack_up", true);
+  } else {
+    last_facing_ = EnemyFacingDir::Down;
+    anim->Play("attack_down", true);
   }
 }
 

@@ -1,5 +1,6 @@
 #include "chroma/shared/factory/GameObjectFactory.h"
 #include "chroma/shared/builder/GameObjectBuilder.h"
+#include "chroma/shared/context/GameContext.h"
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/enemy/Enemy.h"
@@ -29,9 +30,6 @@ namespace {
       [](const Game::EntityState *entity_state, const bool is_local_player) -> std::shared_ptr<core::GameObject> {
         if (entity_state == nullptr || entity_state->id() == nullptr) { return nullptr; }
         const UUIDv4::UUID entity_id = UUIDv4::UUID::fromStrFactory(entity_state->id()->str());
-
-
-        std::cout << "Creating Player with ID: \n";
 
         builder::GameObjectBuilder<core::player::Player> player_build =
           builder::GameObjectBuilder<core::player::Player>()

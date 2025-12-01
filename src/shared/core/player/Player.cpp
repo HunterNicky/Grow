@@ -2,40 +2,34 @@
 
 #include "chroma/app/database/DatabaseTypes.h"
 #include "chroma/shared/audio/AudioBridge.h"
-#include "chroma/shared/collision/CollisionManager.h"
-#include "chroma/shared/context/GameContextManager.h"
+#include "chroma/shared/collision/CollisionEvent.h"
 #include "chroma/shared/core/GameObject.h"
-#include "chroma/shared/core/GameObjectManager.h"
 #include "chroma/shared/core/components/Attack.h"
-#include "chroma/shared/core/components/Camera.h"
 #include "chroma/shared/core/components/CharacterType.h"
 #include "chroma/shared/core/components/Health.h"
 #include "chroma/shared/core/components/Inventory.h"
 #include "chroma/shared/core/components/Movement.h"
 #include "chroma/shared/core/components/Nivel.h"
 #include "chroma/shared/core/components/ProjectileType.h"
+#include "chroma/shared/core/components/Run.h"
 #include "chroma/shared/core/components/Speed.h"
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/components/Transform.h"
 #include "chroma/shared/core/components/Weapon.h"
 #include "chroma/shared/core/components/world/ColliderBox.h"
 #include "chroma/shared/core/components/world/EventColliderBox.h"
-
-#include "chroma/shared/core/components/Run.h"
-#include "chroma/shared/core/components/world/WorldNavigation.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/InputState.h"
 #include "chroma/shared/events/KeyEvent.h"
 #include "chroma/shared/events/ProjectileEvent.h"
 #include "chroma/shared/events/SoundEvent.h"
+#include "chroma/shared/factory/WeaponFactory.h"
 #include "chroma/shared/render/RenderBridge.h"
 #include "chroma/shared/render/SpriteLoader.h"
 #include "chroma/shared/utils/UUID.h"
-#include "chroma/shared/factory/WeaponFactory.h"
 
 #include <cmath>
-#include <cstddef>
 #include <memory>
 #include <raylib.h>
 #include <raymath.h>
@@ -44,9 +38,9 @@
 namespace chroma::shared::core::player {
 Player::Player() { type_ = GameObjectType::PLAYER; }
 
-void Player::SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &anim_component)
+void Player::SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &anim_component) const
 {
-  auto chara_type_comp = GetComponent<component::CharacterTypeComponent>();
+  const auto chara_type_comp = GetComponent<component::CharacterTypeComponent>();
   if (!chara_type_comp) { return; }
 
   switch (chara_type_comp->GetCharacterType()) {
@@ -72,7 +66,7 @@ void Player::AnimationState(const Vector2 dir, const float magnitude)
   const auto chara_type_comp = GetComponent<component::CharacterTypeComponent>();
   if (!chara_type_comp) { return; }
 
-  std::string chracter_prefix = chara_type_comp->GetPrefixCharacter() + "_";
+  const std::string chracter_prefix = chara_type_comp->GetPrefixCharacter() + "_";
   std::string mode = "fist_";
 
   const auto attack_comp = GetComponent<component::Attack>();
@@ -212,15 +206,15 @@ void Player::OnUpdate(const float delta_time)
 
   for (const auto &[fst, snd] : components_) { snd->Update(delta_time); }
 
-  const auto camera = GetComponent<component::CameraComponent>();
-  if (camera) {
-    const float wheel_move = GetMouseWheelMove();
-    if (wheel_move != 0.0F) {
-      float new_zoom = camera->GetZoom() + (wheel_move * 0.1F);
-      new_zoom = std::clamp(new_zoom, 0.5F, 5.0F);
-      camera->SetZoom(new_zoom);
-    }
-  }
+  // const auto camera = GetComponent<component::CameraComponent>();
+  // if (camera) {
+  //   const float wheel_move = GetMouseWheelMove();
+  //   if (wheel_move != 0.0F) {
+  //     float new_zoom = camera->GetZoom() + (wheel_move * 0.1F);
+  //     new_zoom = std::clamp(new_zoom, 0.5F, 5.0F);
+  //     camera->SetZoom(new_zoom);
+  //   }
+  // }
 }
 
 void Player::OnFixedUpdate(const float fixed_delta_time) { (void)fixed_delta_time; }
@@ -310,7 +304,7 @@ void Player::HandleEvent(event::Event &event)
   }
   case event::Event::SoundEvent: {
     auto &sound_event = dynamic_cast<event::SoundEvent &>(event);
-    if (const auto ab = audio::GetAudioBridge()) {
+    if (const auto ab = chroma::shared::audio::GetAudioBridge()) {
       ab->PlaySoundAt(sound_event.GetSoundName(),
         GetComponent<component::Transform>()->GetPosition().x,
         GetComponent<component::Transform>()->GetPosition().y,
@@ -432,57 +426,41 @@ void Player::LoadPlayerWithPlayerData(const app::database::PlayerData &player_da
   const auto health = GetComponent<component::Health>();
   const auto inventory = GetComponent<component::Inventory>();
 
-  if(transform)
-  {
+  if (transform) {
     transform->SetPosition({ static_cast<float>(player_data.pos_x), static_cast<float>(player_data.pos_y) });
   }
-  
-  if(nivel)
-  {
+
+  if (nivel) {
     nivel->SetNivel(player_data.level);
     nivel->SetExperience(static_cast<float>(player_data.current_xp));
   }
 
-  if(health)
-  {
-    health->SetCurrentHealth(static_cast<float>(player_data.hp));
-  }
+  if (health) { health->SetCurrentHealth(static_cast<float>(player_data.hp)); }
 
-  if(inventory)
-  {
-    auto weapon_type = static_cast<shared::core::component::WeaponType>(player_data.weapon_id);
-    if(!inventory->HasItemType(weapon_type))
-    {
-        auto weapon = shared::factory::WeaponFactory::Create(weapon_type);
-        if(weapon)
-        {
-          inventory->AddInventory(weapon);
-        }
+  if (inventory) {
+    const auto weapon_type = static_cast<shared::core::component::WeaponType>(player_data.weapon_id);
+    if (!inventory->HasItemType(weapon_type)) {
+      const auto weapon = shared::factory::WeaponFactory::Create(weapon_type);
+      if (weapon) { inventory->AddInventory(weapon); }
     }
 
-    inventory->SetCurrentWeapon(inventory->GetWeaponByWeaponType(weapon_type)); 
+    inventory->SetCurrentWeapon(inventory->GetWeaponByWeaponType(weapon_type));
   }
 
   last_facing_ = static_cast<FacingDir>(player_data.direction);
   last_left_ = player_data.is_left;
 }
 
-bool Player::IsLeft() const
-{
-    return last_left_;
-}
+bool Player::IsLeft() const { return last_left_; }
 
-void Player::SetIsLeft(const bool is_left)
-{
-    last_left_ = is_left;
-}
+void Player::SetIsLeft(const bool is_left) { last_left_ = is_left; }
 
 int Player::GetCharacterSkin() const
 {
-    const auto chara_type_comp = GetComponent<component::CharacterTypeComponent>();
-    if (!chara_type_comp) { return 0; }
+  const auto chara_type_comp = GetComponent<component::CharacterTypeComponent>();
+  if (!chara_type_comp) { return 0; }
 
-    return static_cast<int>(chara_type_comp->GetCharacterType());
+  return static_cast<int>(chara_type_comp->GetCharacterType());
 }
 
 app::database::PlayerData Player::SavePlayerToPlayerData() const
@@ -495,40 +473,28 @@ app::database::PlayerData Player::SavePlayerToPlayerData() const
   const auto inventory = GetComponent<component::Inventory>();
   const auto chara_type_comp = GetComponent<component::CharacterTypeComponent>();
 
-  if(transform)
-  {
-      const Vector2 pos = transform->GetPosition();
-      player_data.pos_x = static_cast<int>(pos.x);
-      player_data.pos_y = static_cast<int>(pos.y);
+  if (transform) {
+    const Vector2 pos = transform->GetPosition();
+    player_data.pos_x = static_cast<int>(pos.x);
+    player_data.pos_y = static_cast<int>(pos.y);
   }
 
-  if(nivel)
-  {
-      player_data.level = nivel->GetNivel();
-      player_data.current_xp = static_cast<int>(nivel->GetExperience());
+  if (nivel) {
+    player_data.level = nivel->GetNivel();
+    player_data.current_xp = static_cast<int>(nivel->GetExperience());
   }
 
-  if(health)
-  {
-      player_data.hp = static_cast<int>(*health->GetCurrentHealth());
-  }
+  if (health) { player_data.hp = static_cast<int>(*health->GetCurrentHealth()); }
 
-  if(inventory)
-  {
-      const auto current_weapon = inventory->GetCurrentWeapon();
-      if(current_weapon)
-      {
-          player_data.weapon_id = static_cast<int>(current_weapon->GetWeaponType());
-      }
+  if (inventory) {
+    const auto current_weapon = inventory->GetCurrentWeapon();
+    if (current_weapon) { player_data.weapon_id = static_cast<int>(current_weapon->GetWeaponType()); }
   }
 
   player_data.direction = static_cast<int>(last_facing_);
   player_data.is_left = last_left_;
 
-  if (chara_type_comp)
-  {
-      player_data.character_skin = static_cast<int>(chara_type_comp->GetCharacterType());
-  }
+  if (chara_type_comp) { player_data.character_skin = static_cast<int>(chara_type_comp->GetCharacterType()); }
 
   return player_data;
 }

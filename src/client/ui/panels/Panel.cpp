@@ -1,16 +1,17 @@
-#include <memory>
-#include <numeric>
-#include <raylib.h>
-#include <utility>
-
-#include "chroma/client/ui/UIContext.h"
 #include "chroma/client/ui/panels/Panel.h"
+#include "chroma/client/ui/UIContext.h"
 #include "chroma/client/ui/panels/PanelIdentifiers.h"
 #include "chroma/client/ui/widgets/BackGroundWidget.h"
 #include "chroma/client/ui/widgets/Widget.h"
 
+#include <memory>
+#include <numeric>
+#include <raylib.h>
+#include <utility>
+#include <vector>
+
 namespace chroma::client::ui::panel {
-Panel::Panel(const PanelID panel_id, Rectangle bounds)
+Panel::Panel(const PanelID panel_id, const Rectangle bounds)
   : bounds_(bounds), id_(panel_id), is_active_(true), is_visible_(true), background_texture_()
 {}
 
@@ -19,46 +20,45 @@ Panel::~Panel()
   if (background_texture_.id != 0) { UnloadTexture(background_texture_); }
 }
 
-void Panel::OnUpdate(const float delta_time, const UIContext &context)
+void Panel::OnUpdate(const float delta_time, const UIContext &context) const
 {
-  for (auto &widget : widgets_) { widget->OnUpdate(delta_time, context); }
+  for (const auto &widget : widgets_) { widget->OnUpdate(delta_time, context); }
 }
 
-void Panel::OnRender()
+void Panel::OnRender() const
 {
   DrawTexture(background_texture_, static_cast<int>(bounds_.x), static_cast<int>(bounds_.y), WHITE);
-  for (auto &widget : widgets_) { widget->OnRender(); }
+  for (const auto &widget : widgets_) { widget->OnRender(); }
 }
 
-void Panel::CenterWidgets(float spacing)
+void Panel::CenterWidgets(const float spacing) const
 {
-    std::vector<widget::Widget*> content_widgets;
-    for (const auto& w : widgets_) {
-        if (dynamic_cast<widget::BackGroundWidget*>(w.get()) == nullptr) {
-            content_widgets.push_back(w.get()); 
-        }
-    }
+  std::vector<widget::Widget *> content_widgets;
+  for (const auto &w : widgets_) {
+    if (dynamic_cast<widget::BackGroundWidget *>(w.get()) == nullptr) { content_widgets.push_back(w.get()); }
+  }
 
-    if (content_widgets.empty()) { return; }
+  if (content_widgets.empty()) { return; }
 
-    float total_height = 0.0F;
-    for (const auto& w : content_widgets) {
-        total_height += w->GetBounds().height;
-    }
+  float total_height = 0.0F;
+  // NOLINTNEXTLINE
+  total_height =
+    std::accumulate(content_widgets.begin(), content_widgets.end(), 0.0F, [](const float sum, const widget::Widget *w) {
+      return sum + w->GetBounds().height;
+    });
 
-    total_height += spacing * static_cast<float>(content_widgets.size() - 1);
-    float start_y = bounds_.y + ((bounds_.height - total_height) / 2.0F);
+  total_height += spacing * static_cast<float>(content_widgets.size() - 1);
+  float start_y = bounds_.y + ((bounds_.height - total_height) / 2.0F);
 
-    for (auto& w : content_widgets) {
-        Rectangle b = w->GetBounds();
+  for (const auto &w : content_widgets) {
+    Rectangle b = w->GetBounds();
 
-        b.x = bounds_.x + ((bounds_.width - b.width) / 2.0F);
-        b.y = start_y;
-        w->SetBounds(b);
+    b.x = bounds_.x + ((bounds_.width - b.width) / 2.0F);
+    b.y = start_y;
+    w->SetBounds(b);
 
-        start_y += b.height + spacing;
-    }
-
+    start_y += b.height + spacing;
+  }
 }
 
 void Panel::AddWidget(std::unique_ptr<widget::Widget> widget) { widgets_.push_back(std::move(widget)); }

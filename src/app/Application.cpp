@@ -7,7 +7,6 @@
 
 #include "chroma/app/Application.h"
 #include "chroma/app/database/DatabaseManager.h"
-#include "chroma/app/database/dao/SettingsDAO.h"
 #include "chroma/app/layers/Layer.h"
 #include "chroma/app/layers/LayerStack.h"
 #include "chroma/app/layers/game/MainMenuLayer.h"
@@ -20,7 +19,6 @@
 #include "chroma/client/ui/UIManager.h"
 #include "chroma/client/ui/UIManagerBus.h"
 #include "chroma/shared/audio/AudioBridge.h"
-#include "chroma/shared/context/GameContext.h"
 #include "chroma/shared/context/GameContextManager.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"

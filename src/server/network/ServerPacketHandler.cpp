@@ -1,5 +1,4 @@
 #include "chroma/server/network/ServerPacketHandler.h"
-#include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/packet/PacketHandler.h"
 #include "chroma/shared/packet/events/InputEventMessage.h"
 #include "chroma/shared/packet/events/ProjectileMessage.h"
@@ -10,7 +9,6 @@
 #include <flatbuffers/buffer.h>
 #include <flatbuffers/flatbuffer_builder.h>
 #include <memory>
-#include <unordered_map>
 #include <uuid_v4.h>
 #include <vector>
 

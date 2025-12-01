@@ -8,8 +8,8 @@
 
 namespace chroma::shared::collision {
 
-constexpr int MAX_OBJECTS = 10;
-constexpr int MAX_LEVELS = 100;
+constexpr int max_objects = 10;
+constexpr int max_levels = 100;
 
 Quadtree::Quadtree(const int level, const Rectangle bounds)
   : level_(level), bounds_(bounds), northwest_(nullptr), northeast_(nullptr), southwest_(nullptr), southeast_(nullptr)
@@ -57,7 +57,7 @@ void Quadtree::Insert(const ColliderEntry &collider_entry)
 
   collider_boxes_.push_back(collider_entry);
 
-  if (collider_boxes_.size() > MAX_OBJECTS && level_ < MAX_LEVELS) {
+  if (collider_boxes_.size() > max_objects && level_ < max_levels) {
     if (!northwest_) { Split(); }
 
     auto it = collider_boxes_.begin();
@@ -92,7 +92,7 @@ void Quadtree::Retrieve(std::vector<ColliderEntry> &return_objects, const Collid
 {
   std::shared_lock const lock(mutex_);
 
-  for (const auto &box : collider_boxes_) { return_objects.push_back(box); }
+  return_objects.insert(return_objects.end(), collider_boxes_.begin(), collider_boxes_.end());
 
   if (!northwest_) { return; }
 

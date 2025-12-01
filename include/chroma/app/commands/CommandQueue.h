@@ -11,7 +11,7 @@ class CommandQueue
 public:
   void Push(std::unique_ptr<Command> command);
   void Process();
-  bool IsEmpty() { return queue_.empty(); }
+  bool IsEmpty() const { return queue_.empty(); }
 
 private:
   std::queue<std::unique_ptr<Command>> queue_;

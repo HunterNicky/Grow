@@ -54,7 +54,7 @@ void BlurPass::Execute(RenderTexture2D &src, RenderTexture2D &dst)
   EndTextureMode();
 }
 
-void BlurPass::SetResolution(int width, int height)
+void BlurPass::SetResolution(const int width, const int height)
 {
   resolution_->x = static_cast<float>(width);
   resolution_->y = static_cast<float>(height);

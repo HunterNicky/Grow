@@ -16,7 +16,7 @@ public:
   void CreateContext(GameContextType type);
   void DeleteContext(GameContextType type);
 
-  void SetDeltaTime(float delta_time);
+  void SetDeltaTime(float delta_time) const;
 
 private:
   GameContextManager() = default;

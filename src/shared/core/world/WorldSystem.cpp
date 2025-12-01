@@ -2,6 +2,7 @@
 #include "chroma/shared/core/world/WorldGenerator.h"
 
 #include <algorithm>
+#include <cstddef>
 #include <cstdint>
 #include <limits>
 #include <raylib.h>
@@ -126,9 +127,10 @@ void WorldSystem::RenderDebugColliders() const
 
 void WorldSystem::GenerateWorld()
 {
-  tiles_.resize(width_ * height_);
+  const auto size = static_cast<size_t>(width_) * static_cast<size_t>(height_);
+  tiles_.resize(size);
 
-  std::vector<float> noise_map(width_ * height_);
+  std::vector<float> noise_map(size);
   float min_val = std::numeric_limits<float>::max();
   float max_val = std::numeric_limits<float>::lowest();
 
@@ -136,7 +138,7 @@ void WorldSystem::GenerateWorld()
     for (int x = 0; x < width_; ++x) {
       const float val = generator_.GetTerrainNoiseAtPosition(x, y);
 
-      noise_map[y * width_ + x] = val;
+      noise_map[(y * width_) + x] = val;
       min_val = std::min(val, min_val);
       max_val = std::max(val, max_val);
     }
@@ -144,7 +146,7 @@ void WorldSystem::GenerateWorld()
 
   for (int y = 0; y < height_; ++y) {
     for (int x = 0; x < width_; ++x) {
-      const float raw = noise_map[y * width_ + x];
+      const float raw = noise_map[(y * width_) + x];
 
       const float normalized = (raw - min_val) / (max_val - min_val);
 
@@ -226,8 +228,8 @@ void WorldSystem::GenerateColliders()
       const float py = static_cast<float>(y) * ts;
 
       if (tile.transition == TransitionType::Cliff) {
-        const float edge_thick = ts * 0.25f;
-        //const float edge_thick = ts;
+        const float edge_thick = ts * 0.25F;
+        // const float edge_thick = ts;
 
         if (tile.edges & EdgeDirection::North) {
           global_colliders_.push_back(

@@ -1,8 +1,10 @@
 #include "chroma/app/states/GameState.h"
-
+#include "chroma/app/database/DatabaseTypes.h"
 #include "chroma/app/states/State.h"
+#include "chroma/app/states/StateIdentifiers.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
 #include "chroma/client/render/shader/RenderPass.h"
+#include "chroma/client/ui/panels/PanelIdentifiers.h"
 #include "chroma/shared/builder/GameObjectBuilder.h"
 #include "chroma/shared/context/GameContext.h"
 #include "chroma/shared/context/GameContextManager.h"
@@ -10,61 +12,58 @@
 #include "chroma/shared/core/components/Bow.h"
 #include "chroma/shared/core/components/CharacterType.h"
 #include "chroma/shared/core/components/Fist.h"
+#include "chroma/shared/core/components/Inventory.h"
 #include "chroma/shared/core/components/Javelin.h"
 #include "chroma/shared/core/components/Spear.h"
+#include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/player/Player.h"
 #include "chroma/shared/core/projectile/Projectile.h"
-#include "chroma/shared/core/world/World.h"
-#include "chroma/shared/core/world/WorldSystem.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/events/KeyEvent.h"
-#include "chroma/shared/events/PlayerDataEvent.h"
 #include "chroma/shared/events/ProjectileEvent.h"
-#include "chroma/shared/render/RenderBridge.h"
-#include "chroma/shared/utils/UUID.h"
 #include "chroma/shared/events/ShaderEvent.h"
-#include "chroma/client/render/shader/RenderPass.h"
-#include "chroma/shared/render/RenderBridge.h"
+#include "chroma/shared/events/SoundEvent.h"
 #include "chroma/shared/events/state/StateEvent.h"
 #include "chroma/shared/events/ui/PanelEvent.h"
+#include "chroma/shared/render/RenderBridge.h"
 #include "chroma/shared/utils/Random.h"
 #include "chroma/shared/utils/UUID.h"
 
 #include <cstdint>
 #include <memory>
-#include <string>
+#include <raylib.h>
 #include <utility>
 #include <uuid_v4.h>
 
 namespace chroma::app::states {
 
-GameState::GameState(shared::core::component::CharacterType character_type) : State("GameState"), network_mediator_(nullptr)
+GameState::GameState(shared::core::component::CharacterType character_type)
+  : State("GameState"), network_mediator_(nullptr)
 {
 
-  if(character_type == shared::core::component::CharacterType::NONE) {
+  if (character_type == shared::core::component::CharacterType::NONE) {
     character_type = static_cast<shared::core::component::CharacterType>(shared::utils::Random::Int(1, 2));
   }
 
-  auto player =
-    chroma::shared::builder::GameObjectBuilder<shared::core::player::Player>()
-      .AddTransform({ 0, 0 })
-      .Id(shared::utils::UUID::Generate())
-      .AddSpeed(50.0F)
-      .AddMovement()
-      .AddAnimation()
-      .AddCamera(shared::render::CameraMode::FollowSmooth, 3.0F, 2.0F, { 64, 128 })
-      .AddColliderBox(GameContextType::Server, { 16.F, 32.F }, { -8.F, -16.F })
-      .AddAudioListener()
-      .AddHealth(100.0F, 1.0F)
-      .AddRun(false, 1.5F)
-      .AddInventory(10)
-      .AddAttack(false)
-      .AddCharacterType(character_type)
-      .AddNivel(1, 0.0F, 100.0F)
-      .NetRole(shared::core::NetRole::AUTONOMOUS)
-      .Build();
+  auto player = chroma::shared::builder::GameObjectBuilder<shared::core::player::Player>()
+                  .AddTransform({ 0, 0 })
+                  .Id(shared::utils::UUID::Generate())
+                  .AddSpeed(50.0F)
+                  .AddMovement()
+                  .AddAnimation()
+                  .AddCamera(shared::render::CameraMode::FollowSmooth, 3.0F, 2.0F, { 64, 128 })
+                  .AddColliderBox(GameContextType::Server, { 16.F, 32.F }, { -8.F, -16.F })
+                  .AddAudioListener()
+                  .AddHealth(100.0F, 1.0F)
+                  .AddRun(false, 1.5F)
+                  .AddInventory(10)
+                  .AddAttack(false)
+                  .AddCharacterType(character_type)
+                  .AddNivel(1, 0.0F, 100.0F)
+                  .NetRole(shared::core::NetRole::AUTONOMOUS)
+                  .Build();
 
   switch (player->GetComponent<shared::core::component::CharacterTypeComponent>()->GetCharacterType()) {
 
@@ -153,7 +152,7 @@ void GameState::OnEvent(shared::event::Event &event)
   if (const auto *key_event = dynamic_cast<shared::event::KeyEvent *>(&event)) {
     if (key_event->IsPressed() && key_event->GetKey() == KEY_P) {
       SetPaused(true);
-      shared::event::state::StateEvent state_event(shared::event::state::Action::Push, states::StateID::PauseState);
+      shared::event::state::StateEvent state_event(shared::event::state::Action::Push, StateID::PauseState);
       shared::event::EventBus::Dispatch(state_event);
       shared::event::ui::PanelEvent panel_bg_event(
         shared::event::ui::Action::Open, client::ui::panel::PanelID::PauseBackgroundPanel);
@@ -230,7 +229,7 @@ bool GameState::IsPaused() const { return is_paused_; }
 
 void GameState::SetPaused(bool paused) { is_paused_ = paused; }
 
-void GameState::CreatePlayerWithPlayerData(const app::database::PlayerData &player_data)
+void GameState::CreatePlayerWithPlayerData(const database::PlayerData &player_data)
 {
   auto player = GCM::Instance().GetContext(GameContextType::Client)->GetLocalPlayer();
 

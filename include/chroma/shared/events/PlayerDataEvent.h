@@ -1,23 +1,20 @@
 #pragma once
 
+#include "chroma/app/database/DatabaseTypes.h"
 #include "chroma/shared/events/Event.h"
-#include "chroma/app/database/DatabaseTypes.h" 
 
 namespace chroma::shared::event {
 
-enum class PlayerDataAction {
-  Save = 0,
-  Load = 1
-};
+enum class PlayerDataAction { Save = 0, Load = 1 };
 
-class PlayerDataEvent : public Event
+class PlayerDataEvent final : public Event
 {
 public:
-  PlayerDataEvent(PlayerDataAction action, const app::database::PlayerData& data = {});
-  
+  explicit PlayerDataEvent(PlayerDataAction action, const app::database::PlayerData &data = {});
+
   [[nodiscard]] PlayerDataAction GetAction() const;
-  [[nodiscard]] const app::database::PlayerData& GetData() const;
-  
+  [[nodiscard]] const app::database::PlayerData &GetData() const;
+
   [[nodiscard]] std::shared_ptr<Event> Clone() const override;
   [[nodiscard]] static Type GetStaticType();
 
@@ -26,4 +23,4 @@ private:
   app::database::PlayerData data_;
 };
 
-} // namespace chroma::shared::event
+}// namespace chroma::shared::event

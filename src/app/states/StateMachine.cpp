@@ -1,8 +1,10 @@
-#include <memory>
-
-#include "chroma/app/states/State.h"
 #include "chroma/app/states/StateMachine.h"
+#include "chroma/app/states/State.h"
 #include "chroma/shared/events/Event.h"
+
+#include <memory>
+#include <stack>
+#include <string>
 
 namespace chroma::app::states {
 void StateMachine::OnUpdate(const float delta_time)

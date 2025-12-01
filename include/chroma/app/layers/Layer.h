@@ -38,10 +38,10 @@ public:
   [[nodiscard]] bool IsActive() const;
   void SetActive(bool active);
 
-  void PushState(const std::shared_ptr<states::State> &state);
-  void PopState();
+  void PushState(const std::shared_ptr<states::State> &state) const;
+  void PopState() const;
 
-  [[nodiscard]] std::shared_ptr<states::State> GetCurrentState();
+  [[nodiscard]] std::shared_ptr<states::State> GetCurrentState() const;
 
   virtual void RegisterStates() = 0;
 

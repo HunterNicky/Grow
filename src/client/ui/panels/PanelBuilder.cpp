@@ -103,13 +103,13 @@ PanelBuilder &PanelBuilder::AddToggle(const std::string &id,
   return *this;
 }
 
-PanelBuilder &PanelBuilder::AddSpace(float height)
+PanelBuilder &PanelBuilder::AddSpace(const float height)
 {
   cursor_y_ += height;
   return *this;
 }
 
-PanelBuilder &PanelBuilder::SetPadding(float padding)
+PanelBuilder &PanelBuilder::SetPadding(const float padding)
 {
   item_padding_ = padding;
   return *this;

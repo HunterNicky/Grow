@@ -1,6 +1,8 @@
 #pragma once
 
 #include "RenderPass.h"
+
+#include <algorithm>
 #include <memory>
 #include <raylib.h>
 #include <vector>
@@ -22,22 +24,20 @@ public:
   void AddPassFront(std::unique_ptr<RenderPass> pass);
   void AddPassBack(std::unique_ptr<RenderPass> pass);
 
-  void Setup();
+  void Setup() const;
 
   RenderTexture2D &Execute(RenderTexture2D &original_scene);
 
-  [[nodiscard]] RenderPass* GetPassByType(PassType type) const;
+  [[nodiscard]] RenderPass *GetPassByType(PassType type) const;
   void RemovePassByType(PassType type);
 
-  template<typename T>
-  T* GetPass() const {
-      for (const auto &p : passes_) {
-          if (auto casted = dynamic_cast<T*>(p.get()))
-          {
-            return casted;
-          }
-      }
-      return nullptr;
+  template<typename T> T *GetPass() const
+  {
+    auto it = std::find_if(passes_.begin(), passes_.end(), [](const std::unique_ptr<RenderPass> &p) {
+      return dynamic_cast<T *>(p.get()) != nullptr;
+    });
+
+    return it != passes_.end() ? dynamic_cast<T *>(it->get()) : nullptr;
   }
 
 private:

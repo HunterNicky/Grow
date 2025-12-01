@@ -37,7 +37,7 @@ public:
 
   static void OnReceivedInputMessage(const std::shared_ptr<shared::packet::InputMessage> &input_message,
     const UUIDv4::UUID &player_id);
-  void OnReceivedProjectileMessage(const std::shared_ptr<shared::packet::ProjectileMessage> &projectile_message);
+  static void OnReceivedProjectileMessage(const std::shared_ptr<shared::packet::ProjectileMessage> &projectile_message);
   static void HandleInput(shared::event::Event &event, const UUIDv4::UUID &player_id);
 
 private:

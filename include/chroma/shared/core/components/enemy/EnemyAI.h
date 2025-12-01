@@ -1,10 +1,10 @@
 #pragma once
 #include "chroma/shared/ai/EnemyBlackboard.h"
-#include "chroma/shared/ai/EnemyNodes.h"
 #include "chroma/shared/core/components/Component.h"
 
 #include <aitoolkit/behtree.hpp>
 #include <memory>
+#include <raylib.h>
 
 namespace chroma::shared::core::component {
 
@@ -20,6 +20,8 @@ public:
   [[nodiscard]] const ai::EnemyBlackboard &GetBlackboard() const { return blackboard_; }
 
 private:
+  static std::shared_ptr<GameObject> FindClosestPlayer(const Vector2 &my_pos);
+
   ai::EnemyBlackboard blackboard_;
   std::unique_ptr<aitoolkit::bt::node<ai::EnemyBlackboard>> root_node_;
 };

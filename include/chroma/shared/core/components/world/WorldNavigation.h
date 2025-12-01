@@ -25,6 +25,10 @@ public:
 
 private:
   void BuildGraph();
+  void AllocateGrid();
+  void InitializeEmptyNodes();
+  void ApplyColliders();
+  void ComputeNeighbors();
 
   std::shared_ptr<world::WorldSystem> world_system_;
   std::vector<ai::NavNode> nav_grid_;

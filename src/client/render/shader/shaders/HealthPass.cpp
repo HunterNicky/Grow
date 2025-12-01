@@ -1,5 +1,6 @@
 #include "chroma/client/render/shader/shaders/HealthPass.h"
 #include "chroma/client/render/shader/IShaderValue.h"
+#include "chroma/client/render/shader/RenderPass.h"
 #include "chroma/client/render/shader/ShaderPass.h"
 #include "chroma/shared/context/GameContext.h"
 #include "chroma/shared/context/GameContextManager.h"

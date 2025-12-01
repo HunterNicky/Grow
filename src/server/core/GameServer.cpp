@@ -1,13 +1,6 @@
 #include "chroma/server/core/GameServer.h"
-
-#include <chrono>
-#include <cstdint>
-#include <enet.h>
-#include <flatbuffers/buffer.h>
-#include <flatbuffers/flatbuffer_builder.h>
-#include <memory>
-#include <vector>
-
+#include "chroma/server/logic/ServerGameLogic.h"
+#include "chroma/shared/context/GameContext.h"
 #include "chroma/shared/context/GameContextManager.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
@@ -20,6 +13,14 @@
 #include "events_generated.h"
 #include "game_generated.h"
 #include "messages_generated.h"
+
+#include <chrono>
+#include <cstdint>
+#include <enet.h>
+#include <flatbuffers/buffer.h>
+#include <flatbuffers/flatbuffer_builder.h>
+#include <memory>
+#include <vector>
 
 namespace chroma::server::core {
 
@@ -35,8 +36,9 @@ GameServer::GameServer()
     shared::event::EventBus::SetDispatcher(dispatcher);
   }
 
-  sound_sub_ = shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::SoundEvent>([this](shared::event::Event &ev) {
-    if (!network_.IsReady()) { return; }
+  sound_sub_ =
+    shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::SoundEvent>([this](shared::event::Event &ev) {
+      if (!network_.IsReady()) { return; }
 
       const auto &sound_ev = dynamic_cast<const shared::event::SoundEvent &>(ev);
 
@@ -58,21 +60,20 @@ GameServer::GameServer()
       network_.Flush();
     });
 
-  shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::WaveEvent>(
-    [this](const shared::event::Event &ev) {
-      if (!network_.IsReady()) { return; }
+  shared::event::EventBus::GetDispatcher()->Subscribe<shared::event::WaveEvent>([this](const shared::event::Event &ev) {
+    if (!network_.IsReady()) { return; }
 
-      const auto &wave_ev = dynamic_cast<const shared::event::WaveEvent &>(ev);
+    const auto &wave_ev = dynamic_cast<const shared::event::WaveEvent &>(ev);
 
-      const auto buf = shared::packet::PacketHandler::WaveEventMessageToFlatBuffer(0, 0.0F, wave_ev.GetWaveIndex());
-      if (buf.empty()) { return; }
+    const auto buf = shared::packet::PacketHandler::WaveEventMessageToFlatBuffer(0, 0.0F, wave_ev.GetWaveIndex());
+    if (buf.empty()) { return; }
 
-      for (const auto &[peer, session] : sessions_.GetAll()) {
-        (void)session;
-        network_.Send(peer, buf.data(), buf.size(), true);
-      }
-      network_.Flush();
-    });
+    for (const auto &[peer, session] : sessions_.GetAll()) {
+      (void)session;
+      network_.Send(peer, buf.data(), buf.size(), true);
+    }
+    network_.Flush();
+  });
 
   logic::ServerGameLogic::CreateWorld();
 }
@@ -164,7 +165,7 @@ void GameServer::DisconnectClient(const ENetEvent &event)
   if (!is_running_ || !network_.IsReady()) { return; }
 
   if (network_.ConnectedPeers() == 0) { is_running_ = false; }
-  
+
   sessions_.RemoveSession(event.peer);
 }
 

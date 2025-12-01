@@ -20,7 +20,7 @@ public:
 
   void SetPlayerData(const database::PlayerData &player_data);
   database::PlayerData &GetPlayerData();
-  void RequestSave();
+  void RequestSave() const;
 
 private:
   PlayerDataManager() = default;

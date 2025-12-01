@@ -1,6 +1,8 @@
 #include "chroma/shared/core/components/Health.h"
 #include "chroma/shared/core/components/Component.h"
+
 #include <algorithm>
+#include <cmath>
 #include <memory>
 #include <raylib.h>
 

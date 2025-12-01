@@ -14,9 +14,9 @@ void PanelFactory::Register(const PanelID panel_id, std::function<std::shared_pt
   factory_[panel_id] = std::move(recipe);
 }
 
-std::shared_ptr<panel::Panel> PanelFactory::Create(const PanelID panel_id, Vector2 screen_size, Vector2 panel_size)
+std::shared_ptr<panel::Panel> PanelFactory::Create(const PanelID panel_id, const Vector2 screen_size, const Vector2 panel_size)
 {
-  auto it = factory_.find(panel_id);
+  const auto it = factory_.find(panel_id);
   if (it != factory_.end()) { return it->second(screen_size, panel_size); }
   return nullptr;
 }

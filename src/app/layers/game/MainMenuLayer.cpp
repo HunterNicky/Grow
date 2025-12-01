@@ -12,6 +12,7 @@
 #include "chroma/app/states/menu/OptionsMenuState.h"
 #include "chroma/client/ui/panels/PanelIdentifiers.h"
 #include "chroma/shared/events/EventBus.h"
+#include "chroma/shared/events/state/StateEvent.h"
 #include "chroma/shared/events/ui/PanelEvent.h"
 
 namespace chroma::app::layer::game {

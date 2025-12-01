@@ -18,6 +18,7 @@ WorldSystem::WorldSystem() : world_system_(std::make_unique<world::WorldSystem>(
   type_ = ComponentType::WORLD_SYSTEM;
 }
 
+// NOLINTBEGIN
 void WorldSystem::Initialize(const std::string &path)
 {
   world_system_->Initialize(path);
@@ -43,6 +44,8 @@ void WorldSystem::Initialize(const std::string &path)
     }
   }
 }
+// NOLINTEND
+
 std::vector<world::RenderTile> WorldSystem::GetRenderTile() const
 {
   if (world_system_) { return world_system_->GetRenderTile(); }

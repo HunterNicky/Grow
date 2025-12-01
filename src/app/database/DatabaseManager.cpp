@@ -29,7 +29,7 @@ void DatabaseManager::InitEventListener()
     [this](const shared::event::Event &event) { this->OnEvent(event); });
 }
 
-void DatabaseManager::OnEvent(const shared::event::Event &event)
+void DatabaseManager::OnEvent(const shared::event::Event &event) const
 {
   switch (event.GetType()) {
   case shared::event::Event::Type::SaveSettingsEvent: {
@@ -37,7 +37,7 @@ void DatabaseManager::OnEvent(const shared::event::Event &event)
     break;
   }
   case shared::event::Event::Type::PlayerDataEvent: {
-    const auto &player_event = static_cast<const shared::event::PlayerDataEvent &>(event);
+    const auto &player_event = dynamic_cast<const shared::event::PlayerDataEvent &>(event);
 
     if (player_event.GetAction() == shared::event::PlayerDataAction::Save) {
       player_dao_->Save(player_event.GetData());
@@ -53,8 +53,8 @@ void DatabaseManager::OnEvent(const shared::event::Event &event)
 
 StorageType &DatabaseManager::GetStorage() { return storage_; }
 
-ISettingsDAO &DatabaseManager::GetSettingsDAO() { return *settings_dao_; }
+ISettingsDAO &DatabaseManager::GetSettingsDAO() const { return *settings_dao_; }
 
-IPlayerDAO &DatabaseManager::GetPlayerDAO() { return *player_dao_; }
+IPlayerDAO &DatabaseManager::GetPlayerDAO() const { return *player_dao_; }
 
 }// namespace chroma::app::database

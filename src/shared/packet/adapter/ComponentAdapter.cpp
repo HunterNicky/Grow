@@ -20,6 +20,8 @@
 
 #include <common_generated.h>
 #include <components_generated.h>
+#include <entities_generated.h>
+
 #include <cstdint>
 #include <flatbuffers/buffer.h>
 #include <flatbuffers/flatbuffer_builder.h>

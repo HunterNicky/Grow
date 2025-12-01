@@ -8,7 +8,7 @@
 #include <utility>
 
 namespace chroma::client::ui::widget {
-ToggleWidget::ToggleWidget(const std::string &id, Rectangle bounds, std::string label, bool is_toggled)
+ToggleWidget::ToggleWidget(const std::string &id, const Rectangle bounds, std::string label, const bool is_toggled)
   : Widget(id, bounds), is_toggled_(is_toggled), is_hovered_(false), label_(std::move(label))
 {}
 

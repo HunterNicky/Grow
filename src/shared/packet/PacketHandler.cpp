@@ -30,6 +30,7 @@
 #include <raylib.h>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <uuid_v4.h>
 #include <vector>
 
@@ -205,6 +206,28 @@ uint64_t PacketHandler::SnapshotGetTimeLapse(const Game::Snapshot *snapshot)
   return snapshot->server_time();
 }
 
+std::shared_ptr<core::GameObject> PacketHandler::GetOrCreateObjectFromState(
+  const std::shared_ptr<core::GameObjectManager> &manager,
+  std::unordered_map<UUIDv4::UUID, std::shared_ptr<core::GameObject>> &current_clones,
+  const Game::EntityState *entity_state,
+  bool is_local_player)
+{
+  if (entity_state == nullptr || entity_state->id() == nullptr) { return nullptr; }
+
+  const UUIDv4::UUID entity_id = UUIDv4::UUID::fromStrFactory(entity_state->id()->str());
+
+  auto it = current_clones.find(entity_id);
+  if (it != current_clones.end()) { return it->second; }
+
+  auto game_object = factory::GameObjectFactory::Create(entity_state, is_local_player);
+  if (game_object) {
+    current_clones[entity_id] = game_object;
+    if (manager && !manager->Exists(entity_id)) { manager->Register(game_object); }
+  }
+
+  return game_object;
+}
+
 std::unordered_map<UUIDv4::UUID, std::shared_ptr<core::GameObject>> PacketHandler::SnapshotToGameObjects(
   const std::shared_ptr<core::GameObjectManager> &manager,
   const Game::Snapshot *snapshot)
@@ -221,19 +244,9 @@ std::unordered_map<UUIDv4::UUID, std::shared_ptr<core::GameObject>> PacketHandle
   for (const auto &entity_state : *snapshot->entities()) {
     if (entity_state == nullptr || entity_state->id() == nullptr) { continue; }
 
-    const UUIDv4::UUID entity_id = UUIDv4::UUID::fromStrFactory(entity_state->id()->str());
     const bool is_local_player = (entity_state->id()->str() == local_player_id_str);
 
-    std::shared_ptr<core::GameObject> game_object;
-    if (current_clones.contains(entity_id)) {
-      game_object = current_clones[entity_id];
-    } else {
-      game_object = factory::GameObjectFactory::Create(entity_state, is_local_player);
-      if (game_object) {
-        current_clones[entity_id] = game_object;
-        if (manager && !manager->Exists(entity_id)) { manager->Register(game_object); }
-      }
-    }
+    auto game_object = GetOrCreateObjectFromState(manager, current_clones, entity_state, is_local_player);
 
     if (!game_object) { continue; }
 
@@ -320,9 +333,8 @@ std::vector<uint8_t> PacketHandler::ProjectileMessageToFlatBuffer(
   return { buf.begin(), buf.end() };
 }
 
-std::vector<uint8_t> PacketHandler::WaveEventMessageToFlatBuffer(const uint32_t seq,
-  const float dt,
-  const uint32_t wave_index)
+std::vector<uint8_t>
+  PacketHandler::WaveEventMessageToFlatBuffer(const uint32_t seq, const float dt, const uint32_t wave_index)
 {
   flatbuffers::FlatBufferBuilder builder(128);
 

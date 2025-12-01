@@ -2,7 +2,6 @@
 #include <flatbuffers/verifier.h>
 #include <memory>
 #include <string>
-#include <unordered_map>
 #include <uuid_v4.h>
 #include <vector>
 
@@ -60,10 +59,10 @@ void GameNetworkMediator::OnSnapshotReceived(const Game::Snapshot *snapshot) con
 
   const UUIDv4::UUID player_id = shared::packet::PacketHandler::SnapshotGetUUID(snapshot);
 
-  
+
   auto manager = GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager();
   auto new_snapshot = shared::packet::PacketHandler::SnapshotToGameObjects(manager, snapshot);
-  
+
   if (state->GetPlayerId() != player_id) {
     state->SetPlayerId(player_id);
     interpolate_system_->SetPlayerId(player_id);
@@ -86,53 +85,61 @@ void GameNetworkMediator::OnSnapshotReceived(const Game::Snapshot *snapshot) con
   ProcessPendingSoundEvents();
 }
 
+void GameNetworkMediator::HandleSoundEvent(const Game::Event *evt) const
+{
+  if (evt == nullptr) { return; }
+  const auto *sound_msg = evt->event_as_SoundEventMessage();
+  if ((sound_msg == nullptr) || (sound_msg->sound_event() == nullptr)) { return; }
+
+  const auto *snd = sound_msg->sound_event();
+  const std::string sound_id = (snd->sound_id() != nullptr) ? snd->sound_id()->str() : std::string();
+  const float volume = snd->volume();
+  const float pitch = snd->pitch();
+  const std::string source_id = (snd->source_id() != nullptr) ? snd->source_id()->str() : std::string();
+
+  shared::event::SoundEvent sound_event(sound_id, volume, pitch);
+  sound_event.SetEmitterId(source_id);
+
+  if (const auto state = game_state_.lock()) {
+    bool delivered_to_emitter = false;
+    if (!source_id.empty()) {
+      UUIDv4::UUID const src_uuid(source_id);
+      const auto manager = GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager();
+      if (manager && manager->Exists(src_uuid)) {
+        const auto game_object = manager->Get(src_uuid);
+        if (game_object) {
+          game_object->HandleEvent(sound_event);
+          delivered_to_emitter = true;
+        }
+      }
+    }
+    if (!delivered_to_emitter) { pending_sound_events_.push_back(sound_event); }
+    state->OnEvent(sound_event);
+  }
+}
+
+void GameNetworkMediator::HandleWaveEvent(const Game::Event *evt) const
+{
+  if (evt == nullptr) { return; }
+
+  const auto *wave_msg = evt->event_as_WaveEventMessage();
+  if (wave_msg == nullptr || wave_msg->event() == nullptr) { return; }
+
+  const uint32_t wave_index = wave_msg->event()->wave_index();
+  if (const auto state = game_state_.lock()) { (void)wave_index; }
+}
+
 void GameNetworkMediator::OnEventReceived(const Game::Event *evt) const
 {
   if (evt == nullptr) { return; }
 
   switch (evt->event_type()) {
-  case Game::EventUnion::SoundEventMessage: {
-    const auto *sound_msg = evt->event_as_SoundEventMessage();
-    if ((sound_msg == nullptr) || (sound_msg->sound_event() == nullptr)) { return; }
-
-    const auto *snd = sound_msg->sound_event();
-    const std::string sound_id = (snd->sound_id() != nullptr) ? snd->sound_id()->str() : std::string();
-    const float volume = snd->volume();
-    const float pitch = snd->pitch();
-    const std::string source_id = (snd->source_id() != nullptr) ? snd->source_id()->str() : std::string();
-
-    shared::event::SoundEvent sound_event(sound_id, volume, pitch);
-    sound_event.SetEmitterId(source_id);
-
-    if (const auto state = game_state_.lock()) {
-      bool delivered_to_emitter = false;
-      if (!source_id.empty()) {
-        UUIDv4::UUID const src_uuid(source_id);
-        const auto manager = GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager();
-        if (manager && manager->Exists(src_uuid)) {
-          const auto game_object = manager->Get(src_uuid);
-          if (game_object) {
-            game_object->HandleEvent(sound_event);
-            delivered_to_emitter = true;
-          }
-        }
-      }
-      if (!delivered_to_emitter) { pending_sound_events_.push_back(sound_event); }
-      state->OnEvent(sound_event);
-    }
+  case Game::EventUnion::SoundEventMessage:
+    HandleSoundEvent(evt);
     break;
-  }
-  case Game::EventUnion::WaveEventMessage: {
-    const auto *wave_msg = evt->event_as_WaveEventMessage();
-    if (!wave_msg || !wave_msg->event()) { break; }
-
-    const uint32_t wave_index = wave_msg->event()->wave_index();
-
-    if (const auto state = game_state_.lock()) {
-      (void)wave_index;
-    }
+  case Game::EventUnion::WaveEventMessage:
+    HandleWaveEvent(evt);
     break;
-  }
   default:
     break;
   }

@@ -1,6 +1,11 @@
 #pragma once
 
+#include "chroma/shared/core/GameObject.h"
+#include "chroma/shared/core/components/world/WorldNavigation.h"
+
 #include <cstdint>
+#include <memory>
+#include <raylib.h>
 
 namespace chroma::server::logic {
 
@@ -15,8 +20,11 @@ public:
 
 private:
   void StartNextWave();
-  void SpawnEnemies(uint32_t count) const;
-  [[nodiscard]] bool IsCurrentWaveCleared() const;
+  static void SpawnEnemies(uint32_t count);
+  static std::shared_ptr<shared::core::GameObject> BuildEnemyAt(const Vector2 &spawn_pos);
+  static Vector2 FindWalkableNear(const std::shared_ptr<shared::core::GameObject> &player_obj,
+    const std::shared_ptr<shared::core::component::WorldNavigation> &world_nav);
+  [[nodiscard]] static bool IsCurrentWaveCleared();
 
   uint32_t current_wave_;
   uint32_t max_waves_;

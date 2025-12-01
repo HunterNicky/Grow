@@ -1,5 +1,8 @@
 #pragma once
 #include "chroma/shared/core/GameObject.h"
+#include "chroma/shared/core/components/SpriteAnimation.h"
+
+#include <complex.h>
 
 enum class EnemyFacingDir : uint8_t { Up = 0, Down = 1, Side = 2 };
 
@@ -20,6 +23,9 @@ public:
 
 private:
   void UpdateAnimations(const Vector2 &dir, float magnitude);
+  void UpdateMovementAnimation(const Vector2 &dir, const std::shared_ptr<component::SpriteAnimation> &anim);
+  static Vector2 ComputeDirectionToClosestPlayer(const std::shared_ptr<component::Transform> &transform);
+  void UpdateIdleOrAttackAnimation(const Vector2 &to_player, const std::shared_ptr<component::SpriteAnimation> &anim);
   void UpdateRangedAttack(float delta_time, const Vector2 &dir);
 
   EnemyFacingDir last_facing_{ EnemyFacingDir::Down };
