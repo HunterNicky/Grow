@@ -7,7 +7,7 @@
 
 namespace chroma::client::render::shader::shaders {
 
-BorderColorPass::BorderColorPass() : ShaderPass("resources/shaders/base.vs", "assets/shaders/border_color.fs")
+BorderColorPass::BorderColorPass() : ShaderPass("assets/shaders/base.vs", "assets/shaders/border_color.fs")
 {
   SetPassType(PassType::BORDERCOLOR);
 }

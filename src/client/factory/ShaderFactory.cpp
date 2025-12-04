@@ -8,6 +8,8 @@
 #include "chroma/client/render/shader/shaders/HealthPass.h"
 #include "chroma/client/render/shader/shaders/ThresholdPass.h"
 
+#include <chroma/client/render/shader/shaders/DerivativeXPass.h>
+#include <chroma/client/render/shader/shaders/DerivativeYPass.h>
 #include <memory>
 
 namespace chroma::client::factory {

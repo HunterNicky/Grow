@@ -1,28 +1,26 @@
-#include "chroma/client/render/shader/shaders/ThresholdPass.h"
-#include "chroma/client/render/shader/IShaderValue.h"
+#include "chroma/client/render/shader/RenderPass.h"
 #include "chroma/client/render/shader/ShaderPass.h"
+#include "chroma/client/render/shader/shaders/Hysteresis.h"
 
 #include <memory>
 #include <raylib.h>
-#include <rlgl.h>
 
 namespace chroma::client::render::shader::shaders {
-ThresholdPass::ThresholdPass()
-  : ShaderPass("assets/shaders/base.vs", "assets/shaders/threshold.fs")
+Hysteresis::Hysteresis() : ShaderPass("assets/shaders/base.vs", "assets/shaders/hysteresis.fs")
 {
+  SetPassType(PassType::HYSTERESIS);
 }
 
-void ThresholdPass::Setup()
+void Hysteresis::Setup()
 {
   LoadShader();
-
   for (auto &pair : values_) {
     const int loc = ::GetShaderLocation(shader_, pair.first.c_str());
     if (loc >= 0) { pair.second->SetLocation(loc); }
   }
 }
 
-void ThresholdPass::Execute(RenderTexture2D &src, RenderTexture2D &dst)
+void Hysteresis::Execute(RenderTexture2D &src, RenderTexture2D &dst)
 {
   BeginTextureMode(dst);
   ClearBackground(BLANK);
@@ -30,7 +28,7 @@ void ThresholdPass::Execute(RenderTexture2D &src, RenderTexture2D &dst)
   BeginShaderMode(shader_);
   UploadAll();
   DrawTextureRec(src.texture,
-    Rectangle{ 0, 0, static_cast<float>(src.texture.width), static_cast<float>(-src.texture.height) },
+    Rectangle{ 0, 0, static_cast<float>(dst.texture.width), static_cast<float>(-src.texture.height) },
     Vector2{ 0, 0 },
     WHITE);
   EndShaderMode();

@@ -3,57 +3,43 @@
 #include "chroma/client/render/shader/IShaderValue.h"
 #include "chroma/client/render/shader/RenderPass.h"
 #include "chroma/client/render/shader/ShaderPass.h"
-#include "chroma/client/render/shader/shaders/DerivativeXPass.h"
-#include "chroma/client/render/shader/shaders/DerivativeYPass.h"
-#include "rlgl.h"
+#include "chroma/client/render/shader/shaders/AngleMagPass.h"
+#include "chroma/client/render/shader/shaders/GrayPass.h"
+#include "chroma/client/render/shader/shaders/ThresholdPass.h"
+#include "chroma/client/render/shader/shaders/Hysteresis.h"
+#include "chroma/client/render/shader/shaders/NonMaximum.h"
 
 #include <memory>
-#include <print>
 #include <raylib.h>
+#include <rlgl.h>
 
 namespace chroma::client::render::shader::shaders {
-RenderTexture2D LoadFloatRenderTexture(const int width, const int height)
-{
-  RenderTexture2D target = { 0 };
-
-  target.id = rlLoadFramebuffer();
-  rlEnableFramebuffer(target.id);
-  if (target.id > 0) {
-    target.texture.id = rlLoadTexture(nullptr, width, height, PIXELFORMAT_UNCOMPRESSED_R32G32B32A32, 1);
-    target.texture.width = width;
-    target.texture.height = height;
-    target.texture.format = PIXELFORMAT_UNCOMPRESSED_R32G32B32A32;
-    target.texture.mipmaps = 1;
-
-    rlFramebufferAttach(target.id, target.texture.id, RL_ATTACHMENT_COLOR_CHANNEL0, RL_ATTACHMENT_TEXTURE2D, 0);
-
-    if (rlFramebufferComplete(target.id)) {
-      TraceLog(LOG_INFO, "FBO: [ID %i] Framebuffer object created successfully", target.id);
-    } else {
-      TraceLog(LOG_WARNING, "FBO: [ID %i] Framebuffer object not complete", target.id);
-    }
-  } else {
-    TraceLog(LOG_WARNING, "FBO: Framebuffer object can not be created");
-  }
-
-  return target;
-}
-
 BorderPass::BorderPass(const int width, const int height)
-  : ShaderPass("resources/shaders/base.vs", "assets/shaders/border.fs"), pass_x_(std::make_unique<DerivativeXPass>()),
-    pass_y_(std::make_unique<DerivativeYPass>()),
-    tex_dx_(std::make_shared<RenderTexture2D>(LoadFloatRenderTexture(width, height))),
-    tex_dy_(std::make_shared<RenderTexture2D>(LoadFloatRenderTexture(width, height)))
+  : ShaderPass("assets/shaders/base.vs", "assets/shaders/border.fs"),
+    pass_angle_mag__(std::make_unique<AngleMagPass>(width, height)), pass_gray_(std::make_unique<GrayPass>()),
+    pass_non_maximum_(std::make_unique<NonMaximum>()), pass_hysteresis_(std::make_unique<Hysteresis>()),
+    pass_threshold_(std::make_unique<ThresholdPass>()),
+    tex_angle_mag_(std::make_shared<RenderTexture2D>(LoadFloatRenderTexture(width, height))),
+    tex_non_maximum_(std::make_shared<RenderTexture2D>(LoadRenderTexture(width, height))),
+    tex_hysteresis_ping(std::make_shared<RenderTexture2D>(LoadRenderTexture(width, height))),
+    tex_hysteresis_pong(std::make_shared<RenderTexture2D>(LoadRenderTexture(width, height))),
+    slot_angle_mag_val_(std::make_shared<int>(1)), slot_non_maximum_val_(std::make_shared<int>(2))
 {
   SetPassType(PassType::BORDER);
-  SetUniform("u_dx", UniformType::SAMPLER2D, tex_dx_);
-  SetUniform("u_dy", UniformType::SAMPLER2D, tex_dy_);
+  SetUniform("u_angle_mag", rlShaderUniformDataType::RL_SHADER_UNIFORM_INT, slot_angle_mag_val_);
+  SetUniform("u_non_maximum", rlShaderUniformDataType::RL_SHADER_UNIFORM_INT, slot_non_maximum_val_);
 }
+
+BorderPass::~BorderPass() { UnloadRenderTexture(*tex_angle_mag_); }
 
 void BorderPass::Setup()
 {
-  pass_x_->Setup();
-  pass_y_->Setup();
+  pass_gray_->Setup();
+  pass_angle_mag__->Setup();
+  pass_non_maximum_->Setup();
+  pass_hysteresis_->Setup();
+  pass_threshold_->Setup();
+
   LoadShader();
 
   for (auto &pair : values_) {
@@ -64,10 +50,19 @@ void BorderPass::Setup()
 
 void BorderPass::Execute(RenderTexture2D &src, RenderTexture2D &dst)
 {
-  pass_x_->Execute(src, *tex_dx_);
-  pass_y_->Execute(src, *tex_dy_);
+  pass_gray_->Execute(src, dst);
+  pass_angle_mag__->Execute(dst, *tex_angle_mag_);
+  // pass_non_maximum_->Execute(*tex_angle_mag_, *tex_non_maximum_);
+  pass_non_maximum_->Execute(*tex_angle_mag_, *tex_hysteresis_ping);
 
-  std::print("DX format: {}\n DY format: {}\n", tex_dx_->texture.format, tex_dy_->texture.format);
+  for (int i = 0; i < 5; ++i) {
+    if (i % 2 == 0) {
+      pass_hysteresis_->Execute(*tex_hysteresis_ping, *tex_hysteresis_pong);
+    } else {
+      pass_hysteresis_->Execute(*tex_hysteresis_pong, *tex_hysteresis_ping);
+    }
+  }
+  pass_threshold_->Execute(*((10 % 2 == 0) ? tex_hysteresis_ping : tex_hysteresis_pong), *tex_non_maximum_);
 
   BeginTextureMode(dst);
   ClearBackground(BLANK);
@@ -75,19 +70,29 @@ void BorderPass::Execute(RenderTexture2D &src, RenderTexture2D &dst)
   BeginShaderMode(shader_);
   UploadAll();
 
+  rlActiveTextureSlot(1);
+  rlEnableTexture(tex_angle_mag_->texture.id);
+
+  rlActiveTextureSlot(2);
+  rlEnableTexture(tex_non_maximum_->texture.id);
+
+  rlActiveTextureSlot(0);
+
   DrawTextureRec(src.texture,
     Rectangle{ 0, 0, static_cast<float>(src.texture.width), static_cast<float>(-src.texture.height) },
     Vector2{ 0, 0 },
     WHITE);
 
   EndShaderMode();
+
+  rlActiveTextureSlot(1);
+  rlDisableTexture();
+
+  rlActiveTextureSlot(2);
+  rlDisableTexture();
+
+  rlActiveTextureSlot(0);
+
   EndTextureMode();
 }
-
-BorderPass::~BorderPass()
-{
-  UnloadRenderTexture(*tex_dx_);
-  UnloadRenderTexture(*tex_dy_);
-}
-
 }// namespace chroma::client::render::shader::shaders

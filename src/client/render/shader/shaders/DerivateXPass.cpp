@@ -7,7 +7,7 @@
 
 namespace chroma::client::render::shader::shaders {
 
-DerivativeXPass::DerivativeXPass() : ShaderPass("resources/shaders/base.vs", "assets/shaders/dfx.fs")
+DerivativeXPass::DerivativeXPass() : ShaderPass("assets/shaders/base.vs", "assets/shaders/dfx.fs")
 {
   SetPassType(PassType::DERIVATIVEX);
 }

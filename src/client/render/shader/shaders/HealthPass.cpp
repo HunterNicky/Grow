@@ -8,12 +8,13 @@
 
 #include <memory>
 #include <raylib.h>
+#include <rlgl.h>
 #include <string>
 #include <utility>
 
 namespace chroma::client::render::shader::shaders {
 
-HealthPass::HealthPass() : ShaderPass("resources/shaders/base.vs", "assets/shaders/health.fs")
+HealthPass::HealthPass() : ShaderPass("assets/shaders/base.vs", "assets/shaders/health.fs")
 {
   const auto player = GCM::Instance().GetContext(GameContextType::Client)->GetLocalPlayer();
   if (!player) {
@@ -30,9 +31,11 @@ HealthPass::HealthPass() : ShaderPass("resources/shaders/base.vs", "assets/shade
   }
 
   SetPassType(PassType::HEALTH);
-  SetUniform("health", UniformType::FLOAT, health->GetCurrentHealth());
-  SetUniform("max_health", UniformType::FLOAT, health->GetMaxHealth());
-  SetUniform("time", UniformType::FLOAT, GCM::Instance().GetContext(GameContextType::Client)->GetDeltaTime());
+  SetUniform("health", rlShaderUniformDataType::RL_SHADER_UNIFORM_FLOAT, health->GetCurrentHealth());
+  SetUniform("max_health", rlShaderUniformDataType::RL_SHADER_UNIFORM_FLOAT, health->GetMaxHealth());
+  SetUniform("time",
+    rlShaderUniformDataType::RL_SHADER_UNIFORM_FLOAT,
+    GCM::Instance().GetContext(GameContextType::Client)->GetDeltaTime());
 }
 
 void HealthPass::Setup()

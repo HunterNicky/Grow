@@ -6,7 +6,7 @@
 
 namespace chroma::client::render::shader::shaders {
 
-CrtPass::CrtPass() : ShaderPass("resources/shaders/base.vs", "assets/shaders/crt.fs") { SetPassType(PassType::CRT); }
+CrtPass::CrtPass() : ShaderPass("assets/shaders/base.vs", "assets/shaders/crt.fs") { SetPassType(PassType::CRT); }
 
 void CrtPass::Setup()
 {

@@ -6,7 +6,7 @@
 #include <raylib.h>
 
 namespace chroma::client::render::shader::shaders {
-DerivativeYPass::DerivativeYPass() : ShaderPass("resources/shaders/base.vs", "assets/shaders/dfy.fs")
+DerivativeYPass::DerivativeYPass() : ShaderPass("assets/shaders/base.vs", "assets/shaders/dfy.fs")
 {
   SetPassType(PassType::DERIVATIVEY);
 }

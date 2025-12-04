@@ -6,25 +6,26 @@
 #include <algorithm>
 #include <memory>
 #include <raylib.h>
+#include <rlgl.h>
 
 namespace chroma::client::render::shader::shaders {
 
 BlurPass::BlurPass(const int width, const int height, int initial_radius)
-  : ShaderPass("resources/shaders/base.vs", "assets/shaders/blur.fs"),
+  : ShaderPass("assets/shaders/base.vs", "assets/shaders/blur.fs"),
     resolution_(std::make_shared<Vector2>(Vector2{ static_cast<float>(width), static_cast<float>(height) }))
 {
   SetPassType(PassType::BLUR);
-  SetUniform("u_resolution", UniformType::VEC2, resolution_);
+  SetUniform("u_resolution", rlShaderUniformDataType::RL_SHADER_UNIFORM_VEC2, resolution_);
 
   radius_ = std::make_shared<int>(initial_radius);
-  SetUniform("u_radius", UniformType::INT, radius_);
+  SetUniform("u_radius", rlShaderUniformDataType::RL_SHADER_UNIFORM_INT, radius_);
 }
 
 void BlurPass::SetRadius(int new_radius)
 {
   new_radius = std::max(new_radius, 0);
   *radius_ = new_radius;
-  SetUniform("u_radius", UniformType::INT, radius_);
+  SetUniform("u_radius", rlShaderUniformDataType::RL_SHADER_UNIFORM_INT, radius_);
 }
 
 int BlurPass::GetRadius() const { return *radius_; }
@@ -58,7 +59,7 @@ void BlurPass::SetResolution(const int width, const int height)
 {
   resolution_->x = static_cast<float>(width);
   resolution_->y = static_cast<float>(height);
-  SetUniform("u_resolution", UniformType::VEC2, resolution_);
+  SetUniform("u_resolution", rlShaderUniformDataType::RL_SHADER_UNIFORM_VEC2, resolution_);
 }
 
 }// namespace chroma::client::render::shader::shaders

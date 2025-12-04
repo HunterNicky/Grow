@@ -12,7 +12,7 @@ template<typename T> class ShaderValue : public IShaderValue
 public:
   ShaderValue() = default;
 
-  ShaderValue(int location, UniformType type, const std::shared_ptr<T> &data)
+  ShaderValue(int location, rlShaderUniformDataType type, const std::shared_ptr<T> &data)
     : location_(location), type_(type), data_(data)
   {}
 
@@ -27,9 +27,9 @@ public:
 
   [[nodiscard]] int GetLocation() const override { return location_; }
 
-  void SetType(UniformType type) override { type_ = type; }
+  void SetType(rlShaderUniformDataType type) override { type_ = type; }
 
-  [[nodiscard]] UniformType GetType() const override { return type_; }
+  [[nodiscard]] rlShaderUniformDataType GetType() const override { return type_; }
 
   void SetData(const std::shared_ptr<T> &data) { data_ = data; }
 
@@ -39,12 +39,12 @@ public:
   {
     if (!data_) { return; }
 
-    SetShaderValue(shader, location_, data_.get(), static_cast<int>(type_));
+    SetShaderValue(shader, location_, data_.get(), type_);
   }
 
 private:
   int location_ = -1;
-  UniformType type_ = UniformType::FLOAT;
+  rlShaderUniformDataType type_ = rlShaderUniformDataType::RL_SHADER_UNIFORM_FLOAT;
   std::shared_ptr<T> data_;
 };
 

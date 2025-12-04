@@ -3,25 +3,33 @@
 in vec2 fragTexCoord;
 out vec4 fragColor;
 
-uniform sampler2D u_dx;
-uniform sampler2D u_dy;
+uniform sampler2D u_angle_mag;
+uniform sampler2D u_non_maximum;
 
-vec3 HUEtoRGB(float H)  {
+const float PI = 3.14159265;
+const float TWO_PI = PI * 2.0; // 2π
+const float PI_2 = PI * 0.5; // π/2
+const float PI_4 = PI * 0.25; // π/4
+const float PI_8 = PI * 0.125; // π/8
+
+const float DIR_0_MAX = PI_8; // 0° - 45°
+const float DIR_45_MAX = 3.0 * PI_8; // 45° - 90°
+const float DIR_90_MAX = 5.0 * PI_8; // 90° - 135°
+
+const float SQRT_32 = 5.656854249; // sqrt(32)
+
+vec3 HUEtoRGB(float H) {
     float R = abs(H * 6.0 - 3.0) - 1.0;
     float G = 2.0 - abs(H * 6.0 - 2.0);
     float B = 2.0 - abs(H * 6.0 - 4.0);
-    return clamp(vec3(R,G,B),0,1);
+    return clamp(vec3(R, G, B), 0, 1);
 }
+
+const float MIN_THRESHOLD = 0.2;
+const float MAX_THRESHOLD = 0.5;
 
 void main()
 {
-    float gx = texture(u_dx, fragTexCoord).r;
-    float gy = texture(u_dy, fragTexCoord).r;
-
-    float magnitude = length(vec2(gx, gy));
-    float angle = atan(gy, gx);
-
-    float normalizedAngle = (angle + 3.14159) / (2.0 * 3.14159);
-
-    fragColor = vec4(HUEtoRGB(normalizedAngle) * magnitude, 1.0);
+    vec4 u_non_maximum = texture(u_non_maximum, fragTexCoord);
+    fragColor = u_non_maximum;
 }

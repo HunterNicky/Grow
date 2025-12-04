@@ -17,7 +17,6 @@
 #include "chroma/shared/core/components/SpriteAnimation.h"
 #include "chroma/shared/core/components/Transform.h"
 #include "chroma/shared/core/components/Weapon.h"
-#include "chroma/shared/core/components/world/ColliderBox.h"
 #include "chroma/shared/core/components/world/EventColliderBox.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
@@ -35,6 +34,7 @@
 #include <raylib.h>
 #include <raymath.h>
 #include <string>
+#include <algorithm>
 
 namespace chroma::shared::core::player {
 Player::Player() { type_ = GameObjectType::PLAYER; }
