@@ -2,8 +2,8 @@
 #include "chroma/client/render/shader/RenderPass.h"
 #include "chroma/client/render/shader/ShaderPass.h"
 
-#include <raylib.h>
 #include <memory>
+#include <raylib.h>
 #include <rlgl.h>
 
 namespace chroma::client::render::shader::shaders {
@@ -17,7 +17,14 @@ NoisePass::NoisePass(const int width, const int height)
   SetUniform("u_seed", rlShaderUniformDataType::RL_SHADER_UNIFORM_FLOAT, seed_);
 }
 
-void NoisePass::Setup() { LoadShader(); }
+void NoisePass::Setup()
+{
+  LoadShader();
+  for (auto &pair : values_) {
+    const int loc = ::GetShaderLocation(shader_, pair.first.c_str());
+    if (loc >= 0) { pair.second->SetLocation(loc); }
+  }
+}
 
 void NoisePass::Execute(RenderTexture2D &src, RenderTexture2D &dst)
 {

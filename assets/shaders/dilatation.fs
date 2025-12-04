@@ -4,6 +4,7 @@ in vec2 fragTexCoord;
 out vec4 fragColor;
 
 uniform sampler2D texture0;
+uniform int u_radius;
 
 void main()
 {
@@ -11,8 +12,8 @@ void main()
     vec2 texel = 1.0 / texSize;
 
     float m = 0.0;
-    for (int y = -1; y <= 1; ++y) {
-        for (int x = -1; x <= 1; ++x) {
+    for (int y = -u_radius; y <= u_radius; ++y) {
+        for (int x = -u_radius; x <= u_radius; ++x) {
             vec2 offset = vec2(x, y) * texel;
             float v = texture(texture0, fragTexCoord + offset).r;
             m = max(m, v);

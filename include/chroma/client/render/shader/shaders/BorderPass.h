@@ -47,10 +47,11 @@ private:
   std::shared_ptr<RenderTexture2D> ping_;
   std::shared_ptr<RenderTexture2D> pong_;
 
-  std::shared_ptr<int> slot_angle_mag_val_;
-  std::shared_ptr<int> slot_non_maximum_val_;
+  std::shared_ptr<int> slot_edges_;
   std::shared_ptr<int> slot_noise_val_;
-  std::shared_ptr<float> drop_prob_;
+  std::shared_ptr<float> spread_val_;
+  std::shared_ptr<Vector2> resolution_;
+
 };
 
 }// namespace chroma::client::render::shader::shaders
