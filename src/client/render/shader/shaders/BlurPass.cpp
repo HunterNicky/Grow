@@ -10,25 +10,21 @@
 
 namespace chroma::client::render::shader::shaders {
 
-BlurPass::BlurPass(const int width, const int height, int initial_radius)
+BlurPass::BlurPass(const int width, const int height, const Vector2 direction)
   : ShaderPass("assets/shaders/base.vs", "assets/shaders/blur.fs"),
-    resolution_(std::make_shared<Vector2>(Vector2{ static_cast<float>(width), static_cast<float>(height) }))
+    resolution_(std::make_shared<Vector2>(Vector2{ static_cast<float>(width), static_cast<float>(height) })),
+    direction_(std::make_shared<Vector2>(direction))
 {
   SetPassType(PassType::BLUR);
   SetUniform("u_resolution", rlShaderUniformDataType::RL_SHADER_UNIFORM_VEC2, resolution_);
-
-  radius_ = std::make_shared<int>(initial_radius);
-  SetUniform("u_radius", rlShaderUniformDataType::RL_SHADER_UNIFORM_INT, radius_);
+  SetUniform("u_direction", rlShaderUniformDataType::RL_SHADER_UNIFORM_VEC2, direction_);
 }
 
-void BlurPass::SetRadius(int new_radius)
+void BlurPass::SetDirection(const Vector2 &direction)
 {
-  new_radius = std::max(new_radius, 0);
-  *radius_ = new_radius;
-  SetUniform("u_radius", rlShaderUniformDataType::RL_SHADER_UNIFORM_INT, radius_);
+  direction_->x = direction.x;
+  direction_->y = direction.y;
 }
-
-int BlurPass::GetRadius() const { return *radius_; }
 
 void BlurPass::Setup()
 {
@@ -53,13 +49,6 @@ void BlurPass::Execute(RenderTexture2D &src, RenderTexture2D &dst)
     WHITE);
   EndShaderMode();
   EndTextureMode();
-}
-
-void BlurPass::SetResolution(const int width, const int height)
-{
-  resolution_->x = static_cast<float>(width);
-  resolution_->y = static_cast<float>(height);
-  SetUniform("u_resolution", rlShaderUniformDataType::RL_SHADER_UNIFORM_VEC2, resolution_);
 }
 
 }// namespace chroma::client::render::shader::shaders

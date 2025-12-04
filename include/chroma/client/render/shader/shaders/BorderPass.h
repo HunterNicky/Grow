@@ -2,6 +2,7 @@
 
 #include "chroma/client/render/shader/ShaderPass.h"
 #include "chroma/client/render/shader/shaders/AngleMagPass.h"
+#include "chroma/client/render/shader/shaders/BlurPass.h"
 #include "chroma/client/render/shader/shaders/GrayPass.h"
 #include "chroma/client/render/shader/shaders/Hysteresis.h"
 #include "chroma/client/render/shader/shaders/NonMaximum.h"
@@ -32,12 +33,13 @@ private:
   std::unique_ptr<NonMaximum> pass_non_maximum_;
   std::unique_ptr<Hysteresis> pass_hysteresis_;
   std::unique_ptr<ThresholdPass> pass_threshold_;
+  std::unique_ptr<BlurPass> pass_blur_;
 
   std::shared_ptr<RenderTexture2D> tex_angle_mag_;
   std::shared_ptr<RenderTexture2D> tex_non_maximum_;
 
-  std::shared_ptr<RenderTexture2D> tex_hysteresis_ping;
-  std::shared_ptr<RenderTexture2D> tex_hysteresis_pong;
+  std::shared_ptr<RenderTexture2D> ping_;
+  std::shared_ptr<RenderTexture2D> pong_;
 
   std::shared_ptr<int> slot_angle_mag_val_;
   std::shared_ptr<int> slot_non_maximum_val_;

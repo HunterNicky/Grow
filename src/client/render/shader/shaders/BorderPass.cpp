@@ -4,10 +4,11 @@
 #include "chroma/client/render/shader/RenderPass.h"
 #include "chroma/client/render/shader/ShaderPass.h"
 #include "chroma/client/render/shader/shaders/AngleMagPass.h"
+#include "chroma/client/render/shader/shaders/BlurPass.h"
 #include "chroma/client/render/shader/shaders/GrayPass.h"
-#include "chroma/client/render/shader/shaders/ThresholdPass.h"
 #include "chroma/client/render/shader/shaders/Hysteresis.h"
 #include "chroma/client/render/shader/shaders/NonMaximum.h"
+#include "chroma/client/render/shader/shaders/ThresholdPass.h"
 
 #include <memory>
 #include <raylib.h>
@@ -18,11 +19,11 @@ BorderPass::BorderPass(const int width, const int height)
   : ShaderPass("assets/shaders/base.vs", "assets/shaders/border.fs"),
     pass_angle_mag__(std::make_unique<AngleMagPass>(width, height)), pass_gray_(std::make_unique<GrayPass>()),
     pass_non_maximum_(std::make_unique<NonMaximum>()), pass_hysteresis_(std::make_unique<Hysteresis>()),
-    pass_threshold_(std::make_unique<ThresholdPass>()),
+    pass_blur_(std::make_unique<BlurPass>(width, height)), pass_threshold_(std::make_unique<ThresholdPass>()),
     tex_angle_mag_(std::make_shared<RenderTexture2D>(LoadFloatRenderTexture(width, height))),
     tex_non_maximum_(std::make_shared<RenderTexture2D>(LoadRenderTexture(width, height))),
-    tex_hysteresis_ping(std::make_shared<RenderTexture2D>(LoadRenderTexture(width, height))),
-    tex_hysteresis_pong(std::make_shared<RenderTexture2D>(LoadRenderTexture(width, height))),
+    ping_(std::make_shared<RenderTexture2D>(LoadRenderTexture(width, height))),
+    pong_(std::make_shared<RenderTexture2D>(LoadRenderTexture(width, height))),
     slot_angle_mag_val_(std::make_shared<int>(1)), slot_non_maximum_val_(std::make_shared<int>(2))
 {
   SetPassType(PassType::BORDER);
@@ -39,6 +40,7 @@ void BorderPass::Setup()
   pass_non_maximum_->Setup();
   pass_hysteresis_->Setup();
   pass_threshold_->Setup();
+  pass_blur_->Setup();
 
   LoadShader();
 
@@ -50,19 +52,39 @@ void BorderPass::Setup()
 
 void BorderPass::Execute(RenderTexture2D &src, RenderTexture2D &dst)
 {
-  pass_gray_->Execute(src, dst);
-  pass_angle_mag__->Execute(dst, *tex_angle_mag_);
-  // pass_non_maximum_->Execute(*tex_angle_mag_, *tex_non_maximum_);
-  pass_non_maximum_->Execute(*tex_angle_mag_, *tex_hysteresis_ping);
+  pass_gray_->Execute(src, *ping_);
+
+  pass_blur_->SetDirection(Vector2{ 1.0f, 0.0f });
+  pass_blur_->Execute(*ping_, *pong_);
+  pass_blur_->SetDirection(Vector2{ 0.0f, 1.0f });
+  pass_blur_->Execute(*pong_, *ping_);
+
+  pass_angle_mag__->Execute(*ping_, *tex_angle_mag_);
+  pass_non_maximum_->Execute(*tex_angle_mag_, *ping_);
 
   for (int i = 0; i < 5; ++i) {
     if (i % 2 == 0) {
-      pass_hysteresis_->Execute(*tex_hysteresis_ping, *tex_hysteresis_pong);
+      pass_hysteresis_->Execute(*ping_, *pong_);
     } else {
-      pass_hysteresis_->Execute(*tex_hysteresis_pong, *tex_hysteresis_ping);
+      pass_hysteresis_->Execute(*pong_, *ping_);
     }
   }
-  pass_threshold_->Execute(*((10 % 2 == 0) ? tex_hysteresis_ping : tex_hysteresis_pong), *tex_non_maximum_);
+  pass_threshold_->Execute(*((10 % 2 == 0) ? ping_ : pong_), *tex_non_maximum_);
+
+  // pass_gray_->Execute(src, dst);
+
+  // pass_angle_mag__->Execute(dst, *tex_angle_mag_);
+  //// pass_non_maximum_->Execute(*tex_angle_mag_, *tex_non_maximum_);
+  // pass_non_maximum_->Execute(*tex_angle_mag_, *ping);
+
+  // for (int i = 0; i < 5; ++i) {
+  //   if (i % 2 == 0) {
+  //     pass_hysteresis_->Execute(*ping, *pong);
+  //   } else {
+  //     pass_hysteresis_->Execute(*pong, *ping);
+  //   }
+  // }
+  // pass_threshold_->Execute(*((10 % 2 == 0) ? ping : pong), *tex_non_maximum_);
 
   BeginTextureMode(dst);
   ClearBackground(BLANK);

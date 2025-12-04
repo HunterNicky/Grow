@@ -9,10 +9,9 @@ namespace chroma::client::render::shader::shaders {
 class BlurPass : public ShaderPass
 {
 public:
-  explicit BlurPass(int width = 1920, int height = 1080, int initial_radius = 6);
+  explicit BlurPass(int width = 1920, int height = 1080, Vector2 initial_direction = { 1.0f, 0.0f });
 
-  void SetRadius(int new_radius);
-  void SetResolution(int width, int height);
+  void SetDirection(const Vector2 &direction);
   int GetRadius() const;
 
   void Setup() override;
@@ -20,6 +19,6 @@ public:
 
 private:
   std::shared_ptr<Vector2> resolution_;
-  std::shared_ptr<int> radius_;
+  std::shared_ptr<Vector2> direction_;
 };
 }// namespace chroma::client::render::shader::shaders
