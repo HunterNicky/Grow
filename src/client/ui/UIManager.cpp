@@ -14,6 +14,7 @@
 #include "chroma/client/ui/panels/PanelBuilder.h"
 #include "chroma/client/ui/panels/PanelFactory.h"
 #include "chroma/client/ui/panels/PanelIdentifiers.h"
+#include "chroma/client/ui/widgets/ShaderDebugWidget.h"
 #include "chroma/shared/events/AudioVolumeEvent.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
@@ -145,13 +146,27 @@ void UIManager::RegisterPanels()
       };
     };
 
-    const auto& game_config = chroma::app::settings::SettingsManager::Instance().GetGameConfig();
+    const auto &game_config = chroma::app::settings::SettingsManager::Instance().GetGameConfig();
 
     return panel::PanelBuilder::Create(panel::PanelID::AudioOptionsPanel, bounds)
-      .AddSlider(
-        "GeneralVolume", "General", 0.0F, 100.0F, static_cast<int>(game_config.master_volume * 100.0F), make_volume_callback(shared::event::AudioChannel::Master))
-      .AddSlider("MusicVolume", "Music", 0.0F, 100.0F, static_cast<int>(game_config.music_volume * 100.0F), make_volume_callback(shared::event::AudioChannel::Music))
-      .AddSlider("SFXVolume", "SFX", 0.0F, 100.0F, static_cast<int>(game_config.sfx_volume * 100.0F), make_volume_callback(shared::event::AudioChannel::SFX))
+      .AddSlider("GeneralVolume",
+        "General",
+        0.0F,
+        100.0F,
+        static_cast<int>(game_config.master_volume * 100.0F),
+        make_volume_callback(shared::event::AudioChannel::Master))
+      .AddSlider("MusicVolume",
+        "Music",
+        0.0F,
+        100.0F,
+        static_cast<int>(game_config.music_volume * 100.0F),
+        make_volume_callback(shared::event::AudioChannel::Music))
+      .AddSlider("SFXVolume",
+        "SFX",
+        0.0F,
+        100.0F,
+        static_cast<int>(game_config.sfx_volume * 100.0F),
+        make_volume_callback(shared::event::AudioChannel::SFX))
       .AddButton("AudioBack", "Back", on_click_callback)
       .CenterPanel()
       .Build();
@@ -185,25 +200,25 @@ void UIManager::RegisterPanels()
   });
 
   panel_factory_.Register(panel::PanelID::GameHUDPanel, [this](Vector2 screen_size, Vector2 panel_size) {
-      const Rectangle bounds = this->GetCenteredRect(screen_size, panel_size.x, panel_size.y);
+    const Rectangle bounds = this->GetCenteredRect(screen_size, panel_size.x, panel_size.y);
 
-      const float widget_width = 400.0F;
-      const float widget_height = 50.0F;
-      const float margin = 20.0F;
-      const float xp_x = screen_size.x - widget_width - margin;
-      const float xp_y = margin;
+    const float widget_width = 400.0F;
+    const float widget_height = 50.0F;
+    const float margin = 20.0F;
+    const float xp_x = screen_size.x - widget_width - margin;
+    const float xp_y = margin;
 
-      const Rectangle life_widget_bounds = { margin, margin, widget_width, widget_height };
-      const Rectangle xp_widget_bounds = { xp_x, xp_y, widget_width, widget_height };
-      const Rectangle text_widget_center = { (screen_size.x / 2.0F) - 100.0F, margin + margin, 200.0F, widget_height };
-      const Rectangle text_coin_widget_bottom = { margin, screen_size.y - widget_height - margin, 200.0F, widget_height };
-      
-      return panel::PanelBuilder::Create(panel::PanelID::GameHUDPanel, bounds)
-          .AddLifeWidget("PlayerHealth", life_widget_bounds)
-          .AddXpWidget("PlayerXP", xp_widget_bounds)
-          .AddTextWidget("CenterText", text_widget_center, "Round 1 of 10", 48, WHITE)
-          .AddTextWidget("CoinText", text_coin_widget_bottom, "Coins: 0", 32, YELLOW)
-          .Build();
+    const Rectangle life_widget_bounds = { margin, margin, widget_width, widget_height };
+    const Rectangle xp_widget_bounds = { xp_x, xp_y, widget_width, widget_height };
+    const Rectangle text_widget_center = { (screen_size.x / 2.0F) - 100.0F, margin + margin, 200.0F, widget_height };
+    const Rectangle text_coin_widget_bottom = { margin, screen_size.y - widget_height - margin, 200.0F, widget_height };
+
+    return panel::PanelBuilder::Create(panel::PanelID::GameHUDPanel, bounds)
+      .AddLifeWidget("PlayerHealth", life_widget_bounds)
+      .AddXpWidget("PlayerXP", xp_widget_bounds)
+      .AddTextWidget("CenterText", text_widget_center, "Round 1 of 10", 48, WHITE)
+      .AddTextWidget("CoinText", text_coin_widget_bottom, "Coins: 0", 32, YELLOW)
+      .Build();
   });
 
   panel_factory_.Register(panel::PanelID::PausePanel, [this](Vector2 screen_size, Vector2 panel_size) {
@@ -237,6 +252,16 @@ void UIManager::RegisterPanels()
       //.AddBackGroundWidget("PauseBackground", bounds_panel, bg_color)
       .CenterPanel()
       .Build();
+  });
+
+  panel_factory_.Register(panel::PanelID::DebugShaderPanel, [this](Vector2 screen_size, Vector2 panel_size) {
+    Rectangle bounds = { 20, 20, 300, 400 };
+
+    auto panel = std::make_shared<panel::Panel>(panel::PanelID::DebugShaderPanel, bounds);
+
+    panel->AddWidget(std::make_unique<widget::ShaderDebugWidget>("ShaderDebugger", bounds));
+
+    return panel;
   });
 }
 

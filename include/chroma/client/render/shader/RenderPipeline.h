@@ -30,6 +30,10 @@ public:
 
   [[nodiscard]] RenderPass *GetPassByType(PassType type) const;
   void RemovePassByType(PassType type);
+  void ReloadPassByType(PassType type) const;
+  void MovePass(PassType type, int direction);
+
+  [[nodiscard]] std::vector<PassType> GetActivePassTypes() const;
 
   template<typename T> T *GetPass() const
   {

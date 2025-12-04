@@ -1,8 +1,10 @@
 #include "chroma/client/factory/ShaderFactory.h"
 #include "chroma/client/render/shader/RenderPass.h"
 #include "chroma/client/render/shader/shaders/BlurPass.h"
+#include "chroma/client/render/shader/shaders/BorderColorPass.h"
 #include "chroma/client/render/shader/shaders/BorderPass.h"
 #include "chroma/client/render/shader/shaders/CrtPass.h"
+#include "chroma/client/render/shader/shaders/GrayPass.h"
 #include "chroma/client/render/shader/shaders/HealthPass.h"
 #include "chroma/client/render/shader/shaders/ThresholdPass.h"
 
@@ -25,6 +27,14 @@ std::unique_ptr<RenderPass> ShaderPassFactory::Create(PassType type)
     return std::make_unique<shaders::BlurPass>();
   case PassType::BORDER:
     return std::make_unique<shaders::BorderPass>();
+  case PassType::DERIVATIVEX:
+    return std::make_unique<shaders::DerivativeXPass>();
+  case PassType::DERIVATIVEY:
+    return std::make_unique<shaders::DerivativeYPass>();
+  case PassType::GRAYSCALE:
+    return std::make_unique<shaders::GrayPass>();
+  case PassType::BORDERCOLOR:
+    return std::make_unique<shaders::BorderColorPass>();
   default:
     return nullptr;
   }

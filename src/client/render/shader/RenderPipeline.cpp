@@ -69,4 +69,36 @@ void RenderPipeline::RemovePassByType(PassType type)
   });
 }
 
+void RenderPipeline::ReloadPassByType(const PassType type) const
+{
+  RenderPass *pass = GetPassByType(type);
+  if (pass != nullptr) { pass->Reload(); }
+}
+void RenderPipeline::MovePass(PassType type, int direction)
+{
+  const auto it = std::ranges::find_if(passes_, [type](const std::unique_ptr<RenderPass> &p) {
+    const auto *sp = dynamic_cast<ShaderPass *>(p.get());
+    return sp && sp->GetPassType() == type;
+  });
+
+  if (it == passes_.end()) return;
+
+  const size_t index = std::distance(passes_.begin(), it);
+
+  if (direction < 0 && index > 0) {
+    std::swap(passes_[index], passes_[index - 1]);
+  } else if (direction > 0 && index < passes_.size() - 1) {
+    std::swap(passes_[index], passes_[index + 1]);
+  }
+}
+
+std::vector<PassType> RenderPipeline::GetActivePassTypes() const
+{
+  std::vector<PassType> types;
+  for (const auto &pass : passes_) {
+    if (pass) types.push_back(pass->GetPassType());
+  }
+  return types;
+}
+
 }// namespace chroma::client::render::shader

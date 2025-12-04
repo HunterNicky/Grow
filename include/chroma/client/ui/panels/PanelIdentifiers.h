@@ -11,5 +11,6 @@ namespace chroma::client::ui::panel {
     GameHUDPanel,
     PausePanel,
     PauseBackgroundPanel,
+    DebugShaderPanel,
   };
 }

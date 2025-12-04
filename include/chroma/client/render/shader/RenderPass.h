@@ -14,7 +14,8 @@ enum class PassType : uint8_t {
   DERIVATIVEY = 5,
   GRAYSCALE = 6,
   HEALTH = 7,
-  THRESHOLD = 8
+  THRESHOLD = 8,
+  BORDERCOLOR = 9
 };
 
 class RenderPass
@@ -30,6 +31,7 @@ public:
 
   virtual void Setup() = 0;
   virtual void Execute(RenderTexture2D &src, RenderTexture2D &dst) = 0;
+  virtual void Reload() {}
 
   [[nodiscard]] PassType GetPassType() const { return type_; };
   void SetPassType(PassType type) { type_ = type; };

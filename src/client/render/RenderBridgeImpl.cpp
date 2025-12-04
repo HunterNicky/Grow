@@ -226,4 +226,13 @@ const Rectangle RenderBridgeImpl::GetActiveCameraBounds() const
 
   return visible;
 }
+
+std::vector<uint8_t> RenderBridgeImpl::GetActivePasses() const
+{
+  if (!renderer_) return {};
+  const auto passes = renderer_->GetActivePasses();
+  std::vector<uint8_t> result;
+  for (auto p : passes) result.push_back(static_cast<uint8_t>(p));
+  return result;
+}
 }// namespace chroma::client::render

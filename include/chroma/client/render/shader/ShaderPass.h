@@ -50,6 +50,22 @@ public:
     }
   }
 
+  void Reload() override
+  {
+    Unload();
+    LoadShader();
+
+    for (auto &pair : values_) {
+      const int loc = ::GetShaderLocation(shader_, pair.first.c_str());
+      if (loc >= 0) {
+        pair.second->SetLocation(loc);
+      }
+    }
+
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg)
+    TraceLog(LOG_INFO, "ShaderPass: Reloaded shader %s", fs_path_.c_str());
+  }
+
 protected:
   ::Shader shader_{};
   std::unordered_map<std::string, std::unique_ptr<IShaderValue>> values_;

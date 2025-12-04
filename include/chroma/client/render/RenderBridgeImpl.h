@@ -48,6 +48,7 @@ public:
   void CameraSetDeadzone(Vector2 size) override;
 
   const Rectangle GetActiveCameraBounds() const override;
+  std::vector<uint8_t> GetActivePasses() const override;
 
 private:
   Renderer *renderer_;

@@ -22,9 +22,6 @@ public:
   void Setup() override;
   void Execute(RenderTexture2D &src, RenderTexture2D &dst) override;
 
-  void SetTextureDX(const std::shared_ptr<RenderTexture2D> &tex_dx);
-  void SetTextureDY(const std::shared_ptr<RenderTexture2D> &tex_dy);
-
 private:
 
   std::unique_ptr<DerivativeXPass> pass_x_;

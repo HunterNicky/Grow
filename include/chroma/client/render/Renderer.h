@@ -52,7 +52,7 @@ public:
   void HandleAddShaderEvent(const shared::event::Event &event) const;
   void HandleRemoveShaderEvent(const shared::event::Event &event) const;
   void HandleChangeShaderEvent(const shared::event::Event &event) const;
-  
+
   [[nodiscard]] Camera &GetCamera() const { return *camera_; }
   [[nodiscard]] RenderQueue &GetQueue() const { return *render_queue_; }
   [[nodiscard]] TextureAtlas &GetAtlasManager() const { return *atlas_manager_; }
@@ -60,11 +60,16 @@ public:
   [[nodiscard]] animation::AnimationRenderer &GetAnimationRenderer() const { return *animation_renderer_; }
   [[nodiscard]] RenderTarget &GetRenderTarget() const { return *render_target_; }
 
-  private:
+  [[nodiscard]] std::vector<shader::PassType> GetActivePasses() const
+  {
+    if (render_pipeline_) return render_pipeline_->GetActivePassTypes();
+    return {};
+  }
 
+private:
   void AddShaderPassFront(std::unique_ptr<shader::RenderPass> pass) const;
   void AddShaderPassBack(std::unique_ptr<shader::RenderPass> pass) const;
-  
+
   std::unique_ptr<Window> window_;
   RenderConfig config_;
   Color clear_color_;
