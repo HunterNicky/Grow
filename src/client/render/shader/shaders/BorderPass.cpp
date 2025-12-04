@@ -20,15 +20,21 @@ BorderPass::BorderPass(const int width, const int height)
     pass_angle_mag__(std::make_unique<AngleMagPass>(width, height)), pass_gray_(std::make_unique<GrayPass>()),
     pass_non_maximum_(std::make_unique<NonMaximum>()), pass_hysteresis_(std::make_unique<Hysteresis>()),
     pass_blur_(std::make_unique<BlurPass>(width, height)), pass_threshold_(std::make_unique<ThresholdPass>()),
+    pass_dilatation_(std::make_unique<DilatationPass>(width, height)), pass_noise_(std::make_unique<NoisePass>(width, height)),
     tex_angle_mag_(std::make_shared<RenderTexture2D>(LoadFloatRenderTexture(width, height))),
     tex_non_maximum_(std::make_shared<RenderTexture2D>(LoadRenderTexture(width, height))),
+    tex_dilated_(std::make_shared<RenderTexture2D>(LoadRenderTexture(width, height))),
+    tex_noise_(std::make_shared<RenderTexture2D>(LoadRenderTexture(width, height))),
     ping_(std::make_shared<RenderTexture2D>(LoadRenderTexture(width, height))),
     pong_(std::make_shared<RenderTexture2D>(LoadRenderTexture(width, height))),
-    slot_angle_mag_val_(std::make_shared<int>(1)), slot_non_maximum_val_(std::make_shared<int>(2))
+    slot_angle_mag_val_(std::make_shared<int>(1)), slot_non_maximum_val_(std::make_shared<int>(2)),
+    slot_noise_val_(std::make_shared<int>(3)), drop_prob_(std::make_shared<float>(0.1f))
 {
   SetPassType(PassType::BORDER);
   SetUniform("u_angle_mag", rlShaderUniformDataType::RL_SHADER_UNIFORM_INT, slot_angle_mag_val_);
   SetUniform("u_non_maximum", rlShaderUniformDataType::RL_SHADER_UNIFORM_INT, slot_non_maximum_val_);
+  SetUniform("u_noise", rlShaderUniformDataType::RL_SHADER_UNIFORM_INT, slot_noise_val_);
+  SetUniform("u_drop_prob", rlShaderUniformDataType::RL_SHADER_UNIFORM_FLOAT, drop_prob_);
 }
 
 BorderPass::~BorderPass() { UnloadRenderTexture(*tex_angle_mag_); }
@@ -41,6 +47,8 @@ void BorderPass::Setup()
   pass_hysteresis_->Setup();
   pass_threshold_->Setup();
   pass_blur_->Setup();
+  pass_dilatation_->Setup();
+  pass_noise_->Setup();
 
   LoadShader();
 
@@ -71,6 +79,11 @@ void BorderPass::Execute(RenderTexture2D &src, RenderTexture2D &dst)
   }
   pass_threshold_->Execute(*((10 % 2 == 0) ? ping_ : pong_), *tex_non_maximum_);
 
+  pass_dilatation_->Execute(*tex_non_maximum_, *tex_dilated_);
+
+  pass_noise_->SetSeed(static_cast<float>(GetRandomValue(0, 100000)) * 0.01f);
+  pass_noise_->Execute(*ping_, *tex_noise_);
+
   // pass_gray_->Execute(src, dst);
 
   // pass_angle_mag__->Execute(dst, *tex_angle_mag_);
@@ -96,7 +109,10 @@ void BorderPass::Execute(RenderTexture2D &src, RenderTexture2D &dst)
   rlEnableTexture(tex_angle_mag_->texture.id);
 
   rlActiveTextureSlot(2);
-  rlEnableTexture(tex_non_maximum_->texture.id);
+  rlEnableTexture(tex_dilated_->texture.id);
+
+  rlActiveTextureSlot(3);
+  rlEnableTexture(tex_noise_->texture.id);
 
   rlActiveTextureSlot(0);
 
@@ -111,6 +127,9 @@ void BorderPass::Execute(RenderTexture2D &src, RenderTexture2D &dst)
   rlDisableTexture();
 
   rlActiveTextureSlot(2);
+  rlDisableTexture();
+
+  rlActiveTextureSlot(3);
   rlDisableTexture();
 
   rlActiveTextureSlot(0);

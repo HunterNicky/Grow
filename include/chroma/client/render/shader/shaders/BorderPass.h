@@ -7,6 +7,8 @@
 #include "chroma/client/render/shader/shaders/Hysteresis.h"
 #include "chroma/client/render/shader/shaders/NonMaximum.h"
 #include "chroma/client/render/shader/shaders/ThresholdPass.h"
+#include "chroma/client/render/shader/shaders/DilatationPass.h"
+#include "chroma/client/render/shader/shaders/NoisePass.h"
 
 #include <memory>
 #include <raylib.h>
@@ -34,15 +36,21 @@ private:
   std::unique_ptr<Hysteresis> pass_hysteresis_;
   std::unique_ptr<ThresholdPass> pass_threshold_;
   std::unique_ptr<BlurPass> pass_blur_;
+  std::unique_ptr<DilatationPass> pass_dilatation_;
+  std::unique_ptr<NoisePass> pass_noise_;
 
   std::shared_ptr<RenderTexture2D> tex_angle_mag_;
   std::shared_ptr<RenderTexture2D> tex_non_maximum_;
+  std::shared_ptr<RenderTexture2D> tex_dilated_;
+  std::shared_ptr<RenderTexture2D> tex_noise_;
 
   std::shared_ptr<RenderTexture2D> ping_;
   std::shared_ptr<RenderTexture2D> pong_;
 
   std::shared_ptr<int> slot_angle_mag_val_;
   std::shared_ptr<int> slot_non_maximum_val_;
+  std::shared_ptr<int> slot_noise_val_;
+  std::shared_ptr<float> drop_prob_;
 };
 
 }// namespace chroma::client::render::shader::shaders

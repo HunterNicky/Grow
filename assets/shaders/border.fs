@@ -5,6 +5,8 @@ out vec4 fragColor;
 
 uniform sampler2D u_angle_mag;
 uniform sampler2D u_non_maximum;
+uniform sampler2D u_noise;
+uniform float u_drop_prob;
 
 const float PI = 3.14159265;
 const float TWO_PI = PI * 2.0; // 2π
@@ -30,6 +32,12 @@ const float MAX_THRESHOLD = 0.5;
 
 void main()
 {
-    vec4 u_non_maximum = texture(u_non_maximum, fragTexCoord);
-    fragColor = u_non_maximum;
+    float edge = texture(u_non_maximum, fragTexCoord).r;
+    float rnd = texture(u_noise, fragTexCoord).r;
+
+    if (rnd < u_drop_prob) {
+        edge = 0.0;
+    }
+
+    fragColor = vec4(edge, edge, edge, 1.0);
 }

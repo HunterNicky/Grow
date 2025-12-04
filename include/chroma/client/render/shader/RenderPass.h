@@ -18,7 +18,9 @@ enum class PassType : uint8_t {
   BORDERCOLOR = 9,
   ANGLE_MAG = 10,
   NON_MAXIMUM = 11,
-  HYSTERESIS = 12
+  HYSTERESIS = 12,
+  DILATATION = 13,
+  NOISE = 14,
 };
 
 class RenderPass
