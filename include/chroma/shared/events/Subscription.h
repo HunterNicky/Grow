@@ -19,7 +19,7 @@ class Subscription
 {
 public:
   Subscription() = default;
-  explicit Subscription(const SubscriptionInfo &info);
+  explicit Subscription(SubscriptionInfo info);
   ~Subscription();
 
   Subscription(const Subscription &) = delete;

@@ -17,10 +17,12 @@ void SettingsManager::OnEvent(const shared::event::Event &event)
 {
   switch (event.GetType()) {
   case shared::event::Event::Type::AudioVolumeEvent: {
-    const auto audio_event = dynamic_cast<const shared::event::AudioVolumeEvent &>(event);
+    const auto &audio_event = dynamic_cast<const shared::event::AudioVolumeEvent &>(event);
     OnAudioVolumeEvent(audio_event);
     break;
   }
+  default:
+    break;
   }
 }
 

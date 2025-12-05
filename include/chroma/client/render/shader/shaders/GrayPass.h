@@ -1,4 +1,4 @@
-#pragma onde 
+#pragma once 
 
 #include "chroma/client/render/shader/ShaderPass.h"
 #include <raylib.h>

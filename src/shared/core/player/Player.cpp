@@ -53,6 +53,8 @@ void Player::SetupAnimation(const std::shared_ptr<component::SpriteAnimation> &a
     render::SpriteLoader::LoadSpriteAnimationFromFile(anim_component, "assets/sprites/player/weapons/randi-spear.json");
     render::SpriteLoader::LoadSpriteAnimationFromFile(
       anim_component, "assets/sprites/player/weapons/randi-javelin.json");
+  case component::CharacterType::NONE:
+    break;
   }
 
   anim_component->Play(chara_type_comp->GetPrefixCharacter() + "_fist_idle_down", false);

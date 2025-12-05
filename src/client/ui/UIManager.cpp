@@ -89,7 +89,7 @@ void UIManager::RegisterPanels()
   panel_factory_.Register(panel::PanelID::MainMenuPanel, [this](Vector2 screen_size, Vector2 panel_size) {
     const Rectangle bounds = this->GetCenteredRect(screen_size, panel_size.x, panel_size.y);
     (void)panel_size;
-    auto on_click_callback = [this](const std::string &button_id) {
+    auto on_click_callback = [](const std::string &button_id) {
       shared::event::ui::ButtonClickEvent event(shared::event::Event::Type::ButtonClickEvent, button_id);
       shared::event::EventBus::Dispatch(event);
     };
@@ -106,10 +106,6 @@ void UIManager::RegisterPanels()
 
   panel_factory_.Register(panel::PanelID::MainBackgroundPanel, [this](Vector2 screen_size, Vector2 panel_size) {
     const Rectangle bounds = this->GetCenteredRect(screen_size, panel_size.x, panel_size.y);
-    auto on_click_callback = [this](const std::string &button_id) {
-      shared::event::ui::ButtonClickEvent event(shared::event::Event::Type::ButtonClickEvent, button_id);
-      shared::event::EventBus::Dispatch(event);
-    };
 
     return panel::PanelBuilder::Create(panel::PanelID::MainBackgroundPanel, bounds)
       .AddBackgroundTexture("assets/backgrounds/main.png")
@@ -118,7 +114,7 @@ void UIManager::RegisterPanels()
 
   panel_factory_.Register(panel::PanelID::OptionsMenuPanel, [this](Vector2 screen_size, Vector2 panel_size) {
     const Rectangle bounds = this->GetCenteredRect(screen_size, panel_size.x, panel_size.y);
-    auto on_click_callback = [this](const std::string &button_id) {
+    auto on_click_callback = [](const std::string &button_id) {
       shared::event::ui::ButtonClickEvent event(shared::event::Event::Type::ButtonClickEvent, button_id);
       shared::event::EventBus::Dispatch(event);
     };
@@ -133,13 +129,13 @@ void UIManager::RegisterPanels()
 
   panel_factory_.Register(panel::PanelID::AudioOptionsPanel, [this](Vector2 screen_size, Vector2 panel_size) {
     const Rectangle bounds = this->GetCenteredRect(screen_size, panel_size.x, panel_size.y);
-    auto on_click_callback = [this](const std::string &button_id) {
+    auto on_click_callback = [](const std::string &button_id) {
       shared::event::ui::ButtonClickEvent event(shared::event::Event::Type::ButtonClickEvent, button_id);
       shared::event::EventBus::Dispatch(event);
     };
 
-    auto make_volume_callback = [this](shared::event::AudioChannel channel) {
-      return [this, channel](float volume) {
+    auto make_volume_callback = [](shared::event::AudioChannel channel) {
+      return [channel](float volume) {
         shared::event::AudioVolumeEvent event(channel, volume);
         shared::event::EventBus::Dispatch(event);
       };
@@ -149,9 +145,9 @@ void UIManager::RegisterPanels()
 
     return panel::PanelBuilder::Create(panel::PanelID::AudioOptionsPanel, bounds)
       .AddSlider(
-        "GeneralVolume", "General", 0.0F, 100.0F, static_cast<int>(game_config.master_volume * 100.0F), make_volume_callback(shared::event::AudioChannel::Master))
-      .AddSlider("MusicVolume", "Music", 0.0F, 100.0F, static_cast<int>(game_config.music_volume * 100.0F), make_volume_callback(shared::event::AudioChannel::Music))
-      .AddSlider("SFXVolume", "SFX", 0.0F, 100.0F, static_cast<int>(game_config.sfx_volume * 100.0F), make_volume_callback(shared::event::AudioChannel::SFX))
+        "GeneralVolume", "General", 0, 100, static_cast<int>(game_config.master_volume * 100.0F), make_volume_callback(shared::event::AudioChannel::Master))
+      .AddSlider("MusicVolume", "Music", 0, 100, static_cast<int>(game_config.music_volume * 100.0F), make_volume_callback(shared::event::AudioChannel::Music))
+      .AddSlider("SFXVolume", "SFX", 0, 100, static_cast<int>(game_config.sfx_volume * 100.0F), make_volume_callback(shared::event::AudioChannel::SFX))
       .AddButton("AudioBack", "Back", on_click_callback)
       .CenterPanel()
       .Build();
@@ -159,7 +155,7 @@ void UIManager::RegisterPanels()
 
   panel_factory_.Register(panel::PanelID::VideoOptionsPanel, [this](Vector2 screen_size, Vector2 panel_size) {
     const Rectangle bounds = this->GetCenteredRect(screen_size, panel_size.x, panel_size.y);
-    auto on_click_callback = [this](const std::string &button_id) {
+    auto on_click_callback = [](const std::string &button_id) {
       shared::event::ui::ButtonClickEvent event(shared::event::Event::Type::ButtonClickEvent, button_id);
       shared::event::EventBus::Dispatch(event);
     };
@@ -208,12 +204,10 @@ void UIManager::RegisterPanels()
 
   panel_factory_.Register(panel::PanelID::PausePanel, [this](Vector2 screen_size, Vector2 panel_size) {
     const Rectangle bounds = this->GetCenteredRect(screen_size, panel_size.x, panel_size.y);
-    auto on_click_callback = [this](const std::string &button_id) {
+    auto on_click_callback = [](const std::string &button_id) {
       shared::event::ui::ButtonClickEvent event(shared::event::Event::Type::ButtonClickEvent, button_id);
       shared::event::EventBus::Dispatch(event);
     };
-
-    const Rectangle bounds_panel = this->GetCenteredRect(screen_size, panel_size.x * 0.5F, panel_size.y);
 
     return panel::PanelBuilder::Create(panel::PanelID::PausePanel, bounds)
       .AddButton("Resume", "Resume", on_click_callback)
@@ -228,9 +222,7 @@ void UIManager::RegisterPanels()
     const Rectangle bounds = this->GetCenteredRect(screen_size, panel_size.x, panel_size.y);
 
     const Color overlay = { 0, 0, 0, 180 };
-    const Color bg_color = { 20, 20, 20, 230 };
     const Rectangle bounds_overlay = { 0, 0, screen_size.x, screen_size.y };
-    const Rectangle bounds_panel = this->GetCenteredRect(screen_size, panel_size.x * 0.5F, panel_size.y);
 
     return panel::PanelBuilder::Create(panel::PanelID::PauseBackgroundPanel, bounds)
       .AddBackGroundWidget("PauseOverlay", bounds_overlay, overlay)

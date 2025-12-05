@@ -8,7 +8,6 @@
 
 namespace chroma::shared::collision {
 
-constexpr int max_objects = 10;
 constexpr int max_levels = 100;
 
 Quadtree::Quadtree(const int level, const Rectangle bounds)

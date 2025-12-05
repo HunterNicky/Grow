@@ -22,8 +22,8 @@ public:
       if (event.GetType() == EventType::GetStaticType()) { listener(static_cast<EventType &>(event)); }
     };
 
-    SubscriptionInfo info = { EventType::GetStaticType(), ++next_listener_id_ };
-    info.dispatcher_ = this->shared_from_this();
+    SubscriptionInfo info = { EventType::GetStaticType(), ++next_listener_id_, this->shared_from_this() };
+    
 
     listeners_[info.event_type_].emplace(info.id_, wrapper);
     return Subscription(info);
