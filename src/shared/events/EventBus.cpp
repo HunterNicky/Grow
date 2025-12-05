@@ -8,11 +8,13 @@
 
 namespace chroma::shared::event {
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-std::unique_ptr<EventDispatcher> EventBus::event_dispatcher = nullptr;
+std::shared_ptr<EventDispatcher> EventBus::event_dispatcher = nullptr;
 
 void EventBus::SetDispatcher(std::unique_ptr<EventDispatcher> &dispatcher)
 {
-  if (!event_dispatcher) { event_dispatcher = std::move(dispatcher); }
+  if (!event_dispatcher && dispatcher) {
+    event_dispatcher = std::shared_ptr<EventDispatcher>(std::move(dispatcher));
+  }
 }
 
 EventDispatcher *EventBus::GetDispatcher()

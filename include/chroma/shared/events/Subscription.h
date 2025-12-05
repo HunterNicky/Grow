@@ -3,12 +3,16 @@
 #include "chroma/shared/events/Event.h"
 
 #include <cstdint>
+#include <memory>
 
 namespace chroma::shared::event {
+class EventDispatcher;
+
 struct SubscriptionInfo
 {
   Event::Type event_type_ = Event::Type::None;
   uint64_t id_ = 0;
+  std::weak_ptr<EventDispatcher> dispatcher_;
 };
 
 class Subscription

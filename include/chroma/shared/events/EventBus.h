@@ -16,7 +16,7 @@ public:
   static void Dispatch(Event &event);
 
 private:
-  static std::unique_ptr<EventDispatcher> event_dispatcher;
+  static std::shared_ptr<EventDispatcher> event_dispatcher;
 };
 
 }// namespace chroma::shared::event

@@ -4,13 +4,10 @@
 namespace chroma::shared::event {
 Subscription::Subscription(const SubscriptionInfo &info) : info_(info) {}
 
-Subscription::~Subscription() {
-  auto* dispatcher = EventBus::GetDispatcher();
-  if (dispatcher != nullptr && info_.id_ != 0)
-  {
-    dispatcher->Unsubscribe(info_);
-    return;
-  }
+Subscription::~Subscription()
+{
+  if (info_.id_ == 0) { return; }
+  if (auto dispatcher = info_.dispatcher_.lock()) { dispatcher->Unsubscribe(info_); }
 }
 
 Subscription::Subscription(Subscription &&other) noexcept : info_(other.info_) { other.info_.id_ = 0; }
