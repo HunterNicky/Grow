@@ -46,6 +46,7 @@ public:
 
   [[nodiscard]] bool static ShouldClose();
   void static Close();
+  void static RequestClose();
 
 private:
   void FixMouseScale() const;
@@ -62,5 +63,7 @@ private:
 
   WindowSize windowed_size_;
   Vector2 windowed_pos_ = { 0, 0 };
+
+  static inline bool close_requested_{ false };
 };
 }// namespace chroma::client::render

@@ -17,6 +17,7 @@ class GameServer final : public ServerCore
 {
 public:
   GameServer();
+  explicit GameServer(const ServerConfig &config);
   ~GameServer() override = default;
 
   int Start() override;
@@ -33,6 +34,8 @@ public:
   void BroadcastGameObjectState(uint64_t server_time_ms) const;
 
 private:
+  void Initialize();
+
   ServerConfig config_{};
   network::ServerNetwork network_;
   logic::ServerGameLogic game_logic_;

@@ -14,10 +14,10 @@
 #include "chroma/client/ui/panels/PanelBuilder.h"
 #include "chroma/client/ui/panels/PanelFactory.h"
 #include "chroma/client/ui/panels/PanelIdentifiers.h"
-#include "chroma/client/ui/widgets/ShaderDebugWidget.h"
 #include "chroma/shared/events/AudioVolumeEvent.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
+#include "chroma/shared/events/LevelSelectEvent.h"
 #include "chroma/shared/events/ui/ButtonClickEvent.h"
 #include "chroma/shared/events/ui/PanelEvent.h"
 
@@ -121,8 +121,9 @@ void UIManager::RegisterPanels()
     };
 
     return panel::PanelBuilder::Create(panel::PanelID::OptionsMenuPanel, bounds)
-      .AddButton("Video", "Video", on_click_callback)
+      //.AddButton("Video", "Video", on_click_callback)
       .AddButton("Audio", "Audio", on_click_callback)
+      .AddButton("LevelSelect", "Level Select", on_click_callback)
       .AddButton("Back", "Back", on_click_callback)
       .CenterPanel()
       .Build();
@@ -145,10 +146,24 @@ void UIManager::RegisterPanels()
     const auto &game_config = chroma::app::settings::SettingsManager::Instance().GetGameConfig();
 
     return panel::PanelBuilder::Create(panel::PanelID::AudioOptionsPanel, bounds)
-      .AddSlider(
-        "GeneralVolume", "General", 0, 100, static_cast<int>(game_config.master_volume * 100.0F), make_volume_callback(shared::event::AudioChannel::Master))
-      .AddSlider("MusicVolume", "Music", 0, 100, static_cast<int>(game_config.music_volume * 100.0F), make_volume_callback(shared::event::AudioChannel::Music))
-      .AddSlider("SFXVolume", "SFX", 0, 100, static_cast<int>(game_config.sfx_volume * 100.0F), make_volume_callback(shared::event::AudioChannel::SFX))
+      .AddSlider("GeneralVolume",
+        "General",
+        0,
+        100,
+        static_cast<int>(game_config.master_volume * 100.0F),
+        make_volume_callback(shared::event::AudioChannel::Master))
+      .AddSlider("MusicVolume",
+        "Music",
+        0,
+        100,
+        static_cast<int>(game_config.music_volume * 100.0F),
+        make_volume_callback(shared::event::AudioChannel::Music))
+      .AddSlider("SFXVolume",
+        "SFX",
+        0,
+        100,
+        static_cast<int>(game_config.sfx_volume * 100.0F),
+        make_volume_callback(shared::event::AudioChannel::SFX))
       .AddButton("AudioBack", "Back", on_click_callback)
       .CenterPanel()
       .Build();
@@ -179,6 +194,31 @@ void UIManager::RegisterPanels()
       .AddButton("VideoBack", "Back", on_click_callback)
       .CenterPanel()
       .Build();
+  });
+
+  panel_factory_.Register(panel::PanelID::LevelSelectPanel, [this](Vector2 screen_size, Vector2 panel_size) {
+    const Rectangle bounds = this->GetCenteredRect(screen_size, panel_size.x, panel_size.y);
+    auto on_click_callback = [](const std::string &button_id) {
+      shared::event::ui::ButtonClickEvent event(shared::event::Event::Type::ButtonClickEvent, button_id);
+      shared::event::EventBus::Dispatch(event);
+    };
+
+    const auto &levels = app::settings::SettingsManager::Instance().GetAvailableLevels();
+    const auto &selected_id = app::settings::SettingsManager::Instance().GetSelectedLevelId();
+
+    auto builder = panel::PanelBuilder::Create(panel::PanelID::LevelSelectPanel, bounds);
+
+    for (const auto &level : levels) {
+      std::string button_text = level.display_name;
+      if (level.id == selected_id) {
+        button_text += " [Selected]";
+      }
+      builder.AddButton("Level_" + level.id, button_text, on_click_callback);
+    }
+
+    builder.AddButton("LevelSelectBack", "Back", on_click_callback);
+
+    return builder.CenterPanel().Build();
   });
 
   panel_factory_.Register(panel::PanelID::GameHUDPanel, [this](Vector2 screen_size, Vector2 panel_size) {

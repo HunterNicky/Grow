@@ -2,6 +2,7 @@
 #include "chroma/app/states/State.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
 #include "chroma/server/core/GameServer.h"
+#include "chroma/server/core/ServerConfig.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/EventDispatcher.h"
@@ -51,6 +52,16 @@ NetworkState::NetworkState(std::shared_ptr<GameNetworkMediator> game_mediator)
   }
 }
 
+NetworkState::NetworkState(std::shared_ptr<GameNetworkMediator> game_mediator, const server::core::ServerConfig &server_config)
+  : State("NetworkState"), client_(nullptr, &enet_host_destroy), server_peer_(nullptr, &PeerDeleter),
+    server_address_({}), event_({}), game_mediator_(std::move(game_mediator)), server_config_(server_config)
+{
+  if (!InitNetworkClient()) {
+    connected_ = false;
+    return;
+  }
+}
+
 bool NetworkState::InitNetworkClient()
 {
   if (enet_initialize() != 0) { return false; }
@@ -66,7 +77,16 @@ bool NetworkState::InitNetworkClient()
   return true;
 }
 
-NetworkState::~NetworkState() { DisconnectFromServer(); }
+NetworkState::~NetworkState()
+{
+  DisconnectFromServer();
+  
+  // Stop the local server if we created it
+  if (owns_server_ && local_server_) {
+    local_server_->Stop();
+    local_server_.reset();
+  }
+}
 
 
 void NetworkState::DisconnectFromServer()
@@ -145,47 +165,20 @@ bool NetworkState::TryConnect(const std::string &host, const enet_uint16 port)
 bool NetworkState::ConnectToServer(const std::string &host, const enet_uint16 port)
 {
   if (!TryConnect(host, port)) {
-    std::promise<bool> ready;
-    //const std::future<bool> fut = ready.get_future();
-    const auto server = std::make_shared<server::core::GameServer>();
-    ready.set_value(server->IsRunning());
-    std::thread thread_server([server]() { server->Run(); });
+    // No existing server, create our own
+    local_server_ = std::make_shared<server::core::GameServer>(server_config_);
+    owns_server_ = true;
+    
+    std::thread thread_server([server = local_server_]() { server->Run(); });
     thread_server.detach();
 
     if (!TryConnect(host, port)) {
       connected_ = false;
       return false;
-
-      // std::thread thread_server([&ready]() {
-      //   try {
-      //     const auto server = std::make_shared<server::core::GameServer>();
-      //     ready.set_value(server->IsRunning());
-      //     server->Run();
-      //   } catch (const std::future_error &) {
-      //     (void)0;
-      //   } catch (...) {
-      //     try {
-      //       ready.set_value(false);
-      //     } catch (...) {
-      //       (void)0;
-      //     }
-      //   }
-      // });
-      // thread_server.detach();
-
-      // if (fut.wait_for(std::chrono::seconds(2)) == std::future_status::ready) {
-      //   if (fut.get()) {
-      //     if (!TryConnect(host, port)) {
-      //       connected_ = false;
-      //       return false;
-      //     }
-      //     connected_ = true;
-      //     return true;
-      //   }
     }
 
-    connected_ = false;
-    return false;
+    connected_ = true;
+    return true;
   }
 
   connected_ = true;

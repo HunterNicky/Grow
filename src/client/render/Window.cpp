@@ -128,10 +128,12 @@ void Window::FixMouseScale() const
   SetMouseScale(scale_x, scale_y);
 }
 
-bool Window::ShouldClose() { return WindowShouldClose(); }
+bool Window::ShouldClose() { return WindowShouldClose() || close_requested_; }
 
 void Window::Close()
 {
   if (IsWindowReady()) { CloseWindow(); }
 }
+
+void Window::RequestClose() { close_requested_ = true; }
 }// namespace chroma::client::render

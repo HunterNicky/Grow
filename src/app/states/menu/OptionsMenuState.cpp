@@ -1,9 +1,11 @@
 #include "chroma/app/states/menu/OptionsMenuState.h"
 #include "chroma/app/states/State.h"
 #include "chroma/app/states/StateIdentifiers.h"
+#include "chroma/app/settings/SettingsManager.h"
 #include "chroma/client/ui/panels/PanelIdentifiers.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
+#include "chroma/shared/events/LevelSelectEvent.h"
 #include "chroma/shared/events/SaveSettingsEvent.h"
 #include "chroma/shared/events/state/StateEvent.h"
 #include "chroma/shared/events/ui/ButtonClickEvent.h"
@@ -55,6 +57,8 @@ void OptionsMenuState::OnEvent(shared::event::Event &event)
     switch_panel(PanelID::OptionsMenuPanel, PanelID::VideoOptionsPanel);
   } else if (id == "Audio") {
     switch_panel(PanelID::OptionsMenuPanel, PanelID::AudioOptionsPanel);
+  } else if (id == "LevelSelect") {
+    switch_panel(PanelID::OptionsMenuPanel, PanelID::LevelSelectPanel);
   } else if (id == "Back") {
     using StateAction = shared::event::state::Action;
     dispatch(shared::event::state::StateEvent(StateAction::Pop, StateID::OptionsMenuState));
@@ -63,6 +67,12 @@ void OptionsMenuState::OnEvent(shared::event::Event &event)
     switch_panel(PanelID::VideoOptionsPanel, PanelID::OptionsMenuPanel);
   } else if (id == "AudioBack") {
     switch_panel(PanelID::AudioOptionsPanel, PanelID::OptionsMenuPanel);
+  } else if (id == "LevelSelectBack") {
+    switch_panel(PanelID::LevelSelectPanel, PanelID::OptionsMenuPanel);
+  } else if (id.starts_with("Level_")) {
+    const std::string level_id = id.substr(6);
+    settings::SettingsManager::Instance().SetSelectedLevel(level_id);
+    switch_panel(PanelID::LevelSelectPanel, PanelID::LevelSelectPanel);
   }
 }
 }// namespace chroma::app::states::menu

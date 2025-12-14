@@ -9,6 +9,7 @@
 #include "chroma/shared/core/world/World.h"
 #include "chroma/shared/packet/adapter/ComponentAdapter.h"
 #include "chroma/shared/render/RenderBridge.h"
+#include "chroma/app/settings/SettingsManager.h"
 #include "entities_generated.h"
 
 #include <memory>
@@ -87,10 +88,12 @@ namespace {
         if (entity_state == nullptr || entity_state->id() == nullptr) { return nullptr; }
         const UUIDv4::UUID entity_id = UUIDv4::UUID::fromStrFactory(entity_state->id()->str());
 
+        const auto &selected_level = app::settings::SettingsManager::Instance().GetSelectedLevel();
+
         auto world = builder::GameObjectBuilder<core::world::World>()
                        .Id(entity_id)
-                       .AddWorldSystem("assets/world/plains.json")
-                       .AddWorldRender("assets/sprites/world/plains-world.json")
+                       .AddWorldSystem(selected_level.system_path)
+                       .AddWorldRender(selected_level.render_path)
                        .AddWorldNavigation()
                        .NetRole(core::NetRole::SIMULATED)
                        .Build();

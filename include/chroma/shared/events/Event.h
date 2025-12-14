@@ -23,6 +23,7 @@ public:
     AudioVolumeEvent = 12,
     SaveSettingsEvent = 13,
     PlayerDataEvent = 14,
+    LevelSelectEvent = 15,
   };
 
   Event() = default;

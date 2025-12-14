@@ -1,9 +1,8 @@
-#include <iostream>
-
+#include "chroma/app/states/menu/MainMenuState.h"
 #include "chroma/app/layers/LayerIdentifiers.h"
 #include "chroma/app/states/State.h"
 #include "chroma/app/states/StateIdentifiers.h"
-#include "chroma/app/states/menu/MainMenuState.h"
+#include "chroma/client/render/Window.h"
 #include "chroma/client/ui/panels/PanelIdentifiers.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
@@ -50,7 +49,8 @@ void MainMenuState::OnEvent(shared::event::Event &event)
   } else if (btn_event.GetId() == "LoadData") {
     shared::event::PlayerDataEvent load_event(shared::event::PlayerDataAction::Load);
     shared::event::EventBus::Dispatch(load_event);
-    shared::event::layer::LayerEvent push_layer_event(shared::event::layer::Action::Push, layer::LayerID::GameStateSaved);
+    shared::event::layer::LayerEvent push_layer_event(
+      shared::event::layer::Action::Push, layer::LayerID::GameStateSaved);
     shared::event::EventBus::Dispatch(push_layer_event);
   } else if (btn_event.GetId() == "Options") {
     shared::event::state::StateEvent pop_event(shared::event::state::Action::Pop, StateID::MainMenuState);
@@ -58,7 +58,7 @@ void MainMenuState::OnEvent(shared::event::Event &event)
     shared::event::state::StateEvent push_event(shared::event::state::Action::Push, StateID::OptionsMenuState);
     shared::event::EventBus::Dispatch(push_event);
   } else if (btn_event.GetId() == "Exit") {
-    std::cout << "MainMenuState recebeu evento para Exit" << '\n';
+    client::render::Window::RequestClose();
   }
 }
 }// namespace chroma::app::states::menu

@@ -54,5 +54,8 @@ std::vector<world::RenderTile> WorldSystem::GetRenderTile() const
 
 void WorldSystem::Update([[maybe_unused]] float delta_time) {}
 
-void WorldSystem::Render() { world_system_->RenderDebugColliders(); }
+void WorldSystem::Render()
+{
+  // world_system_->RenderDebugColliders();
+}
 }// namespace chroma::shared::core::component

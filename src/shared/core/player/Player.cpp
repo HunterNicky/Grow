@@ -5,7 +5,6 @@
 #include "chroma/shared/collision/CollisionEvent.h"
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/Attack.h"
-#include "chroma/shared/core/components/Camera.h"
 #include "chroma/shared/core/components/CharacterType.h"
 #include "chroma/shared/core/components/Health.h"
 #include "chroma/shared/core/components/Inventory.h"
@@ -29,12 +28,12 @@
 #include "chroma/shared/render/SpriteLoader.h"
 #include "chroma/shared/utils/UUID.h"
 
+#include <chrono>
 #include <cmath>
 #include <memory>
 #include <raylib.h>
 #include <raymath.h>
 #include <string>
-#include <algorithm>
 
 namespace chroma::shared::core::player {
 Player::Player() { type_ = GameObjectType::PLAYER; }
@@ -184,7 +183,7 @@ void Player::OnUpdate(const float delta_time)
 
       const auto inventory = GetComponent<component::Inventory>();
       if (inventory) {
-        const auto weapon = inventory->GetCurrentWeapon();
+        const auto &weapon = inventory->GetCurrentWeapon();
         if (weapon) { weapon->SetPosition(pos); }
       }
     }
@@ -209,15 +208,15 @@ void Player::OnUpdate(const float delta_time)
 
   for (const auto &[fst, snd] : components_) { snd->Update(delta_time); }
 
-  const auto camera = GetComponent<component::CameraComponent>();
-  if (camera) {
-    const float wheel_move = GetMouseWheelMove();
-    if (wheel_move != 0.0F) {
-      float new_zoom = camera->GetZoom() + (wheel_move * 0.1F);
-      new_zoom = std::clamp(new_zoom, 0.5F, 50.0F);
-      camera->SetZoom(new_zoom);
-    }
-  }
+  // const auto camera = GetComponent<component::CameraComponent>();
+  // if (camera) {
+  //   const float wheel_move = GetMouseWheelMove();
+  //   if (wheel_move != 0.0F) {
+  //     float new_zoom = camera->GetZoom() + (wheel_move * 0.1F);
+  //     new_zoom = std::clamp(new_zoom, 0.5F, 5.0F);
+  //     camera->SetZoom(new_zoom);
+  //   }
+  // }
 }
 
 void Player::OnFixedUpdate(const float fixed_delta_time) { (void)fixed_delta_time; }
@@ -227,7 +226,6 @@ void Player::OnCollision(const collision::CollisionEvent &event)
   const auto other = event.other.lock();
   if (!other) { return; }
 
-  const auto my_health = GetComponent<component::Health>();
   const auto other_health = other->GetComponent<component::Health>();
 
   const auto my_event_collider = GetComponent<component::EventColliderBox>();
@@ -236,11 +234,9 @@ void Player::OnCollision(const collision::CollisionEvent &event)
   const auto attack = GetComponent<component::Attack>();
 
   if (event.type == collision::CollisionEvent::Type::Trigger && attack && attack->IsAttacking() && my_event_collider
-      && other_health && other_event_collider == nullptr) {
+      && other_health && other_event_collider == nullptr && HasAuthority()) {
     other_health->TakeDamage(10.0F);
   }
-
-  if (event.type == collision::CollisionEvent::Type::Wall) { (void)my_health; }
 }
 
 void Player::OnRender()
@@ -264,23 +260,15 @@ void Player::OnRender()
 
   auto inventory = GetComponent<component::Inventory>();
 
-  static bool show_collider = false;
-  if (!show_collider) {
-    bridge->DrawAnimation(*anim, pos, scale, rotation, WHITE, flip_x, false, { 0.5F, 0.5F });
-  }
+  bridge->DrawAnimation(*anim, pos, scale, rotation, WHITE, flip_x, false, { 0.5F, 0.5F });
 
   if (health && !IsAutonomousProxy()) {
     Vector2 pos_h;
     pos_h.y = pos.y - 30.F;
     pos_h.x = pos.x - 15.F;
-    constexpr Vector2 size = { .x = 30.F, .y = 4.F };
+    const Vector2 size = { .x = 30.F, .y = 4.F };
     health->DrawHealth(pos_h, size);
   }
-
-  // draw a cicle if press Q
-        if (IsKeyPressed(KEY_Q)) { show_collider = !show_collider; }
-  if (!show_collider) { return; }
-  DrawCircleV(pos, 5.0F, RED);
 
   // const auto collider = GetComponent<component::ColliderBox>();
   // if (collider) { collider->Render(); }

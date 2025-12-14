@@ -2,10 +2,12 @@
 
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <sys/types.h>
 #include <uuid_v4.h>
 #include <vector>
 
+#include "chroma/app/database/DatabaseTypes.h"
 #include "chroma/shared/events/SoundEvent.h"
 
 #include "chroma/app/states/network/InterpolateSystem.h"
@@ -47,15 +49,20 @@ public:
 
   void ProcessPendingSoundEvents() const;
 
+  void SetPendingPlayerData(const database::PlayerData &data);
+  [[nodiscard]] bool HasPendingPlayerData() const;
+
 private:
   void HandleSoundEvent(const Game::Event *evt) const;
   void HandleWaveEvent(const Game::Event *evt) const;
+  void ApplyPendingPlayerData() const;
 
   std::weak_ptr<GameState> game_state_;
   std::weak_ptr<NetworkState> network_state_;
   std::unique_ptr<network::InterpolateSystem> interpolate_system_;
   std::unique_ptr<network::PredictiveSyncSystem> predictive_sync_system_;
   mutable std::vector<shared::event::SoundEvent> pending_sound_events_;
+  mutable std::optional<database::PlayerData> pending_player_data_;
 };
 
 }// namespace chroma::app::states

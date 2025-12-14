@@ -26,6 +26,16 @@ namespace chroma::server::core {
 
 GameServer::GameServer()
 {
+  Initialize();
+}
+
+GameServer::GameServer(const ServerConfig &config) : config_(config)
+{
+  Initialize();
+}
+
+void GameServer::Initialize()
+{
   if (!InitServer(config_.port, config_.max_clients)) { return; }
   is_running_ = true;
 
@@ -137,8 +147,12 @@ int GameServer::Start()
 
 int GameServer::Stop()
 {
-  network_.Stop();
   is_running_ = false;
+  network_.Stop();
+  
+  // Clear server context
+  GCM::Instance().DeleteContext(GameContextType::Server);
+  
   return 0;
 }
 

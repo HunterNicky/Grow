@@ -18,9 +18,6 @@ void WorldRender::Render()
   if (!bridge) { return; }
 
   const Rectangle camera = bridge->GetActiveCameraBounds();
-  static bool t_pressed = false;
-
-  if (IsKeyPressed(KEY_T)) { t_pressed = !t_pressed; }
 
   for (const auto &params : draw_params_) {
     const float sprite_width = params.subregion.width * params.scale.x;
@@ -31,21 +28,7 @@ void WorldRender::Render()
     const Rectangle sprite_rect = { world_x, world_y, sprite_width, sprite_height };
 
     if (!CheckCollisionRecs(camera, sprite_rect)) { continue; }
-    if (t_pressed) {
-      if (params.draw_background) {
-        bridge->DrawSprite(params.sprite_id,
-          params.position,
-          params.scale,
-          params.rotation,
-          WHITE,
-          params.flip_x,
-          params.flip_y,
-          params.origin,
-          params.offset,
-          { sprite_set_.center.x, sprite_set_.center.y, sprite_set_.center.width, sprite_set_.center.height },
-          render::RenderLayer::Ground,
-          0);
-      }
+    if (params.draw_background) {
       bridge->DrawSprite(params.sprite_id,
         params.position,
         params.scale,
@@ -55,10 +38,22 @@ void WorldRender::Render()
         params.flip_y,
         params.origin,
         params.offset,
-        params.subregion,
+        { sprite_set_.center.x, sprite_set_.center.y, sprite_set_.center.width, sprite_set_.center.height },
         render::RenderLayer::Ground,
-        1);
+        0);
     }
+    bridge->DrawSprite(params.sprite_id,
+      params.position,
+      params.scale,
+      params.rotation,
+      WHITE,
+      params.flip_x,
+      params.flip_y,
+      params.origin,
+      params.offset,
+      params.subregion,
+      render::RenderLayer::Ground,
+      1);
   }
 }
 

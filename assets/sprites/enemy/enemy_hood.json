@@ -87,21 +87,21 @@
                     "y": 1,
                     "width": 24,
                     "height": 26,
-                    "duration_ticks": 120
+                    "duration_ticks": 480
                 },
                 {
                     "x": 103,
                     "y": 1,
                     "width": 22,
                     "height": 26,
-                    "duration_ticks": 120
+                    "duration_ticks": 480
                 },
                 {
                     "x": 126,
                     "y": 1,
                     "width": 22,
                     "height": 28,
-                    "duration_ticks": 120
+                    "duration_ticks": 480
                 }
             ]
         },
@@ -113,21 +113,21 @@
                     "y": 30,
                     "width": 23,
                     "height": 26,
-                    "duration_ticks": 120
+                    "duration_ticks": 480
                 },
                 {
                     "x": 92,
                     "y": 30,
                     "width": 23,
                     "height": 26,
-                    "duration_ticks": 120
+                    "duration_ticks": 480
                 },
                 {
                     "x": 116,
                     "y": 30,
                     "width": 21,
                     "height": 26,
-                    "duration_ticks": 120
+                    "duration_ticks": 480
                 }
             ]
         },
@@ -139,21 +139,21 @@
                     "y": 57,
                     "width": 32,
                     "height": 26,
-                    "duration_ticks": 120
+                    "duration_ticks": 480
                 },
                 {
                     "x": 107,
                     "y": 57,
                     "width": 27,
                     "height": 26,
-                    "duration_ticks": 120
+                    "duration_ticks": 480
                 },
                 {
                     "x": 135,
                     "y": 57,
                     "width": 28,
                     "height": 26,
-                    "duration_ticks": 120
+                    "duration_ticks": 480
                 }
             ]
         },

@@ -5,7 +5,7 @@
 #include <raylib.h>
 
 namespace chroma::shared::core::component {
-Bow::Bow() : Weapon(WeaponType::BOW, 10, 40.0F, 1.0F, 2.5F)
+Bow::Bow() : Weapon(WeaponType::BOW, 10, 40.0F, 1.0F, 1.44F)
 {
   type_ = ComponentType::WEAPON;
   SetSize(Vector2{ 20.0F, GetRange() });

@@ -66,6 +66,9 @@ void GameNetworkMediator::OnSnapshotReceived(const Game::Snapshot *snapshot) con
   if (state->GetPlayerId() != player_id) {
     state->SetPlayerId(player_id);
     interpolate_system_->SetPlayerId(player_id);
+    
+    // Apply pending player data after the player is created
+    ApplyPendingPlayerData();
   }
 
   const uint32_t last_processed_input = shared::packet::PacketHandler::SnapshotGetLastProcessedInputSeq(snapshot);
@@ -201,6 +204,30 @@ void GameNetworkMediator::ProcessPendingSoundEvents() const
     still_pending.push_back(evt);
   }
   pending_sound_events_.swap(still_pending);
+}
+
+void GameNetworkMediator::SetPendingPlayerData(const database::PlayerData &data)
+{
+  pending_player_data_ = data;
+}
+
+bool GameNetworkMediator::HasPendingPlayerData() const
+{
+  return pending_player_data_.has_value();
+}
+
+void GameNetworkMediator::ApplyPendingPlayerData() const
+{
+  if (!pending_player_data_.has_value()) { return; }
+  
+  auto player = GCM::Instance().GetContext(GameContextType::Client)->GetLocalPlayer();
+  if (!player) { return; }
+  
+  auto casted_player = std::static_pointer_cast<shared::core::player::Player>(player);
+  if (casted_player) {
+    casted_player->LoadPlayerWithPlayerData(pending_player_data_.value());
+    pending_player_data_.reset();
+  }
 }
 
 }// namespace chroma::app::states

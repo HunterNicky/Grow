@@ -5,7 +5,33 @@
 #include "chroma/shared/events/EventBus.h"
 #include "chroma/shared/events/Subscription.h"
 
+#include <algorithm>
+#include <string>
+
 namespace chroma::app::settings {
+
+SettingsManager::SettingsManager()
+{
+  InitializeLevels();
+}
+
+void SettingsManager::InitializeLevels()
+{
+  available_levels_ = {
+    { .id = "plains",
+      .display_name = "Plains",
+      .system_path = "assets/world/plains.json",
+      .render_path = "assets/sprites/world/plains-world.json" },
+    { .id = "caves",
+      .display_name = "Caves",
+      .system_path = "assets/world/caves.json",
+      .render_path = "assets/sprites/world/caves-world.json" },
+    { .id = "desert",
+      .display_name = "Desert",
+      .system_path = "assets/world/desert.json",
+      .render_path = "assets/sprites/world/desert-world.json" },
+  };
+}
 
 void SettingsManager::InitEventListener()
 {
@@ -47,6 +73,30 @@ void SettingsManager::SetGameConfig(GameConfig game_config) { game_config_ = gam
 void SettingsManager::ApplyCurrentSettings() const
 {
   shared::audio::GetAudioBridge()->SetMasterVolume(game_config_.master_volume);
+}
+
+void SettingsManager::SetSelectedLevel(const std::string &level_id)
+{
+  auto it = std::ranges::find_if(available_levels_, [&level_id](const LevelConfig &level) {
+    return level.id == level_id;
+  });
+  
+  if (it != available_levels_.end()) {
+    game_config_.selected_level_id = level_id;
+  }
+}
+
+const LevelConfig &SettingsManager::GetSelectedLevel() const
+{
+  auto it = std::ranges::find_if(available_levels_, [this](const LevelConfig &level) {
+    return level.id == game_config_.selected_level_id;
+  });
+  
+  if (it != available_levels_.end()) {
+    return *it;
+  }
+  
+  return available_levels_.front();
 }
 
 }// namespace chroma::app::settings

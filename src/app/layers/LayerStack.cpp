@@ -16,6 +16,7 @@
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
 #include "chroma/app/states/menu/MainMenuState.h"
 #include "chroma/app/states/network/NetworkState.h"
+#include "chroma/server/core/ServerConfig.h"
 #include "chroma/shared/core/components/CharacterType.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/layer/LayerEvent.h"
@@ -107,12 +108,24 @@ void LayerStack::PushLayerEvent(const LayerID layer_id)
 {
   switch (layer_id) {
   case layer::LayerID::GameLayer: {
-    auto game_state = std::make_shared<states::GameState>();
     auto game_layer = std::make_unique<layer::game::GameLayer>();
-    game_layer->PushState(game_state);
+    auto network_layer = std::make_unique<layer::network::NetworkLayer>();
+
+    auto mediator = std::make_shared<states::GameNetworkMediator>();
+    const auto game_state = std::make_shared<states::GameState>(mediator);
     game_state->SetEventDispatcher();
+    const auto network_state = std::make_shared<states::NetworkState>(mediator, server::core::ServerConfig::Singleplayer());
+    network_state->SetEventDispatcher();
+
+    mediator->SetGameState(game_state);
+    mediator->SetNetworkState(network_state);
+
+    network_layer->PushState(network_state);
+    game_layer->PushState(game_state);
     game_state->SetSoundEventDispatcher();
+
     if (!layers_.empty()) { layers_.pop_back(); }
+    PushLayer(std::move(network_layer));
     PushLayer(std::move(game_layer));
     break;
   }
@@ -123,7 +136,7 @@ void LayerStack::PushLayerEvent(const LayerID layer_id)
     auto mediator = std::make_shared<states::GameNetworkMediator>();
     const auto game_state = std::make_shared<states::GameState>(mediator);
     game_state->SetEventDispatcher();
-    const auto network_state = std::make_shared<states::NetworkState>(mediator);
+    const auto network_state = std::make_shared<states::NetworkState>(mediator, server::core::ServerConfig::Multiplayer());
     network_state->SetEventDispatcher();
 
     mediator->SetGameState(game_state);
@@ -142,14 +155,28 @@ void LayerStack::PushLayerEvent(const LayerID layer_id)
     break;
   }
   case layer::LayerID::GameStateSaved: {
-    auto game_state = std::make_shared<states::GameState>(static_cast<shared::core::component::CharacterType>(
-      chroma::app::settings::PlayerDataManager::Instance().GetPlayerData().character_skin));
     auto game_layer = std::make_unique<layer::game::GameLayer>();
-    game_layer->PushState(game_state);
+    auto network_layer = std::make_unique<layer::network::NetworkLayer>();
+
+    auto mediator = std::make_shared<states::GameNetworkMediator>();
+
+    // Set pending player data before connecting - it will be applied when the player is created
+    mediator->SetPendingPlayerData(chroma::app::settings::PlayerDataManager::Instance().GetPlayerData());
+
+    const auto game_state = std::make_shared<states::GameState>(mediator);
     game_state->SetEventDispatcher();
-    game_state->CreatePlayerWithPlayerData(chroma::app::settings::PlayerDataManager::Instance().GetPlayerData());
+    const auto network_state = std::make_shared<states::NetworkState>(mediator, server::core::ServerConfig::Singleplayer());
+    network_state->SetEventDispatcher();
+
+    mediator->SetGameState(game_state);
+    mediator->SetNetworkState(network_state);
+
+    network_layer->PushState(network_state);
+    game_layer->PushState(game_state);
     game_state->SetSoundEventDispatcher();
+
     if (!layers_.empty()) { layers_.pop_back(); }
+    PushLayer(std::move(network_layer));
     PushLayer(std::move(game_layer));
     break;
   }

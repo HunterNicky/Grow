@@ -20,6 +20,7 @@
 #include "chroma/shared/packet/events/ProjectileMessage.h"
 #include "chroma/shared/utils/Random.h"
 #include "chroma/shared/utils/UUID.h"
+#include "chroma/app/settings/SettingsManager.h"
 #include "entities_generated.h"
 
 #include <flatbuffers/buffer.h>
@@ -34,10 +35,12 @@ ServerGameLogic::ServerGameLogic() = default;
 
 void ServerGameLogic::CreateWorld()
 {
+  const auto &selected_level = app::settings::SettingsManager::Instance().GetSelectedLevel();
+  
   const auto world = shared::builder::GameObjectBuilder<shared::core::world::World>()
                        .Id(shared::utils::UUID::Generate())
                        .NetRole(shared::core::NetRole::AUTHORITY)
-                       .AddWorldSystem("assets/world/plains.json")
+                       .AddWorldSystem(selected_level.system_path)
                        .AddWorldNavigation()
                        .Build();
   GCM::Instance().GetContext(GameContextType::Server)->GetGameObjectManager()->Register(world);

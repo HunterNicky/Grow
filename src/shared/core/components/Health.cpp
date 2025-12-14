@@ -2,6 +2,7 @@
 #include "chroma/shared/core/components/Component.h"
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <memory>
 #include <raylib.h>
@@ -19,11 +20,17 @@ Health::Health(float max_health)
   type_ = ComponentType::HEALTH;
 }
 
-void Health::TakeDamage(const float amount) const
+void Health::TakeDamage(const float amount)
 {
   if (current_health_ == nullptr) { return; }
+  
+  const auto now = std::chrono::steady_clock::now();
+  const auto ms_since_last = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_damage_time_).count();
+  if (ms_since_last < static_cast<long long>(damage_cooldown_ms_)) { return; }
+  
   *current_health_ -= amount;
   *current_health_ = std::max(*current_health_, 0.0F);
+  last_damage_time_ = now;
 }
 
 void Health::Heal(const float amount) const
@@ -65,6 +72,11 @@ void Health::DrawHealth(const Vector2 position, const Vector2 size) const
   DrawRectangleV(position, size, DARKGRAY);
   DrawRectangleV(position, { size.x * health_ratio, size.y }, GREEN);
   DrawRectangleLinesEx({ position.x, position.y, size.x, size.y }, 1.0F, BLACK);
+}
+
+void Health::SetDamageCooldown(const float cooldown_ms)
+{
+  damage_cooldown_ms_ = cooldown_ms;
 }
 
 }// namespace chroma::shared::core::component

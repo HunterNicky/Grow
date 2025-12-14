@@ -5,8 +5,13 @@
 
 #include "chroma/app/states/State.h"
 #include "chroma/app/states/mediator/GameNetworkMediator.h"
+#include "chroma/server/core/ServerConfig.h"
 #include "chroma/shared/events/EventDispatcher.h"
 #include "chroma/shared/events/Subscription.h"
+
+namespace chroma::server::core {
+class GameServer;
+}
 
 namespace chroma::app::states {
 class NetworkState final : public State
@@ -14,6 +19,7 @@ class NetworkState final : public State
 public:
   NetworkState();
   explicit NetworkState(std::shared_ptr<GameNetworkMediator> game_mediator);
+  NetworkState(std::shared_ptr<GameNetworkMediator> game_mediator, const server::core::ServerConfig &server_config);
   ~NetworkState() override;
 
   NetworkState(const NetworkState &) = delete;
@@ -39,8 +45,11 @@ private:
   bool connected_ { false };
   float delta_time_ { 0.0F };
   bool dispatch_event_ { true };
+  bool owns_server_ { false };
 
   std::shared_ptr<GameNetworkMediator> game_mediator_;
+  std::shared_ptr<server::core::GameServer> local_server_;
+  server::core::ServerConfig server_config_{};
 
   static void PeerDeleter(ENetPeer *peer);
   bool InitNetworkClient();

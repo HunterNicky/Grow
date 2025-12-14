@@ -59,7 +59,9 @@ void PauseState::OnEvent(shared::event::Event &event)
     dispatch(shared::event::state::StateEvent(StateAction::Pop, StateID::PauseState));
     dispatch(shared::event::state::StateEvent(StateAction::Push, StateID::OptionsMenuState));
   } else if (id == "MainMenu") {
+    // Pop GameLayer first, then NetworkLayer (order matters - LIFO)
     dispatch(shared::event::layer::LayerEvent(LayerAction::Pop, LayerID::GameLayer));
+    dispatch(shared::event::layer::LayerEvent(LayerAction::Pop, LayerID::NetworkLayer));
     dispatch(shared::event::state::StateEvent(StateAction::Pop, StateID::NetworkState));
     dispatch(shared::event::layer::LayerEvent(LayerAction::Push, LayerID::MenuLayer));
     dispatch(shared::event::ui::PanelEvent(UIAction::Close, PanelID::PauseBackgroundPanel));

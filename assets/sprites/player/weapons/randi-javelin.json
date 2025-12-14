@@ -468,21 +468,21 @@
                     "y": 44,
                     "width": 26,
                     "height": 45,
-                    "duration_ticks": 180
+                    "duration_ticks": 360
                 },
                 {
                     "x": 209,
                     "y": 61,
                     "width": 23,
                     "height": 28,
-                    "duration_ticks": 180
+                    "duration_ticks": 360
                 },
                 {
                     "x": 236,
                     "y": 61,
                     "width": 23,
                     "height": 28,
-                    "duration_ticks": 180
+                    "duration_ticks": 360
                 }
             ]
         },
@@ -494,47 +494,47 @@
                     "y": 104,
                     "width": 23,
                     "height": 49,
-                    "duration_ticks": 180
+                    "duration_ticks": 360
                 },
                 {
                     "x": 210,
                     "y": 118,
                     "width": 25,
                     "height": 35,
-                    "duration_ticks": 180
+                    "duration_ticks": 360
                 },
                 {
                     "x": 237,
                     "y": 124,
                     "width": 28,
                     "height": 29,
-                    "duration_ticks": 180
+                    "duration_ticks": 360
                 }
             ]
         },
         "randi_javelin_attack_side": {
-            "loop": false,
+            "loop": true,
             "frames": [
                 {
                     "x": 181,
                     "y": 161,
                     "width": 37,
                     "height": 40,
-                    "duration_ticks": 180
+                    "duration_ticks": 360
                 },
                 {
                     "x": 220,
                     "y": 174,
                     "width": 32,
                     "height": 27,
-                    "duration_ticks": 180
+                    "duration_ticks": 360
                 },
                 {
                     "x": 254,
                     "y": 174,
                     "width": 26,
                     "height": 27,
-                    "duration_ticks": 180
+                    "duration_ticks": 360
                 }
             ]
         }

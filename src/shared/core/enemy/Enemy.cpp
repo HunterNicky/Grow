@@ -252,17 +252,14 @@ void Enemy::OnCollision(const collision::CollisionEvent &collision)
   const auto other = collision.other.lock();
   if (!other) { return; }
 
-  const auto my_health = GetComponent<component::Health>();
   const auto other_health = other->GetComponent<component::Health>();
 
   const auto my_event_collider = GetComponent<component::EventColliderBox>();
 
   if (collision.type == collision::CollisionEvent::Type::Trigger && my_event_collider && other_health
-      && other->GetTag() == GameObjectType::PLAYER) {
-    other_health->TakeDamage(2.0F);
+      && other->GetTag() == GameObjectType::PLAYER && HasAuthority()) {
+    other_health->TakeDamage(10.0F);
   }
-
-  (void)my_health;
 }
 
 void Enemy::HandleEvent([[maybe_unused]] event::Event &event) {}
