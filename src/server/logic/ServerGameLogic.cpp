@@ -18,8 +18,8 @@
 #include "chroma/shared/packet/PacketHandler.h"
 #include "chroma/shared/packet/events/InputEventMessage.h"
 #include "chroma/shared/packet/events/ProjectileMessage.h"
-#include "chroma/shared/utils/UUID.h"
 #include "chroma/shared/utils/Random.h"
+#include "chroma/shared/utils/UUID.h"
 #include "entities_generated.h"
 
 #include <flatbuffers/buffer.h>
@@ -75,24 +75,23 @@ void ServerGameLogic::OnReceivedInputMessage(const std::shared_ptr<shared::packe
 
 std::shared_ptr<shared::core::player::Player> ServerGameLogic::CreatePlayer()
 {
-  auto player = chroma::shared::builder::GameObjectBuilder<shared::core::player::Player>()
-                  .AddTransform({ 2048, 2048 })
-                  .Id(shared::utils::UUID::Generate())
-                  .AddSpeed(50.0F)
-                  .AddMovement()
-                  .AddAnimation()
-                  .AddColliderBox(GameContextType::Server, { 12.F, 12.F }, { -6.F, 0.F })
-                  .AddEventColliderBox(GameContextType::Server, { 32.F, 32.F }, { -16.F, -16.F })
-                  .AddHealth(100.0F, 1.0F)
-                  .AddRun(false, 1.5F)
-                  .AddInventory(10)
-                  .AddAttack(false)
-                  .AddCharacterType(static_cast<shared::core::component::CharacterType>(
-                        shared::utils::Random::Int(1, 2)
-                  ))
-                  .AddNivel(1, 20.0F, 100.0F)
-                  .NetRole(shared::core::NetRole::AUTHORITY)
-                  .Build();
+  auto player =
+    chroma::shared::builder::GameObjectBuilder<shared::core::player::Player>()
+      .AddTransform({ 2048, 2048 })
+      .Id(shared::utils::UUID::Generate())
+      .AddSpeed(50.0F)
+      .AddMovement()
+      .AddAnimation()
+      .AddColliderBox(GameContextType::Server, { 12.F, 12.F }, { -6.F, 0.F })
+      .AddEventColliderBox(GameContextType::Server, { 32.F, 32.F }, { -16.F, -16.F })
+      .AddHealth(100.0F, 1.0F)
+      .AddRun(false, 1.5F)
+      .AddInventory(10)
+      .AddAttack(false)
+      .AddCharacterType(static_cast<shared::core::component::CharacterType>(shared::utils::Random::Int(1, 2)))
+      .AddNivel(1, 20.0F, 100.0F)
+      .NetRole(shared::core::NetRole::AUTHORITY)
+      .Build();
 
   switch (player->GetComponent<shared::core::component::CharacterTypeComponent>()->GetCharacterType()) {
 
@@ -109,6 +108,8 @@ std::shared_ptr<shared::core::player::Player> ServerGameLogic::CreatePlayer()
     player->SetCurrentWeapon(bow);
     break;
   }
+  case shared::core::component::CharacterType::NONE:
+    break;
   }
 
 

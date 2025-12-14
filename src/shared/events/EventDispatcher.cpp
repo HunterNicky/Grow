@@ -8,6 +8,8 @@ namespace chroma::shared::event {
 
 EventDispatcher::EventDispatcher() : next_listener_id_(0) {}
 
+EventDispatcher::~EventDispatcher() { Clear(); }
+
 void EventDispatcher::Unsubscribe(const SubscriptionInfo &info)
 {
   if (info.id_ == 0) { return; }

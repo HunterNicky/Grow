@@ -63,7 +63,7 @@ Application::Application()
   settings.InitEventListener();
   settings.ApplyCurrentSettings();
   renderer_->SetEventDispatcher();
-  
+
   audio_bridge->PlayMusic("bgm", true, 0.4F);
 }
 
@@ -71,7 +71,7 @@ void Application::Run()
 {
   Initialize();
   {}
-  
+
   auto menu_layer = std::make_unique<layer::game::MainMenuLayer>("MainMenu");
   PushLayer(std::move(menu_layer));
 
@@ -95,6 +95,7 @@ void Application::Run()
 
     renderer_->RenderFrame([&] { layer_stack_->RenderLayers(); });
   }
+
   renderer_->Close();
 }
 

@@ -81,8 +81,11 @@ std::vector<RenderTile> WorldSystem::GetVisibleTiles(const Rectangle camera_boun
     for (int x = start_x; x <= end_x; ++x) {
       const TileData *tile = GetTile(x, y);
       if (tile != nullptr) {
-        result.push_back(
-          { .world_x = x, .world_y = y, .data = tile, .render_priority = (tile->elevation * 10000) + y });
+        result.push_back({ .world_x = x,
+          .world_y = y,
+          .tile_size = tile_size_,
+          .data = tile,
+          .render_priority = (tile->elevation * 10000) + y });
       }
     }
   }

@@ -1,5 +1,6 @@
 #include "chroma/app/database/DatabaseManager.h"
 #include "chroma/app/database/DatabaseTypes.h"
+#include "chroma/app/database/dao/IDAO.h"
 #include "chroma/app/database/dao/PlayerDAO.h"
 #include "chroma/app/database/dao/SettingsDAO.h"
 #include "chroma/app/settings/PlayerDataManager.h"
@@ -48,6 +49,8 @@ void DatabaseManager::OnEvent(const shared::event::Event &event) const
     }
     break;
   }
+  default:
+    break;
   }
 }
 

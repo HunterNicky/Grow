@@ -66,7 +66,6 @@ GameState::GameState(shared::core::component::CharacterType character_type)
                   .Build();
 
   switch (player->GetComponent<shared::core::component::CharacterTypeComponent>()->GetCharacterType()) {
-
   case shared::core::component::CharacterType::RANDI: {
     auto spear = std::make_shared<shared::core::component::Spear>();
     auto javelin = std::make_shared<shared::core::component::Javelin>();
@@ -80,6 +79,8 @@ GameState::GameState(shared::core::component::CharacterType character_type)
     player->SetCurrentWeapon(bow);
     break;
   }
+  default:
+    break;
   }
 
   auto fist = std::make_shared<shared::core::component::Fist>();

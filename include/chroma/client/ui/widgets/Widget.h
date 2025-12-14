@@ -10,7 +10,7 @@ namespace chroma::client::ui::widget {
 class Widget
 {
 public:
-  Widget(const std::string& id, Rectangle bounds) : id_(std::move(id)), bounds_(bounds) {};
+  Widget(const std::string &id, Rectangle bounds) : id_(id), bounds_(bounds) {};
   virtual ~Widget() = default;
   virtual void OnUpdate(const float delta_time, const UIContext &context) = 0;
   virtual void OnRender() = 0;

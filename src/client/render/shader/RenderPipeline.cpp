@@ -5,6 +5,7 @@
 #include <memory>
 #include <raylib.h>
 #include <utility>
+#include <vector>
 
 namespace chroma::client::render::shader {
 
@@ -63,6 +64,7 @@ RenderPass *RenderPipeline::GetPassByType(const PassType type) const
 
 void RenderPipeline::RemovePassByType(PassType type)
 {
+  if (passes_.empty()) { return; }
   std::erase_if(passes_, [type](const std::unique_ptr<RenderPass> &p) {
     if (const auto *shader_pass = dynamic_cast<ShaderPass *>(p.get())) { return shader_pass->GetPassType() == type; }
     return false;

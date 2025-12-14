@@ -182,6 +182,7 @@ void Renderer::HandleAddShaderEvent(const shared::event::Event &event) const
 
 void Renderer::HandleRemoveShaderEvent(const shared::event::Event &event) const
 {
+  if (render_pipeline_ == nullptr) { return; }
   const auto &shader_event = dynamic_cast<const shared::event::ShaderEvent &>(event);
   render_pipeline_->RemovePassByType(shader_event.GetPassType());
 }
