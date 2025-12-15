@@ -111,7 +111,7 @@ GameState::~GameState()
   shared::event::EventBus::Dispatch(hud_main);
 
   shared::event::ShaderEvent shader_event(shared::event::ShaderEventType::REMOVE);
-  shader_event.SetPassType(client::render::shader::PassType::HEALTH);
+  shader_event.SetPassType(client::render::shader::PassType::BORDER);
   shader_event.SetFront(true);
   shared::event::EventBus::GetDispatcher()->Dispatch(shader_event);
 }
@@ -191,9 +191,16 @@ void GameState::SetPlayerId(const UUIDv4::UUID &player_id)
 
   if (player) {
     GCM::Instance().GetContext(GameContextType::Client)->SetLocalPlayer(player);
+    // if (first_snapshot_received_) {
+    //   shared::event::ShaderEvent shader_event(shared::event::ShaderEventType::ADD);
+    //   shader_event.SetPassType(client::render::shader::PassType::HEALTH);
+    //   shader_event.SetFront(true);
+    //   shared::event::EventBus::GetDispatcher()->Dispatch(shader_event);
+    //   first_snapshot_received_ = false;
+    // }
     if (first_snapshot_received_) {
       shared::event::ShaderEvent shader_event(shared::event::ShaderEventType::ADD);
-      shader_event.SetPassType(client::render::shader::PassType::HEALTH);
+      shader_event.SetPassType(client::render::shader::PassType::BORDER);
       shader_event.SetFront(true);
       shared::event::EventBus::GetDispatcher()->Dispatch(shader_event);
       first_snapshot_received_ = false;

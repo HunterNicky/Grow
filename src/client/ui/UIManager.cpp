@@ -14,6 +14,7 @@
 #include "chroma/client/ui/panels/PanelBuilder.h"
 #include "chroma/client/ui/panels/PanelFactory.h"
 #include "chroma/client/ui/panels/PanelIdentifiers.h"
+#include "chroma/client/ui/widgets/ShaderDebugWidget.h"
 #include "chroma/shared/events/AudioVolumeEvent.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
@@ -81,9 +82,7 @@ void UIManager::OnRender() const
 }
 
 Rectangle UIManager::GetCenteredRect(Vector2 parent_size, float width, float height)
-{
-  return { (parent_size.x - width) / 2.0F, (parent_size.y - height) / 2.0F, width, height };
-}
+{ return { (parent_size.x - width) / 2.0F, (parent_size.y - height) / 2.0F, width, height }; }
 
 void UIManager::RegisterPanels()
 {
@@ -210,9 +209,7 @@ void UIManager::RegisterPanels()
 
     for (const auto &level : levels) {
       std::string button_text = level.display_name;
-      if (level.id == selected_id) {
-        button_text += " [Selected]";
-      }
+      if (level.id == selected_id) { button_text += " [Selected]"; }
       builder.AddButton("Level_" + level.id, button_text, on_click_callback);
     }
 

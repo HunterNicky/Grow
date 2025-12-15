@@ -16,12 +16,12 @@ World::~World() = default;
 
 void World::OnRender()
 {
-  const auto world_system = GetComponent<component::WorldSystem>();
-  if (world_system) { world_system->Render(); }
-  const auto world_render = GetComponent<component::WorldRender>();
-  if (world_render) { world_render->Render(); }
-  const auto world_navigation = GetComponent<component::WorldNavigation>();
-  if (world_navigation) { world_navigation->Render(); }
+  // const auto world_system = GetComponent<component::WorldSystem>();
+  // if (world_system) { world_system->Render(); }
+  // const auto world_render = GetComponent<component::WorldRender>();
+  // if (world_render) { world_render->Render(); }
+  // const auto world_navigation = GetComponent<component::WorldNavigation>();
+  // if (world_navigation) { world_navigation->Render(); }
 }
 
 void World::OnUpdate([[maybe_unused]] float delta_time) {}

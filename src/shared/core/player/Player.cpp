@@ -5,6 +5,7 @@
 #include "chroma/shared/collision/CollisionEvent.h"
 #include "chroma/shared/core/GameObject.h"
 #include "chroma/shared/core/components/Attack.h"
+#include "chroma/shared/core/components/Camera.h"
 #include "chroma/shared/core/components/CharacterType.h"
 #include "chroma/shared/core/components/Health.h"
 #include "chroma/shared/core/components/Inventory.h"
@@ -208,15 +209,15 @@ void Player::OnUpdate(const float delta_time)
 
   for (const auto &[fst, snd] : components_) { snd->Update(delta_time); }
 
-  // const auto camera = GetComponent<component::CameraComponent>();
-  // if (camera) {
-  //   const float wheel_move = GetMouseWheelMove();
-  //   if (wheel_move != 0.0F) {
-  //     float new_zoom = camera->GetZoom() + (wheel_move * 0.1F);
-  //     new_zoom = std::clamp(new_zoom, 0.5F, 5.0F);
-  //     camera->SetZoom(new_zoom);
-  //   }
-  // }
+  const auto camera = GetComponent<component::CameraComponent>();
+  if (camera) {
+    const float wheel_move = GetMouseWheelMove();
+    if (wheel_move != 0.0F) {
+      float new_zoom = camera->GetZoom() + (wheel_move * 0.1F);
+      new_zoom = std::clamp(new_zoom, 0.5F, 50.0F);
+      camera->SetZoom(new_zoom);
+    }
+  }
 }
 
 void Player::OnFixedUpdate(const float fixed_delta_time) { (void)fixed_delta_time; }

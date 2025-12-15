@@ -111,8 +111,8 @@ void Renderer::InitializeSubsystems()
   render_pipeline_ = std::make_unique<shader::RenderPipeline>();
   render_pipeline_->Initialize(vw, vh);
 
-  auto crt_pass = std::make_unique<shader::shaders::CrtPass>();
-  render_pipeline_->AddPassBack(std::move(crt_pass));
+  // auto crt_pass = std::make_unique<shader::shaders::CrtPass>();
+  // render_pipeline_->AddPassBack(std::move(crt_pass));
   render_pipeline_->Setup();
 
   SetTextureFilter(render_target_->GetTexture().texture, config_.filter);
