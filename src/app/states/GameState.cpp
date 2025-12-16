@@ -171,6 +171,17 @@ void GameState::OnEvent(shared::event::Event &event)
       shared::event::EventBus::Dispatch(panel_event);
       return;
     }
+    if (key_event->IsPressed() && key_event->GetKey() == KEY_Z) {
+      static bool border_debug_open = false;
+      border_debug_open = !border_debug_open;
+
+      const shared::event::ui::Action action =
+        border_debug_open ? shared::event::ui::Action::Open : shared::event::ui::Action::Close;
+
+      shared::event::ui::PanelEvent panel_event(action, client::ui::panel::PanelID::BorderPassDebugPanel);
+      shared::event::EventBus::Dispatch(panel_event);
+      return;
+    }
   }
 
   auto player = GCM::Instance().GetContext(GameContextType::Client)->GetGameObjectManager()->Get(player_id_);

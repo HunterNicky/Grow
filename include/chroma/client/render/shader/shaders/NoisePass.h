@@ -22,6 +22,7 @@ public:
   void Execute(RenderTexture2D &src, RenderTexture2D &dst) override;
 
   void SetSeed(float seed);
+  float GetSeed() const;
 
 private:
   std::shared_ptr<float> seed_;

@@ -13,5 +13,6 @@ namespace chroma::client::ui::panel {
     PausePanel,
     PauseBackgroundPanel,
     DebugShaderPanel,
+    BorderPassDebugPanel,
   };
 }

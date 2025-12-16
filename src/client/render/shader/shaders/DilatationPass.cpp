@@ -43,4 +43,6 @@ void DilatationPass::Execute(RenderTexture2D &src, RenderTexture2D &dst)
 
 void DilatationPass::SetRadius(const int radius) const { *radius_ = radius; }
 
+int DilatationPass::GetRadius() const { return *radius_; }
+
 }// namespace chroma::client::render::shader::shaders

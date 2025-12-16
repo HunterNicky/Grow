@@ -15,6 +15,7 @@
 #include "chroma/client/ui/panels/PanelFactory.h"
 #include "chroma/client/ui/panels/PanelIdentifiers.h"
 #include "chroma/client/ui/widgets/ShaderDebugWidget.h"
+#include "chroma/client/ui/widgets/BorderPassDebugWidget.h"
 #include "chroma/shared/events/AudioVolumeEvent.h"
 #include "chroma/shared/events/Event.h"
 #include "chroma/shared/events/EventBus.h"
@@ -82,7 +83,9 @@ void UIManager::OnRender() const
 }
 
 Rectangle UIManager::GetCenteredRect(Vector2 parent_size, float width, float height)
-{ return { (parent_size.x - width) / 2.0F, (parent_size.y - height) / 2.0F, width, height }; }
+{
+  return { (parent_size.x - width) / 2.0F, (parent_size.y - height) / 2.0F, width, height };
+}
 
 void UIManager::RegisterPanels()
 {
@@ -269,15 +272,27 @@ void UIManager::RegisterPanels()
       .Build();
   });
 
-  panel_factory_.Register(panel::PanelID::DebugShaderPanel, [this](Vector2 screen_size, Vector2 panel_size) {
-    Rectangle bounds = { 20, 20, 300, 400 };
+  panel_factory_.Register(panel::PanelID::DebugShaderPanel,
+    [this]([[maybe_unused]] Vector2 screen_size, [[maybe_unused]] Vector2 panel_size) {
+      Rectangle bounds = { 20, 20, 300, 400 };
 
-    auto panel = std::make_shared<panel::Panel>(panel::PanelID::DebugShaderPanel, bounds);
+      auto panel = std::make_shared<panel::Panel>(panel::PanelID::DebugShaderPanel, bounds);
 
-    panel->AddWidget(std::make_unique<widget::ShaderDebugWidget>("ShaderDebugger", bounds));
+      panel->AddWidget(std::make_unique<widget::ShaderDebugWidget>("ShaderDebugger", bounds));
 
-    return panel;
-  });
+      return panel;
+    });
+
+  panel_factory_.Register(panel::PanelID::BorderPassDebugPanel,
+    [this]([[maybe_unused]] Vector2 screen_size, [[maybe_unused]] Vector2 panel_size) {
+      Rectangle bounds = { 340, 20, 450, 600 };
+
+      auto panel = std::make_shared<panel::Panel>(panel::PanelID::BorderPassDebugPanel, bounds);
+
+      panel->AddWidget(std::make_unique<widget::BorderPassDebugWidget>("BorderPassDebugger", bounds));
+
+      return panel;
+    });
 }
 
 }// namespace chroma::client::ui

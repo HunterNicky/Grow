@@ -43,4 +43,6 @@ void NoisePass::Execute(RenderTexture2D &src, RenderTexture2D &dst)
 
 void NoisePass::SetSeed(const float seed) { *seed_ = seed; }
 
+float NoisePass::GetSeed() const { return *seed_; }
+
 }// namespace chroma::client::render::shader::shaders

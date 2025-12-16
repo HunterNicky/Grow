@@ -22,6 +22,7 @@ public:
   void Execute(RenderTexture2D &src, RenderTexture2D &dst) override;
 
   void SetRadius(int radius) const;
+  int GetRadius() const;
 
 private:
   std::shared_ptr<int> radius_;

@@ -6,7 +6,8 @@ in vec4 fragColor;
 uniform sampler2D texture0;
 uniform vec2 u_resolution;
 
-uniform vec2 u_direction; 
+uniform vec2 u_direction;
+uniform int u_radius;
 
 out vec4 finalColor;
 
@@ -14,8 +15,6 @@ const float PI = 3.14159265359;
 
 void main() {
     vec2 texelSize = 1.0 / u_resolution;
-
-    int u_radius = 10;
     if (u_radius <= 0) {
         finalColor = texture(texture0, fragTexCoord);
         return;

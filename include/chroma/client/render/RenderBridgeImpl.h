@@ -50,6 +50,8 @@ public:
   const Rectangle GetActiveCameraBounds() const override;
   std::vector<uint8_t> GetActivePasses() const override;
 
+  Renderer* GetRenderer() const { return renderer_; }
+
 private:
   Renderer *renderer_;
   std::unordered_map<const void *, animation::AnimationController> controllers_;

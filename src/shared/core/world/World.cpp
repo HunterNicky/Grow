@@ -8,6 +8,8 @@
 #include "chroma/shared/events/Event.h"
 
 #include <memory>
+#include <print>
+#include <raylib.h>
 
 namespace chroma::shared::core::world {
 World::World() { type_ = GameObjectType::WORLD; }
@@ -16,12 +18,20 @@ World::~World() = default;
 
 void World::OnRender()
 {
-  // const auto world_system = GetComponent<component::WorldSystem>();
-  // if (world_system) { world_system->Render(); }
-  // const auto world_render = GetComponent<component::WorldRender>();
-  // if (world_render) { world_render->Render(); }
-  // const auto world_navigation = GetComponent<component::WorldNavigation>();
-  // if (world_navigation) { world_navigation->Render(); }
+  static bool render_enabled = true;
+  if (IsKeyPressed(KEY_T)) {
+    render_enabled = !render_enabled;
+    std::print("World rendering toggled {}\n", render_enabled ? "ON" : "OFF");
+  }
+
+  if (!render_enabled) { return; }
+
+  const auto world_system = GetComponent<component::WorldSystem>();
+  if (world_system) { world_system->Render(); }
+  const auto world_render = GetComponent<component::WorldRender>();
+  if (world_render) { world_render->Render(); }
+  const auto world_navigation = GetComponent<component::WorldNavigation>();
+  if (world_navigation) { world_navigation->Render(); }
 }
 
 void World::OnUpdate([[maybe_unused]] float delta_time) {}

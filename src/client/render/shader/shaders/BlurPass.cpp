@@ -13,17 +13,34 @@ namespace chroma::client::render::shader::shaders {
 BlurPass::BlurPass(const int width, const int height, const Vector2 direction)
   : ShaderPass("assets/shaders/base.vs", "assets/shaders/blur.fs"),
     resolution_(std::make_shared<Vector2>(Vector2{ static_cast<float>(width), static_cast<float>(height) })),
-    direction_(std::make_shared<Vector2>(direction))
+    direction_(std::make_shared<Vector2>(direction)),
+    radius_(std::make_shared<int>(10))
 {
   SetPassType(PassType::BLUR);
   SetUniform("u_resolution", rlShaderUniformDataType::RL_SHADER_UNIFORM_VEC2, resolution_);
   SetUniform("u_direction", rlShaderUniformDataType::RL_SHADER_UNIFORM_VEC2, direction_);
+  SetUniform("u_radius", rlShaderUniformDataType::RL_SHADER_UNIFORM_INT, radius_);
 }
 
 void BlurPass::SetDirection(const Vector2 &direction)
 {
   direction_->x = direction.x;
   direction_->y = direction.y;
+}
+
+Vector2 BlurPass::GetDirection() const
+{
+  return *direction_;
+}
+
+void BlurPass::SetRadius(const int radius)
+{
+  *radius_ = radius;
+}
+
+int BlurPass::GetRadius() const
+{
+  return *radius_;
 }
 
 void BlurPass::Setup()

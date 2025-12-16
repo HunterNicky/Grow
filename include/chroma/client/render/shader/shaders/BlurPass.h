@@ -12,6 +12,9 @@ public:
   explicit BlurPass(int width = 1920, int height = 1080, Vector2 initial_direction = { 1.0f, 0.0f });
 
   void SetDirection(const Vector2 &direction);
+  Vector2 GetDirection() const;
+  
+  void SetRadius(int radius);
   int GetRadius() const;
 
   void Setup() override;
@@ -20,5 +23,6 @@ public:
 private:
   std::shared_ptr<Vector2> resolution_;
   std::shared_ptr<Vector2> direction_;
+  std::shared_ptr<int> radius_;
 };
 }// namespace chroma::client::render::shader::shaders

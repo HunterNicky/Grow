@@ -59,6 +59,7 @@ public:
   [[nodiscard]] SpriteRenderer &GetSpriteRenderer() const { return *sprite_renderer_; }
   [[nodiscard]] animation::AnimationRenderer &GetAnimationRenderer() const { return *animation_renderer_; }
   [[nodiscard]] RenderTarget &GetRenderTarget() const { return *render_target_; }
+  [[nodiscard]] shader::RenderPipeline* GetRenderPipeline() const { return render_pipeline_.get(); }
 
   [[nodiscard]] std::vector<shader::PassType> GetActivePasses() const
   {
