@@ -21,6 +21,10 @@ void main()
     float angle = angle_mag.r;
     float magnitude = angle_mag.g;
 
+    if (angle < 0.0) {
+        angle += PI;
+    }
+
     ivec2 offset_1 = ivec2(0);
     ivec2 offset_2 = ivec2(0);
     if (angle < DIR_0_MAX) {
